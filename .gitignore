@@ -1,0 +1,10 @@
+.gradle/
+.idea/
+local.properties
+build/
+app/build/
+*.iml
+backend/*.db
+backend/*.db-shm
+backend/*.db-wal
+backend/__pycache__/
