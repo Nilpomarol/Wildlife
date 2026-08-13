@@ -276,6 +276,8 @@ Resolve Catalonia and comarca `place_id` values once at build time via `/v1/plac
 
 **Validation (week 1–3, throwaway prototypes only)** — confirm catalogue rules and size, rarity playability, discovery quality and explicitly licensed photo coverage. In parallel, prototype single-observation Android handoff with one/multiple photos, EXIF preservation, offline behavior and observation matching; validate the exact public API fields/version; model upstream request cost; and draft the privacy/data-retention boundary.
 
+**Implementation note — 13 August 2026:** the successful on-device prototype has advanced into a Compose application with account linking, public observation sync, a provisional stored Catalonia catalogue, Collection, Explore, Species Detail, capture/handoff, candidate confirmation and an idempotent confirmation/first-species XP reward. This does not pass the validation gate: real camera EXIF, offline upload recovery, obscured/nearby matching, catalogue/photo coverage, discovery quality and representative request cost still need recorded evidence. Current implementation status and remaining work are tracked in `Wildlife_roadmap.md`; handoff evidence is tracked in `Handoff_feasibility.md`.
+
 **MVP** — On-device account linking, sync engine, Catalonia catalogue, Pokédex, XP and levels, "what am I missing near me", handoff capture.
 
 **v1.1** — Badges, streaks, heatmap and regional completion.
@@ -294,6 +296,6 @@ If handoff matching remains unreliable after single-observation handoff and manu
 
 ---
 
-## 16. First action item
+## 16. Current action item
 
-Run the expanded validation in Section 14. The go/no-go decision requires evidence that the catalogue is viable, licences are usable, public APIs provide the needed data, the request budget scales, and handoffs can be matched or confirmed without OAuth.
+Complete the expanded Gate 1 validation in Section 14. The app now implements the core loop, but the go/no-go decision still requires evidence that the catalogue is viable, licences are usable, public APIs provide the needed data, the request budget scales, and real handoffs can be matched or explicitly confirmed without OAuth.

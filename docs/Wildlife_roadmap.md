@@ -29,14 +29,30 @@ Catalogue curation ────────────────────�
 
 Catalogue curation starts only after Gate 1 confirms that the catalogue and licensing model are viable. Community feedback starts during feasibility and continues throughout development.
 
+## Current implementation snapshot — 13 August 2026
+
+The repository has advanced beyond the original phase boundaries, but Gate 1 remains open because implementation is not the same as field validation.
+
+- The Android app is read-only with respect to iNaturalist and no longer depends on a Wildlife backend for its core loop.
+- A shared Field Guide Classic Compose shell provides Home, Collection, Capture, Explore and Profile.
+- Collection, Explore, Species Detail and Capture are implemented in Compose with explicit offline/error states, responsive grids and accessible image/state descriptions.
+- Capture supports camera and gallery drafts, EXIF inspection and repair, same-sighting validation, official-app handoff, submitted/not-submitted return handling, public-API retries, candidate inspection and explicit confirmation.
+- A confirmed public match updates the on-device collection and records confirmation/first-species XP idempotently before showing the reward moment.
+- Public observation, catalogue and taxon data are stored in SQLite. Catalogue replacement is transactional and reusable photo/silhouette files are stored durably with source, creator, licence and taxonomic match metadata.
+- The provisional Catalonia guide remains capped at 580 birds, mammals, reptiles, amphibians, butterflies and odonates. It is not the frozen launch catalogue and does not provide a trustworthy completion denominator or reviewed rarity model.
+- Account linking is implemented in themed Material 3 Compose with username entry, immutable user-ID resolution, bio-code instructions, clipboard/profile handoff, loading/error/expiry states, verification, public-profile access and unlink confirmation. Remaining diagnostic utilities may still use the older programmatic View UI until touched.
+- Levels, broader progression presentation, location-based “what can I see here,” the curated multilingual release catalogue, privacy/export/deletion controls and the Gate 1 evidence pack remain incomplete.
+
+The product-critical task remains the manual Gate 1 handoff/correlation matrix when field observations are practical. Account linking has completed its Compose migration; the next active implementation slice is restrained progression surfaces that reuse the existing ledger.
+
 ---
 
 ## Phase 0 — Feasibility
-**Effort: 7 days · Weeks 1–3 · Throwaway prototypes only**
+**Effort: 7 days · Weeks 1–3 · Validation work; the resulting core has since been retained on device**
 
-Unauthenticated API checks plus a throwaway Android handoff prototype. No OAuth permission needed.
+Unauthenticated API checks plus an Android handoff prototype. No OAuth permission is needed. The successful prototype has since been developed into the current on-device app, but its remaining real-world edge cases still require manual validation.
 
-**Handoff prototype status (12 August 2026):** one-observation transfer and later public-record retrieval are proven. Propagation delay is handled as a pending state with retries. See [Android handoff feasibility](Handoff_feasibility.md).
+**Handoff implementation status (13 August 2026):** the full Compose capture/return/confirmation/reward flow is implemented. One-observation transfer and later public-record retrieval are proven; propagation delay is handled as a pending state with retries. Real camera EXIF, offline recovery and ambiguous nearby matches remain field-validation gaps. See [Android handoff feasibility](Handoff_feasibility.md).
 
 | # | Question | Method |
 |---|---|---|
@@ -80,9 +96,9 @@ Build in this order; each depends on the previous.
 | 1 | Versioned public API adapter, request pacing and durable cache | Implemented on-device: SQLite cache, UUID keys and conservative per-device pacing |
 | 2 | Bio-code linking to immutable iNaturalist user ID | Implemented and verified on device; no Wildlife account is required for core use |
 | 3 | Safe paginated sync and full local reconciliation | Implemented on-device with `id_above` pagination and replacement only after a complete fetch |
-| 4 | Idempotent XP event ledger and collection projections | Prototype implemented for confirmed observation and first-species XP |
-| 5 | Thin end-to-end slice: link → handoff → sync → match/confirm → reward | Prototype implemented and ready for device validation |
-| 6 | Local diagnostics, stale-data policy and regional cache | 1 d |
+| 4 | Idempotent XP event ledger and collection projections | Implemented for confirmed observations and first-species XP; level/badge presentation remains |
+| 5 | Thin end-to-end slice: link → handoff → sync → match/confirm → reward | Implemented in Compose and ready for the manual Gate 1 field matrix |
+| 6 | Local diagnostics, stale-data policy and regional cache | Partially implemented: durable regional/taxon caches and recoverable errors exist; dedicated diagnostics and policy documentation remain |
 
 The app deliberately avoids frequent background polling. A separate service is deferred unless social, cross-device or competitive features require one.
 
@@ -105,20 +121,20 @@ Use iNaturalist normally and request feedback on data quality, gamification and 
 
 Ordered riskiest-first, so that failure surfaces early.
 
-| # | Feature | Effort | Why this order |
+| # | Feature | Current status | Remaining work |
 |---|---|---|---|
-| 1 | **Capture + one-observation handoff + matching/confirmation** | 7 d | Permanent read-only core; validation evidence defines the UX |
-| 2 | Account linking flow | 2 d | Gates everything else |
-| 3 | Sync + local Room database + offline/stale states | 5 d | |
-| 4 | Field Guide Classic Compose foundation | Implemented | Bundled Lora, theme tokens, shapes, spacing, scaffold, search/filters and near-square image-led species cards verified on device |
-| 5 | Pokédex and species detail | 6 d | Collection, provisional Catalogue/Explore and Species Detail migrated to final-style Compose; public taxon metadata cache and attributed PhyloPic exact/group silhouettes implemented |
-| 6 | XP, levels, progression UI | 4 d | |
-| 7 | "What can I see here" / "what am I missing" | 4 d | Strongest API fit; high perceived value per unit of effort |
-| 8 | Onboarding, privacy controls, accessibility and polish | 4 d | Standard themed Material screens; progressive migration, not a full rewrite |
+| 1 | **Capture + one-observation handoff + matching/confirmation** | Implemented in Compose, including confirmed reward | Complete the manual Gate 1 field matrix and weekend-outing checkpoint |
+| 2 | Account linking flow | Implemented in themed Material 3 Compose with bio-code verification against the immutable public user ID, loading/error/expiry/unlink states, state previews and projection tests | Device/TalkBack validation and eventual localisation remain |
+| 3 | Sync + local database + offline/stale states | Implemented directly on device with SQLite, safe reconciliation and durable caches | Formalise stale-data/diagnostic policy; WorkManager remains deferred |
+| 4 | Field Guide Classic Compose foundation | Implemented | Continue reuse; do not create screen-specific design systems |
+| 5 | Pokédex and species detail | Implemented for Collection, provisional Explore and Species Detail | Curated release content, localisation and final device/accessibility validation remain |
+| 6 | XP, levels, progression UI | Confirmation and first-species events are ledgered; total XP and reward feedback are visible | Define levels against sourced ledger data and build restrained progression surfaces; badges/streaks remain later scope |
+| 7 | "What can I see here" / "what am I missing" | Not implemented as a location-based feature; Explore currently browses the stored Catalonia catalogue | Validate result quality and add the location-based projection without conflating observation frequency with rarity |
+| 8 | Onboarding, privacy controls, accessibility and polish | Core product screens include responsive grids, large-text previews and semantic state descriptions; Profile states the read-only boundary | Finish account/onboarding utilities, retained-data/export/deletion controls, localisation and broader device/TalkBack checks |
 
-Stack: Kotlin, Compose, Room, WorkManager, Material 3 dark-first.
+Current stack: Kotlin, Jetpack Compose, Material 3 and direct on-device SQLite. WorkManager is deferred; Room is not currently used.
 
-**Navigation checkpoint:** the shared Navigation Compose shell is implemented with Home, Collection, a central Capture handoff action, Explore and Profile. The next UI slice is the Compose capture-return and confirmed-reward moment; progression presentation follows it.
+**Navigation checkpoint:** the shared Navigation Compose shell is implemented with Home, Collection, a central Capture handoff action, Explore and Profile. Capture return, the confirmed-reward moment and account linking are complete in Compose. The next UI slice is progression presentation from the existing idempotent ledger.
 
 UI delivery follows `docs/style.md` and `docs/ui_architecture.md`. New and materially changed product screens use the final Field Guide Classic system; untouched feasibility/diagnostic screens may remain utilitarian until their slice is migrated.
 
@@ -201,7 +217,8 @@ Defined now, while judgement is uncontaminated by sunk cost.
 
 ## Immediate next actions
 
-1. **This week:** run the catalogue, licensing, API-contract and request-budget validation.
-2. **In progress:** the throwaway Android handoff prototype works; complete the manual upload-to-public-record correlation matrix.
-3. **This week:** draft the retained-data and deletion boundary and request early community feedback.
-4. **After Gate 1:** finish the thin on-device vertical slice and catalogue curation in parallel.
+1. **Now — product-critical:** complete the manual handoff/correlation matrix with a consenting test account: real single-photo capture with EXIF, same-sighting multi-photo handoff, offline upload recovery, obscured coordinates and two observations close in time/location. Record propagation delay, automatic matches, ambiguity and false matches; never auto-confirm ambiguity.
+2. **In parallel — Gate 1 evidence:** finish catalogue/photo-licence coverage, “what am I missing” quality, endpoint-contract and representative request-budget validation. Record the result against every Gate 1 threshold rather than inferring it from implemented code.
+3. **Next implementation slice while field validation waits:** implement restrained level/progression surfaces from the existing idempotent XP ledger without inventing rewards or changing ledger semantics.
+4. **After Gate 1:** freeze the reviewed multilingual release catalogue and resume location-based discovery work against the validated API evidence.
+5. **Before beta:** document retained data, export/unlink/deletion behavior and location minimisation; obtain early community feedback.

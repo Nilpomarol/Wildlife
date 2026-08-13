@@ -1,20 +1,26 @@
 # Android handoff feasibility
 
-**Status:** Core flow passed; matching edge cases remain, 12 August 2026
+**Status:** Product flow implemented; Gate 1 field matrix remains open, 13 August 2026
+
+## Current app state
+
+The original feasibility prototype has been retained and developed into the current Android app. Capture and the post-handoff return/reward flow now use Field Guide Classic Compose. The implementation supports camera and gallery drafts, private camera media, EXIF inspection and repair, same-sighting validation, official-app handoff, explicit submitted/not-submitted return state, public-API retries, candidate inspection, explicit confirmation, local-only deletion, no-app fallback and a reward moment gated by a confirmed public observation.
+
+This implementation progress does not close Gate 1. The remaining question is whether matching and recovery are reliable in real field conditions, not whether the screens and state machine exist.
 
 ## Proven
 
-- The prototype builds and runs on Android without iNaturalist OAuth.
+- The app builds and runs on Android without iNaturalist OAuth.
 - Camera capture launches with a private `FileProvider` URI and temporary read/write grants.
 - Pending markers persist locally and remain distinct from confirmed observations.
 - Two location-free disposable JPEGs were handed to one official iNaturalist observation form.
 - iNaturalist opened its observation editor and displayed both images.
-- The prototype records `handed_off`, explicit user-reported submission, `pending` and public `confirmed` as separate states.
+- The app records draft, `handed_off`, explicit user-reported submission, `pending` and public `confirmed` as separate states.
 - Candidate matching tests cover unique, ambiguous, obscured, distant and stale observations: 5/5 passing.
 - Public-user retrieval was validated live without OAuth: an exact username resolved to its immutable user ID and all 89/89 public observations were returned with taxon, date, quality grade, observation ID and URL.
 - The tester confirmed the real handoff-to-published-observation flow and later public retrieval both work. Public API propagation is delayed, so Wildlife keeps the marker pending and retries with backoff.
 
-The automated disposable-photo validation did not upload an observation. A separate tester-controlled real observation confirmed the end-to-end public retrieval path.
+The automated disposable-photo validation did not upload an observation. A separate tester-controlled real observation confirmed the end-to-end public retrieval path. The Compose implementation and automated candidate tests are stronger than the available field evidence, so the unproven cases below remain release decisions rather than polish items.
 
 ## Not yet proven
 
@@ -25,7 +31,7 @@ The automated disposable-photo validation did not upload an observation. A separ
 
 ## Decision
 
-Continue Phase 0, but do not pass Gate 1 yet. One-observation Android handoff is viable; reliable correlation in ambiguous cases remains the main risk.
+Keep Gate 1 open. One-observation Android handoff is viable and its product flow is implemented; reliable real-world correlation and offline recovery remain the main risks. Do not treat the completed reward UI as evidence that the handoff itself is reliable.
 
 ## Next validation
 
@@ -38,7 +44,7 @@ Run a small manual field matrix using a consenting test account:
 5. Record handoff completion, public-API delay, automatic match rate, ambiguity and false matches.
 
 Never auto-confirm an ambiguous result. OAuth or an unofficial write path is not a fallback.
-# Persistent sync prototype
+# Persistent on-device sync
 
 The Android handoff reads public observations directly through Wildlife's on-device iNaturalist adapter. It fetches only the verified immutable user ID, stores observations by UUID in SQLite, preserves locally confirmed matches across refreshes and records confirmation XP idempotently on the device.
 
