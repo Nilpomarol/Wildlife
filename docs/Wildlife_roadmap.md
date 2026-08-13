@@ -41,9 +41,9 @@ The repository has advanced beyond the original phase boundaries, but Gate 1 rem
 - Public observation, catalogue and taxon data are stored in SQLite. Catalogue replacement is transactional and reusable photo/silhouette files are stored durably with source, creator, licence and taxonomic match metadata.
 - The provisional Catalonia guide remains capped at 580 birds, mammals, reptiles, amphibians, butterflies and odonates. It is not the frozen launch catalogue and does not provide a trustworthy completion denominator or reviewed rarity model.
 - Account linking is implemented in themed Material 3 Compose with username entry, immutable user-ID resolution, bio-code instructions, clipboard/profile handoff, loading/error/expiry states, verification, public-profile access and unlink confirmation. Remaining diagnostic utilities may still use the older programmatic View UI until touched.
-- Levels, broader progression presentation, location-based “what can I see here,” the curated multilingual release catalogue, privacy/export/deletion controls and the Gate 1 evidence pack remain incomplete.
+- Placeholder levels and the first Profile progression surface are implemented. Delayed Research Grade rewards, reviewed final thresholds, location-based “what can I see here,” the curated multilingual release catalogue, privacy/export/deletion controls and the Gate 1 evidence pack remain incomplete.
 
-The product-critical task remains the manual Gate 1 handoff/correlation matrix when field observations are practical. Account linking has completed its Compose migration; the next active implementation slice is restrained progression surfaces that reuse the existing ledger.
+The product-critical task remains the manual Gate 1 handoff/correlation matrix when field observations are practical. Account linking and the placeholder progression foundation are implemented; the next active slice is observation lifecycle synchronization and durable pending-handoff recovery.
 
 ---
 
@@ -128,13 +128,13 @@ Ordered riskiest-first, so that failure surfaces early.
 | 3 | Sync + local database + offline/stale states | Implemented directly on device with SQLite, safe reconciliation and durable caches | Formalise stale-data/diagnostic policy; WorkManager remains deferred |
 | 4 | Field Guide Classic Compose foundation | Implemented | Continue reuse; do not create screen-specific design systems |
 | 5 | Pokédex and species detail | Implemented for Collection, provisional Explore and Species Detail | Curated release content, localisation and final device/accessibility validation remain |
-| 6 | XP, levels, progression UI | Confirmation and first-species events are ledgered; total XP and reward feedback are visible | Define levels against sourced ledger data and build restrained progression surfaces; badges/streaks remain later scope |
+| 6 | XP, levels, progression UI | Placeholder v0.1 is implemented through centralized rules, lifetime-XP levels, weekly repeat diminishing returns, migrated ledger history, Profile progress/recent rewards and selectable earned titles | Product review and pacing simulation remain; Research Grade XP waits for lifecycle transition detection; rarity/badges/streaks stay disabled |
 | 7 | "What can I see here" / "what am I missing" | Not implemented as a location-based feature; Explore currently browses the stored Catalonia catalogue | Validate result quality and add the location-based projection without conflating observation frequency with rarity |
 | 8 | Onboarding, privacy controls, accessibility and polish | Core product screens include responsive grids, large-text previews and semantic state descriptions; Profile states the read-only boundary | Finish account/onboarding utilities, retained-data/export/deletion controls, localisation and broader device/TalkBack checks |
 
 Current stack: Kotlin, Jetpack Compose, Material 3 and direct on-device SQLite. WorkManager is deferred; Room is not currently used.
 
-**Navigation checkpoint:** the shared Navigation Compose shell is implemented with Home, Collection, a central Capture handoff action, Explore and Profile. Capture return, the confirmed-reward moment and account linking are complete in Compose. The next UI slice is progression presentation from the existing idempotent ledger.
+**Navigation checkpoint:** the shared Navigation Compose shell is implemented with Home, Collection, a central Capture handoff action, Explore and Profile. Capture return, confirmed reward, account linking and the first ledger-backed Profile progression surface are complete in Compose. Observation lifecycle status and delayed rewards are next.
 
 UI delivery follows `docs/style.md` and `docs/ui_architecture.md`. New and materially changed product screens use the final Field Guide Classic system; untouched feasibility/diagnostic screens may remain utilitarian until their slice is migrated.
 
@@ -219,6 +219,8 @@ Defined now, while judgement is uncontaminated by sunk cost.
 
 1. **Now — product-critical:** complete the manual handoff/correlation matrix with a consenting test account: real single-photo capture with EXIF, same-sighting multi-photo handoff, offline upload recovery, obscured coordinates and two observations close in time/location. Record propagation delay, automatic matches, ambiguity and false matches; never auto-confirm ambiguity.
 2. **In parallel — Gate 1 evidence:** finish catalogue/photo-licence coverage, “what am I missing” quality, endpoint-contract and representative request-budget validation. Record the result against every Gate 1 threshold rather than inferring it from implemented code.
-3. **Next implementation slice while field validation waits:** implement restrained level/progression surfaces from the existing idempotent XP ledger without inventing rewards or changing ledger semantics.
-4. **After Gate 1:** freeze the reviewed multilingual release catalogue and resume location-based discovery work against the validated API evidence.
-5. **Before beta:** document retained data, export/unlink/deletion behavior and location minimisation; obtain early community feedback.
+3. **Complete — placeholder progression foundation:** [`progression_rules.md`](progression_rules.md) now maps to centralized versioned rules, SQLite ledger metadata/history, weekly repeat diminishing returns, lifetime-XP levels, Profile progress/recent rewards and selectable earned titles. Disabled rarity, badge and streak mechanics remain out of the UI.
+4. **Next — observation lifecycle synchronization:** centralize foreground freshness and durable pending-handoff recovery, detect public quality transitions such as `needs_id → research`, expose last-checked/stale/retry state and add conservative WorkManager refresh only after measuring request cost. Enable one-time Research Grade XP only after transition idempotency is tested.
+5. **After lifecycle sync:** finish the progression presentation with recent delayed rewards and notifications, then resume location-based discovery and the personal observations map against validated API, privacy and basemap evidence.
+6. **After Gate 1:** freeze the reviewed multilingual release catalogue.
+7. **Before beta:** document retained data, export/unlink/deletion behavior and location minimisation; obtain early community feedback.

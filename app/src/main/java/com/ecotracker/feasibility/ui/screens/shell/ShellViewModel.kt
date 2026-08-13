@@ -11,6 +11,9 @@ import com.wildlife.feasibility.CollectionProjection
 import com.wildlife.feasibility.MarkerState
 import com.wildlife.feasibility.MarkerStore
 import com.wildlife.feasibility.ObservationStore
+import com.wildlife.feasibility.ProgressionProjection
+import com.wildlife.feasibility.ProgressionState
+import com.wildlife.feasibility.ProgressionStore
 import com.wildlife.feasibility.VerifiedAccount
 
 data class ShellUiState(
@@ -19,6 +22,7 @@ data class ShellUiState(
     val identifiedSpecies: Int = 0,
     val observations: Int = 0,
     val totalXp: Int = 0,
+    val progression: ProgressionState? = null,
     val catalogueSpecies: Int = 0,
     val pendingHandoffs: Int = 0,
     val draftObservations: Int = 0,
@@ -33,13 +37,28 @@ class ShellViewModel(application: Application) : AndroidViewModel(application) {
         uiState = load()
     }
 
+    fun selectProgressionTitle(levelKey: String) {
+        val account = uiState.account ?: return
+        val progression = uiState.progression ?: return
+        if (progression.earnedLevels.none { it.key == levelKey }) return
+        ProgressionStore(getApplication()).selectLevel(account.userId, levelKey)
+        refresh()
+    }
+
     private fun load(): ShellUiState = runCatching {
         val context = getApplication<Application>()
         val account = AccountStore(context).verified()
-        val observations = account?.let { ObservationStore(context).observations(it.userId) }
-            .orEmpty()
+        val observationStore = account?.let { ObservationStore(context) }
+        val observations = account?.let { observationStore?.observations(it.userId) }.orEmpty()
         val collection = CollectionProjection.species(observations)
-        val summary = account?.let { ObservationStore(context).summary(it.userId) }
+        val summary = account?.let { observationStore?.summary(it.userId) }
+        val progression = account?.let {
+            ProgressionProjection.project(
+                totalXp = summary?.totalXp ?: 0,
+                events = observationStore?.xpEvents(it.userId).orEmpty(),
+                selectedLevelKey = ProgressionStore(context).selectedLevelKey(it.userId),
+            )
+        }
         val markers = MarkerStore(context).load()
         ShellUiState(
             account = account,
@@ -47,6 +66,7 @@ class ShellViewModel(application: Application) : AndroidViewModel(application) {
             identifiedSpecies = collection.count { !it.awaitingSpeciesIdentification },
             observations = observations.size,
             totalXp = summary?.totalXp ?: 0,
+            progression = progression,
             catalogueSpecies = CatalogueStore(context).load()?.species?.size ?: 0,
             pendingHandoffs = markers.count {
                 it.state == MarkerState.HANDED_OFF || it.state == MarkerState.PENDING

@@ -153,6 +153,7 @@ class MainActivity : ComponentActivity() {
                     onOpenPublicProfile = { login ->
                         openExternal("https://www.inaturalist.org/people/$login")
                     },
+                    onSelectProgressionTitle = shellViewModel::selectProgressionTitle,
                     bottomBar = bottomBar,
                 )
             }

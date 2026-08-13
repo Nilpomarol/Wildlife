@@ -177,6 +177,8 @@ Bird songs require **Xeno-canto** (open API, CC-licensed). Birds only.
 - Streaks: consecutive days and consecutive weekends with at least one observation.
 - Contextual badges: *Night Owl* (5 nocturnal sightings), *Biome Master* (50% of a region), seasonal badges.
 
+The editable internal placeholder for level thresholds, event eligibility, cosmetic rewards, disabled mechanics and migration behavior is maintained in [`progression_rules.md`](progression_rules.md). It is not a final product decision and must be reviewed before closed beta.
+
 **Denominator stability.** Regional species lists grow over time, which would silently erode users' completion percentages. **Freeze the catalogue per season** ("Fauna of the Ebre Delta 2027") and refresh annually, announcing it as new content.
 
 ### 7.3 Anti-spam

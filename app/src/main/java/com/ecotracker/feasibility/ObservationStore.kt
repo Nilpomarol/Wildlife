@@ -4,6 +4,9 @@ import android.content.ContentValues
 import android.content.Context
 import android.database.sqlite.SQLiteDatabase
 import android.database.sqlite.SQLiteOpenHelper
+import java.time.Instant
+import java.time.ZoneOffset
+import java.time.temporal.TemporalAdjusters
 
 class ObservationStore(context: Context) : SQLiteOpenHelper(context, DATABASE, null, VERSION) {
     override fun onCreate(database: SQLiteDatabase) {
@@ -57,6 +60,36 @@ class ObservationStore(context: Context) : SQLiteOpenHelper(context, DATABASE, n
                 SELECT user_id, 'legacy-total', '', total_xp,
                     COALESCE(last_synced_at_ms, CAST(strftime('%s','now') AS INTEGER) * 1000)
                 FROM collection_summary WHERE total_xp > 0
+                """.trimIndent(),
+            )
+        }
+        if (oldVersion == 3) {
+            database.execSQL("ALTER TABLE xp_events ADD COLUMN event_type TEXT NOT NULL DEFAULT 'legacy'")
+            database.execSQL("ALTER TABLE xp_events ADD COLUMN subject_taxon_id INTEGER")
+            database.execSQL("ALTER TABLE xp_events ADD COLUMN label TEXT")
+            database.execSQL(
+                """
+                UPDATE xp_events SET event_type = CASE
+                    WHEN event_key LIKE 'observation:%' THEN 'confirmed_observation'
+                    WHEN event_key LIKE 'first-species:%' THEN 'first_species'
+                    ELSE 'legacy'
+                END
+                """.trimIndent(),
+            )
+            database.execSQL(
+                """
+                UPDATE xp_events SET
+                    subject_taxon_id = (
+                        SELECT COALESCE(o.collection_taxon_id, o.taxon_id)
+                        FROM observations o
+                        WHERE o.user_id = xp_events.user_id
+                          AND o.uuid = xp_events.observation_uuid
+                    ),
+                    label = (
+                        SELECT o.label FROM observations o
+                        WHERE o.user_id = xp_events.user_id
+                          AND o.uuid = xp_events.observation_uuid
+                    )
                 """.trimIndent(),
             )
         }
@@ -169,7 +202,10 @@ class ObservationStore(context: Context) : SQLiteOpenHelper(context, DATABASE, n
         try {
             val observation = writableDatabase.query(
                 "observations",
-                arrayOf("taxon_id", "collection_taxon_id", "confirmed"),
+                arrayOf(
+                    "taxon_id", "taxon_rank", "collection_taxon_id",
+                    "collection_taxon_rank", "label", "confirmed",
+                ),
                 "user_id = ? AND uuid = ?",
                 arrayOf(userId.toString(), uuid),
                 null,
@@ -181,8 +217,11 @@ class ObservationStore(context: Context) : SQLiteOpenHelper(context, DATABASE, n
                 }
                 ConfirmationObservation(
                     taxonId = if (cursor.isNull(0)) null else cursor.getLong(0),
-                    collectionTaxonId = if (cursor.isNull(1)) null else cursor.getLong(1),
-                    confirmed = cursor.getInt(2) == 1,
+                    taxonRank = if (cursor.isNull(1)) null else cursor.getString(1),
+                    collectionTaxonId = if (cursor.isNull(2)) null else cursor.getLong(2),
+                    collectionTaxonRank = if (cursor.isNull(3)) null else cursor.getString(3),
+                    label = cursor.getString(4),
+                    confirmed = cursor.getInt(5) == 1,
                 )
             }
             if (observation.confirmed) {
@@ -191,18 +230,40 @@ class ObservationStore(context: Context) : SQLiteOpenHelper(context, DATABASE, n
             }
 
             val now = System.currentTimeMillis()
-            var awarded = award(
-                writableDatabase, userId, "observation:$uuid", uuid, 10, now,
-            )
             val collectionTaxonId = observation.collectionTaxonId ?: observation.taxonId
-            if (collectionTaxonId != null && !hasConfirmedTaxon(userId, collectionTaxonId, uuid)) {
+            val collectionRank = observation.collectionTaxonRank ?: observation.taxonRank
+            val previousThisWeek = if (collectionTaxonId != null && collectionRank == "species") {
+                rewardedObservationsThisWeek(userId, collectionTaxonId, now, writableDatabase)
+            } else {
+                0
+            }
+            val observationXp = ProgressionRules.confirmedObservationXp(previousThisWeek)
+            var awarded = award(
+                database = writableDatabase,
+                userId = userId,
+                eventKey = "observation:$uuid",
+                eventType = XpEventType.CONFIRMED_OBSERVATION,
+                uuid = uuid,
+                subjectTaxonId = collectionTaxonId,
+                label = observation.label,
+                points = observationXp,
+                createdAtMs = now,
+            )
+            if (
+                collectionTaxonId != null &&
+                collectionRank == "species" &&
+                !hasConfirmedTaxon(userId, collectionTaxonId, uuid)
+            ) {
                 awarded += award(
-                    writableDatabase,
-                    userId,
-                    "first-species:$collectionTaxonId",
-                    uuid,
-                    500,
-                    now,
+                    database = writableDatabase,
+                    userId = userId,
+                    eventKey = "first-species:$collectionTaxonId",
+                    eventType = XpEventType.FIRST_SPECIES,
+                    uuid = uuid,
+                    subjectTaxonId = collectionTaxonId,
+                    label = observation.label,
+                    points = ProgressionRules.FIRST_SPECIES_XP,
+                    createdAtMs = now,
                 )
             }
             writableDatabase.update(
@@ -240,6 +301,36 @@ class ObservationStore(context: Context) : SQLiteOpenHelper(context, DATABASE, n
                 totalXp = it.getInt(1),
                 lastSyncedAtMs = if (it.isNull(2)) null else it.getLong(2),
             )
+        }
+    }
+
+    fun xpEvents(userId: Long, limit: Int = 20): List<XpEventRecord> = readableDatabase.query(
+        "xp_events",
+        arrayOf(
+            "event_key", "event_type", "observation_uuid", "subject_taxon_id",
+            "label", "points", "created_at_ms",
+        ),
+        "user_id = ? AND points > 0",
+        arrayOf(userId.toString()),
+        null,
+        null,
+        "created_at_ms DESC",
+        limit.coerceAtLeast(0).toString(),
+    ).use { cursor ->
+        buildList {
+            while (cursor.moveToNext()) {
+                add(
+                    XpEventRecord(
+                        eventKey = cursor.getString(0),
+                        type = XpEventType.fromKey(cursor.getString(1)),
+                        observationUuid = cursor.getString(2).ifBlank { null },
+                        subjectTaxonId = if (cursor.isNull(3)) null else cursor.getLong(3),
+                        label = if (cursor.isNull(4)) null else cursor.getString(4),
+                        points = cursor.getInt(5),
+                        createdAtMs = cursor.getLong(6),
+                    ),
+                )
+            }
         }
     }
 
@@ -285,7 +376,10 @@ class ObservationStore(context: Context) : SQLiteOpenHelper(context, DATABASE, n
         database: SQLiteDatabase,
         userId: Long,
         eventKey: String,
+        eventType: XpEventType,
         uuid: String,
+        subjectTaxonId: Long?,
+        label: String?,
         points: Int,
         createdAtMs: Long,
     ): Int {
@@ -295,13 +389,41 @@ class ObservationStore(context: Context) : SQLiteOpenHelper(context, DATABASE, n
             ContentValues().apply {
                 put("user_id", userId)
                 put("event_key", eventKey)
+                put("event_type", eventType.key)
                 put("observation_uuid", uuid)
+                subjectTaxonId?.let { put("subject_taxon_id", it) }
+                label?.let { put("label", it) }
                 put("points", points)
                 put("created_at_ms", createdAtMs)
             },
             SQLiteDatabase.CONFLICT_IGNORE,
         )
         return if (inserted == -1L) 0 else points
+    }
+
+    private fun rewardedObservationsThisWeek(
+        userId: Long,
+        collectionTaxonId: Long,
+        nowMs: Long,
+        database: SQLiteDatabase,
+    ): Int {
+        val date = Instant.ofEpochMilli(nowMs).atZone(ZoneOffset.UTC).toLocalDate()
+        val weekStart = date.with(TemporalAdjusters.previousOrSame(java.time.DayOfWeek.MONDAY))
+            .atStartOfDay(ZoneOffset.UTC).toInstant().toEpochMilli()
+        val weekEnd = weekStart + 7L * 24L * 60L * 60L * 1_000L
+        return database.rawQuery(
+            """
+            SELECT COUNT(*) FROM xp_events
+            WHERE user_id = ?
+              AND event_type = ?
+              AND subject_taxon_id = ?
+              AND created_at_ms >= ? AND created_at_ms < ?
+            """.trimIndent(),
+            arrayOf(
+                userId.toString(), XpEventType.CONFIRMED_OBSERVATION.key,
+                collectionTaxonId.toString(), weekStart.toString(), weekEnd.toString(),
+            ),
+        ).use { cursor -> cursor.moveToFirst(); cursor.getInt(0) }
     }
 
     private fun calculatedSummary(
@@ -334,7 +456,10 @@ class ObservationStore(context: Context) : SQLiteOpenHelper(context, DATABASE, n
 
     private data class ConfirmationObservation(
         val taxonId: Long?,
+        val taxonRank: String?,
         val collectionTaxonId: Long?,
+        val collectionTaxonRank: String?,
+        val label: String,
         val confirmed: Boolean,
     )
 
@@ -359,12 +484,15 @@ class ObservationStore(context: Context) : SQLiteOpenHelper(context, DATABASE, n
 
     companion object {
         private const val DATABASE = "wildlife_observations.db"
-        private const val VERSION = 3
+        private const val VERSION = 4
         private const val CREATE_XP_EVENTS = """
             CREATE TABLE IF NOT EXISTS xp_events (
                 user_id INTEGER NOT NULL,
                 event_key TEXT NOT NULL,
+                event_type TEXT NOT NULL DEFAULT 'legacy',
                 observation_uuid TEXT NOT NULL,
+                subject_taxon_id INTEGER,
+                label TEXT,
                 points INTEGER NOT NULL,
                 created_at_ms INTEGER NOT NULL,
                 PRIMARY KEY(user_id, event_key)
