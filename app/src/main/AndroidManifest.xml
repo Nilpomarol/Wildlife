@@ -19,7 +19,6 @@
     <application
         android:allowBackup="false"
         android:label="Wildlife Feasibility"
-        android:usesCleartextTraffic="true"
         android:supportsRtl="true"
         android:theme="@style/AppTheme">
 
@@ -38,11 +37,15 @@
             android:exported="false" />
 
         <activity
-            android:name=".CollectionActivity"
+            android:name=".SpeciesDetailActivity"
             android:exported="false" />
 
         <activity
             android:name=".AccountLinkActivity"
+            android:exported="false" />
+
+        <activity
+            android:name=".CaptureActivity"
             android:exported="false" />
 
         <activity

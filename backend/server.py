@@ -27,10 +27,24 @@ class Handler(BaseHTTPRequestHandler):
         if match:
             self.respond(200, repository.snapshot(int(match.group(1))))
             return
+        catalogue_match = re.fullmatch(r"/v1/regions/([a-z-]+)/catalogue", self.path)
+        if catalogue_match:
+            self.respond(200, repository.catalogue_snapshot(catalogue_match.group(1)))
+            return
+        taxon_match = re.fullmatch(r"/v1/taxa/(\d+)", self.path)
+        if taxon_match:
+            result = repository.taxon_detail_snapshot(int(taxon_match.group(1)))
+            if result is None:
+                self.respond(404, {"error": "Taxon is not cached"})
+            else:
+                self.respond(200, result)
+            return
         self.respond(404, {"error": "Not found"})
 
     def do_POST(self) -> None:
         sync_match = re.fullmatch(r"/v1/users/(\d+)/sync", self.path)
+        catalogue_match = re.fullmatch(r"/v1/regions/([a-z-]+)/catalogue/sync", self.path)
+        taxon_match = re.fullmatch(r"/v1/taxa/(\d+)/sync", self.path)
         confirm_match = re.fullmatch(r"/v1/users/(\d+)/observations/([^/]+)/confirm", self.path)
         try:
             if sync_match:
@@ -41,6 +55,16 @@ class Handler(BaseHTTPRequestHandler):
                     self.respond(400, {"error": "login is required"})
                     return
                 self.respond(200, repository.sync(user_id, login))
+                return
+            if catalogue_match:
+                region_key = catalogue_match.group(1)
+                if region_key != "catalonia":
+                    self.respond(404, {"error": "Unknown region"})
+                    return
+                self.respond(200, repository.sync_catalogue(region_key))
+                return
+            if taxon_match:
+                self.respond(200, repository.sync_taxon_detail(int(taxon_match.group(1))))
                 return
             if confirm_match:
                 result = repository.confirm(int(confirm_match.group(1)), confirm_match.group(2))

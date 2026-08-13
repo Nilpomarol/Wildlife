@@ -101,15 +101,77 @@ data class CollectionSummary(
     val lastSyncedAtMs: Long? = null,
 )
 
-data class BackendSyncResult(
+data class ObservationSyncResult(
     val observations: List<SyncedObservation>,
     val summary: CollectionSummary,
     val cached: Boolean,
 )
 
-data class BackendConfirmationResult(
+data class ObservationConfirmationResult(
     val xpAwarded: Int,
     val summary: CollectionSummary,
+)
+
+data class CatalogueSpecies(
+    val taxonId: Long,
+    val scientificName: String,
+    val commonName: String?,
+    val taxonGroup: String?,
+    val observationCount: Int,
+    val position: Int,
+    val photoUrl: String?,
+    val photoAttribution: String?,
+    val photoLicenseCode: String?,
+    val familyName: String? = null,
+    val wikipediaSummary: String? = null,
+    val wikipediaUrl: String? = null,
+    val conservationStatus: String? = null,
+    val conservationAuthority: String? = null,
+    val conservationUrl: String? = null,
+    val silhouetteUrl: String? = null,
+    val silhouetteSourceUrl: String? = null,
+    val silhouetteAttribution: String? = null,
+    val silhouetteLicenseCode: String? = null,
+    val silhouetteLicenseUrl: String? = null,
+    val silhouetteTaxonName: String? = null,
+    val silhouetteMatchRank: String? = null,
+)
+
+data class TaxonDetails(
+    val taxonId: Long,
+    val scientificName: String,
+    val commonName: String?,
+    val taxonGroup: String?,
+    val familyName: String?,
+    val wikipediaSummary: String?,
+    val wikipediaUrl: String?,
+    val conservationStatus: String?,
+    val conservationAuthority: String?,
+    val conservationUrl: String?,
+    val photoUrl: String?,
+    val photoAttribution: String?,
+    val photoLicenseCode: String?,
+    val silhouetteUrl: String?,
+    val silhouetteSourceUrl: String?,
+    val silhouetteAttribution: String?,
+    val silhouetteLicenseCode: String?,
+    val silhouetteLicenseUrl: String?,
+    val silhouetteTaxonName: String?,
+    val silhouetteMatchRank: String?,
+    val updatedAtMs: Long?,
+    val photoSourceUrl: String? = null,
+    val photoRecoveryStatus: String? = null,
+    val mediaPipelineVersion: Int? = null,
+)
+
+data class CatalogueSnapshot(
+    val regionKey: String,
+    val placeId: Long,
+    val version: String,
+    val updatedAtMs: Long?,
+    val provisional: Boolean,
+    val species: List<CatalogueSpecies>,
+    val cached: Boolean,
 )
 
 data class CollectionSpecies(
@@ -122,6 +184,7 @@ data class CollectionSpecies(
     val latestObservedAtMs: Long,
     val bestQualityGrade: String,
     val awaitingSpeciesIdentification: Boolean,
+    val photoUrl: String?,
 )
 
 object CollectionProjection {
@@ -144,6 +207,7 @@ object CollectionProjection {
                 latestObservedAtMs = latest.observedAtMs,
                 bestQualityGrade = sightings.maxBy { qualityRank(it.qualityGrade) }.qualityGrade,
                 awaitingSpeciesIdentification = latest.collectionTaxonRank != "species",
+                photoUrl = sightings.firstNotNullOfOrNull(SyncedObservation::photoUrl),
             )
         }
         .sortedBy { it.label.lowercase() }
@@ -154,6 +218,12 @@ object CollectionProjection {
         "casual" -> 1
         else -> 0
     }
+
+    fun observedSpeciesTaxonIds(observations: List<SyncedObservation>): Set<Long> = observations
+        .asSequence()
+        .filter { it.collectionTaxonRank == "species" }
+        .mapNotNull { it.collectionTaxonId }
+        .toSet()
 }
 
 enum class MatchConfidence {

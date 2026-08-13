@@ -24,4 +24,11 @@ class INaturalistClientTest {
     fun rejectsPartialUsernameMatch() {
         assertNull(client.exactUser(listOf(INaturalistUser(10, "wildlife-fan")), "wildlife"))
     }
+
+    @Test
+    fun acceptsOnlyExplicitReusablePhotoLicences() {
+        assertEquals("cc-by-sa", INaturalistClient.normalizedPhotoLicence(" CC-BY-SA "))
+        assertNull(INaturalistClient.normalizedPhotoLicence("cc-by-nc"))
+        assertNull(INaturalistClient.normalizedPhotoLicence(null))
+    }
 }

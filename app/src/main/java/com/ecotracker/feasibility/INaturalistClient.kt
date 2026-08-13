@@ -43,6 +43,111 @@ class INaturalistClient {
         return parsePublicObservationPage(getJson(endpoint))
     }
 
+    fun syncedObservations(userId: Long): List<SyncedObservation> {
+        val observations = mutableListOf<SyncedObservation>()
+        var cursor: Long? = null
+        do {
+            val cursorQuery = cursor?.let { "&id_above=$it" }.orEmpty()
+            val root = getJson(
+                URL(
+                    "https://api.inaturalist.org/v1/observations" +
+                        "?user_id=$userId&order_by=id&order=asc&per_page=200$cursorQuery",
+                ),
+            )
+            val page = parseSyncedObservations(root)
+            observations += page
+            val next = page.maxOfOrNull(SyncedObservation::id)
+            cursor = next?.takeIf { page.size == 200 && it != cursor }
+        } while (cursor != null)
+        return observations
+    }
+
+    fun regionalSpecies(
+        placeId: Long,
+        limit: Int,
+        parameters: Map<String, String>,
+    ): List<JSONObject> {
+        val results = mutableListOf<JSONObject>()
+        var page = 1
+        while (results.size < limit) {
+            val perPage = minOf(200, limit - results.size)
+            val query = linkedMapOf(
+                "place_id" to placeId.toString(),
+                "quality_grade" to "research",
+                "hrank" to "species",
+                "lrank" to "species",
+                "locale" to "ca",
+                "per_page" to perPage.toString(),
+                "page" to page.toString(),
+            ).apply { putAll(parameters) }
+            val array = getJson(url("https://api.inaturalist.org/v1/observations/species_counts", query))
+                .optJSONArray("results") ?: break
+            for (index in 0 until array.length()) {
+                array.optJSONObject(index)?.let(results::add)
+            }
+            if (array.length() < perPage) break
+            page++
+        }
+        return results.take(limit)
+    }
+
+    fun taxa(taxonIds: List<Long>, locale: String = "en"): List<JSONObject> {
+        if (taxonIds.isEmpty()) return emptyList()
+        val root = getJson(
+            url(
+                "https://api.inaturalist.org/v1/taxa/${taxonIds.joinToString(",")}",
+                mapOf("locale" to locale, "preferred_place_id" to "12997"),
+            ),
+        )
+        val array = root.optJSONArray("results") ?: return emptyList()
+        return buildList {
+            for (index in 0 until array.length()) array.optJSONObject(index)?.let(::add)
+        }
+    }
+
+    fun referencePhoto(taxonId: Long, placeId: Long = 12997): ReferencePhoto? {
+        val root = getJson(
+            url(
+                "https://api.inaturalist.org/v1/observations",
+                linkedMapOf(
+                    "taxon_id" to taxonId.toString(),
+                    "place_id" to placeId.toString(),
+                    "quality_grade" to "research",
+                    "photos" to "true",
+                    "order_by" to "votes",
+                    "order" to "desc",
+                    "per_page" to "30",
+                ),
+            ),
+        )
+        val observations = root.optJSONArray("results") ?: return null
+        for (index in 0 until observations.length()) {
+            val observation = observations.optJSONObject(index) ?: continue
+            val photos = observation.optJSONArray("photos") ?: continue
+            for (photoIndex in 0 until photos.length()) {
+                val photo = photos.optJSONObject(photoIndex) ?: continue
+                val licence = normalizedPhotoLicence(photo.optString("license_code")) ?: continue
+                val attribution = photo.optString("attribution").trim()
+                if (licence != "cc0" && attribution.isBlank()) continue
+                val photoUrl = photo.optString("url").ifBlank { photo.optString("medium_url") }
+                if (photoUrl.isBlank()) continue
+                val photoId = photo.optLong("id", -1L)
+                val source = if (photoId > 0) {
+                    "https://www.inaturalist.org/photos/$photoId"
+                } else {
+                    "https://www.inaturalist.org/observations/${observation.optString("uuid")}"
+                }
+                return ReferencePhoto(
+                    url = photoUrl.replace("square", "medium"),
+                    attribution = attribution.ifBlank { "CC0" },
+                    licenceCode = licence,
+                    sourceUrl = source,
+                )
+            }
+        }
+        return null
+    }
+
     fun publicUserProfile(userId: Long): PublicINaturalistProfile {
         val root = getJson(
             URL("https://api.inaturalist.org/v2/users/$userId?fields=id,login,description"),
@@ -101,6 +206,60 @@ class INaturalistClient {
         return PublicObservationPage(root.optInt("total_results", observations.size), observations)
     }
 
+    internal fun parseSyncedObservations(root: JSONObject): List<SyncedObservation> {
+        val results = root.optJSONArray("results") ?: return emptyList()
+        return buildList {
+            for (index in 0 until results.length()) {
+                val raw = results.optJSONObject(index) ?: continue
+                val id = raw.optLong("id", -1L)
+                val uuid = raw.optString("uuid")
+                val observedAt = parseTimestamp(
+                    raw.optString("time_observed_at").ifBlank { raw.optString("observed_on") },
+                ) ?: continue
+                if (id <= 0 || uuid.isBlank()) continue
+                val taxon = raw.optJSONObject("taxon")
+                val taxonId = taxon?.optLong("id", -1L)?.takeIf { it > 0 }
+                val rank = taxon?.optString("rank")?.takeIf(String::isNotBlank)
+                val rankLevel = taxon?.optDouble("rank_level", Double.NaN)
+                    ?.takeUnless(Double::isNaN)
+                val infraspecies = rank in setOf("subspecies", "variety", "form") ||
+                    (rankLevel != null && rankLevel < 10.0)
+                val collectionTaxonId = if (infraspecies) {
+                    taxon?.optLong("parent_id", -1L)?.takeIf { it > 0 } ?: taxonId
+                } else {
+                    taxonId
+                }
+                val coordinates = raw.optJSONObject("geojson")?.optJSONArray("coordinates")
+                val photos = raw.optJSONArray("photos")
+                val photoUrl = photos?.optJSONObject(0)?.optString("url")
+                    ?.takeIf(String::isNotBlank)?.replace("square", "medium")
+                add(
+                    SyncedObservation(
+                        id = id,
+                        uuid = uuid,
+                        taxonId = taxonId,
+                        taxonRank = rank,
+                        collectionTaxonId = collectionTaxonId,
+                        collectionTaxonRank = if (infraspecies) "species" else rank,
+                        label = raw.optString("species_guess").takeIf(String::isNotBlank)
+                            ?: taxon?.optString("preferred_common_name")?.takeIf(String::isNotBlank)
+                            ?: taxon?.optString("name")?.takeIf(String::isNotBlank)
+                            ?: "Unidentified",
+                        observedAtMs = observedAt,
+                        latitude = coordinates?.optDouble(1)?.takeUnless(Double::isNaN),
+                        longitude = coordinates?.optDouble(0)?.takeUnless(Double::isNaN),
+                        obscured = raw.optBoolean("obscured") ||
+                            raw.optString("geoprivacy") == "obscured",
+                        createdAtMs = parseTimestamp(raw.optString("created_at")),
+                        qualityGrade = raw.optString("quality_grade").ifBlank { "unknown" },
+                        photoUrl = photoUrl,
+                        confirmed = false,
+                    ),
+                )
+            }
+        }
+    }
+
     internal fun parseExactUser(root: JSONObject, username: String): INaturalistUser? {
         val results = root.optJSONArray("results") ?: return null
         val users = buildList {
@@ -117,7 +276,8 @@ class INaturalistClient {
     internal fun exactUser(users: List<INaturalistUser>, username: String): INaturalistUser? =
         users.singleOrNull { it.login.equals(username, ignoreCase = true) }
 
-    private fun getJson(endpoint: URL): JSONObject {
+    internal fun getJson(endpoint: URL): JSONObject {
+        reserveRequestSlot()
         val connection = endpoint.openConnection() as HttpURLConnection
         connection.connectTimeout = 10_000
         connection.readTimeout = 15_000
@@ -165,6 +325,39 @@ class INaturalistClient {
         )
         return formats.firstNotNullOfOrNull { pattern ->
             runCatching { SimpleDateFormat(pattern, Locale.US).parse(raw)?.time }.getOrNull()
+        } ?: runCatching {
+            SimpleDateFormat("yyyy-MM-dd", Locale.US).parse(raw)?.time
+        }.getOrNull()
+    }
+
+    private fun url(endpoint: String, parameters: Map<String, String>): URL {
+        val query = parameters.entries.joinToString("&") { (key, value) ->
+            "${URLEncoder.encode(key, Charsets.UTF_8.name())}=" +
+                URLEncoder.encode(value, Charsets.UTF_8.name())
         }
+        return URL("$endpoint?$query")
+    }
+
+    companion object {
+        private var lastRequestAtMs = 0L
+
+        @Synchronized
+        private fun reserveRequestSlot() {
+            val waitMs = (lastRequestAtMs + 1_100L - System.currentTimeMillis()).coerceAtLeast(0L)
+            if (waitMs > 0) Thread.sleep(waitMs)
+            lastRequestAtMs = System.currentTimeMillis()
+        }
+
+        fun normalizedPhotoLicence(value: String?): String? = value
+            ?.trim()
+            ?.lowercase()
+            ?.takeIf { it in setOf("cc0", "cc-by", "cc-by-sa") }
     }
 }
+
+data class ReferencePhoto(
+    val url: String,
+    val attribution: String,
+    val licenceCode: String,
+    val sourceUrl: String,
+)

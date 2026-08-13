@@ -40,9 +40,9 @@ Run a small manual field matrix using a consenting test account:
 Never auto-confirm an ambiguous result. OAuth or an unofficial write path is not a fallback.
 # Persistent sync prototype
 
-The Android handoff now reads observations through Wildlife's local backend adapter rather than querying iNaturalist directly for pending matches. The adapter caches public observations under the verified immutable user ID and observation UUID, uses an overlapping update cursor, reconciles fully every 24 hours, and records confirmation XP idempotently. Android keeps an offline SQLite projection of the cached observations and collection summary.
+The Android handoff reads public observations directly through Wildlife's on-device iNaturalist adapter. It fetches only the verified immutable user ID, stores observations by UUID in SQLite, preserves locally confirmed matches across refreshes and records confirmation XP idempotently on the device.
 
-This is a local validation slice, not a deployable service: production still requires HTTPS, Wildlife session authorization, managed storage, deletion/retention jobs and monitoring. See `backend/README.md` for local operation.
+No local server, USB port forwarding or hosted Wildlife service is required for this core flow. A future online service may support social features or cross-device backup, but observation matching and the personal collection do not depend on it.
 
 The collection projection includes every cached observation from the verified account and groups identified observations by iNaturalist taxon ID. Historical observations unlock collection entries but do not currently receive retroactive XP. Unidentified observations remain separate until iNaturalist supplies a taxon.
 

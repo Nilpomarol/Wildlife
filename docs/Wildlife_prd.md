@@ -3,7 +3,7 @@
 **Status:** Draft for design & development
 **Date:** August 2026
 **Platform:** Native Android (Kotlin + Jetpack Compose)
-**Backend:** Required (proxy, cache, sync worker)
+**Backend:** Not required for core features; optional later for social features
 **API posture:** **Permanently read-only. No OAuth dependency and no writes to iNaturalist.**
 
 > Wildlife must remain useful if OAuth access is never granted. All observation creation happens in the official iNaturalist app via Android handoff; Wildlife reads public records and owns only the companion game experience.
@@ -18,7 +18,7 @@
 | Capture | **Handoff only** — photo taken in Wildlife, submitted through the official iNaturalist app |
 | Account linking | **Username + bio-code verification.** No password, no OAuth |
 | Geographic scope v1 | Catalonia |
-| Taxonomic scope v1 | Vertebrates + butterflies and dragonflies (~800 species) |
+| Taxonomic scope v1 | Birds, mammals, reptiles, amphibians, butterflies and odonates (development cap: 580); reviewed conspicuous fish may be added later |
 
 ---
 
@@ -36,8 +36,8 @@ Turn nature observation into a collection game, using iNaturalist as the biologi
 
 1. **iNaturalist is the source of truth.** Wildlife's database holds only the game layer plus a read cache keyed by `inat_uuid`.
 2. **Read-only API posture.** Every endpoint used is public and unauthenticated. No iNaturalist tokens are stored. Wildlife still processes personal data and must provide normal privacy, retention and deletion controls.
-3. **All traffic goes through Wildlife's backend.** The limit of ~60–100 requests/minute and under 10,000/day is **per IP, not per account** — dropping OAuth does not raise this ceiling. Direct calls from devices remain prohibited.
-4. **Regional data cached per region, never per user.**
+3. **Core traffic is direct from the device.** The on-device adapter uses a custom User-Agent, conservative request pacing and durable caches. It never writes to iNaturalist.
+4. **Regional data is cached once per device and refreshed conservatively.**
 5. **Derived state is recomputed, rewards are ledgered.** Collection state, badges and percentages recalculate on sync. XP is recorded once in an idempotent event ledger and is never duplicated or removed.
 6. **Offline browsing, online sync.** Capture no longer needs offline support — the iNaturalist app owns that — but the catalogue and collection must be fully browsable without coverage.
 
@@ -56,7 +56,7 @@ No password is ever requested, and no OAuth screen is shown.
 
 **Validated read-only contract:** resolve the exact username through v1, then read only `id`, `login` and `description` from `GET /v2/users/{id}`. The v1 user response does not expose the profile description. Verification codes use the `WILDLIFE-XXXXXX` format, expire after 24 hours and are cleared once verified.
 
-Wildlife uses its own device/session authentication for backend access. The design must cover unlinking, session recovery, multiple devices and deletion of the Wildlife account. Bio verification proves ownership of the public iNaturalist identity; it is not a permanent login mechanism.
+The verified link is stored locally. Unlinking deletes the local association; a new device must repeat verification. If social or cross-device features are added later, Wildlife authentication belongs to that optional service and remains separate from iNaturalist.
 
 This is required before any XP is awarded, because leaderboards without identity verification are trivially gamed — anyone could claim any username.
 
@@ -99,7 +99,7 @@ Intent(Intent.ACTION_SEND).apply {
 
 ## 5. Sync engine
 
-No webhooks. Poll-based, unauthenticated, behind an internal API adapter so iNaturalist API versions can change without changing the Android client.
+No webhooks. Poll-based and unauthenticated through an Android data-layer adapter, keeping API parsing outside Activities and composables.
 
 ```
 GET observations for immutable user ID, filtered by updated time
@@ -110,7 +110,7 @@ GET public identification activity, only if the validated API contract supports 
 | Trigger | Action |
 |---|---|
 | App opened | Immediate sync for the linked user |
-| Background (WorkManager) | Every 4–6 hours for recently active users |
+| Background (future WorkManager slice) | Conservative periodic refresh for recently active users |
 | Returning from handoff | Sync attempt after a short delay, then retry |
 
 **Incremental cursor.** Sync a fixed update-time window, paginate it idempotently, retain an overlap window for concurrent edits and advance the watermark only after every page succeeds. Observation ID is a pagination key, not the update watermark.
@@ -146,7 +146,9 @@ GET public identification activity, only if the validated API contract supports 
 
 Names and taxonomy come from a versioned iNaturalist export. Photo reuse is decided by explicit licence metadata, not by hosting domain. Store author, source URL, licence code and required attribution for every reference image.
 
-Build the ~800-species reference image set from licences compatible with the intended distribution and business model. Provide in-app attribution and a machine-readable provenance manifest. Budget two to three weeks and validate a representative sample before committing to the visual design.
+**Regional source contract:** canonical Catalonia uses iNaturalist place ID `12997` (`Cataluña`, administrative level 10). The raw research-grade species pool is approximately 12,806 at validation time and is not the launch denominator. During development, Wildlife keeps a shared, versioned scope-limited snapshot capped at 580 entries and refreshed no more than weekly: birds 250, mammals 80, reptiles 50, amphibians 30, butterflies 120 and odonates 50. The quotas are ordered by observation count for practical prototyping; they are not rarity or conservation classifications. Fish require a manually reviewed conspicuous-species allowlist and are empty by default. The snapshot is clearly labelled provisional. A curated, frozen seasonal catalogue replaces it before launch.
+
+Build the launch reference image set from licences compatible with the intended distribution and business model. Provide in-app attribution and a machine-readable provenance manifest. Species Detail prioritises a Wikimedia Commons image only when it is explicitly assessed as Featured or Quality, maps to the taxon's linked Wikipedia article and has a compatible Public Domain, CC0, CC BY or CC BY-SA licence. It then falls back to the licensed iNaturalist taxon default, another explicitly compatible research-grade iNaturalist observation photo, and finally a silhouette. The selected creator/licence is shown directly on the hero image and opens the original source. Collection cards remain personal: an observed species uses the user's own sighting photo when available. Missing imagery uses a licence-verified PhyloPic silhouette resolved through species, genus, family and order before the broad catalogue group fallback. Every non-species silhouette is visibly labelled as representative. Store creator, source, licence and quality provenance for reference photos, plus the PhyloPic image/node identifiers and taxon match level. Budget two to three weeks and validate a representative sample before committing to the visual design.
 
 Bird songs require **Xeno-canto** (open API, CC-licensed). Birds only.
 
@@ -228,13 +230,15 @@ Resolve Catalonia and comarca `place_id` values once at build time via `/v1/plac
 
 - **Offline browsing** — catalogue, collection and species pages fully available without coverage. Photo capture works offline; handoff waits for the user to reopen.
 - **Battery** — GPS sampled at capture and at "what can I see here" only, never continuously.
-- **Dark mode** — native, essential for dusk and night observation.
+- **Visual system** — product-facing UI follows the dark-first **Field Guide Classic** contract in `style.md` and `ui_architecture.md`: wildlife imagery first, serif identity typography, compact information density, restrained olive/parchment/gold semantics and progressive Compose migration.
+- **Dark mode** — native and the primary visual mode, essential for dusk and night observation. A future light theme must preserve semantic tokens rather than introduce a second screen-specific style.
 - **Preloaded database** — species names, taxonomy and thumbnails for the Catalonia catalogue shipped with the app.
 - **Localisation** — Catalan first; Spanish and English at launch.
-- **Custom User-Agent** on every backend request, identifying the app.
+- **Custom User-Agent** on every direct upstream request, identifying the app.
 - **Privacy controls** — clear consent and disclosure, data minimisation, retention limits, export, unlink and deletion.
 - **Accessibility** — scalable text, screen-reader labels, sufficient contrast and non-colour status indicators.
-- **Observability** — upstream request budget, cache hit rate, sync failures, handoff ambiguity and stale-data age monitored from beta.
+- **Image integrity** — AI concept imagery is never shipped. Every catalogue/reference photo requires source, creator, licence code and attribution; otherwise the UI uses an accessible species silhouette.
+- **Diagnostics** — local request pacing, stale-data age, sync failures and handoff ambiguity are measurable during beta without collecting them remotely by default.
 
 ---
 
@@ -258,7 +262,7 @@ Resolve Catalonia and comarca `place_id` values once at build time via `/v1/plac
 | Risk | Severity | Mitigation |
 |---|---|---|
 | **Handoff friction kills the core loop** | **Critical** | The main risk of this version. Keep each handoff to one observation, make the return to Wildlife rewarding and measure completion in beta |
-| API ceiling of roughly 10,000 requests/day | High | Reserve budget for retries/shared traffic; derive supported DAU from measured upstream requests per user rather than a fixed estimate |
+| Public API limits or policy changes | High | Pace requests per device, cache catalogue/taxon data for long periods, avoid background polling until measured, and keep the adapter replaceable |
 | Handoff cannot be matched confidently | Critical | Validation spike, candidate ranking, manual confirmation and no false completion claims |
 | Username claiming / leaderboard gaming | Medium | Bio-code verification, mandatory before XP |
 | Community backlash over gamification | Medium | Quality-weighted XP; collaborator rewards |
@@ -272,7 +276,7 @@ Resolve Catalonia and comarca `place_id` values once at build time via `/v1/plac
 
 **Validation (week 1–3, throwaway prototypes only)** — confirm catalogue rules and size, rarity playability, discovery quality and explicitly licensed photo coverage. In parallel, prototype single-observation Android handoff with one/multiple photos, EXIF preservation, offline behavior and observation matching; validate the exact public API fields/version; model upstream request cost; and draft the privacy/data-retention boundary.
 
-**MVP** — Account linking, sync engine, Catalonia catalogue, Pokédex, XP and levels, "what am I missing near me", handoff capture.
+**MVP** — On-device account linking, sync engine, Catalonia catalogue, Pokédex, XP and levels, "what am I missing near me", handoff capture.
 
 **v1.1** — Badges, streaks, heatmap and regional completion.
 

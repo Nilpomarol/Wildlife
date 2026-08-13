@@ -60,7 +60,7 @@ Questions 4–7 can change the product or its positioning; none may be treated a
 | "What am I missing" quality | Returns plausible, findable species | If dominated by obscure taxa, filter by minimum regional observation count |
 | Handoff correlation | Most cases auto-match; ambiguous cases can be confirmed safely | If not, make capture secondary and position the MVP as a companion dashboard |
 | Public API contract | Every MVP field has a tested read-only source | Remove or redesign unsupported features |
-| Request budget | Sustainable with reserve for retries and shared traffic | Reduce background sync and precompute/cache more data |
+| Request load | Sustainable per device with conservative pacing | Reduce background sync and ship more catalogue data preloaded |
 
 **Do not proceed past this gate without completing the checks and prototype.** Seven focused days can de-risk months of work.
 
@@ -71,24 +71,26 @@ Questions 4–7 can change the product or its positioning; none may be treated a
 
 Three tracks run in parallel after Gate 1.
 
-### Track A — Backend and vertical slice (15 days, critical path)
+### Track A — On-device data layer and vertical slice (15 days, critical path)
 
 Build in this order; each depends on the previous.
 
 | # | Component | Effort |
 |---|---|---|
-| 1 | Versioned public API adapter, global request budget and cache | Prototype implemented: SQLite cache, UUID keys and conservative request budget |
-| 2 | Wildlife session model and bio-code linking to immutable iNaturalist user ID | Prototype implemented and verified on device; production session model remains |
-| 3 | Safe incremental sync, overlap cursor and repeated full reconciliation | Prototype implemented: `updated_since` overlap plus 24-hour full reconciliation |
+| 1 | Versioned public API adapter, request pacing and durable cache | Implemented on-device: SQLite cache, UUID keys and conservative per-device pacing |
+| 2 | Bio-code linking to immutable iNaturalist user ID | Implemented and verified on device; no Wildlife account is required for core use |
+| 3 | Safe paginated sync and full local reconciliation | Implemented on-device with `id_above` pagination and replacement only after a complete fetch |
 | 4 | Idempotent XP event ledger and collection projections | Prototype implemented for confirmed observation and first-species XP |
 | 5 | Thin end-to-end slice: link → handoff → sync → match/confirm → reward | Prototype implemented and ready for device validation |
-| 6 | Monitoring, stale-data policy and regional cache | 1 d |
+| 6 | Local diagnostics, stale-data policy and regional cache | 1 d |
 
-The shared request budget is item 1 and applies to development, validation and production. Redis is optional until deployment measurements justify it.
+The app deliberately avoids frequent background polling. A separate service is deferred unless social, cross-device or competitive features require one.
 
 ### Track B — Catalogue curation (9 days, parallelisable, blocks launch)
 
-Build the versioned ~800-species dataset: taxon identity and change mapping, scientific and vernacular names (ca/es/en), group, seasonal rarity tier and licence-verified reference image with attribution. Output: a baseline SQLite catalogue plus an update strategy.
+Build the versioned, curated catalogue dataset from the provisional scope-limited 580-entry snapshot: taxon identity and change mapping, scientific and vernacular names (ca/es/en), group, seasonal rarity tier and licence-verified reference image or silhouette with attribution. Output: a baseline SQLite catalogue plus an update strategy.
+
+**Foundation implemented:** canonical Catalonia place ID `12997`; on-device Android SQLite snapshots; weekly refresh; offline name search; collection cross-reference; and explicit photo licence/attribution fields. The current 580-entry scope-limited research-grade occurrence snapshot is provisional. Remaining work is human-reviewed scope, multilingual completeness, seasonal rarity rules, conservation metadata, image licence approval and a preloaded release database.
 
 It is dependency-light and blocks launch. Start it in week 4, after Gate 1.
 
@@ -99,7 +101,7 @@ Use iNaturalist normally and request feedback on data quality, gamification and 
 ---
 
 ## Phase 2 — Android MVP
-**Effort: 32 days · Weeks 13–25**
+**Effort: 35 days · Weeks 13–25**
 
 Ordered riskiest-first, so that failure surfaces early.
 
@@ -108,12 +110,17 @@ Ordered riskiest-first, so that failure surfaces early.
 | 1 | **Capture + one-observation handoff + matching/confirmation** | 7 d | Permanent read-only core; validation evidence defines the UX |
 | 2 | Account linking flow | 2 d | Gates everything else |
 | 3 | Sync + local Room database + offline/stale states | 5 d | |
-| 4 | Pokédex and species detail | 6 d | Taxonomy projection corrected and device-verified (61 exact taxa → 57 collection entries); imagery, catalogue detail and filters remain |
-| 5 | XP, levels, progression UI | 4 d | |
-| 6 | "What can I see here" / "what am I missing" | 4 d | Strongest API fit; high perceived value per unit of effort |
-| 7 | Onboarding, privacy controls, accessibility and polish | 4 d | |
+| 4 | Field Guide Classic Compose foundation | Implemented | Bundled Lora, theme tokens, shapes, spacing, scaffold, search/filters and near-square image-led species cards verified on device |
+| 5 | Pokédex and species detail | 6 d | Collection, provisional Catalogue/Explore and Species Detail migrated to final-style Compose; public taxon metadata cache and attributed PhyloPic exact/group silhouettes implemented |
+| 6 | XP, levels, progression UI | 4 d | |
+| 7 | "What can I see here" / "what am I missing" | 4 d | Strongest API fit; high perceived value per unit of effort |
+| 8 | Onboarding, privacy controls, accessibility and polish | 4 d | Standard themed Material screens; progressive migration, not a full rewrite |
 
 Stack: Kotlin, Compose, Room, WorkManager, Material 3 dark-first.
+
+**Navigation checkpoint:** the shared Navigation Compose shell is implemented with Home, Collection, a central Capture handoff action, Explore and Profile. The next UI slice is the Compose capture-return and confirmed-reward moment; progression presentation follows it.
+
+UI delivery follows `docs/style.md` and `docs/ui_architecture.md`. New and materially changed product screens use the final Field Guide Classic system; untouched feasibility/diagnostic screens may remain utilitarian until their slice is migrated.
 
 **Internal checkpoint after item 1:** use it for a full weekend outing. If switching or matching is still unreliable, capture becomes secondary and the MVP is positioned as a discovery/collection companion.
 
@@ -132,7 +139,7 @@ Recruit through Catalan naturalist groups, ICHN, local birding communities. Thes
 | **Research grade rate at day 30** | >60% | Fixed observation-age window avoids penalising recent records |
 | Week-4 retention | >30% | Does the collection mechanic hold? |
 | Sightings per active user per week | >2 | Engagement depth |
-| Upstream API requests per user per day | Measured against reserved daily budget | Determines the supported active-user ceiling |
+| Upstream API requests per active device per day | Measured against conservative pacing targets | Determines whether refresh intervals or preloaded data need adjustment |
 | Ambiguous/incorrect handoff matches | <10% / <1% | Automatic matching may be uncertain; false matches must be exceptional |
 
 ### 🚦 Gate 2 — Launch readiness
@@ -150,7 +157,7 @@ Recruit through Catalan naturalist groups, ICHN, local birding communities. Thes
 
 Play Store listing, Catalan-first store copy, a launch post on the iNaturalist forum framing Wildlife as a recruitment tool for the platform, and outreach to Catalan naturalist communities.
 
-**Capacity ceiling:** calculate continuously as `(reserved daily upstream budget - shared traffic) / measured upstream requests per active user`. Apply backpressure and serve stale cached data before exceeding the budget.
+**Capacity policy:** measure requests per active device, prefer stale cached data over unnecessary refreshes and adjust refresh intervals before launch.
 
 ---
 
@@ -197,4 +204,4 @@ Defined now, while judgement is uncontaminated by sunk cost.
 1. **This week:** run the catalogue, licensing, API-contract and request-budget validation.
 2. **In progress:** the throwaway Android handoff prototype works; complete the manual upload-to-public-record correlation matrix.
 3. **This week:** draft the retained-data and deletion boundary and request early community feedback.
-4. **After Gate 1:** build the thin vertical slice, catalogue and backend in parallel.
+4. **After Gate 1:** finish the thin on-device vertical slice and catalogue curation in parallel.
