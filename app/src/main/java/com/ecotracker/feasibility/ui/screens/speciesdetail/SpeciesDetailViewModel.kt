@@ -217,7 +217,9 @@ class SpeciesDetailViewModel(
         viewModelScope.launch {
             val result = runCatching {
                 withContext(Dispatchers.IO) {
-                    OnDeviceWildlifeRepository(getApplication()).syncTaxonDetail(taxonId, force)
+                    OnDeviceWildlifeRepository(getApplication()).use {
+                        it.syncTaxonDetail(taxonId, force)
+                    }
                 }
             }
             uiState = result.fold(
@@ -235,11 +237,11 @@ class SpeciesDetailViewModel(
     private fun load(): SpeciesDetailUiState = runCatching {
         require(taxonId > 0) { "This species has no usable iNaturalist taxon ID." }
         val context = getApplication<Application>()
-        val store = CatalogueStore(context)
-        val snapshot = store.load()
-        val details = store.loadTaxonDetail(taxonId)
+        val (snapshot, details) = CatalogueStore(context).use { store ->
+            store.load() to store.loadTaxonDetail(taxonId)
+        }
         val observations = AccountStore(context).verified()?.let { account ->
-            ObservationStore(context).observations(account.userId)
+            ObservationStore(context).use { it.observations(account.userId) }
         }.orEmpty()
         SpeciesDetailProjection.build(taxonId, fallbackLabel, snapshot, observations, details)
             .copy(mediaAttempt = mediaAttempt)

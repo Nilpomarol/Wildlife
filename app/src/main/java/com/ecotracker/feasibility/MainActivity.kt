@@ -122,6 +122,12 @@ class CaptureActivity : ComponentActivity() {
         }
     }
 
+    override fun onDestroy() {
+        retryHandler.removeCallbacks(retryRunnable)
+        if (::observationStore.isInitialized) observationStore.close()
+        super.onDestroy()
+    }
+
     override fun onResume() {
         super.onResume()
         if (::accountStore.isInitialized) {
@@ -366,17 +372,18 @@ class CaptureActivity : ComponentActivity() {
         showStatus("Checking the verified iNaturalist account…")
         thread(name = "wildlife-match-sync") {
             runCatching {
-                val repository = OnDeviceWildlifeRepository(this)
-                val sync = repository.syncObservations(account)
-                confirmPreviouslyMatched(repository, account)
-                val alreadyMatched = markers.asSequence()
-                    .filter { it.state == MarkerState.CONFIRMED }
-                    .mapNotNull(PendingMarker::matchedObservationUuid)
-                    .toSet()
-                val candidates = observationStore.candidates(account.userId)
-                    .filterNot { it.uuid in alreadyMatched }
-                sync to openMarkers.associate { marker ->
-                    marker.id to CandidateMatcher.proposals(marker, candidates)
+                OnDeviceWildlifeRepository(this).use { repository ->
+                    val sync = repository.syncObservations(account)
+                    confirmPreviouslyMatched(repository, account)
+                    val alreadyMatched = markers.asSequence()
+                        .filter { it.state == MarkerState.CONFIRMED }
+                        .mapNotNull(PendingMarker::matchedObservationUuid)
+                        .toSet()
+                    val candidates = observationStore.candidates(account.userId)
+                        .filterNot { it.uuid in alreadyMatched }
+                    sync to openMarkers.associate { marker ->
+                        marker.id to CandidateMatcher.proposals(marker, candidates)
+                    }
                 }
             }.onSuccess { (sync, proposals) ->
                 runOnUiThread {
@@ -442,10 +449,9 @@ class CaptureActivity : ComponentActivity() {
         }
         thread(name = "wildlife-confirm-reward") {
             runCatching {
-                OnDeviceWildlifeRepository(this).confirmObservation(
-                    account,
-                    proposal.candidate.uuid,
-                )
+                OnDeviceWildlifeRepository(this).use {
+                    it.confirmObservation(account, proposal.candidate.uuid)
+                }
             }
                 .onSuccess { result ->
                     val label = observationStore.observations(account.userId)

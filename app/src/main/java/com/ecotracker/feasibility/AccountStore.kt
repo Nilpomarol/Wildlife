@@ -58,12 +58,10 @@ class AccountStore(context: Context) {
             .apply()
     }
 
-    fun unlink() {
-        preferences.edit().clear().apply()
-    }
+    fun unlink(): Boolean = preferences.edit().clear().commit()
 
     companion object {
-        private const val PREFERENCES = "linked_inaturalist_account"
+        internal const val PREFERENCES = "linked_inaturalist_account"
         private const val KEY_VERIFIED_ID = "verified_id"
         private const val KEY_VERIFIED_LOGIN = "verified_login"
         private const val KEY_VERIFIED_AT = "verified_at"

@@ -1,10 +1,18 @@
 package com.wildlife.feasibility
 
+import android.Manifest
+import android.content.ClipData
+import android.content.ClipboardManager
 import android.content.Context
 import android.content.Intent
+import android.content.pm.PackageManager
 import android.graphics.Color
+import android.location.LocationManager
 import android.net.Uri
+import android.os.Build
 import android.os.Bundle
+import android.widget.Toast
+import androidx.activity.result.contract.ActivityResultContracts
 import androidx.activity.ComponentActivity
 import androidx.activity.SystemBarStyle
 import androidx.activity.compose.setContent
@@ -21,12 +29,14 @@ import androidx.navigation.compose.composable
 import androidx.navigation.compose.currentBackStackEntryAsState
 import androidx.navigation.compose.rememberNavController
 import androidx.lifecycle.lifecycleScope
+import androidx.core.content.ContextCompat
 import com.wildlife.feasibility.ui.navigation.WildlifeBottomBar
 import com.wildlife.feasibility.ui.navigation.WildlifeDestination
 import com.wildlife.feasibility.ui.screens.collection.CollectionScreen
 import com.wildlife.feasibility.ui.screens.collection.CollectionViewModel
 import com.wildlife.feasibility.ui.screens.explore.ExploreScreen
 import com.wildlife.feasibility.ui.screens.explore.ExploreViewModel
+import com.wildlife.feasibility.ui.screens.map.PersonalMapScreen
 import com.wildlife.feasibility.ui.screens.shell.HomeScreen
 import com.wildlife.feasibility.ui.screens.shell.ProfileScreen
 import com.wildlife.feasibility.ui.screens.shell.ShellViewModel
@@ -41,6 +51,17 @@ class MainActivity : ComponentActivity() {
     private val exploreViewModel by viewModels<ExploreViewModel>()
     private var requestedDestination by mutableStateOf(WildlifeDestination.HOME)
     private var observationSyncInFlight = false
+    private val locationPermissionLauncher = registerForActivityResult(
+        ActivityResultContracts.RequestMultiplePermissions(),
+    ) { grants ->
+        if (grants.values.any { it }) {
+            requestCurrentLocation()
+        } else {
+            exploreViewModel.nearbyLocationFailed(
+                "Location permission is needed only when you choose Check near me.",
+            )
+        }
+    }
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
@@ -102,6 +123,8 @@ class MainActivity : ComponentActivity() {
                     onCapture = { startActivity(Intent(this@MainActivity, CaptureActivity::class.java)) },
                     onCollection = { navController.openDestination(WildlifeDestination.COLLECTION) },
                     onExplore = { navController.openDestination(WildlifeDestination.EXPLORE) },
+                    onMyMap = { navController.navigate(PERSONAL_MAP_ROUTE) },
+                    mappedObservationCount = exploreViewModel.uiState.personalMap.mappedObservationCount,
                     onLinkAccount = ::openAccountManagement,
                     bottomBar = bottomBar,
                 )
@@ -143,7 +166,19 @@ class MainActivity : ComponentActivity() {
                             ),
                         )
                     },
+                    onDiscoverNearby = ::beginNearbyDiscovery,
                     bottomBar = bottomBar,
+                )
+            }
+            composable(PERSONAL_MAP_ROUTE) {
+                PersonalMapScreen(
+                    accountLinked = exploreViewModel.uiState.accountLinked,
+                    map = exploreViewModel.uiState.personalMap,
+                    onBack = { navController.popBackStack() },
+                    onOpenObservation = { uuid ->
+                        openExternal("https://www.inaturalist.org/observations/$uuid")
+                    },
+                    onMapVisibilityChanged = exploreViewModel::setObservationMapVisible,
                 )
             }
             composable(WildlifeDestination.PROFILE.route) {
@@ -155,6 +190,8 @@ class MainActivity : ComponentActivity() {
                     },
                     onSelectProgressionTitle = shellViewModel::selectProgressionTitle,
                     onSyncObservations = { syncObservationsOnDevice(force = true) },
+                    onCopyTestReport = ::copyTestReport,
+                    onDeleteLocalData = ::deleteLocalData,
                     bottomBar = bottomBar,
                 )
             }
@@ -187,15 +224,16 @@ class MainActivity : ComponentActivity() {
         lifecycleScope.launch {
             runCatching {
                 withContext(Dispatchers.IO) {
-                    val repository = OnDeviceWildlifeRepository(this@MainActivity)
-                    val result = repository.syncObservations(account, force = force)
-                    MarkerStore(this@MainActivity).load()
-                        .asSequence()
-                        .filter { it.state == MarkerState.CONFIRMED }
-                        .mapNotNull { it.matchedObservationUuid }
-                        .distinct()
-                        .forEach { uuid -> repository.confirmObservation(account, uuid) }
-                    result
+                    OnDeviceWildlifeRepository(this@MainActivity).use { repository ->
+                        val result = repository.syncObservations(account, force = force)
+                        MarkerStore(this@MainActivity).load()
+                            .asSequence()
+                            .filter { it.state == MarkerState.CONFIRMED }
+                            .mapNotNull { it.matchedObservationUuid }
+                            .distinct()
+                            .forEach { uuid -> repository.confirmObservation(account, uuid) }
+                        result
+                    }
                 }
             }.onSuccess {
                 shellViewModel.observationSyncSucceeded()
@@ -214,6 +252,90 @@ class MainActivity : ComponentActivity() {
         startActivity(Intent(Intent.ACTION_VIEW, Uri.parse(url)))
     }
 
+    private fun copyTestReport(report: String) {
+        val clipboard = getSystemService(CLIPBOARD_SERVICE) as ClipboardManager
+        clipboard.setPrimaryClip(ClipData.newPlainText("Wildlife test report", report))
+        Toast.makeText(this, "Privacy-safe test report copied.", Toast.LENGTH_SHORT).show()
+    }
+
+    private fun deleteLocalData() {
+        if (
+            observationSyncInFlight || exploreViewModel.uiState.syncing ||
+            exploreViewModel.uiState.silhouetteEnrichmentRunning
+        ) {
+            Toast.makeText(this, "Wait for the current update to finish, then try again.", Toast.LENGTH_LONG).show()
+            return
+        }
+        lifecycleScope.launch {
+            val result = withContext(Dispatchers.IO) {
+                runCatching { LocalDataManager(this@MainActivity).clearAllLocalData() }
+            }
+            shellViewModel.refresh()
+            collectionViewModel.refresh()
+            exploreViewModel.refreshLocal()
+            val message = if (result.isSuccess) {
+                "Wildlife local data deleted. iNaturalist was not changed."
+            } else {
+                "Some local data could not be deleted. Try again before continuing the test."
+            }
+            Toast.makeText(this@MainActivity, message, Toast.LENGTH_LONG).show()
+        }
+    }
+
+    private fun beginNearbyDiscovery() {
+        exploreViewModel.nearbyLocationStarted()
+        val granted = ContextCompat.checkSelfPermission(
+            this,
+            Manifest.permission.ACCESS_COARSE_LOCATION,
+        ) == PackageManager.PERMISSION_GRANTED || ContextCompat.checkSelfPermission(
+            this,
+            Manifest.permission.ACCESS_FINE_LOCATION,
+        ) == PackageManager.PERMISSION_GRANTED
+        if (granted) {
+            requestCurrentLocation()
+        } else {
+            locationPermissionLauncher.launch(
+                arrayOf(
+                    Manifest.permission.ACCESS_COARSE_LOCATION,
+                    Manifest.permission.ACCESS_FINE_LOCATION,
+                ),
+            )
+        }
+    }
+
+    @Suppress("MissingPermission")
+    private fun requestCurrentLocation() {
+        val manager = getSystemService(Context.LOCATION_SERVICE) as LocationManager
+        val provider = listOf(LocationManager.NETWORK_PROVIDER, LocationManager.GPS_PROVIDER)
+            .firstOrNull { runCatching { manager.isProviderEnabled(it) }.getOrDefault(false) }
+        if (provider == null) {
+            exploreViewModel.nearbyLocationFailed(
+                "Turn on device location, then try Check near me again.",
+            )
+            return
+        }
+        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.R) {
+            manager.getCurrentLocation(provider, null, mainExecutor) { location ->
+                if (location == null) {
+                    exploreViewModel.nearbyLocationFailed(
+                        "A current location was not available. Try again outdoors or with location enabled.",
+                    )
+                } else {
+                    exploreViewModel.discoverNearby(location.latitude, location.longitude)
+                }
+            }
+        } else {
+            val location = runCatching { manager.getLastKnownLocation(provider) }.getOrNull()
+            if (location == null) {
+                exploreViewModel.nearbyLocationFailed(
+                    "A recent location was not available. Open Maps once or try again outdoors.",
+                )
+            } else {
+                exploreViewModel.discoverNearby(location.latitude, location.longitude)
+            }
+        }
+    }
+
     private fun destinationFrom(intent: Intent): WildlifeDestination =
         intent.getStringExtra(EXTRA_DESTINATION)
             ?.let { route -> WildlifeDestination.entries.firstOrNull { it.route == route } }
@@ -222,6 +344,7 @@ class MainActivity : ComponentActivity() {
 
     companion object {
         private const val EXTRA_DESTINATION = "wildlife_destination"
+        private const val PERSONAL_MAP_ROUTE = "my_map"
 
         fun intent(context: Context, destination: WildlifeDestination) =
             Intent(context, MainActivity::class.java).apply {

@@ -13,6 +13,9 @@ import androidx.compose.foundation.clickable
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.automirrored.outlined.OpenInNew
 import androidx.compose.material.icons.outlined.EmojiEvents
+import androidx.compose.material.icons.outlined.ContentCopy
+import androidx.compose.material.icons.outlined.DeleteForever
+import androidx.compose.material.icons.outlined.Storage
 import androidx.compose.material.icons.outlined.Link
 import androidx.compose.material.icons.outlined.Sync
 import androidx.compose.material.icons.outlined.Update
@@ -40,6 +43,7 @@ import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import com.wildlife.feasibility.ProgressionProjection
+import com.wildlife.feasibility.formatBytes
 import com.wildlife.feasibility.ObservationQualityTransition
 import com.wildlife.feasibility.XpEventRecord
 import com.wildlife.feasibility.XpEventType
@@ -56,9 +60,12 @@ fun ProfileScreen(
     onOpenPublicProfile: (String) -> Unit,
     onSelectProgressionTitle: (String) -> Unit,
     onSyncObservations: () -> Unit,
+    onCopyTestReport: (String) -> Unit,
+    onDeleteLocalData: () -> Unit,
     bottomBar: @Composable () -> Unit,
 ) {
     var choosingTitle by remember { mutableStateOf(false) }
+    var confirmingLocalDeletion by remember { mutableStateOf(false) }
     WildlifeScaffold(title = "Profile", bottomBar = bottomBar) { innerPadding ->
         LazyColumn(
             modifier = Modifier
@@ -102,6 +109,13 @@ fun ProfileScreen(
                         onChooseTitle = { choosingTitle = true },
                     )
                 }
+            }
+            item {
+                DiagnosticsAndDataCard(
+                    state = state,
+                    onCopyTestReport = onCopyTestReport,
+                    onDeleteLocalData = { confirmingLocalDeletion = true },
+                )
             }
             state.errorMessage?.let { message ->
                 item {
@@ -183,6 +197,125 @@ fun ProfileScreen(
                 TextButton(onClick = { choosingTitle = false }) { Text("Done") }
             },
         )
+    }
+    if (confirmingLocalDeletion) {
+        AlertDialog(
+            onDismissRequest = { confirmingLocalDeletion = false },
+            icon = { Icon(Icons.Outlined.DeleteForever, contentDescription = null) },
+            title = { Text("Delete Wildlife local data?") },
+            text = {
+                Text(
+                    "This deletes the linked-account record, private capture copies, cached observations and catalogue, XP history, map settings, reference media and temporary cache. It cannot be undone. Your iNaturalist account and observations are not changed.",
+                )
+            },
+            confirmButton = {
+                TextButton(
+                    onClick = {
+                        confirmingLocalDeletion = false
+                        onDeleteLocalData()
+                    },
+                ) {
+                    Text("Delete local data", color = MaterialTheme.colorScheme.error)
+                }
+            },
+            dismissButton = {
+                TextButton(onClick = { confirmingLocalDeletion = false }) { Text("Cancel") }
+            },
+        )
+    }
+}
+
+@Composable
+private fun DiagnosticsAndDataCard(
+    state: ShellUiState,
+    onCopyTestReport: (String) -> Unit,
+    onDeleteLocalData: () -> Unit,
+) {
+    val data = state.localData
+    Card(
+        modifier = Modifier.fillMaxWidth(),
+        colors = CardDefaults.cardColors(containerColor = MaterialTheme.colorScheme.surface),
+        border = BorderStroke(1.dp, MaterialTheme.colorScheme.outlineVariant),
+        elevation = CardDefaults.cardElevation(0.dp),
+    ) {
+        Column(
+            modifier = Modifier.padding(WildlifeSpacing.Card),
+            verticalArrangement = Arrangement.spacedBy(WildlifeSpacing.Small),
+        ) {
+            Row(horizontalArrangement = Arrangement.spacedBy(WildlifeSpacing.Small)) {
+                Icon(
+                    Icons.Outlined.Storage,
+                    contentDescription = null,
+                    tint = MaterialTheme.colorScheme.secondary,
+                )
+                Column(Modifier.weight(1f)) {
+                    Text("Diagnostics & local data", style = MaterialTheme.typography.titleMedium)
+                    Text(
+                        "Counts only; the copied report excludes identity, coordinates, species and file paths.",
+                        style = MaterialTheme.typography.bodySmall,
+                        color = MaterialTheme.colorScheme.onSurfaceVariant,
+                    )
+                }
+            }
+            DiagnosticRow("Cached observations", data.cachedObservations.toString())
+            DiagnosticRow("Catalogue species", data.catalogueSpecies.toString())
+            DiagnosticRow(
+                "Capture workflow",
+                "${data.draftCaptures} draft · ${data.pendingHandoffs} pending · ${data.readyToReview} ready",
+            )
+            DiagnosticRow("Hidden from My map", data.hiddenMapObservations.toString())
+            DiagnosticRow(
+                "Private capture files",
+                "${data.privateCaptureFiles} · ${formatBytes(data.privateCaptureBytes)}",
+            )
+            DiagnosticRow(
+                "Reference media",
+                "${data.referenceMediaFiles} · ${formatBytes(data.referenceMediaBytes)}",
+            )
+            OutlinedButton(
+                onClick = {
+                    onCopyTestReport(
+                        data.privacySafeTestReport(state.observationSyncError != null),
+                    )
+                },
+                modifier = Modifier.fillMaxWidth(),
+            ) {
+                Icon(Icons.Outlined.ContentCopy, contentDescription = null)
+                Text("Copy test report", Modifier.padding(start = WildlifeSpacing.Small))
+            }
+            TextButton(
+                onClick = onDeleteLocalData,
+                enabled = !state.observationSyncing,
+                modifier = Modifier.fillMaxWidth(),
+            ) {
+                Icon(
+                    Icons.Outlined.DeleteForever,
+                    contentDescription = null,
+                    tint = MaterialTheme.colorScheme.error,
+                )
+                Text(
+                    "Delete Wildlife local data",
+                    color = MaterialTheme.colorScheme.error,
+                    modifier = Modifier.padding(start = WildlifeSpacing.Small),
+                )
+            }
+        }
+    }
+}
+
+@Composable
+private fun DiagnosticRow(label: String, value: String) {
+    Row(
+        modifier = Modifier.fillMaxWidth(),
+        horizontalArrangement = Arrangement.SpaceBetween,
+    ) {
+        Text(
+            label,
+            style = MaterialTheme.typography.bodyMedium,
+            color = MaterialTheme.colorScheme.onSurfaceVariant,
+            modifier = Modifier.weight(1f),
+        )
+        Text(value, style = MaterialTheme.typography.bodyMedium)
     }
 }
 
@@ -445,6 +578,8 @@ private fun ProfilePreview() {
             onOpenPublicProfile = {},
             onSelectProgressionTitle = {},
             onSyncObservations = {},
+            onCopyTestReport = {},
+            onDeleteLocalData = {},
             bottomBar = {},
         )
     }
@@ -496,6 +631,8 @@ private fun ProfileProgressionPreview() {
             onOpenPublicProfile = {},
             onSelectProgressionTitle = {},
             onSyncObservations = {},
+            onCopyTestReport = {},
+            onDeleteLocalData = {},
             bottomBar = {},
         )
     }
@@ -524,6 +661,8 @@ private fun ProfileProgressionLargeTextPreview() {
             onOpenPublicProfile = {},
             onSelectProgressionTitle = {},
             onSyncObservations = {},
+            onCopyTestReport = {},
+            onDeleteLocalData = {},
             bottomBar = {},
         )
     }

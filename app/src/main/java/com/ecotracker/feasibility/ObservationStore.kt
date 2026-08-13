@@ -45,6 +45,7 @@ class ObservationStore(context: Context) : SQLiteOpenHelper(context, DATABASE, n
         )
         database.execSQL(CREATE_XP_EVENTS)
         database.execSQL(CREATE_QUALITY_EVENTS)
+        database.execSQL(CREATE_MAP_VISIBILITY_OVERRIDES)
     }
 
     override fun onUpgrade(database: SQLiteDatabase, oldVersion: Int, newVersion: Int) {
@@ -96,6 +97,9 @@ class ObservationStore(context: Context) : SQLiteOpenHelper(context, DATABASE, n
         }
         if (oldVersion < 5) {
             database.execSQL(CREATE_QUALITY_EVENTS)
+        }
+        if (oldVersion < 6) {
+            database.execSQL(CREATE_MAP_VISIBILITY_OVERRIDES)
         }
     }
 
@@ -230,6 +234,57 @@ class ObservationStore(context: Context) : SQLiteOpenHelper(context, DATABASE, n
                     )
                 }
             }
+        }
+    }
+
+    fun mapHiddenObservationUuids(userId: Long): Set<String> = readableDatabase.query(
+        "map_visibility_overrides",
+        arrayOf("observation_uuid"),
+        "user_id = ? AND visible = 0",
+        arrayOf(userId.toString()),
+        null,
+        null,
+        null,
+    ).use { cursor ->
+        buildSet {
+            while (cursor.moveToNext()) add(cursor.getString(0))
+        }
+    }
+
+    fun setObservationMapVisible(userId: Long, observationUuid: String, visible: Boolean) {
+        if (visible) {
+            writableDatabase.delete(
+                "map_visibility_overrides",
+                "user_id = ? AND observation_uuid = ?",
+                arrayOf(userId.toString(), observationUuid),
+            )
+        } else {
+            writableDatabase.insertWithOnConflict(
+                "map_visibility_overrides",
+                null,
+                ContentValues().apply {
+                    put("user_id", userId)
+                    put("observation_uuid", observationUuid)
+                    put("visible", 0)
+                },
+                SQLiteDatabase.CONFLICT_REPLACE,
+            )
+        }
+    }
+
+    fun clearAllLocalData() {
+        writableDatabase.beginTransaction()
+        try {
+            listOf(
+                "map_visibility_overrides",
+                "observation_quality_events",
+                "xp_events",
+                "observations",
+                "collection_summary",
+            ).forEach { table -> writableDatabase.delete(table, null, null) }
+            writableDatabase.setTransactionSuccessful()
+        } finally {
+            writableDatabase.endTransaction()
         }
     }
 
@@ -590,7 +645,7 @@ class ObservationStore(context: Context) : SQLiteOpenHelper(context, DATABASE, n
 
     companion object {
         private const val DATABASE = "wildlife_observations.db"
-        private const val VERSION = 5
+        private const val VERSION = 6
         private const val CREATE_XP_EVENTS = """
             CREATE TABLE IF NOT EXISTS xp_events (
                 user_id INTEGER NOT NULL,
@@ -614,6 +669,14 @@ class ObservationStore(context: Context) : SQLiteOpenHelper(context, DATABASE, n
                 to_quality_grade TEXT NOT NULL,
                 detected_at_ms INTEGER NOT NULL,
                 PRIMARY KEY(user_id, event_key)
+            )
+        """
+        private const val CREATE_MAP_VISIBILITY_OVERRIDES = """
+            CREATE TABLE IF NOT EXISTS map_visibility_overrides (
+                user_id INTEGER NOT NULL,
+                observation_uuid TEXT NOT NULL,
+                visible INTEGER NOT NULL,
+                PRIMARY KEY(user_id, observation_uuid)
             )
         """
     }

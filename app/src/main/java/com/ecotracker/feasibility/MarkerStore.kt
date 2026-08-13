@@ -5,7 +5,7 @@ import org.json.JSONArray
 import org.json.JSONObject
 
 class MarkerStore(context: Context) {
-    private val preferences = context.getSharedPreferences("handoff_markers", Context.MODE_PRIVATE)
+    private val preferences = context.getSharedPreferences(PREFERENCES, Context.MODE_PRIVATE)
 
     fun load(): List<PendingMarker> {
         val raw = preferences.getString(KEY_MARKERS, "[]") ?: "[]"
@@ -23,6 +23,8 @@ class MarkerStore(context: Context) {
         markers.forEach { marker -> array.put(marker.toJson()) }
         preferences.edit().putString(KEY_MARKERS, array.toString()).apply()
     }
+
+    fun clear(): Boolean = preferences.edit().clear().commit()
 
     private fun PendingMarker.toJson() = JSONObject().apply {
         put("id", id)
@@ -74,6 +76,7 @@ class MarkerStore(context: Context) {
         if (isNull(key)) null else optString(key).takeIf(String::isNotBlank)
 
     companion object {
+        internal const val PREFERENCES = "handoff_markers"
         private const val KEY_MARKERS = "markers"
     }
 }

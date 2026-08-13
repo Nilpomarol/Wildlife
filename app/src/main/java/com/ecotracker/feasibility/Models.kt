@@ -116,6 +116,14 @@ data class ObservationQualityTransition(
     val detectedAtMs: Long,
 )
 
+data class NearbySpecies(
+    val taxonId: Long,
+    val commonName: String?,
+    val scientificName: String,
+    val taxonGroup: String?,
+    val observationCount: Int,
+)
+
 data class ObservationConfirmationResult(
     val xpAwarded: Int,
     val summary: CollectionSummary,

@@ -1,5 +1,7 @@
 package com.wildlife.feasibility.ui.screens.explore
 
+import androidx.compose.foundation.BorderStroke
+import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.BoxWithConstraints
@@ -10,6 +12,9 @@ import androidx.compose.foundation.layout.aspectRatio
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.padding
+import androidx.compose.foundation.layout.size
+import androidx.compose.foundation.lazy.LazyColumn
+import androidx.compose.foundation.lazy.items
 import androidx.compose.foundation.lazy.grid.GridCells
 import androidx.compose.foundation.lazy.grid.LazyVerticalGrid
 import androidx.compose.foundation.lazy.grid.items
@@ -17,7 +22,10 @@ import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.outlined.Refresh
 import androidx.compose.material3.AlertDialog
 import androidx.compose.material3.Button
+import androidx.compose.material3.Card
+import androidx.compose.material3.CardDefaults
 import androidx.compose.material3.CircularProgressIndicator
+import androidx.compose.material3.FilterChip
 import androidx.compose.material3.Icon
 import androidx.compose.material3.IconButton
 import androidx.compose.material3.LinearProgressIndicator
@@ -37,6 +45,7 @@ import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import com.wildlife.feasibility.CatalogueSnapshot
+import com.wildlife.feasibility.NearbySpecies
 import com.wildlife.feasibility.ui.components.CollectionSearchBar
 import com.wildlife.feasibility.ui.components.SpeciesCard
 import com.wildlife.feasibility.ui.components.SpeciesCardModel
@@ -61,14 +70,21 @@ enum class ExploreFilter(val label: String, val taxonGroup: String? = null) {
     DRAGONFLIES("Dragonflies", "Odonata"),
 }
 
+private enum class ExploreSection(val label: String) {
+    NEARBY("Near me"),
+    GUIDE("Species guide"),
+}
+
 @Composable
 fun ExploreScreen(
     state: ExploreUiState,
     onBack: (() -> Unit)?,
     onSync: () -> Unit,
     onOpenTaxon: (Long) -> Unit,
+    onDiscoverNearby: () -> Unit,
     bottomBar: @Composable () -> Unit = {},
 ) {
+    var selectedSection by rememberSaveable { mutableStateOf(ExploreSection.NEARBY) }
     var selectedFilter by rememberSaveable { mutableStateOf(ExploreFilter.ALL) }
     var query by rememberSaveable { mutableStateOf("") }
     var confirmRefresh by rememberSaveable { mutableStateOf(false) }
@@ -91,40 +107,51 @@ fun ExploreScreen(
         title = "Explore",
         onBack = onBack,
         actions = {
-            IconButton(
-                onClick = {
-                    if (state.snapshot == null) onSync() else confirmRefresh = true
-                },
-                enabled = !state.syncing && !state.silhouetteEnrichmentRunning,
-            ) {
-                if (state.syncing) {
-                    CircularProgressIndicator(
-                        modifier = Modifier.padding(WildlifeSpacing.Small),
-                        strokeWidth = 2.dp,
-                    )
-                } else {
-                    Icon(
-                        Icons.Outlined.Refresh,
-                        contentDescription = "Refresh stored Catalonia catalogue",
-                    )
+            if (selectedSection == ExploreSection.GUIDE) {
+                IconButton(
+                    onClick = {
+                        if (state.snapshot == null) onSync() else confirmRefresh = true
+                    },
+                    enabled = !state.syncing && !state.silhouetteEnrichmentRunning,
+                ) {
+                    if (state.syncing) {
+                        CircularProgressIndicator(
+                            modifier = Modifier.padding(WildlifeSpacing.Small),
+                            strokeWidth = 2.dp,
+                        )
+                    } else {
+                        Icon(
+                            Icons.Outlined.Refresh,
+                            contentDescription = "Refresh stored Catalonia catalogue",
+                        )
+                    }
                 }
             }
         },
         bottomBar = bottomBar,
     ) { innerPadding ->
-        if (state.snapshot == null) {
+        Column(
+            modifier = Modifier
+                .fillMaxSize()
+                .padding(innerPadding),
+        ) {
+            ExploreSectionSelector(
+                selected = selectedSection,
+                onSelected = { selectedSection = it },
+            )
+            when (selectedSection) {
+                ExploreSection.GUIDE -> if (state.snapshot == null) {
             EmptyCatalogue(
                 message = state.errorMessage
                     ?: "Download the provisional Catalonia catalogue to explore species offline.",
                 syncing = state.syncing,
                 onSync = onSync,
-                modifier = Modifier.padding(innerPadding),
+                modifier = Modifier.weight(1f),
             )
         } else {
             Column(
                 modifier = Modifier
-                    .fillMaxSize()
-                    .padding(innerPadding),
+                    .fillMaxSize(),
             ) {
                 ExploreIntro(
                     snapshot = state.snapshot,
@@ -173,6 +200,14 @@ fun ExploreScreen(
                 }
             }
         }
+                ExploreSection.NEARBY -> NearbyDiscoveryContent(
+                    state = state.nearby,
+                    onDiscover = onDiscoverNearby,
+                    onOpenTaxon = onOpenTaxon,
+                    modifier = Modifier.weight(1f),
+                )
+            }
+        }
     }
     if (confirmRefresh) {
         AlertDialog(
@@ -196,6 +231,160 @@ fun ExploreScreen(
                 TextButton(onClick = { confirmRefresh = false }) { Text("Keep current guide") }
             },
         )
+    }
+}
+
+@Composable
+private fun ExploreSectionSelector(
+    selected: ExploreSection,
+    onSelected: (ExploreSection) -> Unit,
+) {
+    Row(
+        modifier = Modifier
+            .fillMaxWidth()
+            .padding(
+                horizontal = WildlifeSpacing.Screen,
+                vertical = WildlifeSpacing.Small,
+            ),
+        horizontalArrangement = Arrangement.spacedBy(WildlifeSpacing.Small),
+    ) {
+        ExploreSection.entries.forEach { section ->
+            FilterChip(
+                selected = section == selected,
+                onClick = { onSelected(section) },
+                label = { Text(section.label) },
+                modifier = Modifier.weight(1f),
+            )
+        }
+    }
+}
+
+@Composable
+private fun NearbyDiscoveryContent(
+    state: NearbyDiscoveryState,
+    onDiscover: () -> Unit,
+    onOpenTaxon: (Long) -> Unit,
+    modifier: Modifier = Modifier,
+) {
+    LazyColumn(
+        modifier = modifier.fillMaxSize(),
+        contentPadding = PaddingValues(
+            start = WildlifeSpacing.Screen,
+            end = WildlifeSpacing.Screen,
+            bottom = WildlifeSpacing.Section,
+        ),
+        verticalArrangement = Arrangement.spacedBy(WildlifeSpacing.Small),
+    ) {
+        item {
+            Text(
+                text = "What has been seen nearby?",
+                style = MaterialTheme.typography.titleLarge,
+                color = WildlifeTheme.colors.parchment,
+            )
+            Text(
+                text = "Wildlife samples your location once when you ask, then finds species from the provisional guide reported within ${state.radiusKm} km during this calendar month across available years.",
+                style = MaterialTheme.typography.bodyMedium,
+                color = MaterialTheme.colorScheme.onSurfaceVariant,
+                modifier = Modifier.padding(top = WildlifeSpacing.Micro),
+            )
+            Text(
+                text = "Your location is sent directly to iNaturalist for this request. Wildlife does not track it continuously or store this search.",
+                style = MaterialTheme.typography.labelMedium,
+                color = WildlifeTheme.colors.mutedText,
+                modifier = Modifier.padding(top = WildlifeSpacing.Small),
+            )
+            Button(
+                onClick = onDiscover,
+                enabled = !state.loading,
+                modifier = Modifier.padding(top = WildlifeSpacing.Small),
+            ) {
+                Text(if (state.loading) "Checking nearby…" else "Check near me")
+            }
+        }
+        if (state.loading) {
+            item { LinearProgressIndicator(Modifier.fillMaxWidth()) }
+        }
+        state.errorMessage?.let { message ->
+            item {
+                Text(
+                    text = message,
+                    style = MaterialTheme.typography.bodyMedium,
+                    color = MaterialTheme.colorScheme.error,
+                )
+            }
+        }
+        if (state.requested && !state.loading && state.errorMessage == null) {
+            if (state.species.isEmpty()) {
+                item {
+                    Text(
+                        text = "No species from the provisional guide appeared in the returned research-grade reports for this area and calendar month.",
+                        style = MaterialTheme.typography.bodyMedium,
+                        color = MaterialTheme.colorScheme.onSurfaceVariant,
+                    )
+                }
+            } else {
+                item {
+                    Text(
+                        text = "${state.species.size} reported species",
+                        style = MaterialTheme.typography.titleMedium,
+                        color = WildlifeTheme.colors.parchment,
+                        modifier = Modifier.padding(top = WildlifeSpacing.Small),
+                    )
+                    Text(
+                        text = "Ordered by iNaturalist reporting frequency. This is not rarity or a prediction that a species will be present.",
+                        style = MaterialTheme.typography.labelMedium,
+                        color = WildlifeTheme.colors.mutedText,
+                    )
+                }
+                items(state.species, key = NearbySpecies::taxonId) { species ->
+                    NearbySpeciesRow(species, onOpenTaxon)
+                }
+            }
+        }
+    }
+}
+
+@Composable
+private fun NearbySpeciesRow(
+    species: NearbySpecies,
+    onOpenTaxon: (Long) -> Unit,
+) {
+    Card(
+        colors = CardDefaults.cardColors(containerColor = MaterialTheme.colorScheme.surface),
+        border = BorderStroke(1.dp, MaterialTheme.colorScheme.outlineVariant),
+        modifier = Modifier
+            .fillMaxWidth()
+            .clickable { onOpenTaxon(species.taxonId) },
+    ) {
+        Row(
+            modifier = Modifier
+                .fillMaxWidth()
+                .padding(WildlifeSpacing.Card),
+            horizontalArrangement = Arrangement.SpaceBetween,
+            verticalAlignment = Alignment.CenterVertically,
+        ) {
+            Column(Modifier.weight(1f)) {
+                Text(
+                    text = species.commonName ?: species.scientificName,
+                    style = MaterialTheme.typography.titleSmall,
+                    color = MaterialTheme.colorScheme.onSurface,
+                )
+                if (species.commonName != null) {
+                    Text(
+                        text = species.scientificName,
+                        style = MaterialTheme.typography.bodySmall,
+                        color = MaterialTheme.colorScheme.onSurfaceVariant,
+                        fontStyle = androidx.compose.ui.text.font.FontStyle.Italic,
+                    )
+                }
+            }
+            Text(
+                text = "${species.observationCount} reports",
+                style = MaterialTheme.typography.labelLarge,
+                color = WildlifeTheme.colors.oliveStrong,
+                modifier = Modifier.padding(start = WildlifeSpacing.Small),
+            )
+        }
     }
 }
 
@@ -353,6 +542,22 @@ private fun ExplorePreview() {
             ),
             onBack = {},
             onSync = {},
+            onOpenTaxon = {},
+            onDiscoverNearby = {},
+        )
+    }
+}
+
+@Preview(showBackground = true, backgroundColor = 0xFF080B09, widthDp = 390, heightDp = 720)
+@Composable
+private fun NearbyErrorPreview() {
+    WildlifeTheme {
+        NearbyDiscoveryContent(
+            state = NearbyDiscoveryState(
+                requested = true,
+                errorMessage = "Location is unavailable. Try again with device location enabled.",
+            ),
+            onDiscover = {},
             onOpenTaxon = {},
         )
     }

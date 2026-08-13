@@ -43,9 +43,9 @@ class CollectionViewModel(application: Application) : AndroidViewModel(applicati
                 totalXp = 0,
             )
         return runCatching {
-            val store = ObservationStore(context)
-            val observations = store.observations(account.userId)
-            val summary = store.summary(account.userId)
+            val (observations, summary) = ObservationStore(context).use { store ->
+                store.observations(account.userId) to store.summary(account.userId)
+            }
             CollectionUiState(
                 linked = true,
                 entries = CollectionProjection.species(observations),

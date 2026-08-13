@@ -63,6 +63,21 @@ class CatalogueStore(context: Context) : SQLiteOpenHelper(context, DATABASE, nul
         if (oldVersion < 8) database.execSQL(CREATE_REFRESH_STATE)
     }
 
+    fun clearAllLocalData() {
+        writableDatabase.beginTransaction()
+        try {
+            listOf(
+                "catalogue_species",
+                "taxon_details",
+                "catalogue_state",
+                "catalogue_refresh_state",
+            ).forEach { table -> writableDatabase.delete(table, null, null) }
+            writableDatabase.setTransactionSuccessful()
+        } finally {
+            writableDatabase.endTransaction()
+        }
+    }
+
     fun recordRefreshStarted(regionKey: String, attemptedAtMs: Long) {
         writableDatabase.execSQL(
             "INSERT OR IGNORE INTO catalogue_refresh_state(region_key) VALUES(?)",

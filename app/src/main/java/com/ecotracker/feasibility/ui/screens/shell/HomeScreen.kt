@@ -13,6 +13,7 @@ import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.outlined.CameraAlt
 import androidx.compose.material.icons.outlined.Explore
 import androidx.compose.material.icons.outlined.Link
+import androidx.compose.material.icons.outlined.Map
 import androidx.compose.material.icons.outlined.PhotoLibrary
 import androidx.compose.material3.Button
 import androidx.compose.material3.Card
@@ -26,6 +27,7 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
+import com.wildlife.feasibility.VerifiedAccount
 import com.wildlife.feasibility.ui.components.WildlifeScaffold
 import com.wildlife.feasibility.ui.theme.WildlifeSpacing
 import com.wildlife.feasibility.ui.theme.WildlifeTheme
@@ -36,6 +38,8 @@ fun HomeScreen(
     onCapture: () -> Unit,
     onCollection: () -> Unit,
     onExplore: () -> Unit,
+    onMyMap: () -> Unit,
+    mappedObservationCount: Int,
     onLinkAccount: () -> Unit,
     bottomBar: @Composable () -> Unit,
 ) {
@@ -78,6 +82,36 @@ fun HomeScreen(
             }
             item {
                 FieldStatusCard(state)
+            }
+            if (state.account != null) {
+                item {
+                    Card(
+                        colors = CardDefaults.cardColors(
+                            containerColor = MaterialTheme.colorScheme.surface,
+                        ),
+                        border = BorderStroke(1.dp, MaterialTheme.colorScheme.outlineVariant),
+                    ) {
+                        Column(
+                            modifier = Modifier.padding(WildlifeSpacing.Card),
+                            verticalArrangement = Arrangement.spacedBy(WildlifeSpacing.Micro),
+                        ) {
+                            Row(horizontalArrangement = Arrangement.spacedBy(WildlifeSpacing.Small)) {
+                                Icon(Icons.Outlined.Map, contentDescription = null)
+                                Text("My observation map", style = MaterialTheme.typography.titleMedium)
+                            }
+                            Text(
+                                if (mappedObservationCount > 0) {
+                                    "$mappedObservationCount public observations mapped in privacy-safe areas"
+                                } else {
+                                    "Your public observation history will appear here when locations are available"
+                                },
+                                style = MaterialTheme.typography.bodySmall,
+                                color = MaterialTheme.colorScheme.onSurfaceVariant,
+                            )
+                            OutlinedButton(onClick = onMyMap) { Text("Open my map") }
+                        }
+                    }
+                }
             }
             if (state.pendingHandoffs > 0 || state.draftObservations > 0) {
                 item {
@@ -208,8 +242,10 @@ private fun HomePreview() {
                 totalXp = 510,
                 catalogueSpecies = 568,
                 pendingHandoffs = 1,
+                account = VerifiedAccount(1, "naturalist", 0),
             ),
-            onCapture = {}, onCollection = {}, onExplore = {}, onLinkAccount = {},
+            onCapture = {}, onCollection = {}, onExplore = {}, onMyMap = {},
+            mappedObservationCount = 72, onLinkAccount = {},
             bottomBar = {},
         )
     }

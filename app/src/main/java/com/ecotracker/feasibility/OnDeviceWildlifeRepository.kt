@@ -5,8 +5,10 @@ import android.text.Html
 import org.json.JSONObject
 import java.security.MessageDigest
 import java.util.Locale
+import java.time.LocalDate
+import java.io.Closeable
 
-class OnDeviceWildlifeRepository(context: Context) {
+class OnDeviceWildlifeRepository(context: Context) : Closeable {
     private val appContext = context.applicationContext
     private val observations = ObservationStore(appContext)
     private val catalogue = CatalogueStore(appContext)
@@ -14,6 +16,11 @@ class OnDeviceWildlifeRepository(context: Context) {
     private val phyloPic = PhyloPicClient()
     private val wikimedia = WikimediaCommonsClient()
     private val localMedia = LocalMediaStore(appContext)
+
+    override fun close() {
+        observations.close()
+        catalogue.close()
+    }
 
     fun syncObservations(account: VerifiedAccount, force: Boolean = false): ObservationSyncResult {
         val cachedSummary = observations.summary(account.userId)
@@ -38,6 +45,23 @@ class OnDeviceWildlifeRepository(context: Context) {
     ): ObservationConfirmationResult = observations.confirmObservation(
         account.userId,
         observationUuid,
+    )
+
+    fun setObservationMapVisible(
+        account: VerifiedAccount,
+        observationUuid: String,
+        visible: Boolean,
+    ) = observations.setObservationMapVisible(account.userId, observationUuid, visible)
+
+    fun discoverNearbySpecies(
+        latitude: Double,
+        longitude: Double,
+        radiusKm: Int = 25,
+    ): List<NearbySpecies> = iNaturalist.nearbySpecies(
+        latitude = latitude,
+        longitude = longitude,
+        radiusKm = radiusKm,
+        month = LocalDate.now().monthValue,
     )
 
     fun syncCataloniaCatalogue(force: Boolean = false): CatalogueSnapshot {

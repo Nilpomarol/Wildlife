@@ -31,6 +31,12 @@ class LocalMediaStore(context: Context) {
         )
     }
 
+    fun clear() = synchronized(STORAGE_LOCK) {
+        check(root.listFiles().orEmpty().all(File::deleteRecursively)) {
+            "Some reusable media could not be deleted."
+        }
+    }
+
     fun isStored(localUri: String?): Boolean {
         val path = localUri?.let(Uri::parse)?.takeIf { it.scheme == "file" }?.path ?: return false
         val file = runCatching { File(path).canonicalFile }.getOrNull() ?: return false

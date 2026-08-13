@@ -110,10 +110,12 @@ GET public identification activity, only if the validated API contract supports 
 | Trigger | Action |
 |---|---|
 | App opened | Immediate sync for the linked user |
-| Background (future WorkManager slice) | Conservative periodic refresh for recently active users |
+| Background (future WorkManager slice) | Refresh only observations whose individual check time is due, for recently active users |
 | Returning from handoff | Sync attempt after a short delay, then retry |
 
 **Incremental cursor.** Sync a fixed update-time window, paginate it idempotently, retain an overlap window for concurrent edits and advance the watermark only after every page succeeds. Observation ID is a pagination key, not the update watermark.
+
+**Per-observation refresh priority.** Wildlife stores a local `next_check_at` and refresh priority for each observation. New, pending and Needs ID observations are checked most often; observations with recent community activity are checked less often. After Wildlife observes Research Grade and completes one confirmation pass, that observation leaves routine refreshes. It remains eligible for a manual refresh and a rare full reconciliation because public quality and taxonomy can still change. Due observations should be batched into as few upstream requests as the validated API permits; this policy must not become one request per observation. Failures use increasing retry delays and never cause continuous polling.
 
 **Deletion handling.** Authenticated deletion feeds are unavailable. Run periodic full reconciliation and mark missing records as unavailable only after repeated confirmation, since deletion, privacy changes and temporary API failures can look similar.
 
@@ -202,7 +204,7 @@ The strongest fit with the API, and entirely unauthenticated.
 | "What can I see here?" | `species_counts?lat=&lng=&radius=&month=` |
 | "What am I missing?" | `species_counts?unobserved_by_user_id=&lat=&lng=` — works with a public user ID, no auth needed |
 | Completion bars per region | Frozen seasonal catalogue vs. user's species list |
-| Map | App-owned observation overlays on a separately licensed basemap; iNaturalist tiles only if their use and caching contract is validated |
+| Map | App-owned coarse observation overlays on a separately licensed basemap; the development implementation uses MapLibre Native with OpenFreeMap/OpenStreetMap attribution and no offline prefetch. iNaturalist tiles are not used |
 
 Resolve Catalonia and comarca `place_id` values once at build time via `/v1/places/autocomplete` and store them.
 
@@ -238,6 +240,8 @@ Resolve Catalonia and comarca `place_id` values once at build time via `/v1/plac
 - **Localisation** — Catalan first; Spanish and English at launch.
 - **Custom User-Agent** on every direct upstream request, identifying the app.
 - **Privacy controls** — clear consent and disclosure, data minimisation, retention limits, export, unlink and deletion.
+- **Testing diagnostics** — Profile shows aggregate retained-data counts and can copy a privacy-safe operational report without identity, coordinates, species labels, URLs or local paths. Confirmed local deletion removes all Wildlife-owned durable data and cache while leaving iNaturalist untouched. A structured user-data export remains distinct from this test report.
+- **Map privacy** — observation overlays remain on device and use coarse cells. Each observation can be excluded from or restored to the map through a local preference that survives observation-cache refresh and never changes iNaturalist. Obscured, unavailable and user-hidden locations are represented separately. Loading the development basemap discloses viewed tile regions to OpenFreeMap/CDN infrastructure; exact overlay coordinates are not submitted to the tile provider. Keep the provider/style replaceable and review its terms before release.
 - **Accessibility** — scalable text, screen-reader labels, sufficient contrast and non-colour status indicators.
 - **Image integrity** — AI concept imagery is never shipped. Every catalogue/reference photo requires source, creator, licence code and attribution; otherwise the UI uses an accessible species silhouette.
 - **Diagnostics** — local request pacing, stale-data age, sync failures and handoff ambiguity are measurable during beta without collecting them remotely by default.

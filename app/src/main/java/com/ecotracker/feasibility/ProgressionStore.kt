@@ -12,8 +12,10 @@ class ProgressionStore(context: Context) {
         preferences.edit().putString("$KEY_SELECTED_LEVEL_PREFIX$userId", levelKey).apply()
     }
 
+    fun clear(): Boolean = preferences.edit().clear().commit()
+
     companion object {
-        private const val PREFERENCES = "wildlife_progression"
+        internal const val PREFERENCES = "wildlife_progression"
         private const val KEY_SELECTED_LEVEL_PREFIX = "selected_level_"
     }
 }

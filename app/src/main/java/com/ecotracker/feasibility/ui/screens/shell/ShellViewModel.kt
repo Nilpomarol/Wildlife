@@ -10,6 +10,8 @@ import com.wildlife.feasibility.CatalogueStore
 import com.wildlife.feasibility.CollectionProjection
 import com.wildlife.feasibility.MarkerState
 import com.wildlife.feasibility.MarkerStore
+import com.wildlife.feasibility.LocalDataInventory
+import com.wildlife.feasibility.LocalDataManager
 import com.wildlife.feasibility.ObservationStore
 import com.wildlife.feasibility.ObservationLifecyclePolicy
 import com.wildlife.feasibility.ObservationQualityTransition
@@ -34,6 +36,7 @@ data class ShellUiState(
     val catalogueSpecies: Int = 0,
     val pendingHandoffs: Int = 0,
     val draftObservations: Int = 0,
+    val localData: LocalDataInventory = LocalDataInventory(),
     val errorMessage: String? = null,
 )
 
@@ -96,7 +99,7 @@ class ShellViewModel(application: Application) : AndroidViewModel(application) {
             )
         }
         val now = System.currentTimeMillis()
-        ShellUiState(
+        val state = ShellUiState(
             account = account,
             collectionEntries = collection.size,
             identifiedSpecies = collection.count { !it.awaitingSpeciesIdentification },
@@ -114,12 +117,17 @@ class ShellViewModel(application: Application) : AndroidViewModel(application) {
             recentQualityTransitions = account?.let {
                 observationStore?.qualityTransitions(it.userId).orEmpty()
             }.orEmpty(),
-            catalogueSpecies = CatalogueStore(context).load()?.species?.size ?: 0,
+            catalogueSpecies = CatalogueStore(context).use {
+                it.load()?.species?.size ?: 0
+            },
             pendingHandoffs = markers.count {
                 it.state == MarkerState.HANDED_OFF || it.state == MarkerState.PENDING
             },
             draftObservations = markers.count { it.state == MarkerState.CAPTURED },
+            localData = LocalDataManager(context).inventory(),
         )
+        observationStore?.close()
+        state
     }.getOrElse { error ->
         ShellUiState(errorMessage = error.message ?: "Local Wildlife data could not be read.")
     }

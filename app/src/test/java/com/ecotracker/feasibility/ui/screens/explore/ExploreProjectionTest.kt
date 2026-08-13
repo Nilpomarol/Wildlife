@@ -2,6 +2,7 @@ package com.wildlife.feasibility.ui.screens.explore
 
 import com.wildlife.feasibility.CatalogueSnapshot
 import com.wildlife.feasibility.CatalogueSpecies
+import com.wildlife.feasibility.NearbySpecies
 import com.wildlife.feasibility.SyncedObservation
 import com.wildlife.feasibility.TaxonDetails
 import com.wildlife.feasibility.ui.components.SpeciesCardStatus
@@ -12,6 +13,19 @@ import org.junit.Assert.assertTrue
 import org.junit.Test
 
 class ExploreProjectionTest {
+    @Test
+    fun `nearby discovery excludes taxa outside the provisional guide`() {
+        val catalogue = ExploreProjection.entries(snapshot("cc-by"), emptyList())
+        val nearby = listOf(
+            NearbySpecies(42, "European robin", "Erithacus rubecula", "Aves", 12),
+            NearbySpecies(99, "Unscoped taxon", "Taxon example", "Plantae", 50),
+        )
+
+        val scoped = NearbyDiscoveryProjection.withinCatalogue(nearby, catalogue)
+
+        assertEquals(listOf(42L), scoped.map(NearbySpecies::taxonId))
+    }
+
     @Test
     fun `collection state is matched by species taxon and retains scientific name`() {
         val entries = ExploreProjection.entries(snapshot("cc-by"), listOf(observation()))

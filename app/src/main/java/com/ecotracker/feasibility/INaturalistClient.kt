@@ -93,6 +93,59 @@ class INaturalistClient(
         return results.take(limit)
     }
 
+    fun nearbySpecies(
+        latitude: Double,
+        longitude: Double,
+        radiusKm: Int = 25,
+        month: Int,
+        limit: Int = 100,
+    ): List<NearbySpecies> {
+        require(latitude in -90.0..90.0 && longitude in -180.0..180.0)
+        require(radiusKm in 1..200)
+        require(month in 1..12)
+        val root = getJson(
+            url(
+                "https://api.inaturalist.org/v1/observations/species_counts",
+                linkedMapOf(
+                    "lat" to latitude.toString(),
+                    "lng" to longitude.toString(),
+                    "radius" to radiusKm.toString(),
+                    "month" to month.toString(),
+                    "quality_grade" to "research",
+                    "hrank" to "species",
+                    "lrank" to "species",
+                    "locale" to "ca",
+                    "per_page" to limit.coerceIn(1, 200).toString(),
+                ),
+            ),
+        )
+        return parseNearbySpecies(root)
+    }
+
+    internal fun parseNearbySpecies(root: JSONObject): List<NearbySpecies> {
+        val results = root.optJSONArray("results") ?: return emptyList()
+        return buildList {
+            for (index in 0 until results.length()) {
+                val result = results.optJSONObject(index) ?: continue
+                val taxon = result.optJSONObject("taxon") ?: continue
+                val taxonId = taxon.optLong("id", -1L)
+                val scientificName = taxon.optString("name").trim()
+                if (taxonId <= 0L || scientificName.isBlank()) continue
+                add(
+                    NearbySpecies(
+                        taxonId = taxonId,
+                        commonName = taxon.optString("preferred_common_name")
+                            .takeIf { it.isNotBlank() && it != "null" },
+                        scientificName = scientificName,
+                        taxonGroup = taxon.optString("iconic_taxon_name")
+                            .takeIf { it.isNotBlank() && it != "null" },
+                        observationCount = result.optInt("count", 0).coerceAtLeast(0),
+                    ),
+                )
+            }
+        }
+    }
+
     fun taxa(taxonIds: List<Long>, locale: String = "en"): List<JSONObject> {
         if (taxonIds.isEmpty()) return emptyList()
         val root = getJson(

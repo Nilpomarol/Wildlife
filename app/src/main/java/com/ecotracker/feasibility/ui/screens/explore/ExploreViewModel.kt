@@ -11,6 +11,7 @@ import com.wildlife.feasibility.CatalogueSnapshot
 import com.wildlife.feasibility.CataloguePhotoPolicy
 import com.wildlife.feasibility.CatalogueStore
 import com.wildlife.feasibility.CollectionProjection
+import com.wildlife.feasibility.NearbySpecies
 import com.wildlife.feasibility.ObservationStore
 import com.wildlife.feasibility.OnDeviceWildlifeRepository
 import com.wildlife.feasibility.SyncedObservation
@@ -19,6 +20,8 @@ import com.wildlife.feasibility.ui.components.SpeciesCardModel
 import com.wildlife.feasibility.ui.components.SpeciesCardPhotoKind
 import com.wildlife.feasibility.ui.components.SpeciesCardPhotoCandidate
 import com.wildlife.feasibility.ui.components.SpeciesCardStatus
+import com.wildlife.feasibility.ui.screens.map.PersonalObservationMap
+import com.wildlife.feasibility.ui.screens.map.PersonalObservationMapProjection
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.launch
 import kotlinx.coroutines.withContext
@@ -35,12 +38,23 @@ data class ExploreSpecies(
 data class ExploreUiState(
     val snapshot: CatalogueSnapshot? = null,
     val entries: List<ExploreSpecies> = emptyList(),
+    val accountLinked: Boolean = false,
+    val personalMap: PersonalObservationMap = PersonalObservationMapProjection.build(emptyList()),
+    val nearby: NearbyDiscoveryState = NearbyDiscoveryState(),
     val syncing: Boolean = false,
     val silhouetteEnrichmentRunning: Boolean = false,
     val errorMessage: String? = null,
 ) {
     val observedCount: Int get() = entries.count(ExploreSpecies::observed)
 }
+
+data class NearbyDiscoveryState(
+    val requested: Boolean = false,
+    val loading: Boolean = false,
+    val species: List<NearbySpecies> = emptyList(),
+    val errorMessage: String? = null,
+    val radiusKm: Int = 25,
+)
 
 internal object ExploreProjection {
     fun entries(
@@ -149,7 +163,18 @@ internal object ExploreProjection {
     }
 }
 
+internal object NearbyDiscoveryProjection {
+    fun withinCatalogue(
+        nearby: List<NearbySpecies>,
+        catalogue: List<ExploreSpecies>,
+    ): List<NearbySpecies> {
+        val catalogueTaxa = catalogue.mapTo(hashSetOf(), ExploreSpecies::taxonId)
+        return nearby.filter { it.taxonId in catalogueTaxa }
+    }
+}
+
 class ExploreViewModel(application: Application) : AndroidViewModel(application) {
+    private var nearbyState = NearbyDiscoveryState()
     var uiState by mutableStateOf(loadLocal())
         private set
     private var silhouetteEnrichmentInFlight = false
@@ -167,13 +192,29 @@ class ExploreViewModel(application: Application) : AndroidViewModel(application)
         }
     }
 
+    fun setObservationMapVisible(observationUuid: String, visible: Boolean) {
+        val account = AccountStore(getApplication()).verified() ?: return
+        viewModelScope.launch {
+            withContext(Dispatchers.IO) {
+                OnDeviceWildlifeRepository(getApplication()).use {
+                    it.setObservationMapVisible(account, observationUuid, visible)
+                }
+            }
+            uiState = loadLocal().copy(
+                silhouetteEnrichmentRunning = silhouetteEnrichmentInFlight,
+            )
+        }
+    }
+
     fun syncCatalogue() {
         if (uiState.syncing) return
         uiState = uiState.copy(syncing = true, errorMessage = null)
         viewModelScope.launch {
             val result = runCatching {
                 withContext(Dispatchers.IO) {
-                    OnDeviceWildlifeRepository(getApplication()).syncCataloniaCatalogue(force = true)
+                    OnDeviceWildlifeRepository(getApplication()).use {
+                        it.syncCataloniaCatalogue(force = true)
+                    }
                 }
             }
             uiState = result.fold(
@@ -189,6 +230,71 @@ class ExploreViewModel(application: Application) : AndroidViewModel(application)
         }
     }
 
+    fun nearbyLocationStarted() {
+        if (!uiState.nearby.loading) {
+            nearbyState = uiState.nearby.copy(
+                requested = true,
+                loading = true,
+                errorMessage = null,
+            )
+            uiState = uiState.copy(
+                nearby = nearbyState,
+            )
+        }
+    }
+
+    fun nearbyLocationFailed(message: String) {
+        nearbyState = uiState.nearby.copy(
+            requested = true,
+            loading = false,
+            errorMessage = message,
+        )
+        uiState = uiState.copy(
+            nearby = nearbyState,
+        )
+    }
+
+    fun discoverNearby(latitude: Double, longitude: Double) {
+        nearbyLocationStarted()
+        viewModelScope.launch {
+            val result = runCatching {
+                withContext(Dispatchers.IO) {
+                    OnDeviceWildlifeRepository(getApplication()).use {
+                        it.discoverNearbySpecies(
+                            latitude = latitude,
+                            longitude = longitude,
+                            radiusKm = uiState.nearby.radiusKm,
+                        )
+                    }
+                }
+            }
+            nearbyState = result.fold(
+                    onSuccess = { species ->
+                        uiState.nearby.copy(
+                            requested = true,
+                            loading = false,
+                            species = NearbyDiscoveryProjection.withinCatalogue(
+                                nearby = species,
+                                catalogue = uiState.entries,
+                            ),
+                            errorMessage = null,
+                        )
+                    },
+                    onFailure = { error ->
+                        uiState.nearby.copy(
+                            requested = true,
+                            loading = false,
+                            errorMessage = error.message
+                                ?: "Nearby species could not be checked. Try again with coverage.",
+                        )
+                    },
+                )
+            uiState = uiState.copy(
+                nearby = nearbyState,
+            )
+        }
+    }
+
     private fun enrichSilhouettesIfNeeded() {
         val snapshot = uiState.snapshot ?: return
         if (
@@ -201,7 +307,9 @@ class ExploreViewModel(application: Application) : AndroidViewModel(application)
         viewModelScope.launch {
             val result = runCatching {
                 withContext(Dispatchers.IO) {
-                    OnDeviceWildlifeRepository(getApplication()).enrichCatalogueSilhouettes()
+                    OnDeviceWildlifeRepository(getApplication()).use {
+                        it.enrichCatalogueSilhouettes()
+                    }
                 }
             }
             val completed = result.getOrNull()?.silhouettePipelineVersion ==
@@ -220,15 +328,25 @@ class ExploreViewModel(application: Application) : AndroidViewModel(application)
 
     private fun loadLocal(): ExploreUiState = runCatching {
         val context = getApplication<Application>()
-        val catalogueStore = CatalogueStore(context)
-        val snapshot = catalogueStore.load()
-        val detailsByTaxon = catalogueStore.loadTaxonDetails()
-        val observations = AccountStore(context).verified()?.let { account ->
-            ObservationStore(context).observations(account.userId)
+        val (snapshot, detailsByTaxon) = CatalogueStore(context).use { catalogueStore ->
+            catalogueStore.load() to catalogueStore.loadTaxonDetails()
+        }
+        val account = AccountStore(context).verified()
+        val observationStore = account?.let { ObservationStore(context) }
+        val observations = account?.let { observationStore?.observations(it.userId) }.orEmpty()
+        val hiddenObservationUuids = account?.let {
+            observationStore?.mapHiddenObservationUuids(it.userId)
         }.orEmpty()
+        observationStore?.close()
         ExploreUiState(
             snapshot = snapshot,
             entries = ExploreProjection.entries(snapshot, observations, detailsByTaxon),
+            accountLinked = account != null,
+            personalMap = PersonalObservationMapProjection.build(
+                observations = observations,
+                hiddenObservationUuids = hiddenObservationUuids,
+            ),
+            nearby = nearbyState,
             errorMessage = when {
                 snapshot?.refreshInProgress == true ->
                     "The previous catalogue refresh was interrupted. Your stored guide is intact."
@@ -238,6 +356,9 @@ class ExploreViewModel(application: Application) : AndroidViewModel(application)
             },
         )
     }.getOrElse { error ->
-        ExploreUiState(errorMessage = error.message ?: "The offline catalogue could not be read.")
+        ExploreUiState(
+            nearby = nearbyState,
+            errorMessage = error.message ?: "The offline catalogue could not be read.",
+        )
     }
 }
