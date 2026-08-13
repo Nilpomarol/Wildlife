@@ -105,6 +105,15 @@ data class ObservationSyncResult(
     val observations: List<SyncedObservation>,
     val summary: CollectionSummary,
     val cached: Boolean,
+    val qualityTransitions: List<ObservationQualityTransition> = emptyList(),
+)
+
+data class ObservationQualityTransition(
+    val observationUuid: String,
+    val label: String,
+    val fromQualityGrade: String,
+    val toQualityGrade: String,
+    val detectedAtMs: Long,
 )
 
 data class ObservationConfirmationResult(

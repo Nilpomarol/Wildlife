@@ -97,6 +97,13 @@ fun HomeScreen(
                                 style = MaterialTheme.typography.bodySmall,
                                 color = MaterialTheme.colorScheme.onSurfaceVariant,
                             )
+                            if (state.pendingMatchesReady > 0) {
+                                Text(
+                                    "${state.pendingMatchesReady} ready to inspect and confirm",
+                                    style = MaterialTheme.typography.bodySmall,
+                                    color = MaterialTheme.colorScheme.secondary,
+                                )
+                            }
                             OutlinedButton(onClick = onCapture) { Text("Review observations") }
                         }
                     }

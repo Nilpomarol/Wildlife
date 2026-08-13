@@ -48,7 +48,7 @@ object ProgressionRules {
     const val FIRST_SPECIES_XP = 500
 
     const val RESEARCH_GRADE_XP = 50
-    const val RESEARCH_GRADE_ENABLED = false
+    const val RESEARCH_GRADE_ENABLED = true
     const val IDENTIFICATION_GIVEN_XP = 25
     const val IDENTIFICATION_GIVEN_ENABLED = false
     const val ANOMALY_CONFIRMED_XP = 250

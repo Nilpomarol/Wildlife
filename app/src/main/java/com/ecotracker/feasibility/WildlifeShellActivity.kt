@@ -154,6 +154,7 @@ class MainActivity : ComponentActivity() {
                         openExternal("https://www.inaturalist.org/people/$login")
                     },
                     onSelectProgressionTitle = shellViewModel::selectProgressionTitle,
+                    onSyncObservations = { syncObservationsOnDevice(force = true) },
                     bottomBar = bottomBar,
                 )
             }
@@ -178,19 +179,32 @@ class MainActivity : ComponentActivity() {
         )
     }
 
-    private fun syncObservationsOnDevice() {
+    private fun syncObservationsOnDevice(force: Boolean = false) {
         val account = AccountStore(this).verified() ?: return
         if (observationSyncInFlight) return
         observationSyncInFlight = true
+        shellViewModel.observationSyncStarted()
         lifecycleScope.launch {
             runCatching {
                 withContext(Dispatchers.IO) {
-                    OnDeviceWildlifeRepository(this@MainActivity).syncObservations(account)
+                    val repository = OnDeviceWildlifeRepository(this@MainActivity)
+                    val result = repository.syncObservations(account, force = force)
+                    MarkerStore(this@MainActivity).load()
+                        .asSequence()
+                        .filter { it.state == MarkerState.CONFIRMED }
+                        .mapNotNull { it.matchedObservationUuid }
+                        .distinct()
+                        .forEach { uuid -> repository.confirmObservation(account, uuid) }
+                    result
                 }
             }.onSuccess {
-                shellViewModel.refresh()
+                shellViewModel.observationSyncSucceeded()
                 collectionViewModel.refresh()
                 exploreViewModel.refreshLocal()
+            }.onFailure { error ->
+                shellViewModel.observationSyncFailed(
+                    error.message ?: "Could not update public iNaturalist observations.",
+                )
             }
             observationSyncInFlight = false
         }

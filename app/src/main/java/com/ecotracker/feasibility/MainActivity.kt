@@ -369,7 +369,12 @@ class CaptureActivity : ComponentActivity() {
                 val repository = OnDeviceWildlifeRepository(this)
                 val sync = repository.syncObservations(account)
                 confirmPreviouslyMatched(repository, account)
+                val alreadyMatched = markers.asSequence()
+                    .filter { it.state == MarkerState.CONFIRMED }
+                    .mapNotNull(PendingMarker::matchedObservationUuid)
+                    .toSet()
                 val candidates = observationStore.candidates(account.userId)
+                    .filterNot { it.uuid in alreadyMatched }
                 sync to openMarkers.associate { marker ->
                     marker.id to CandidateMatcher.proposals(marker, candidates)
                 }

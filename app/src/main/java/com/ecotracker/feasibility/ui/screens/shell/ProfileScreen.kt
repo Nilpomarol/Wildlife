@@ -14,12 +14,15 @@ import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.automirrored.outlined.OpenInNew
 import androidx.compose.material.icons.outlined.EmojiEvents
 import androidx.compose.material.icons.outlined.Link
+import androidx.compose.material.icons.outlined.Sync
+import androidx.compose.material.icons.outlined.Update
 import androidx.compose.material3.Card
 import androidx.compose.material3.CardDefaults
 import androidx.compose.material3.AlertDialog
 import androidx.compose.material3.HorizontalDivider
 import androidx.compose.material3.Icon
 import androidx.compose.material3.LinearProgressIndicator
+import androidx.compose.material3.CircularProgressIndicator
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.OutlinedButton
 import androidx.compose.material3.RadioButton
@@ -37,6 +40,7 @@ import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import com.wildlife.feasibility.ProgressionProjection
+import com.wildlife.feasibility.ObservationQualityTransition
 import com.wildlife.feasibility.XpEventRecord
 import com.wildlife.feasibility.XpEventType
 import com.wildlife.feasibility.ui.components.WildlifeScaffold
@@ -51,6 +55,7 @@ fun ProfileScreen(
     onManageAccount: () -> Unit,
     onOpenPublicProfile: (String) -> Unit,
     onSelectProgressionTitle: (String) -> Unit,
+    onSyncObservations: () -> Unit,
     bottomBar: @Composable () -> Unit,
 ) {
     var choosingTitle by remember { mutableStateOf(false) }
@@ -88,6 +93,9 @@ fun ProfileScreen(
                 }
             }
             state.account?.let {
+                item {
+                    ObservationSyncCard(state = state, onSyncObservations = onSyncObservations)
+                }
                 item {
                     ProgressionCard(
                         progression = state.progression ?: ProgressionProjection.project(0),
@@ -177,6 +185,116 @@ fun ProfileScreen(
         )
     }
 }
+
+@Composable
+private fun ObservationSyncCard(
+    state: ShellUiState,
+    onSyncObservations: () -> Unit,
+) {
+    Card(
+        modifier = Modifier.fillMaxWidth(),
+        colors = CardDefaults.cardColors(containerColor = MaterialTheme.colorScheme.surface),
+        border = BorderStroke(1.dp, MaterialTheme.colorScheme.outlineVariant),
+        elevation = CardDefaults.cardElevation(0.dp),
+    ) {
+        Column(
+            modifier = Modifier.padding(WildlifeSpacing.Card),
+            verticalArrangement = Arrangement.spacedBy(WildlifeSpacing.Small),
+        ) {
+            Row(
+                modifier = Modifier.fillMaxWidth(),
+                horizontalArrangement = Arrangement.spacedBy(WildlifeSpacing.Small),
+                verticalAlignment = androidx.compose.ui.Alignment.CenterVertically,
+            ) {
+                Icon(
+                    imageVector = Icons.Outlined.Update,
+                    contentDescription = null,
+                    tint = MaterialTheme.colorScheme.secondary,
+                )
+                Column(modifier = Modifier.weight(1f)) {
+                    Text("iNaturalist updates", style = MaterialTheme.typography.titleMedium)
+                    Text(
+                        text = observationSyncStatus(state),
+                        style = MaterialTheme.typography.bodySmall,
+                        color = if (state.observationSyncError != null) {
+                            MaterialTheme.colorScheme.error
+                        } else {
+                            MaterialTheme.colorScheme.onSurfaceVariant
+                        },
+                    )
+                }
+                if (state.observationSyncing) {
+                    CircularProgressIndicator(
+                        color = MaterialTheme.colorScheme.primary,
+                        strokeWidth = 2.dp,
+                    )
+                }
+            }
+
+            if (state.pendingMatchesReady > 0) {
+                Text(
+                    text = "${state.pendingMatchesReady} pending handoff ready to review in Capture",
+                    style = MaterialTheme.typography.bodyMedium,
+                    color = MaterialTheme.colorScheme.secondary,
+                )
+            }
+
+            if (state.recentQualityTransitions.isNotEmpty()) {
+                HorizontalDivider(color = MaterialTheme.colorScheme.outlineVariant)
+                Text("Recent quality changes", style = MaterialTheme.typography.labelLarge)
+                state.recentQualityTransitions.take(3).forEach { transition ->
+                    QualityTransitionRow(transition)
+                }
+            }
+
+            OutlinedButton(
+                onClick = onSyncObservations,
+                enabled = !state.observationSyncing,
+                modifier = Modifier.fillMaxWidth(),
+            ) {
+                Icon(Icons.Outlined.Sync, contentDescription = null)
+                Text(
+                    if (state.observationSyncError == null) "Check now" else "Try again",
+                    Modifier.padding(start = WildlifeSpacing.Small),
+                )
+            }
+        }
+    }
+}
+
+@Composable
+private fun QualityTransitionRow(transition: ObservationQualityTransition) {
+    Column(verticalArrangement = Arrangement.spacedBy(WildlifeSpacing.Micro)) {
+        Text(
+            text = transition.label,
+            style = MaterialTheme.typography.bodyMedium,
+            fontWeight = FontWeight.Medium,
+        )
+        Text(
+            text = "${qualityLabel(transition.fromQualityGrade)} → ${qualityLabel(transition.toQualityGrade)}",
+            style = MaterialTheme.typography.bodySmall,
+            color = MaterialTheme.colorScheme.onSurfaceVariant,
+        )
+    }
+}
+
+private fun observationSyncStatus(state: ShellUiState): String = when {
+    state.observationSyncing -> "Checking public observations…"
+    state.observationSyncError != null -> state.observationSyncError
+    state.lastObservationSyncAtMs == null -> "Not checked yet"
+    state.observationDataStale -> "Stored data may be stale · last checked ${formatDateTime(state.lastObservationSyncAtMs)}"
+    else -> "Last checked ${formatDateTime(state.lastObservationSyncAtMs)}"
+}
+
+private fun qualityLabel(value: String): String = when (value) {
+    "needs_id" -> "Needs ID"
+    "research" -> "Research Grade"
+    "casual" -> "Casual"
+    else -> value.replace('_', ' ').replaceFirstChar { it.uppercase() }
+}
+
+private fun formatDateTime(value: Long): String =
+    DateFormat.getDateTimeInstance(DateFormat.MEDIUM, DateFormat.SHORT).format(Date(value))
 
 @Composable
 private fun ProgressionCard(
@@ -326,6 +444,7 @@ private fun ProfilePreview() {
             onManageAccount = {},
             onOpenPublicProfile = {},
             onSelectProgressionTitle = {},
+            onSyncObservations = {},
             bottomBar = {},
         )
     }
@@ -360,10 +479,23 @@ private fun ProfileProgressionPreview() {
                 account = com.wildlife.feasibility.VerifiedAccount(42, "naturalist", 1),
                 totalXp = 510,
                 progression = ProgressionProjection.project(510, events),
+                lastObservationSyncAtMs = 1_723_000_000_000,
+                observationDataStale = false,
+                pendingMatchesReady = 1,
+                recentQualityTransitions = listOf(
+                    ObservationQualityTransition(
+                        observationUuid = "robin",
+                        label = "European robin",
+                        fromQualityGrade = "needs_id",
+                        toQualityGrade = "research",
+                        detectedAtMs = 1_723_000_000_000,
+                    ),
+                ),
             ),
             onManageAccount = {},
             onOpenPublicProfile = {},
             onSelectProgressionTitle = {},
+            onSyncObservations = {},
             bottomBar = {},
         )
     }
@@ -384,10 +516,14 @@ private fun ProfileProgressionLargeTextPreview() {
                 account = com.wildlife.feasibility.VerifiedAccount(42, "naturalist", 1),
                 totalXp = 2_550,
                 progression = ProgressionProjection.project(2_550),
+                observationSyncing = true,
+                lastObservationSyncAtMs = 1_723_000_000_000,
+                observationDataStale = false,
             ),
             onManageAccount = {},
             onOpenPublicProfile = {},
             onSelectProgressionTitle = {},
+            onSyncObservations = {},
             bottomBar = {},
         )
     }

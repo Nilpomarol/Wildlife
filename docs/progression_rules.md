@@ -34,7 +34,7 @@ These keys and values are the editable source for the placeholder implementation
 |---|---|---:|---|---|
 | `confirmed_observation` | A matched public observation is explicitly confirmed in Wildlife | 10 | Yes | Matches the current ledger |
 | `first_species` | The user's first confirmed species-level collection taxon | 500 | Yes | Matches the current ledger; keyed by collection taxon ID |
-| `research_grade` | A previously known public observation first reaches Research Grade | 50 | No | Enable only when transition sync and idempotency are implemented |
+| `research_grade` | A previously known public observation first reaches Research Grade | 50 | Yes | Enabled after durable quality-transition detection and idempotency were implemented in lifecycle schema v5 |
 | `identification_given` | A qualifying identification given to another iNaturalist user | 25 | No | v1.2; requires validated source fields, self-exclusion and daily cap |
 | `anomaly_confirmed` | A reviewed out-of-range sighting passes the required delay | 250 | No | Requires a versioned range signal; never infer it from Research Grade alone |
 

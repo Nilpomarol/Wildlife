@@ -15,9 +15,10 @@ class OnDeviceWildlifeRepository(context: Context) {
     private val wikimedia = WikimediaCommonsClient()
     private val localMedia = LocalMediaStore(appContext)
 
-    fun syncObservations(account: VerifiedAccount): ObservationSyncResult {
+    fun syncObservations(account: VerifiedAccount, force: Boolean = false): ObservationSyncResult {
         val cachedSummary = observations.summary(account.userId)
         if (
+            !force &&
             cachedSummary.lastSyncedAtMs != null &&
             System.currentTimeMillis() - cachedSummary.lastSyncedAtMs < MIN_SYNC_INTERVAL_MS
         ) {

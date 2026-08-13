@@ -35,7 +35,7 @@ Aquestes claus i aquests valors són la font editable de la implementació provi
 |---|---|---:|---|---|
 | `confirmed_observation` | Una observació pública coincident es confirma explícitament a Wildlife | 10 | Sí | Coincideix amb el registre actual |
 | `first_species` | Primer tàxon de col·lecció confirmat a nivell d’espècie de l’usuari | 500 | Sí | Coincideix amb el registre actual; clau basada en l’ID del tàxon de col·lecció |
-| `research_grade` | Una observació pública ja coneguda arriba per primera vegada a Grau de recerca | 50 | No | Activar només quan s’hagin implementat la sincronització de transicions i la idempotència |
+| `research_grade` | Una observació pública ja coneguda arriba per primera vegada a Grau de recerca | 50 | Sí | Activat després d’implementar la detecció duradora i idempotent de transicions de qualitat a l’esquema de cicle de vida v5 |
 | `identification_given` | Una identificació vàlida aportada a un altre usuari d’iNaturalist | 25 | No | v1.2; requereix camps d’origen validats, excloure les autoidentificacions i un límit diari |
 | `anomaly_confirmed` | Una observació fora de distribució supera la revisió i el retard requerits | 250 | No | Requereix un indicador de distribució versionat; no s’ha d’inferir només del Grau de recerca |
 

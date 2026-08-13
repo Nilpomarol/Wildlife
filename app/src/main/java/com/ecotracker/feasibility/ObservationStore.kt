@@ -44,6 +44,7 @@ class ObservationStore(context: Context) : SQLiteOpenHelper(context, DATABASE, n
             """.trimIndent(),
         )
         database.execSQL(CREATE_XP_EVENTS)
+        database.execSQL(CREATE_QUALITY_EVENTS)
     }
 
     override fun onUpgrade(database: SQLiteDatabase, oldVersion: Int, newVersion: Int) {
@@ -93,6 +94,9 @@ class ObservationStore(context: Context) : SQLiteOpenHelper(context, DATABASE, n
                 """.trimIndent(),
             )
         }
+        if (oldVersion < 5) {
+            database.execSQL(CREATE_QUALITY_EVENTS)
+        }
     }
 
     fun replaceSnapshot(
@@ -101,6 +105,8 @@ class ObservationStore(context: Context) : SQLiteOpenHelper(context, DATABASE, n
         syncedAtMs: Long = System.currentTimeMillis(),
     ): ObservationSyncResult {
         val confirmedUuids = confirmedUuids(userId)
+        val previousQuality = qualitySnapshot(userId, writableDatabase)
+        val detectedTransitions = mutableListOf<ObservationQualityTransition>()
         writableDatabase.beginTransaction()
         try {
             writableDatabase.delete("observations", "user_id = ?", arrayOf(userId.toString()))
@@ -111,6 +117,35 @@ class ObservationStore(context: Context) : SQLiteOpenHelper(context, DATABASE, n
                 writableDatabase.insertOrThrow(
                     "observations", null, localObservation.values(userId),
                 )
+                ObservationLifecyclePolicy.qualityTransition(
+                    previousQualityGrade = previousQuality[observation.uuid],
+                    observation = observation,
+                    detectedAtMs = syncedAtMs,
+                )?.let { transition ->
+                    recordQualityTransition(
+                        database = writableDatabase,
+                        userId = userId,
+                        transition = transition,
+                    )?.let { recorded ->
+                        detectedTransitions += recorded
+                        if (
+                            recorded.toQualityGrade == "research" &&
+                            ProgressionRules.RESEARCH_GRADE_ENABLED
+                        ) {
+                            award(
+                                database = writableDatabase,
+                                userId = userId,
+                                eventKey = "research_grade:${observation.uuid}",
+                                eventType = XpEventType.RESEARCH_GRADE,
+                                uuid = observation.uuid,
+                                subjectTaxonId = observation.collectionTaxonId ?: observation.taxonId,
+                                label = observation.label,
+                                points = ProgressionRules.RESEARCH_GRADE_XP,
+                                createdAtMs = syncedAtMs,
+                            )
+                        }
+                    }
+                }
             }
             saveSummary(
                 userId,
@@ -125,6 +160,7 @@ class ObservationStore(context: Context) : SQLiteOpenHelper(context, DATABASE, n
             observations = observations(userId),
             summary = summary(userId),
             cached = false,
+            qualityTransitions = detectedTransitions,
         )
     }
 
@@ -334,6 +370,37 @@ class ObservationStore(context: Context) : SQLiteOpenHelper(context, DATABASE, n
         }
     }
 
+    fun qualityTransitions(
+        userId: Long,
+        limit: Int = 5,
+    ): List<ObservationQualityTransition> = readableDatabase.query(
+        "observation_quality_events",
+        arrayOf(
+            "observation_uuid", "label", "from_quality_grade",
+            "to_quality_grade", "detected_at_ms",
+        ),
+        "user_id = ?",
+        arrayOf(userId.toString()),
+        null,
+        null,
+        "detected_at_ms DESC",
+        limit.coerceAtLeast(0).toString(),
+    ).use { cursor ->
+        buildList {
+            while (cursor.moveToNext()) {
+                add(
+                    ObservationQualityTransition(
+                        observationUuid = cursor.getString(0),
+                        label = cursor.getString(1),
+                        fromQualityGrade = cursor.getString(2),
+                        toQualityGrade = cursor.getString(3),
+                        detectedAtMs = cursor.getLong(4),
+                    ),
+                )
+            }
+        }
+    }
+
     private fun saveSummary(userId: Long, summary: CollectionSummary, database: SQLiteDatabase) {
         database.insertWithOnConflict(
             "collection_summary",
@@ -426,6 +493,45 @@ class ObservationStore(context: Context) : SQLiteOpenHelper(context, DATABASE, n
         ).use { cursor -> cursor.moveToFirst(); cursor.getInt(0) }
     }
 
+    private fun qualitySnapshot(
+        userId: Long,
+        database: SQLiteDatabase,
+    ): Map<String, String> = database.query(
+        "observations",
+        arrayOf("uuid", "quality_grade"),
+        "user_id = ?",
+        arrayOf(userId.toString()),
+        null,
+        null,
+        null,
+    ).use { cursor ->
+        buildMap {
+            while (cursor.moveToNext()) put(cursor.getString(0), cursor.getString(1))
+        }
+    }
+
+    private fun recordQualityTransition(
+        database: SQLiteDatabase,
+        userId: Long,
+        transition: ObservationQualityTransition,
+    ): ObservationQualityTransition? {
+        val inserted = database.insertWithOnConflict(
+            "observation_quality_events",
+            null,
+            ContentValues().apply {
+                put("user_id", userId)
+                put("event_key", "${transition.observationUuid}:${transition.toQualityGrade}")
+                put("observation_uuid", transition.observationUuid)
+                put("label", transition.label)
+                put("from_quality_grade", transition.fromQualityGrade)
+                put("to_quality_grade", transition.toQualityGrade)
+                put("detected_at_ms", transition.detectedAtMs)
+            },
+            SQLiteDatabase.CONFLICT_IGNORE,
+        )
+        return transition.takeUnless { inserted == -1L }
+    }
+
     private fun calculatedSummary(
         userId: Long,
         database: SQLiteDatabase,
@@ -484,7 +590,7 @@ class ObservationStore(context: Context) : SQLiteOpenHelper(context, DATABASE, n
 
     companion object {
         private const val DATABASE = "wildlife_observations.db"
-        private const val VERSION = 4
+        private const val VERSION = 5
         private const val CREATE_XP_EVENTS = """
             CREATE TABLE IF NOT EXISTS xp_events (
                 user_id INTEGER NOT NULL,
@@ -495,6 +601,18 @@ class ObservationStore(context: Context) : SQLiteOpenHelper(context, DATABASE, n
                 label TEXT,
                 points INTEGER NOT NULL,
                 created_at_ms INTEGER NOT NULL,
+                PRIMARY KEY(user_id, event_key)
+            )
+        """
+        private const val CREATE_QUALITY_EVENTS = """
+            CREATE TABLE IF NOT EXISTS observation_quality_events (
+                user_id INTEGER NOT NULL,
+                event_key TEXT NOT NULL,
+                observation_uuid TEXT NOT NULL,
+                label TEXT NOT NULL,
+                from_quality_grade TEXT NOT NULL,
+                to_quality_grade TEXT NOT NULL,
+                detected_at_ms INTEGER NOT NULL,
                 PRIMARY KEY(user_id, event_key)
             )
         """
