@@ -16,21 +16,33 @@ private val Lora = FontFamily(
     Font(R.font.lora_italic_variable, weight = FontWeight.Normal, style = FontStyle.Italic),
 )
 
+// Fraunces is the characterful display face for large titles, species identity and
+// game/level moments. Lora remains the calmer secondary serif; sans stays for body/UI.
+private val Fraunces = FontFamily(
+    Font(R.font.fraunces_variable, weight = FontWeight.Normal),
+    Font(R.font.fraunces_variable, weight = FontWeight.Medium),
+    Font(R.font.fraunces_variable, weight = FontWeight.SemiBold),
+    Font(R.font.fraunces_variable, weight = FontWeight.Bold),
+    Font(R.font.fraunces_italic_variable, weight = FontWeight.Normal, style = FontStyle.Italic),
+)
+
+val DisplayFontFamily = Fraunces
+
 val WildlifeTypography = Typography(
     displayLarge = TextStyle(
-        fontFamily = Lora,
-        fontWeight = FontWeight.Medium,
-        fontSize = 32.sp,
-        lineHeight = 38.sp,
+        fontFamily = Fraunces,
+        fontWeight = FontWeight.SemiBold,
+        fontSize = 34.sp,
+        lineHeight = 40.sp,
     ),
     headlineLarge = TextStyle(
-        fontFamily = Lora,
-        fontWeight = FontWeight.Medium,
+        fontFamily = Fraunces,
+        fontWeight = FontWeight.SemiBold,
         fontSize = 28.sp,
         lineHeight = 34.sp,
     ),
     headlineMedium = TextStyle(
-        fontFamily = Lora,
+        fontFamily = Fraunces,
         fontWeight = FontWeight.Medium,
         fontSize = 24.sp,
         lineHeight = 30.sp,

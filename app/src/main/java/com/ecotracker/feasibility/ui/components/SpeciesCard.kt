@@ -1,16 +1,20 @@
 package com.wildlife.feasibility.ui.components
 
+import androidx.compose.animation.Crossfade
+import androidx.compose.animation.core.tween
 import androidx.compose.foundation.BorderStroke
 import androidx.compose.foundation.background
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
+import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.shape.CircleShape
 import androidx.compose.material.icons.Icons
+import androidx.compose.material.icons.filled.Star
 import androidx.compose.material.icons.outlined.Biotech
 import androidx.compose.material.icons.outlined.Check
 import androidx.compose.material3.Card
@@ -31,6 +35,8 @@ import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.graphics.ColorFilter
 import androidx.compose.ui.layout.ContentScale
 import androidx.compose.ui.platform.LocalContext
+import androidx.compose.ui.semantics.clearAndSetSemantics
+import androidx.compose.ui.semantics.contentDescription
 import androidx.compose.ui.text.font.FontStyle
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.style.TextOverflow
@@ -40,6 +46,7 @@ import coil.request.ImageRequest
 import com.wildlife.feasibility.WildlifeNetworkIdentity
 import com.wildlife.feasibility.ui.theme.WildlifeSpacing
 import com.wildlife.feasibility.ui.theme.WildlifeTheme
+import kotlin.math.absoluteValue
 
 data class SpeciesCardModel(
     val key: String,
@@ -57,6 +64,7 @@ data class SpeciesCardModel(
     val silhouetteMatchRank: String? = null,
     val supportingTextItalic: Boolean = false,
     val status: SpeciesCardStatus = SpeciesCardStatus.NONE,
+    val rarity: SpeciesCardRarity? = null,
 )
 
 enum class SpeciesCardPhotoKind {
@@ -74,6 +82,41 @@ enum class SpeciesCardStatus {
     NONE,
     OBSERVED,
     RESEARCH_GRADE,
+}
+
+/**
+ * Visual rarity tiers. In v1 this is a labelled placeholder (see [sampleRarityFor]); it does
+ * not describe biological abundance. It communicates "collectible weight" only.
+ */
+enum class SpeciesCardRarity(val label: String) {
+    COMMON("Common"),
+    UNCOMMON("Uncommon"),
+    RARE("Rare"),
+    VERY_RARE("Very rare"),
+    LEGENDARY("Legendary"),
+}
+
+/**
+ * Deterministic placeholder rarity derived from a stable species key so the grid looks alive
+ * and collectible without inventing biology. Weighted toward common tiers.
+ */
+fun sampleRarityFor(key: String): SpeciesCardRarity {
+    return when (key.hashCode().absoluteValue % 20) {
+        in 0..8 -> SpeciesCardRarity.COMMON
+        in 9..13 -> SpeciesCardRarity.UNCOMMON
+        in 14..16 -> SpeciesCardRarity.RARE
+        in 17..18 -> SpeciesCardRarity.VERY_RARE
+        else -> SpeciesCardRarity.LEGENDARY
+    }
+}
+
+@Composable
+fun rarityColor(rarity: SpeciesCardRarity): Color = when (rarity) {
+    SpeciesCardRarity.COMMON -> WildlifeTheme.colors.rarityCommon
+    SpeciesCardRarity.UNCOMMON -> WildlifeTheme.colors.rarityUncommon
+    SpeciesCardRarity.RARE -> WildlifeTheme.colors.rarityRare
+    SpeciesCardRarity.VERY_RARE -> WildlifeTheme.colors.rarityVeryRare
+    SpeciesCardRarity.LEGENDARY -> WildlifeTheme.colors.rarityLegendary
 }
 
 @Composable
@@ -99,71 +142,108 @@ fun SpeciesCard(
         mutableStateOf(photoCandidates.isEmpty())
     }
     val activePhoto = photoCandidates.getOrNull(activePhotoIndex)
+    val rarity = species.rarity
+    val highTier = rarity == SpeciesCardRarity.RARE ||
+        rarity == SpeciesCardRarity.VERY_RARE ||
+        rarity == SpeciesCardRarity.LEGENDARY
+    val borderColor = if (highTier && rarity != null) {
+        rarityColor(rarity).copy(alpha = 0.85f)
+    } else {
+        MaterialTheme.colorScheme.outlineVariant
+    }
+    val cardDescription = buildString {
+        append(species.label)
+        append(", ")
+        append(species.supportingText)
+        rarity?.let { append(", ${it.label} tier") }
+        when (species.status) {
+            SpeciesCardStatus.RESEARCH_GRADE -> append(", research grade")
+            SpeciesCardStatus.OBSERVED -> append(", observed")
+            SpeciesCardStatus.NONE -> Unit
+        }
+    }
     Card(
         onClick = onClick,
-        modifier = modifier,
+        modifier = modifier.clearAndSetSemantics {
+            this.contentDescription = cardDescription
+        },
         shape = MaterialTheme.shapes.medium,
-        colors = CardDefaults.cardColors(containerColor = MaterialTheme.colorScheme.surface),
-        border = BorderStroke(1.dp, MaterialTheme.colorScheme.outlineVariant),
+        colors = CardDefaults.cardColors(containerColor = MaterialTheme.colorScheme.background),
+        border = BorderStroke(if (highTier) 1.5.dp else 1.dp, borderColor),
         elevation = CardDefaults.cardElevation(defaultElevation = 0.dp),
     ) {
         Box(Modifier.fillMaxSize()) {
-            if (!imageFailed) {
-                AsyncImage(
-                    model = ImageRequest.Builder(context)
-                        .data(activePhoto?.url)
-                        .setHeader(
-                            "User-Agent",
-                            WildlifeNetworkIdentity.REFERENCE_MEDIA_USER_AGENT,
-                        )
-                        .build(),
-                    contentDescription = when (activePhoto?.kind) {
-                        SpeciesCardPhotoKind.PERSONAL ->
-                            "${species.label}, your observation photo"
-                        SpeciesCardPhotoKind.REFERENCE ->
-                            "${species.label}, attributed reference photo"
-                        null -> species.label
-                    },
-                    contentScale = ContentScale.Crop,
-                    modifier = Modifier.fillMaxSize(),
-                    onError = {
-                        if (activePhotoIndex < photoCandidates.lastIndex) {
-                            activePhotoIndex++
-                        } else {
-                            imageFailed = true
-                        }
-                    },
-                )
-            } else {
-                NoPhotoState(
-                    label = species.label,
-                    silhouetteUrl = species.silhouetteUrl,
-                    silhouetteFallbackUrl = species.silhouetteFallbackUrl,
-                    silhouetteMatchRank = species.silhouetteMatchRank,
-                    modifier = Modifier.fillMaxSize(),
-                )
+            Crossfade(targetState = imageFailed, animationSpec = tween(220), label = "species-image") { failed ->
+                if (!failed) {
+                    AsyncImage(
+                        model = ImageRequest.Builder(context)
+                            .data(activePhoto?.url)
+                            .crossfade(true)
+                            .setHeader(
+                                "User-Agent",
+                                WildlifeNetworkIdentity.REFERENCE_MEDIA_USER_AGENT,
+                            )
+                            .build(),
+                        contentDescription = null,
+                        contentScale = ContentScale.Crop,
+                        modifier = Modifier.fillMaxSize(),
+                        onError = {
+                            if (activePhotoIndex < photoCandidates.lastIndex) {
+                                activePhotoIndex++
+                            } else {
+                                imageFailed = true
+                            }
+                        },
+                    )
+                } else {
+                    NoPhotoState(
+                        label = species.label,
+                        silhouetteUrl = species.silhouetteUrl,
+                        silhouetteFallbackUrl = species.silhouetteFallbackUrl,
+                        silhouetteMatchRank = species.silhouetteMatchRank,
+                        modifier = Modifier.fillMaxSize(),
+                    )
+                }
             }
             Box(
                 modifier = Modifier
                     .fillMaxSize()
                     .background(
                         Brush.verticalGradient(
-                            0f to Color.Transparent,
-                            0.38f to Color.Transparent,
-                            1f to Color(0xE6080B09),
+                            0f to Color(0x33080B09),
+                            0.34f to Color.Transparent,
+                            0.62f to Color(0x55080B09),
+                            1f to Color(0xF2080B09),
                         ),
                     ),
             )
+            if (rarity != null) {
+                RarityStar(
+                    rarity = rarity,
+                    modifier = Modifier
+                        .align(Alignment.TopStart)
+                        .padding(WildlifeSpacing.Small),
+                )
+            }
             Column(
                 modifier = Modifier
                     .align(Alignment.BottomStart)
                     .fillMaxWidth()
                     .padding(WildlifeSpacing.Small),
-                verticalArrangement = Arrangement.spacedBy(2.dp),
+                verticalArrangement = Arrangement.spacedBy(1.dp),
             ) {
+                if (!imageFailed && activePhoto?.attribution != null) {
+                    Text(
+                        text = activePhoto.attribution,
+                        style = MaterialTheme.typography.labelSmall,
+                        color = WildlifeTheme.colors.mutedText,
+                        maxLines = 1,
+                        overflow = TextOverflow.Ellipsis,
+                    )
+                }
                 Text(
                     text = species.label,
-                    style = MaterialTheme.typography.bodyMedium,
+                    style = MaterialTheme.typography.titleMedium,
                     fontWeight = FontWeight.SemiBold,
                     color = MaterialTheme.colorScheme.onBackground,
                     maxLines = 2,
@@ -189,24 +269,6 @@ fun SpeciesCard(
                         .align(Alignment.TopEnd)
                         .padding(WildlifeSpacing.Small),
                 )
-            }
-            if (!imageFailed && activePhoto?.attribution != null) {
-                Surface(
-                    shape = MaterialTheme.shapes.extraSmall,
-                    color = MaterialTheme.colorScheme.surface.copy(alpha = 0.82f),
-                    modifier = Modifier
-                        .align(Alignment.TopStart)
-                        .padding(WildlifeSpacing.Small),
-                ) {
-                    Text(
-                        text = activePhoto.attribution,
-                        style = MaterialTheme.typography.labelSmall,
-                        color = MaterialTheme.colorScheme.onSurfaceVariant,
-                        maxLines = 1,
-                        overflow = TextOverflow.Ellipsis,
-                        modifier = Modifier.padding(horizontal = 6.dp, vertical = 3.dp),
-                    )
-                }
             }
         }
     }
@@ -236,6 +298,26 @@ internal fun SpeciesCardModel.orderedPhotoCandidates(): List<SpeciesCardPhotoCan
     }.distinctBy(SpeciesCardPhotoCandidate::url)
 
 @Composable
+private fun RarityStar(
+    rarity: SpeciesCardRarity,
+    modifier: Modifier = Modifier,
+) {
+    Box(
+        modifier = modifier
+            .size(26.dp)
+            .background(color = Color(0x99080B09), shape = CircleShape),
+        contentAlignment = Alignment.Center,
+    ) {
+        Icon(
+            imageVector = Icons.Filled.Star,
+            contentDescription = null,
+            tint = rarityColor(rarity),
+            modifier = Modifier.size(16.dp),
+        )
+    }
+}
+
+@Composable
 private fun SpeciesStatusBadge(
     status: SpeciesCardStatus,
     modifier: Modifier = Modifier,
@@ -256,11 +338,7 @@ private fun SpeciesStatusBadge(
                 SpeciesCardStatus.RESEARCH_GRADE -> Icons.Outlined.Biotech
                 SpeciesCardStatus.NONE -> Icons.Outlined.Check
             },
-            contentDescription = when (status) {
-                SpeciesCardStatus.OBSERVED -> "Observed"
-                SpeciesCardStatus.RESEARCH_GRADE -> "Research grade"
-                SpeciesCardStatus.NONE -> null
-            },
+            contentDescription = null,
             tint = MaterialTheme.colorScheme.onPrimaryContainer,
             modifier = Modifier.size(19.dp),
         )
@@ -283,23 +361,25 @@ private fun NoPhotoState(
         mutableStateOf(silhouetteUrl == null)
     }
     Box(
-        modifier = modifier.background(MaterialTheme.colorScheme.surfaceVariant),
+        modifier = modifier.background(
+            Brush.verticalGradient(
+                0f to MaterialTheme.colorScheme.surface,
+                1f to MaterialTheme.colorScheme.background,
+            ),
+        ),
         contentAlignment = Alignment.Center,
     ) {
         if (!silhouetteFailed) {
             AsyncImage(
                 model = ImageRequest.Builder(context)
                     .data(activeSilhouetteUrl)
+                    .crossfade(true)
                     .setHeader(
                         "User-Agent",
                         WildlifeNetworkIdentity.REFERENCE_MEDIA_USER_AGENT,
                     )
                     .build(),
-                contentDescription = if (silhouetteMatchRank == "species") {
-                    "Silhouette for $label"
-                } else {
-                    "Representative silhouette for $label"
-                },
+                contentDescription = null,
                 contentScale = ContentScale.Fit,
                 colorFilter = ColorFilter.tint(WildlifeTheme.colors.silhouette),
                 modifier = Modifier

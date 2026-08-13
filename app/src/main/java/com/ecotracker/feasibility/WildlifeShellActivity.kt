@@ -124,6 +124,15 @@ class MainActivity : ComponentActivity() {
                     onCollection = { navController.openDestination(WildlifeDestination.COLLECTION) },
                     onExplore = { navController.openDestination(WildlifeDestination.EXPLORE) },
                     onMyMap = { navController.navigate(PERSONAL_MAP_ROUTE) },
+                    onOpenSpecies = { taxonId ->
+                        startActivity(
+                            SpeciesDetailActivity.intent(
+                                this@MainActivity,
+                                taxonId,
+                                shellViewModel.uiState.latestDiscovery?.label,
+                            ),
+                        )
+                    },
                     mappedObservationCount = exploreViewModel.uiState.personalMap.mappedObservationCount,
                     onLinkAccount = ::openAccountManagement,
                     bottomBar = bottomBar,

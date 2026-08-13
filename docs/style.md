@@ -175,12 +175,16 @@ Always pair color with text or an icon.
 Recommended implementation:
 
 ```text
-Display / headings: Lora
-UI / body:          Roboto
-Scientific names:   Roboto Italic
+Display titles:     Fraunces (expressive variable serif, bundled OFL)
+Secondary headings: Lora
+UI / body:          Roboto / system sans
+Scientific names:   sans Italic
 ```
 
-If adding a custom serif font is undesirable, use a single bundled serif family only for large titles.
+Fraunces carries the large display moments — screen titles, species identity, level and
+collection headers — giving the field guide a warmer, more collectible character. Lora
+remains the calmer secondary serif; sans stays for body, metadata and controls. Both serif
+faces are bundled under the SIL Open Font License (see `docs/licenses/`).
 
 ### Type scale
 
@@ -846,3 +850,41 @@ Before adding a new UI treatment, ask:
 5. Does it still work without animation or decoration?
 
 If the answer to 3–5 is repeatedly no, simplify it.
+
+---
+
+## 28. Adopted revision — a bolder game layer
+
+This revision deliberately pushes the collection experience further toward a *collectible
+game* feel than the original restrained baseline, while keeping the field-guide soul. It
+adjusts, but does not discard, §2.5 and §25.
+
+### Now embraced (previously understated)
+
+- **Fraunces display type** for titles, species identity and collection/level headers.
+- **Rarity stars** on species cards (top-left), tier-coloured per §4, paired with an
+  accessible label. High tiers (Rare and above) may also tint the card border.
+- **A collector header** on Collection: region selector, a completion meter, a collector
+  rank and an XP figure — the "HUD" the baseline avoided is now welcome, kept compact.
+- **Stronger image scrims and taller cards** (width ≈ 1, height ≈ 1.35) so photography and
+  labels both read boldly.
+- **Warmer, slightly brighter olive/gold accents** for the game moments.
+
+### Still prohibited
+
+Neon, glow, particle systems, animated gradients, fantasy shields/frames, arcade fonts and
+paper-texture skeuomorphism remain out. The line is "a beautiful modern field guide with
+real game feel," not a mobile arcade game.
+
+### Placeholder rarity and completion (v1)
+
+Until the catalogue denominator is frozen and a reviewed seasonal rarity snapshot exists
+(PRD §6.1, §7.1), rarity tiers and regional completion are a **labelled visual placeholder**:
+
+- Rarity is derived deterministically from a stable species key (`sampleRarityFor`), never
+  from biological data, and the screen states it is a sample.
+- Completion meters show real observed counts against a clearly-labelled *provisional*
+  target, never a curated total or a claim of true regional completeness.
+
+When real rarity and a frozen catalogue land, these placeholders are replaced in place with
+no visual change to the component contracts.

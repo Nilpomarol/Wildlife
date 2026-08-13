@@ -8,6 +8,7 @@ import androidx.lifecycle.AndroidViewModel
 import com.wildlife.feasibility.AccountStore
 import com.wildlife.feasibility.CatalogueStore
 import com.wildlife.feasibility.CollectionProjection
+import com.wildlife.feasibility.CollectionSpecies
 import com.wildlife.feasibility.MarkerState
 import com.wildlife.feasibility.MarkerStore
 import com.wildlife.feasibility.LocalDataInventory
@@ -20,12 +21,23 @@ import com.wildlife.feasibility.ProgressionState
 import com.wildlife.feasibility.ProgressionStore
 import com.wildlife.feasibility.VerifiedAccount
 
+data class HomeHighlight(
+    val taxonId: Long?,
+    val label: String,
+    val photoUrl: String?,
+    val observedAtMs: Long,
+    val researchGrade: Boolean,
+    val observationCount: Int,
+    val awaitingSpeciesIdentification: Boolean,
+)
+
 data class ShellUiState(
     val account: VerifiedAccount? = null,
     val collectionEntries: Int = 0,
     val identifiedSpecies: Int = 0,
     val observations: Int = 0,
     val totalXp: Int = 0,
+    val latestDiscovery: HomeHighlight? = null,
     val progression: ProgressionState? = null,
     val observationSyncing: Boolean = false,
     val observationSyncError: String? = null,
@@ -83,6 +95,20 @@ class ShellViewModel(application: Application) : AndroidViewModel(application) {
         val observationStore = account?.let { ObservationStore(context) }
         val observations = account?.let { observationStore?.observations(it.userId) }.orEmpty()
         val collection = CollectionProjection.species(observations)
+        val latestDiscovery = (
+            collection.filter { it.photoUrl != null }.maxByOrNull(CollectionSpecies::latestObservedAtMs)
+                ?: collection.maxByOrNull(CollectionSpecies::latestObservedAtMs)
+            )?.let { species ->
+            HomeHighlight(
+                taxonId = species.taxonId,
+                label = species.label,
+                photoUrl = species.photoUrl,
+                observedAtMs = species.latestObservedAtMs,
+                researchGrade = species.bestQualityGrade == "research",
+                observationCount = species.observationCount,
+                awaitingSpeciesIdentification = species.awaitingSpeciesIdentification,
+            )
+        }
         val summary = account?.let { observationStore?.summary(it.userId) }
         val progression = account?.let {
             ProgressionProjection.project(
@@ -105,6 +131,7 @@ class ShellViewModel(application: Application) : AndroidViewModel(application) {
             identifiedSpecies = collection.count { !it.awaitingSpeciesIdentification },
             observations = observations.size,
             totalXp = summary?.totalXp ?: 0,
+            latestDiscovery = latestDiscovery,
             progression = progression,
             observationSyncing = observationSyncing,
             observationSyncError = observationSyncError,

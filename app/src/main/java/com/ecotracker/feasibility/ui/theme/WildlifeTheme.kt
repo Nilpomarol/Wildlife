@@ -45,6 +45,11 @@ fun WildlifeTheme(content: @Composable () -> Unit) {
             silhouette = WildlifeSilhouette,
             confirmed = WildlifeConfirmed,
             mutedText = WildlifeTextMuted,
+            rarityCommon = WildlifeRarityCommon,
+            rarityUncommon = WildlifeRarityUncommon,
+            rarityRare = WildlifeRarityRare,
+            rarityVeryRare = WildlifeRarityVeryRare,
+            rarityLegendary = WildlifeRarityLegendary,
         ),
     ) {
         MaterialTheme(

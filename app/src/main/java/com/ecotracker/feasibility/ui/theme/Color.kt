@@ -22,6 +22,14 @@ val WildlifeGoldStrong = Color(0xFFF0AA2A)
 val WildlifeConfirmed = Color(0xFF78882D)
 val WildlifeSilhouette = Color(0xFF343832)
 
+// Rarity tier accents (style.md §4). Used as small stars/borders/labels only — never to
+// recolour a whole surface. In v1 these are a labelled visual placeholder, not biology.
+val WildlifeRarityCommon = Color(0xFFA8A48F)
+val WildlifeRarityUncommon = Color(0xFF9DB25A)
+val WildlifeRarityRare = Color(0xFFE6B24C)
+val WildlifeRarityVeryRare = Color(0xFFD98B44)
+val WildlifeRarityLegendary = Color(0xFFC585B0)
+
 @Immutable
 data class WildlifeColors(
     val parchment: Color,
@@ -31,6 +39,11 @@ data class WildlifeColors(
     val silhouette: Color,
     val confirmed: Color,
     val mutedText: Color,
+    val rarityCommon: Color,
+    val rarityUncommon: Color,
+    val rarityRare: Color,
+    val rarityVeryRare: Color,
+    val rarityLegendary: Color,
 )
 
 internal val LocalWildlifeColors = staticCompositionLocalOf {
@@ -42,5 +55,10 @@ internal val LocalWildlifeColors = staticCompositionLocalOf {
         silhouette = WildlifeSilhouette,
         confirmed = WildlifeConfirmed,
         mutedText = WildlifeTextMuted,
+        rarityCommon = WildlifeRarityCommon,
+        rarityUncommon = WildlifeRarityUncommon,
+        rarityRare = WildlifeRarityRare,
+        rarityVeryRare = WildlifeRarityVeryRare,
+        rarityLegendary = WildlifeRarityLegendary,
     )
 }

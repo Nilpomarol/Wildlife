@@ -1,5 +1,6 @@
 package com.wildlife.feasibility.ui.screens.collection
 
+import androidx.compose.foundation.BorderStroke
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.BoxWithConstraints
@@ -12,7 +13,12 @@ import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.lazy.grid.GridCells
 import androidx.compose.foundation.lazy.grid.LazyVerticalGrid
 import androidx.compose.foundation.lazy.grid.items
+import androidx.compose.material.icons.Icons
+import androidx.compose.material.icons.filled.ExpandMore
+import androidx.compose.material3.Icon
+import androidx.compose.material3.LinearProgressIndicator
 import androidx.compose.material3.MaterialTheme
+import androidx.compose.material3.Surface
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.getValue
@@ -35,10 +41,10 @@ import com.wildlife.feasibility.ui.components.SpeciesCardStatus
 import com.wildlife.feasibility.ui.components.TaxonFilterRow
 import com.wildlife.feasibility.ui.components.WildlifeScaffold
 import com.wildlife.feasibility.ui.components.responsiveSpeciesGridColumns
+import com.wildlife.feasibility.ui.components.sampleRarityFor
 import com.wildlife.feasibility.ui.theme.WildlifeSpacing
 import com.wildlife.feasibility.ui.theme.WildlifeTheme
-import java.text.DateFormat
-import java.util.Date
+import kotlin.math.min
 
 enum class CollectionFilter(val label: String) {
     ALL("All"),
@@ -46,6 +52,10 @@ enum class CollectionFilter(val label: String) {
     NEEDS_ID("Needs ID"),
     AWAITING_SPECIES("Awaiting species"),
 }
+
+// Visual-only provisional regional target so the completion bar reads like a collectible
+// progress meter. NOT a curated denominator; always shown with a "provisional" label.
+private const val SAMPLE_REGION_TARGET = 580
 
 @Composable
 fun CollectionScreen(
@@ -93,20 +103,24 @@ fun CollectionScreen(
                     .fillMaxSize()
                     .padding(innerPadding),
             ) {
-                CollectionSearchBar(
-                    query = query,
-                    onQueryChange = { query = it },
-                    modifier = Modifier.padding(horizontal = WildlifeSpacing.Screen),
-                )
-                CollectionStatsRow(
-                    entries = state.entries.size,
-                    species = state.identifiedSpeciesCount,
+                CollectorHeader(
+                    collected = state.entries.size,
+                    identifiedSpecies = state.identifiedSpeciesCount,
+                    researchGrade = state.entries.count { it.bestQualityGrade == "research" },
                     xp = state.totalXp,
-                    lastSyncedAtMs = state.lastSyncedAtMs,
                     modifier = Modifier.padding(
                         start = WildlifeSpacing.Screen,
                         end = WildlifeSpacing.Screen,
                         top = WildlifeSpacing.Small,
+                    ),
+                )
+                CollectionSearchBar(
+                    query = query,
+                    onQueryChange = { query = it },
+                    modifier = Modifier.padding(
+                        start = WildlifeSpacing.Screen,
+                        end = WildlifeSpacing.Screen,
+                        top = WildlifeSpacing.Card,
                     ),
                 )
                 TaxonFilterRow(
@@ -137,6 +151,152 @@ fun CollectionScreen(
 }
 
 @Composable
+private fun CollectorHeader(
+    collected: Int,
+    identifiedSpecies: Int,
+    researchGrade: Int,
+    xp: Int,
+    modifier: Modifier = Modifier,
+) {
+    androidx.compose.material3.Card(
+        modifier = modifier.fillMaxWidth(),
+        colors = androidx.compose.material3.CardDefaults.cardColors(
+            containerColor = MaterialTheme.colorScheme.surface,
+        ),
+        border = BorderStroke(1.dp, MaterialTheme.colorScheme.outlineVariant),
+        elevation = androidx.compose.material3.CardDefaults.cardElevation(0.dp),
+    ) {
+        Column(
+            modifier = Modifier.padding(WildlifeSpacing.Card),
+            verticalArrangement = Arrangement.spacedBy(WildlifeSpacing.Card),
+        ) {
+            Row(
+                modifier = Modifier.fillMaxWidth(),
+                horizontalArrangement = Arrangement.SpaceBetween,
+                verticalAlignment = Alignment.CenterVertically,
+            ) {
+                RegionPill()
+                RankPill(rankFor(collected))
+            }
+
+            Row(
+                modifier = Modifier.fillMaxWidth(),
+                horizontalArrangement = Arrangement.SpaceBetween,
+            ) {
+                CollectorStat("Collected", collected.toString())
+                CollectorStat("Confirmed", researchGrade.toString())
+                CollectorStat("XP", xp.toString())
+            }
+
+            val target = maxOf(SAMPLE_REGION_TARGET, collected)
+            val fraction = min(1f, collected.toFloat() / target)
+            val percent = (fraction * 100).toInt()
+            Column(verticalArrangement = Arrangement.spacedBy(WildlifeSpacing.Micro)) {
+                Row(
+                    modifier = Modifier.fillMaxWidth(),
+                    horizontalArrangement = Arrangement.SpaceBetween,
+                ) {
+                    Text(
+                        text = "$identifiedSpecies / $target species",
+                        style = MaterialTheme.typography.labelMedium,
+                        color = MaterialTheme.colorScheme.onSurfaceVariant,
+                    )
+                    Text(
+                        text = "$percent%",
+                        style = MaterialTheme.typography.labelMedium,
+                        fontWeight = FontWeight.SemiBold,
+                        color = WildlifeTheme.colors.oliveStrong,
+                    )
+                }
+                LinearProgressIndicator(
+                    progress = { fraction },
+                    modifier = Modifier
+                        .fillMaxWidth()
+                        .padding(vertical = 2.dp),
+                    color = WildlifeTheme.colors.oliveStrong,
+                    trackColor = MaterialTheme.colorScheme.surfaceVariant,
+                )
+                Text(
+                    text = "Provisional preview · completion and rarity are a visual sample, not a curated total.",
+                    style = MaterialTheme.typography.labelSmall,
+                    color = WildlifeTheme.colors.mutedText,
+                )
+            }
+        }
+    }
+}
+
+@Composable
+private fun RegionPill() {
+    Surface(
+        shape = MaterialTheme.shapes.small,
+        color = MaterialTheme.colorScheme.surfaceVariant,
+        border = BorderStroke(1.dp, MaterialTheme.colorScheme.outlineVariant),
+    ) {
+        Row(
+            modifier = Modifier.padding(horizontal = WildlifeSpacing.Small, vertical = 6.dp),
+            verticalAlignment = Alignment.CenterVertically,
+            horizontalArrangement = Arrangement.spacedBy(WildlifeSpacing.Micro),
+        ) {
+            Text(
+                text = "Catalonia",
+                style = MaterialTheme.typography.labelLarge,
+                color = WildlifeTheme.colors.parchment,
+            )
+            Icon(
+                imageVector = Icons.Filled.ExpandMore,
+                contentDescription = null,
+                tint = MaterialTheme.colorScheme.onSurfaceVariant,
+                modifier = Modifier.padding(0.dp),
+            )
+        }
+    }
+}
+
+@Composable
+private fun RankPill(rank: String) {
+    Surface(
+        shape = MaterialTheme.shapes.small,
+        color = WildlifeTheme.colors.oliveStrong.copy(alpha = 0.16f),
+        border = BorderStroke(1.dp, WildlifeTheme.colors.olive),
+    ) {
+        Text(
+            text = rank,
+            style = MaterialTheme.typography.labelMedium,
+            fontWeight = FontWeight.SemiBold,
+            color = WildlifeTheme.colors.oliveStrong,
+            modifier = Modifier.padding(horizontal = WildlifeSpacing.Small, vertical = 6.dp),
+        )
+    }
+}
+
+// UI-only playful rank tied to collected count. Distinct from Profile's real XP levels; a
+// lightweight "collector rank" flavour label for the header only.
+private fun rankFor(collected: Int): String = when {
+    collected >= 200 -> "Ranger"
+    collected >= 100 -> "Field naturalist"
+    collected >= 40 -> "Tracker"
+    collected >= 10 -> "Observer"
+    else -> "Novice"
+}
+
+@Composable
+private fun CollectorStat(label: String, value: String) {
+    Column(horizontalAlignment = Alignment.Start) {
+        Text(
+            text = value,
+            style = MaterialTheme.typography.headlineMedium,
+            color = WildlifeTheme.colors.parchment,
+        )
+        Text(
+            text = label,
+            style = MaterialTheme.typography.labelSmall,
+            color = MaterialTheme.colorScheme.onSurfaceVariant,
+        )
+    }
+}
+
+@Composable
 private fun SpeciesGrid(
     entries: List<CollectionSpecies>,
     onOpenSpecies: (CollectionSpecies) -> Unit,
@@ -162,7 +322,7 @@ private fun SpeciesGrid(
                     onClick = { onOpenSpecies(entry) },
                     modifier = Modifier
                         .fillMaxWidth()
-                        .aspectRatio(0.94f)
+                        .aspectRatio(0.72f)
                         .animateItem(),
                 )
             }
@@ -186,63 +346,8 @@ private fun CollectionSpecies.toCardModel() = SpeciesCardModel(
     } else {
         SpeciesCardStatus.NONE
     },
+    rarity = sampleRarityFor(key),
 )
-
-@Composable
-private fun CollectionStatsRow(
-    entries: Int,
-    species: Int,
-    xp: Int,
-    lastSyncedAtMs: Long?,
-    modifier: Modifier = Modifier,
-) {
-    val largeText = LocalDensity.current.fontScale >= 1.3f
-    Column(modifier = modifier.fillMaxWidth(), verticalArrangement = Arrangement.spacedBy(2.dp)) {
-        if (largeText) {
-            Text(
-                text = "$entries entries / $species species",
-                style = MaterialTheme.typography.labelMedium,
-                color = MaterialTheme.colorScheme.onSurfaceVariant,
-            )
-            Text(
-                text = "$xp XP",
-                style = MaterialTheme.typography.labelMedium,
-                fontWeight = FontWeight.SemiBold,
-                color = WildlifeTheme.colors.oliveStrong,
-            )
-        } else {
-            Row(
-                modifier = Modifier.fillMaxWidth(),
-                horizontalArrangement = Arrangement.SpaceBetween,
-                verticalAlignment = Alignment.CenterVertically,
-            ) {
-                Text(
-                    text = "$entries entries / $species species",
-                    style = MaterialTheme.typography.labelMedium,
-                    color = MaterialTheme.colorScheme.onSurfaceVariant,
-                )
-                Text(
-                    text = "$xp XP",
-                    style = MaterialTheme.typography.labelMedium,
-                    fontWeight = FontWeight.SemiBold,
-                    color = WildlifeTheme.colors.oliveStrong,
-                )
-            }
-        }
-        val synced = lastSyncedAtMs?.let {
-            DateFormat.getDateInstance(DateFormat.MEDIUM).format(Date(it))
-        }
-        Text(
-            text = if (synced != null) {
-                "Personal sightings stored on this device / synced $synced"
-            } else {
-                "Personal sightings stored on this device"
-            },
-            style = MaterialTheme.typography.labelSmall,
-            color = WildlifeTheme.colors.mutedText,
-        )
-    }
-}
 
 @Composable
 private fun CollectionMessage(
@@ -273,13 +378,13 @@ private fun CollectionMessage(
     }
 }
 
-@Preview(showBackground = true, backgroundColor = 0xFF080B09, widthDp = 390, heightDp = 780)
+@Preview(showBackground = true, backgroundColor = 0xFF080B09, widthDp = 390, heightDp = 820)
 @Preview(
     name = "Collection large text",
     showBackground = true,
     backgroundColor = 0xFF080B09,
     widthDp = 390,
-    heightDp = 780,
+    heightDp = 820,
     fontScale = 2f,
 )
 @Composable
@@ -290,11 +395,14 @@ private fun CollectionScreenPreview() {
                 linked = true,
                 entries = listOf(
                     previewSpecies("European robin", "robin", "research"),
-                    previewSpecies("Observed species", "observed", "needs_id"),
+                    previewSpecies("Iberian lynx", "lynx", "research"),
+                    previewSpecies("Otter", "otter", "needs_id"),
+                    previewSpecies("Golden eagle", "eagle", "needs_id"),
                     previewSpecies("Genus identification", "genus", "needs_id", awaiting = true),
+                    previewSpecies("Fire salamander", "salamander", "research"),
                 ),
-                observationCount = 5,
-                totalXp = 510,
+                observationCount = 12,
+                totalXp = 1_240,
             ),
             onBack = {},
             onOpenSpecies = {},
