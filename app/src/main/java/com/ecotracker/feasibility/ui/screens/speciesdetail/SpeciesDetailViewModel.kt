@@ -61,6 +61,9 @@ data class SpeciesDetailUiState(
     val photoRecoveryStatus: String? = null,
     val mediaMessage: String? = null,
     val referencePhotoSourceLabel: String = "View image source on iNaturalist",
+    val heroPhotoFallbackUrl: String? = null,
+    val silhouetteFallbackUrl: String? = null,
+    val mediaAttempt: Int = 0,
 ) {
     val latestObservedAtMs: Long? get() = observations.firstOrNull()?.observedAtMs
 }
@@ -84,9 +87,18 @@ internal object SpeciesDetailProjection {
         val scientificName = (details?.scientificName ?: catalogue?.scientificName)
             ?.takeUnless { it == label }
         val personalPhoto = personal.firstNotNullOfOrNull(SyncedObservation::photoUrl)
-        val cataloguePhoto = catalogue?.let(CataloguePhotoPolicy::detailUrl)
-        val detailPhoto = details?.let(CataloguePhotoPolicy::detailUrl)
+        val cataloguePhoto = catalogue?.let(CataloguePhotoPolicy::detailUrl)?.let {
+            catalogue.photoLocalUri ?: it
+        }
+        val detailPhoto = details?.let(CataloguePhotoPolicy::detailUrl)?.let {
+            details.photoLocalUri ?: it
+        }
         val referencePhoto = detailPhoto ?: cataloguePhoto
+        val referencePhotoRemote = details?.let(CataloguePhotoPolicy::detailUrl)
+            ?: catalogue?.let(CataloguePhotoPolicy::detailUrl)
+        val silhouetteRemote = details?.silhouetteUrl ?: catalogue?.silhouetteUrl
+        val silhouette = details?.silhouetteUrl?.let { details.silhouetteLocalUri ?: it }
+            ?: catalogue?.silhouetteUrl?.let { catalogue.silhouetteLocalUri ?: it }
         val heroFromCatalogue = referencePhoto != null
         val bestQuality = personal.maxByOrNull { qualityRank(it.qualityGrade) }?.qualityGrade
         return SpeciesDetailUiState(
@@ -111,13 +123,17 @@ internal object SpeciesDetailProjection {
                 else -> "Unverified"
             },
             heroPhotoUrl = referencePhoto ?: personalPhoto,
+            heroPhotoFallbackUrl = referencePhotoRemote.takeIf {
+                referencePhoto != null && referencePhoto != it
+            },
             heroFromCatalogue = heroFromCatalogue,
             heroAttribution = if (!heroFromCatalogue) null else if (detailPhoto != null) {
                 details?.let(CataloguePhotoPolicy::attribution)
             } else {
                 catalogue?.let(CataloguePhotoPolicy::attribution)
             },
-            silhouetteUrl = details?.silhouetteUrl ?: catalogue?.silhouetteUrl,
+            silhouetteUrl = silhouette,
+            silhouetteFallbackUrl = silhouetteRemote?.takeIf { it != silhouette },
             silhouetteSourceUrl = details?.silhouetteSourceUrl ?: catalogue?.silhouetteSourceUrl,
             silhouetteAttribution = details?.silhouetteAttribution
                 ?: catalogue?.silhouetteAttribution,
@@ -143,10 +159,10 @@ internal object SpeciesDetailProjection {
             mediaMessage = when {
                 personalPhoto != null || referencePhoto != null || details == null -> null
                 details.photoRecoveryStatus == "recovery_failed" ->
-                    "Photo recovery could not be completed. Showing the closest cached silhouette."
+                    "Reference photo unavailable."
                 details.photoRecoveryStatus == "no_compatible_photo" ->
-                    "No reusable iNaturalist photo with a compatible licence was found."
-                else -> "No reusable reference photo is currently available."
+                    "No reusable reference photo is available."
+                else -> "Reference photo unavailable."
             },
         )
     }
@@ -176,6 +192,7 @@ class SpeciesDetailViewModel(
 ) : AndroidViewModel(application) {
     private val taxonId = savedStateHandle.get<Long>(TAXON_ID_KEY) ?: -1L
     private val fallbackLabel = savedStateHandle.get<String>(TAXON_LABEL_KEY)
+    private var mediaAttempt = 0
 
     var uiState by mutableStateOf(load())
         private set
@@ -188,21 +205,27 @@ class SpeciesDetailViewModel(
         if (!uiState.enriching) uiState = load()
     }
 
-    private fun enrich() {
+    fun retryMedia() {
+        if (uiState.enriching) return
+        mediaAttempt++
+        enrich(force = true)
+    }
+
+    private fun enrich(force: Boolean = false) {
         if (taxonId <= 0 || uiState.enriching) return
         uiState = uiState.copy(enriching = true, enrichmentMessage = null)
         viewModelScope.launch {
             val result = runCatching {
                 withContext(Dispatchers.IO) {
-                    OnDeviceWildlifeRepository(getApplication()).syncTaxonDetail(taxonId)
+                    OnDeviceWildlifeRepository(getApplication()).syncTaxonDetail(taxonId, force)
                 }
             }
             uiState = result.fold(
                 onSuccess = { load() },
-                onFailure = { error ->
+                onFailure = {
                     load().copy(
-                        enrichmentMessage = "Extra species information is unavailable right now. " +
-                            (error.message ?: "Try again later."),
+                        enrichmentMessage =
+                            "Reference information could not be refreshed. Stored details remain available.",
                     )
                 },
             )
@@ -219,6 +242,7 @@ class SpeciesDetailViewModel(
             ObservationStore(context).observations(account.userId)
         }.orEmpty()
         SpeciesDetailProjection.build(taxonId, fallbackLabel, snapshot, observations, details)
+            .copy(mediaAttempt = mediaAttempt)
     }.getOrElse { error ->
         SpeciesDetailUiState(
             taxonId = taxonId, commonName = fallbackLabel ?: "Species", scientificName = null,
@@ -230,6 +254,7 @@ class SpeciesDetailViewModel(
             silhouetteLicenseCode = null, silhouetteTaxonName = null,
             silhouetteMatchRank = null, catalogueVersion = null, observations = emptyList(),
             errorMessage = error.message ?: "Species details could not be loaded.",
+            mediaAttempt = mediaAttempt,
         )
     }
 }

@@ -1,18 +1,20 @@
 package com.wildlife.feasibility
 
 import org.json.JSONObject
-import java.net.HttpURLConnection
 import java.net.URL
-import java.net.URLEncoder
 import java.text.SimpleDateFormat
 import java.util.Locale
 import java.util.TimeZone
 
-class INaturalistClient {
+class INaturalistClient(
+    private val http: ReadOnlyHttpClient = ReadOnlyHttpClient(),
+) {
     fun resolveExactUser(username: String): INaturalistUser {
-        val encodedUser = URLEncoder.encode(username, Charsets.UTF_8.name())
         val root = getJson(
-            URL("https://api.inaturalist.org/v1/users/autocomplete?q=$encodedUser&per_page=30"),
+            urlWithParameters(
+                "https://api.inaturalist.org/v1/users/autocomplete",
+                mapOf("q" to username, "per_page" to "30"),
+            ),
         )
         return parseExactUser(root, username)
             ?: error("No exact iNaturalist username match was found.")
@@ -128,7 +130,7 @@ class INaturalistClient {
                 val photo = photos.optJSONObject(photoIndex) ?: continue
                 val licence = normalizedPhotoLicence(photo.optString("license_code")) ?: continue
                 val attribution = photo.optString("attribution").trim()
-                if (licence != "cc0" && attribution.isBlank()) continue
+                if (attribution.isBlank()) continue
                 val photoUrl = photo.optString("url").ifBlank { photo.optString("medium_url") }
                 if (photoUrl.isBlank()) continue
                 val photoId = photo.optLong("id", -1L)
@@ -139,7 +141,7 @@ class INaturalistClient {
                 }
                 return ReferencePhoto(
                     url = photoUrl.replace("square", "medium"),
-                    attribution = attribution.ifBlank { "CC0" },
+                    attribution = attribution,
                     licenceCode = licence,
                     sourceUrl = source,
                 )
@@ -277,19 +279,7 @@ class INaturalistClient {
         users.singleOrNull { it.login.equals(username, ignoreCase = true) }
 
     internal fun getJson(endpoint: URL): JSONObject {
-        reserveRequestSlot()
-        val connection = endpoint.openConnection() as HttpURLConnection
-        connection.connectTimeout = 10_000
-        connection.readTimeout = 15_000
-        connection.setRequestProperty("User-Agent", "Wildlife-Feasibility/0.1")
-        try {
-            val code = connection.responseCode
-            if (code !in 200..299) error("iNaturalist returned HTTP $code")
-            val body = connection.inputStream.bufferedReader().use { it.readText() }
-            return JSONObject(body)
-        } finally {
-            connection.disconnect()
-        }
+        return http.getJson(endpoint, REQUEST_POLICY)
     }
 
     internal fun parse(root: JSONObject): List<ObservationCandidate> {
@@ -331,22 +321,17 @@ class INaturalistClient {
     }
 
     private fun url(endpoint: String, parameters: Map<String, String>): URL {
-        val query = parameters.entries.joinToString("&") { (key, value) ->
-            "${URLEncoder.encode(key, Charsets.UTF_8.name())}=" +
-                URLEncoder.encode(value, Charsets.UTF_8.name())
-        }
-        return URL("$endpoint?$query")
+        return urlWithParameters(endpoint, parameters)
     }
 
     companion object {
-        private var lastRequestAtMs = 0L
-
-        @Synchronized
-        private fun reserveRequestSlot() {
-            val waitMs = (lastRequestAtMs + 1_100L - System.currentTimeMillis()).coerceAtLeast(0L)
-            if (waitMs > 0) Thread.sleep(waitMs)
-            lastRequestAtMs = System.currentTimeMillis()
-        }
+        private val REQUEST_POLICY = ReadOnlyRequestPolicy(
+            serviceName = "iNaturalist",
+            userAgent = WildlifeNetworkIdentity.BIOLOGICAL_DATA_USER_AGENT,
+            rateLimitKey = "api.inaturalist.org",
+            minimumIntervalMs = 1_100L,
+            readTimeoutMs = 15_000,
+        )
 
         fun normalizedPhotoLicence(value: String?): String? = value
             ?.trim()

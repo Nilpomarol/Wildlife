@@ -15,6 +15,7 @@ import androidx.compose.foundation.lazy.grid.LazyVerticalGrid
 import androidx.compose.foundation.lazy.grid.items
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.outlined.Refresh
+import androidx.compose.material3.AlertDialog
 import androidx.compose.material3.Button
 import androidx.compose.material3.CircularProgressIndicator
 import androidx.compose.material3.Icon
@@ -22,6 +23,7 @@ import androidx.compose.material3.IconButton
 import androidx.compose.material3.LinearProgressIndicator
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Text
+import androidx.compose.material3.TextButton
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
@@ -41,6 +43,7 @@ import com.wildlife.feasibility.ui.components.SpeciesCardModel
 import com.wildlife.feasibility.ui.components.SpeciesCardStatus
 import com.wildlife.feasibility.ui.components.TaxonFilterRow
 import com.wildlife.feasibility.ui.components.WildlifeScaffold
+import com.wildlife.feasibility.ui.components.responsiveSpeciesGridColumns
 import com.wildlife.feasibility.ui.theme.WildlifeSpacing
 import com.wildlife.feasibility.ui.theme.WildlifeTheme
 import java.text.DateFormat
@@ -68,6 +71,7 @@ fun ExploreScreen(
 ) {
     var selectedFilter by rememberSaveable { mutableStateOf(ExploreFilter.ALL) }
     var query by rememberSaveable { mutableStateOf("") }
+    var confirmRefresh by rememberSaveable { mutableStateOf(false) }
     val availableFilters = ExploreFilter.entries.filter { filter ->
         filter.taxonGroup == null || state.entries.any { it.taxonGroup == filter.taxonGroup }
     }
@@ -87,14 +91,22 @@ fun ExploreScreen(
         title = "Explore",
         onBack = onBack,
         actions = {
-            IconButton(onClick = onSync, enabled = !state.syncing) {
+            IconButton(
+                onClick = {
+                    if (state.snapshot == null) onSync() else confirmRefresh = true
+                },
+                enabled = !state.syncing && !state.silhouetteEnrichmentRunning,
+            ) {
                 if (state.syncing) {
                     CircularProgressIndicator(
                         modifier = Modifier.padding(WildlifeSpacing.Small),
                         strokeWidth = 2.dp,
                     )
                 } else {
-                    Icon(Icons.Outlined.Refresh, contentDescription = "Update Catalonia catalogue")
+                    Icon(
+                        Icons.Outlined.Refresh,
+                        contentDescription = "Refresh stored Catalonia catalogue",
+                    )
                 }
             }
         },
@@ -142,6 +154,14 @@ fun ExploreScreen(
                     ),
                 )
                 if (state.syncing) LinearProgressIndicator(Modifier.fillMaxWidth())
+                if (state.silhouetteEnrichmentRunning) {
+                    Text(
+                        text = "Improving stored silhouettes in the background…",
+                        style = MaterialTheme.typography.labelSmall,
+                        color = WildlifeTheme.colors.mutedText,
+                        modifier = Modifier.padding(horizontal = WildlifeSpacing.Screen),
+                    )
+                }
                 if (filtered.isEmpty()) {
                     ExploreMessage("No species match this search and filter.")
                 } else {
@@ -153,6 +173,29 @@ fun ExploreScreen(
                 }
             }
         }
+    }
+    if (confirmRefresh) {
+        AlertDialog(
+            onDismissRequest = { confirmRefresh = false },
+            title = { Text("Refresh the Catalonia guide?") },
+            text = {
+                Text(
+                    "Wildlife will check iNaturalist for a new provisional species list. " +
+                        "Your current stored guide and media remain available if it fails.",
+                )
+            },
+            confirmButton = {
+                TextButton(
+                    onClick = {
+                        confirmRefresh = false
+                        onSync()
+                    },
+                ) { Text("Refresh") }
+            },
+            dismissButton = {
+                TextButton(onClick = { confirmRefresh = false }) { Text("Keep current guide") }
+            },
+        )
     }
 }
 
@@ -170,7 +213,7 @@ private fun ExploreIntro(
             verticalAlignment = Alignment.CenterVertically,
         ) {
             Text(
-                text = "Catalonia · Provisional catalogue",
+                text = "Catalonia / Provisional catalogue",
                 style = MaterialTheme.typography.labelLarge,
                 color = WildlifeTheme.colors.oliveStrong,
                 fontWeight = FontWeight.SemiBold,
@@ -185,7 +228,7 @@ private fun ExploreIntro(
             DateFormat.getDateInstance(DateFormat.MEDIUM).format(Date(it))
         } ?: "unknown"
         Text(
-            text = "${snapshot.species.size} cached species · updated $updated",
+            text = "${snapshot.species.size} stored species / updated $updated",
             style = MaterialTheme.typography.labelMedium,
             color = MaterialTheme.colorScheme.onSurfaceVariant,
         )
@@ -212,7 +255,7 @@ private fun ExploreGrid(
 ) {
     val fontScale = LocalDensity.current.fontScale
     BoxWithConstraints(modifier) {
-        val columns = if (maxWidth < 360.dp || fontScale >= 1.3f) 2 else 3
+        val columns = responsiveSpeciesGridColumns(maxWidth.value, fontScale)
         LazyVerticalGrid(
             columns = GridCells.Fixed(columns),
             contentPadding = PaddingValues(
@@ -281,6 +324,14 @@ private fun ExploreMessage(message: String) {
 }
 
 @Preview(showBackground = true, backgroundColor = 0xFF080B09, widthDp = 390, heightDp = 780)
+@Preview(
+    name = "Explore large text",
+    showBackground = true,
+    backgroundColor = 0xFF080B09,
+    widthDp = 390,
+    heightDp = 780,
+    fontScale = 2f,
+)
 @Composable
 private fun ExplorePreview() {
     WildlifeTheme {
@@ -326,6 +377,5 @@ private fun previewEntry(
         photoUrl = null,
         supportingTextItalic = true,
         status = if (observed) SpeciesCardStatus.RESEARCH_GRADE else SpeciesCardStatus.NONE,
-        noPhotoLabel = if (observed) "Photo unavailable" else "Not observed",
     ),
 )

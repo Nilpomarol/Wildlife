@@ -37,6 +37,7 @@ class SpeciesDetailActivity : ComponentActivity() {
                         open("https://www.inaturalist.org/observations/$uuid")
                     },
                     onOpenUrl = ::open,
+                    onRetryMedia = viewModel::retryMedia,
                 )
             }
         }

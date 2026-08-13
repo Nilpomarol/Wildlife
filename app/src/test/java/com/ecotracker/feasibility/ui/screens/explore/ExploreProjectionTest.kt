@@ -5,8 +5,10 @@ import com.wildlife.feasibility.CatalogueSpecies
 import com.wildlife.feasibility.SyncedObservation
 import com.wildlife.feasibility.TaxonDetails
 import com.wildlife.feasibility.ui.components.SpeciesCardStatus
+import com.wildlife.feasibility.ui.components.SpeciesCardPhotoKind
 import org.junit.Assert.assertEquals
 import org.junit.Assert.assertNull
+import org.junit.Assert.assertTrue
 import org.junit.Test
 
 class ExploreProjectionTest {
@@ -18,15 +20,30 @@ class ExploreProjectionTest {
         assertEquals("Erithacus rubecula", entries.single().card.supportingText)
         assertEquals(SpeciesCardStatus.RESEARCH_GRADE, entries.single().card.status)
         assertEquals("https://example.test/personal.jpg", entries.single().card.photoUrl)
+        assertEquals(SpeciesCardPhotoKind.PERSONAL, entries.single().card.photoKind)
     }
 
     @Test
-    fun `catalogue images remain hidden unless conservatively approved`() {
+    fun `observed card can recover from personal photo to attributed reference`() {
+        val entry = ExploreProjection.entries(snapshot("cc0"), listOf(observation())).single()
+
+        assertEquals("https://example.test/personal.jpg", entry.card.photoUrl)
+        assertEquals("https://example.test/catalogue.jpg", entry.card.photoFallbackUrl)
+        assertEquals(SpeciesCardPhotoKind.REFERENCE, entry.card.photoFallbackKind)
+        assertTrue(entry.card.photoFallbackAttribution.orEmpty().contains("Test photographer"))
+    }
+
+    @Test
+    fun `unobserved species always hide stock photos`() {
         val attributed = ExploreProjection.entries(snapshot("cc-by"), emptyList()).single()
         val publicDomain = ExploreProjection.entries(snapshot("cc0"), emptyList()).single()
 
         assertNull(attributed.card.photoUrl)
-        assertEquals("https://example.test/catalogue.jpg", publicDomain.card.photoUrl)
+        assertNull(publicDomain.card.photoUrl)
+        assertNull(attributed.card.photoFallbackUrl)
+        assertNull(publicDomain.card.photoFallbackUrl)
+        assertTrue(attributed.card.additionalPhotoFallbacks.isEmpty())
+        assertTrue(publicDomain.card.additionalPhotoFallbacks.isEmpty())
     }
 
     @Test
@@ -34,6 +51,32 @@ class ExploreProjectionTest {
         val entry = ExploreProjection.entries(snapshot("cc-by"), emptyList()).single()
 
         assertEquals("https://example.test/robin.png", entry.card.silhouetteUrl)
+    }
+
+    @Test
+    fun `stored media is primary and remote provenance URL remains a recovery fallback`() {
+        val base = snapshot("cc0")
+        val stored = base.copy(
+            species = base.species.map {
+                it.copy(
+                    photoLocalUri = "file:///stored/robin.jpg",
+                    silhouetteLocalUri = "file:///stored/robin.png",
+                )
+            },
+        )
+
+        val observed = ExploreProjection.entries(
+            stored,
+            listOf(observation().copy(photoUrl = null)),
+        ).single()
+        val unseen = ExploreProjection.entries(stored, emptyList()).single()
+
+        assertEquals("file:///stored/robin.jpg", observed.card.photoUrl)
+        assertEquals(SpeciesCardPhotoKind.REFERENCE, observed.card.photoKind)
+        assertEquals("https://example.test/catalogue.jpg", observed.card.photoFallbackUrl)
+        assertNull(unseen.card.photoUrl)
+        assertEquals("file:///stored/robin.png", unseen.card.silhouetteUrl)
+        assertEquals("https://example.test/robin.png", unseen.card.silhouetteFallbackUrl)
     }
 
     @Test
@@ -54,6 +97,31 @@ class ExploreProjectionTest {
         ).single()
 
         assertEquals("https://example.test/family.png", entry.card.silhouetteUrl)
+        assertEquals("family", entry.card.silhouetteMatchRank)
+    }
+
+    @Test
+    fun `personal observation takes priority over cached Wikimedia reference`() {
+        val detail = TaxonDetails(
+            taxonId = 42, scientificName = "Erithacus rubecula", commonName = null,
+            taxonGroup = "Aves", familyName = "Muscicapidae", wikipediaSummary = null,
+            wikipediaUrl = "https://en.wikipedia.org/wiki/Erithacus_rubecula",
+            conservationStatus = null, conservationAuthority = null, conservationUrl = null,
+            photoUrl = "https://upload.wikimedia.org/reference.jpg",
+            photoAttribution = "Francis C. Franklin", photoLicenseCode = "cc-by-sa",
+            silhouetteUrl = null, silhouetteSourceUrl = null, silhouetteAttribution = null,
+            silhouetteLicenseCode = null, silhouetteLicenseUrl = null,
+            silhouetteTaxonName = null, silhouetteMatchRank = null, updatedAtMs = 0,
+            photoSourceUrl = "https://commons.wikimedia.org/wiki/File:Robin.jpg",
+            photoRecoveryStatus = "wikimedia_featured",
+        )
+
+        val entry = ExploreProjection.entries(
+            snapshot("cc-by"), listOf(observation()), mapOf(42L to detail),
+        ).single()
+
+        assertEquals("https://example.test/personal.jpg", entry.card.photoUrl)
+        assertNull(entry.card.photoAttribution)
     }
 
     private fun snapshot(licence: String) = CatalogueSnapshot(

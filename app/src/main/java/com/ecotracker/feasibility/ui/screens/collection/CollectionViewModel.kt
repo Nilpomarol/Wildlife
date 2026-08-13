@@ -15,6 +15,7 @@ data class CollectionUiState(
     val entries: List<CollectionSpecies>,
     val observationCount: Int,
     val totalXp: Int,
+    val lastSyncedAtMs: Long? = null,
     val errorMessage: String? = null,
 ) {
     val awaitingIdentificationCount: Int
@@ -44,11 +45,13 @@ class CollectionViewModel(application: Application) : AndroidViewModel(applicati
         return runCatching {
             val store = ObservationStore(context)
             val observations = store.observations(account.userId)
+            val summary = store.summary(account.userId)
             CollectionUiState(
                 linked = true,
                 entries = CollectionProjection.species(observations),
                 observationCount = observations.size,
-                totalXp = store.summary(account.userId).totalXp,
+                totalXp = summary.totalXp,
+                lastSyncedAtMs = summary.lastSyncedAtMs,
             )
         }.getOrElse { error ->
             CollectionUiState(

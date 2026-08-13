@@ -17,6 +17,7 @@ import androidx.compose.material3.Card
 import androidx.compose.material3.CardDefaults
 import androidx.compose.material3.Icon
 import androidx.compose.material3.MaterialTheme
+import androidx.compose.material3.Surface
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.getValue
@@ -29,11 +30,14 @@ import androidx.compose.ui.graphics.Brush
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.graphics.ColorFilter
 import androidx.compose.ui.layout.ContentScale
+import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.text.font.FontStyle
-import androidx.compose.ui.text.style.TextOverflow
 import androidx.compose.ui.text.font.FontWeight
+import androidx.compose.ui.text.style.TextOverflow
 import androidx.compose.ui.unit.dp
 import coil.compose.AsyncImage
+import coil.request.ImageRequest
+import com.wildlife.feasibility.WildlifeNetworkIdentity
 import com.wildlife.feasibility.ui.theme.WildlifeSpacing
 import com.wildlife.feasibility.ui.theme.WildlifeTheme
 
@@ -42,10 +46,28 @@ data class SpeciesCardModel(
     val label: String,
     val supportingText: String,
     val photoUrl: String?,
+    val photoKind: SpeciesCardPhotoKind? = null,
+    val photoFallbackUrl: String? = null,
+    val photoFallbackKind: SpeciesCardPhotoKind? = null,
+    val photoFallbackAttribution: String? = null,
+    val additionalPhotoFallbacks: List<SpeciesCardPhotoCandidate> = emptyList(),
+    val photoAttribution: String? = null,
     val silhouetteUrl: String? = null,
+    val silhouetteFallbackUrl: String? = null,
+    val silhouetteMatchRank: String? = null,
     val supportingTextItalic: Boolean = false,
     val status: SpeciesCardStatus = SpeciesCardStatus.NONE,
-    val noPhotoLabel: String = "Photo unavailable",
+)
+
+enum class SpeciesCardPhotoKind {
+    PERSONAL,
+    REFERENCE,
+}
+
+data class SpeciesCardPhotoCandidate(
+    val url: String,
+    val kind: SpeciesCardPhotoKind,
+    val attribution: String? = null,
 )
 
 enum class SpeciesCardStatus {
@@ -60,7 +82,23 @@ fun SpeciesCard(
     onClick: () -> Unit,
     modifier: Modifier = Modifier,
 ) {
-    var imageFailed by remember(species.photoUrl) { mutableStateOf(species.photoUrl == null) }
+    val context = LocalContext.current
+    val photoCandidates = remember(
+        species.photoUrl,
+        species.photoKind,
+        species.photoAttribution,
+        species.photoFallbackUrl,
+        species.photoFallbackKind,
+        species.photoFallbackAttribution,
+        species.additionalPhotoFallbacks,
+    ) {
+        species.orderedPhotoCandidates()
+    }
+    var activePhotoIndex by remember(photoCandidates) { mutableStateOf(0) }
+    var imageFailed by remember(photoCandidates) {
+        mutableStateOf(photoCandidates.isEmpty())
+    }
+    val activePhoto = photoCandidates.getOrNull(activePhotoIndex)
     Card(
         onClick = onClick,
         modifier = modifier,
@@ -72,17 +110,36 @@ fun SpeciesCard(
         Box(Modifier.fillMaxSize()) {
             if (!imageFailed) {
                 AsyncImage(
-                    model = species.photoUrl,
-                    contentDescription = species.label,
+                    model = ImageRequest.Builder(context)
+                        .data(activePhoto?.url)
+                        .setHeader(
+                            "User-Agent",
+                            WildlifeNetworkIdentity.REFERENCE_MEDIA_USER_AGENT,
+                        )
+                        .build(),
+                    contentDescription = when (activePhoto?.kind) {
+                        SpeciesCardPhotoKind.PERSONAL ->
+                            "${species.label}, your observation photo"
+                        SpeciesCardPhotoKind.REFERENCE ->
+                            "${species.label}, attributed reference photo"
+                        null -> species.label
+                    },
                     contentScale = ContentScale.Crop,
                     modifier = Modifier.fillMaxSize(),
-                    onError = { imageFailed = true },
+                    onError = {
+                        if (activePhotoIndex < photoCandidates.lastIndex) {
+                            activePhotoIndex++
+                        } else {
+                            imageFailed = true
+                        }
+                    },
                 )
             } else {
                 NoPhotoState(
                     label = species.label,
-                    message = species.noPhotoLabel,
                     silhouetteUrl = species.silhouetteUrl,
+                    silhouetteFallbackUrl = species.silhouetteFallbackUrl,
+                    silhouetteMatchRank = species.silhouetteMatchRank,
                     modifier = Modifier.fillMaxSize(),
                 )
             }
@@ -133,9 +190,50 @@ fun SpeciesCard(
                         .padding(WildlifeSpacing.Small),
                 )
             }
+            if (!imageFailed && activePhoto?.attribution != null) {
+                Surface(
+                    shape = MaterialTheme.shapes.extraSmall,
+                    color = MaterialTheme.colorScheme.surface.copy(alpha = 0.82f),
+                    modifier = Modifier
+                        .align(Alignment.TopStart)
+                        .padding(WildlifeSpacing.Small),
+                ) {
+                    Text(
+                        text = activePhoto.attribution,
+                        style = MaterialTheme.typography.labelSmall,
+                        color = MaterialTheme.colorScheme.onSurfaceVariant,
+                        maxLines = 1,
+                        overflow = TextOverflow.Ellipsis,
+                        modifier = Modifier.padding(horizontal = 6.dp, vertical = 3.dp),
+                    )
+                }
+            }
         }
     }
 }
+
+internal fun SpeciesCardModel.orderedPhotoCandidates(): List<SpeciesCardPhotoCandidate> =
+    buildList {
+        photoUrl?.let { url ->
+            add(
+                SpeciesCardPhotoCandidate(
+                    url,
+                    photoKind ?: SpeciesCardPhotoKind.REFERENCE,
+                    photoAttribution,
+                ),
+            )
+        }
+        photoFallbackUrl?.let { url ->
+            add(
+                SpeciesCardPhotoCandidate(
+                    url,
+                    photoFallbackKind ?: SpeciesCardPhotoKind.REFERENCE,
+                    photoFallbackAttribution,
+                ),
+            )
+        }
+        addAll(additionalPhotoFallbacks)
+    }.distinctBy(SpeciesCardPhotoCandidate::url)
 
 @Composable
 private fun SpeciesStatusBadge(
@@ -172,25 +270,50 @@ private fun SpeciesStatusBadge(
 @Composable
 private fun NoPhotoState(
     label: String,
-    message: String,
     silhouetteUrl: String?,
+    silhouetteFallbackUrl: String?,
+    silhouetteMatchRank: String?,
     modifier: Modifier = Modifier,
 ) {
-    var silhouetteFailed by remember(silhouetteUrl) { mutableStateOf(silhouetteUrl == null) }
+    val context = LocalContext.current
+    var activeSilhouetteUrl by remember(silhouetteUrl, silhouetteFallbackUrl) {
+        mutableStateOf(silhouetteUrl)
+    }
+    var silhouetteFailed by remember(silhouetteUrl, silhouetteFallbackUrl) {
+        mutableStateOf(silhouetteUrl == null)
+    }
     Box(
         modifier = modifier.background(MaterialTheme.colorScheme.surfaceVariant),
         contentAlignment = Alignment.Center,
     ) {
         if (!silhouetteFailed) {
             AsyncImage(
-                model = silhouetteUrl,
-                contentDescription = "Representative silhouette for $label",
+                model = ImageRequest.Builder(context)
+                    .data(activeSilhouetteUrl)
+                    .setHeader(
+                        "User-Agent",
+                        WildlifeNetworkIdentity.REFERENCE_MEDIA_USER_AGENT,
+                    )
+                    .build(),
+                contentDescription = if (silhouetteMatchRank == "species") {
+                    "Silhouette for $label"
+                } else {
+                    "Representative silhouette for $label"
+                },
                 contentScale = ContentScale.Fit,
                 colorFilter = ColorFilter.tint(WildlifeTheme.colors.silhouette),
                 modifier = Modifier
                     .fillMaxSize()
                     .padding(WildlifeSpacing.Card),
-                onError = { silhouetteFailed = true },
+                onError = {
+                    if (activeSilhouetteUrl != silhouetteFallbackUrl &&
+                        silhouetteFallbackUrl != null
+                    ) {
+                        activeSilhouetteUrl = silhouetteFallbackUrl
+                    } else {
+                        silhouetteFailed = true
+                    }
+                },
             )
         } else {
             Text(
@@ -199,13 +322,5 @@ private fun NoPhotoState(
                 color = WildlifeTheme.colors.silhouette,
             )
         }
-        Text(
-            text = message,
-            style = MaterialTheme.typography.labelSmall,
-            color = WildlifeTheme.colors.mutedText,
-            modifier = Modifier
-                .align(Alignment.TopStart)
-                .padding(WildlifeSpacing.Small),
-        )
     }
 }

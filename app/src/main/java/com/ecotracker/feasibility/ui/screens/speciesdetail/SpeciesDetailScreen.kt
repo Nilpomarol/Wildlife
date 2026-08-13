@@ -11,6 +11,7 @@ import androidx.compose.foundation.layout.WindowInsets
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
+import androidx.compose.foundation.layout.defaultMinSize
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.safeDrawing
 import androidx.compose.foundation.layout.size
@@ -25,6 +26,7 @@ import androidx.compose.material.icons.automirrored.outlined.OpenInNew
 import androidx.compose.material.icons.outlined.Biotech
 import androidx.compose.material.icons.outlined.Check
 import androidx.compose.material.icons.outlined.PhotoCamera
+import androidx.compose.material.icons.outlined.Refresh
 import androidx.compose.material.icons.outlined.Visibility
 import androidx.compose.material3.Button
 import androidx.compose.material3.Card
@@ -59,6 +61,7 @@ import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import coil.compose.AsyncImage
 import coil.request.ImageRequest
+import com.wildlife.feasibility.WildlifeNetworkIdentity
 import com.wildlife.feasibility.ui.theme.WildlifeSpacing
 import com.wildlife.feasibility.ui.theme.WildlifeTheme
 import java.text.DateFormat
@@ -71,6 +74,7 @@ fun SpeciesDetailScreen(
     onOpenTaxon: (Long) -> Unit,
     onOpenObservation: (String) -> Unit,
     onOpenUrl: (String) -> Unit,
+    onRetryMedia: () -> Unit,
 ) {
     Scaffold(
         containerColor = MaterialTheme.colorScheme.background,
@@ -80,6 +84,7 @@ fun SpeciesDetailScreen(
             DetailError(
                 message = state.errorMessage,
                 onBack = onBack,
+                onRetry = onRetryMedia,
                 modifier = Modifier.padding(innerPadding),
             )
         } else {
@@ -100,6 +105,7 @@ fun SpeciesDetailScreen(
                             state.referencePhotoSourceUrl?.let(onOpenUrl)
                                 ?: onOpenTaxon(state.taxonId)
                         },
+                        onRetryMedia = onRetryMedia,
                     )
                 }
                 item {
@@ -168,12 +174,20 @@ fun SpeciesDetailScreen(
                 }
                 if (state.enrichmentMessage != null) {
                     item {
-                        Text(
-                            text = state.enrichmentMessage,
-                            style = MaterialTheme.typography.labelSmall,
-                            color = WildlifeTheme.colors.mutedText,
-                            modifier = Modifier.padding(horizontal = WildlifeSpacing.Screen),
-                        )
+                        Row(
+                            modifier = Modifier
+                                .fillMaxWidth()
+                                .padding(horizontal = WildlifeSpacing.Screen),
+                            verticalAlignment = Alignment.CenterVertically,
+                        ) {
+                            Text(
+                                text = state.enrichmentMessage,
+                                style = MaterialTheme.typography.labelSmall,
+                                color = WildlifeTheme.colors.mutedText,
+                                modifier = Modifier.weight(1f),
+                            )
+                            TextButton(onClick = onRetryMedia) { Text("Try again") }
+                        }
                     }
                 }
                 item {
@@ -204,12 +218,35 @@ private fun SpeciesHero(
     state: SpeciesDetailUiState,
     onBack: () -> Unit,
     onOpenReferenceSource: () -> Unit,
+    onRetryMedia: () -> Unit,
 ) {
     val context = LocalContext.current
-    var imageFailed by remember(state.heroPhotoUrl) {
+    var activePhotoUrl by remember(
+        state.heroPhotoUrl,
+        state.heroPhotoFallbackUrl,
+        state.mediaAttempt,
+    ) {
+        mutableStateOf(state.heroPhotoUrl)
+    }
+    var imageFailed by remember(
+        state.heroPhotoUrl,
+        state.heroPhotoFallbackUrl,
+        state.mediaAttempt,
+    ) {
         mutableStateOf(state.heroPhotoUrl == null)
     }
-    var silhouetteFailed by remember(state.silhouetteUrl) {
+    var activeSilhouetteUrl by remember(
+        state.silhouetteUrl,
+        state.silhouetteFallbackUrl,
+        state.mediaAttempt,
+    ) {
+        mutableStateOf(state.silhouetteUrl)
+    }
+    var silhouetteFailed by remember(
+        state.silhouetteUrl,
+        state.silhouetteFallbackUrl,
+        state.mediaAttempt,
+    ) {
         mutableStateOf(state.silhouetteUrl == null)
     }
     Box(
@@ -221,32 +258,57 @@ private fun SpeciesHero(
         if (!imageFailed) {
             AsyncImage(
                 model = ImageRequest.Builder(context)
-                    .data(state.heroPhotoUrl)
-                    .setHeader("User-Agent", "Wildlife-Android/0.1 (reference media)")
+                    .data(activePhotoUrl)
+                    .setHeader(
+                        "User-Agent",
+                        WildlifeNetworkIdentity.REFERENCE_MEDIA_USER_AGENT,
+                    )
                     .build(),
-                contentDescription = state.commonName,
+                contentDescription = if (state.heroFromCatalogue) {
+                    "${state.commonName}, attributed reference photo"
+                } else {
+                    "${state.commonName}, your observation photo"
+                },
                 contentScale = ContentScale.Crop,
                 modifier = Modifier.fillMaxSize(),
-                onError = { imageFailed = true },
+                onError = {
+                    if (activePhotoUrl != state.heroPhotoFallbackUrl &&
+                        state.heroPhotoFallbackUrl != null
+                    ) {
+                        activePhotoUrl = state.heroPhotoFallbackUrl
+                    } else {
+                        imageFailed = true
+                    }
+                },
             )
         } else if (!silhouetteFailed) {
             AsyncImage(
-                model = state.silhouetteUrl,
-                contentDescription = "Representative silhouette for ${state.commonName}",
+                model = ImageRequest.Builder(context)
+                    .data(activeSilhouetteUrl)
+                    .setHeader(
+                        "User-Agent",
+                        WildlifeNetworkIdentity.REFERENCE_MEDIA_USER_AGENT,
+                    )
+                    .build(),
+                contentDescription = if (state.silhouetteMatchRank == "species") {
+                    "Silhouette for ${state.commonName}"
+                } else {
+                    "Representative silhouette for ${state.commonName}"
+                },
                 contentScale = ContentScale.Fit,
                 colorFilter = ColorFilter.tint(WildlifeTheme.colors.silhouette),
                 modifier = Modifier
                     .fillMaxSize()
                     .padding(56.dp),
-                onError = { silhouetteFailed = true },
-            )
-            Text(
-                text = silhouetteLabel(state),
-                style = MaterialTheme.typography.labelMedium,
-                color = WildlifeTheme.colors.mutedText,
-                modifier = Modifier
-                    .align(Alignment.BottomCenter)
-                    .padding(bottom = WildlifeSpacing.Section),
+                onError = {
+                    if (activeSilhouetteUrl != state.silhouetteFallbackUrl &&
+                        state.silhouetteFallbackUrl != null
+                    ) {
+                        activeSilhouetteUrl = state.silhouetteFallbackUrl
+                    } else {
+                        silhouetteFailed = true
+                    }
+                },
             )
         } else {
             Text(
@@ -263,6 +325,16 @@ private fun SpeciesHero(
                     .align(Alignment.Center)
                     .padding(top = 70.dp),
             )
+            OutlinedButton(
+                onClick = onRetryMedia,
+                enabled = !state.enriching,
+                modifier = Modifier
+                    .align(Alignment.Center)
+                    .padding(top = 160.dp),
+            ) {
+                Icon(Icons.Outlined.Refresh, contentDescription = null)
+                Text("Try again", modifier = Modifier.padding(start = WildlifeSpacing.Small))
+            }
         }
         Box(
             modifier = Modifier
@@ -298,6 +370,7 @@ private fun SpeciesHero(
                     color = MaterialTheme.colorScheme.surface.copy(alpha = 0.82f),
                     modifier = Modifier
                         .align(Alignment.BottomStart)
+                        .defaultMinSize(minHeight = 48.dp)
                         .padding(WildlifeSpacing.Screen),
                 ) {
                     Row(
@@ -507,9 +580,9 @@ private fun SilhouetteAttributionSection(
         Text(
             text = buildString {
                 append(attribution)
-                if (licence != null) append(" · $licence")
+                if (licence != null) append(" / $licence")
                 if (state.silhouetteMatchRank != "species") {
-                    append(" · ${silhouetteLabel(state).lowercase()}")
+                    append(" / ${silhouetteLabel(state).lowercase()}")
                 }
             },
             style = MaterialTheme.typography.bodySmall,
@@ -609,7 +682,10 @@ private fun ObservationTile(observation: SpeciesDetailObservation, onClick: () -
                 if (observation.photoUrl != null) {
                     AsyncImage(
                         model = observation.photoUrl,
-                        contentDescription = "Observation photo",
+                        contentDescription = "Your observation photo from ${
+                            DateFormat.getDateInstance(DateFormat.MEDIUM)
+                                .format(Date(observation.observedAtMs))
+                        }",
                         contentScale = ContentScale.Crop,
                         modifier = Modifier.fillMaxSize(),
                     )
@@ -652,7 +728,12 @@ private fun ObservationTile(observation: SpeciesDetailObservation, onClick: () -
 }
 
 @Composable
-private fun DetailError(message: String, onBack: () -> Unit, modifier: Modifier = Modifier) {
+private fun DetailError(
+    message: String,
+    onBack: () -> Unit,
+    onRetry: () -> Unit,
+    modifier: Modifier = Modifier,
+) {
     Column(
         modifier = modifier
             .fillMaxSize()
@@ -666,13 +747,25 @@ private fun DetailError(message: String, onBack: () -> Unit, modifier: Modifier 
             color = MaterialTheme.colorScheme.onSurfaceVariant,
             textAlign = TextAlign.Center,
         )
-        Button(onClick = onBack, modifier = Modifier.padding(top = WildlifeSpacing.Screen)) {
-            Text("Back")
+        Row(
+            modifier = Modifier.padding(top = WildlifeSpacing.Screen),
+            horizontalArrangement = Arrangement.spacedBy(WildlifeSpacing.Small),
+        ) {
+            TextButton(onClick = onBack) { Text("Back") }
+            Button(onClick = onRetry) { Text("Try again") }
         }
     }
 }
 
 @Preview(showBackground = true, backgroundColor = 0xFF080B09, widthDp = 390, heightDp = 820)
+@Preview(
+    name = "Species detail large text",
+    showBackground = true,
+    backgroundColor = 0xFF080B09,
+    widthDp = 390,
+    heightDp = 820,
+    fontScale = 2f,
+)
 @Composable
 private fun SpeciesDetailPreview() {
     WildlifeTheme {
@@ -709,6 +802,7 @@ private fun SpeciesDetailPreview() {
             onOpenTaxon = {},
             onOpenObservation = {},
             onOpenUrl = {},
+            onRetryMedia = {},
         )
     }
 }

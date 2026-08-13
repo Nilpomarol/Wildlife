@@ -135,6 +135,9 @@ data class CatalogueSpecies(
     val silhouetteLicenseUrl: String? = null,
     val silhouetteTaxonName: String? = null,
     val silhouetteMatchRank: String? = null,
+    val photoLocalUri: String? = null,
+    val silhouetteLocalUri: String? = null,
+    val silhouetteResolverVersion: Int? = null,
 )
 
 data class TaxonDetails(
@@ -162,6 +165,10 @@ data class TaxonDetails(
     val photoSourceUrl: String? = null,
     val photoRecoveryStatus: String? = null,
     val mediaPipelineVersion: Int? = null,
+    val photoLocalUri: String? = null,
+    val silhouetteLocalUri: String? = null,
+    val photoPipelineVersion: Int? = null,
+    val silhouetteResolverVersion: Int? = null,
 )
 
 data class CatalogueSnapshot(
@@ -172,6 +179,11 @@ data class CatalogueSnapshot(
     val provisional: Boolean,
     val species: List<CatalogueSpecies>,
     val cached: Boolean,
+    val silhouettePipelineVersion: Int? = null,
+    val lastRefreshAttemptMs: Long? = null,
+    val lastRefreshSuccessMs: Long? = null,
+    val lastRefreshErrorCode: String? = null,
+    val refreshInProgress: Boolean = false,
 )
 
 data class CollectionSpecies(

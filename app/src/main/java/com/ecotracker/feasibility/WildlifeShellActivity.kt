@@ -121,6 +121,8 @@ class MainActivity : ComponentActivity() {
                             "https://www.inaturalist.org/observations/${species.latestObservationUuid}",
                         )
                     },
+                    onLinkAccount = ::openAccountManagement,
+                    onRetry = collectionViewModel::refresh,
                     bottomBar = bottomBar,
                 )
             }

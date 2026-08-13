@@ -49,7 +49,7 @@ class SpeciesDetailProjectionTest {
 
         assertEquals("https://example.test/catalogue.jpg", state.heroPhotoUrl)
         assertTrue(state.heroFromCatalogue)
-        assertEquals("Test photographer · CC-BY", state.heroAttribution)
+        assertEquals("Test photographer / CC-BY", state.heroAttribution)
         assertFalse(state.observed)
     }
 
@@ -147,7 +147,7 @@ class SpeciesDetailProjectionTest {
         )
 
         assertEquals(
-            "No reusable iNaturalist photo with a compatible licence was found.",
+            "No reusable reference photo is available.",
             state.mediaMessage,
         )
     }

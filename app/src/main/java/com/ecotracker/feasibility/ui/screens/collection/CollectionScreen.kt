@@ -30,11 +30,15 @@ import com.wildlife.feasibility.CollectionSpecies
 import com.wildlife.feasibility.ui.components.CollectionSearchBar
 import com.wildlife.feasibility.ui.components.SpeciesCard
 import com.wildlife.feasibility.ui.components.SpeciesCardModel
+import com.wildlife.feasibility.ui.components.SpeciesCardPhotoKind
 import com.wildlife.feasibility.ui.components.SpeciesCardStatus
 import com.wildlife.feasibility.ui.components.TaxonFilterRow
 import com.wildlife.feasibility.ui.components.WildlifeScaffold
+import com.wildlife.feasibility.ui.components.responsiveSpeciesGridColumns
 import com.wildlife.feasibility.ui.theme.WildlifeSpacing
 import com.wildlife.feasibility.ui.theme.WildlifeTheme
+import java.text.DateFormat
+import java.util.Date
 
 enum class CollectionFilter(val label: String) {
     ALL("All"),
@@ -48,6 +52,8 @@ fun CollectionScreen(
     state: CollectionUiState,
     onBack: (() -> Unit)?,
     onOpenSpecies: (CollectionSpecies) -> Unit,
+    onLinkAccount: () -> Unit,
+    onRetry: () -> Unit,
     bottomBar: @Composable () -> Unit = {},
 ) {
     var selectedFilter by rememberSaveable { mutableStateOf(CollectionFilter.ALL) }
@@ -68,10 +74,14 @@ fun CollectionScreen(
         when {
             !state.linked -> CollectionMessage(
                 message = "Verify your iNaturalist account to build your personal field collection.",
+                actionLabel = "Link iNaturalist",
+                onAction = onLinkAccount,
                 modifier = Modifier.padding(innerPadding),
             )
             state.errorMessage != null -> CollectionMessage(
                 message = state.errorMessage,
+                actionLabel = "Try again",
+                onAction = onRetry,
                 modifier = Modifier.padding(innerPadding),
             )
             state.entries.isEmpty() -> CollectionMessage(
@@ -92,6 +102,7 @@ fun CollectionScreen(
                     entries = state.entries.size,
                     species = state.identifiedSpeciesCount,
                     xp = state.totalXp,
+                    lastSyncedAtMs = state.lastSyncedAtMs,
                     modifier = Modifier.padding(
                         start = WildlifeSpacing.Screen,
                         end = WildlifeSpacing.Screen,
@@ -133,7 +144,7 @@ private fun SpeciesGrid(
 ) {
     val fontScale = LocalDensity.current.fontScale
     BoxWithConstraints(modifier = modifier) {
-        val columns = if (maxWidth < 360.dp || fontScale >= 1.3f) 2 else 3
+        val columns = responsiveSpeciesGridColumns(maxWidth.value, fontScale)
         LazyVerticalGrid(
             columns = GridCells.Fixed(columns),
             modifier = Modifier.fillMaxSize(),
@@ -168,6 +179,7 @@ private fun CollectionSpecies.toCardModel() = SpeciesCardModel(
         else -> "$observationCount observations"
     },
     photoUrl = photoUrl,
+    photoKind = photoUrl?.let { SpeciesCardPhotoKind.PERSONAL },
     supportingTextItalic = awaitingSpeciesIdentification,
     status = if (bestQualityGrade == "research") {
         SpeciesCardStatus.RESEARCH_GRADE
@@ -181,23 +193,53 @@ private fun CollectionStatsRow(
     entries: Int,
     species: Int,
     xp: Int,
+    lastSyncedAtMs: Long?,
     modifier: Modifier = Modifier,
 ) {
-    Row(
-        modifier = modifier.fillMaxWidth(),
-        horizontalArrangement = Arrangement.SpaceBetween,
-        verticalAlignment = Alignment.CenterVertically,
-    ) {
+    val largeText = LocalDensity.current.fontScale >= 1.3f
+    Column(modifier = modifier.fillMaxWidth(), verticalArrangement = Arrangement.spacedBy(2.dp)) {
+        if (largeText) {
+            Text(
+                text = "$entries entries / $species species",
+                style = MaterialTheme.typography.labelMedium,
+                color = MaterialTheme.colorScheme.onSurfaceVariant,
+            )
+            Text(
+                text = "$xp XP",
+                style = MaterialTheme.typography.labelMedium,
+                fontWeight = FontWeight.SemiBold,
+                color = WildlifeTheme.colors.oliveStrong,
+            )
+        } else {
+            Row(
+                modifier = Modifier.fillMaxWidth(),
+                horizontalArrangement = Arrangement.SpaceBetween,
+                verticalAlignment = Alignment.CenterVertically,
+            ) {
+                Text(
+                    text = "$entries entries / $species species",
+                    style = MaterialTheme.typography.labelMedium,
+                    color = MaterialTheme.colorScheme.onSurfaceVariant,
+                )
+                Text(
+                    text = "$xp XP",
+                    style = MaterialTheme.typography.labelMedium,
+                    fontWeight = FontWeight.SemiBold,
+                    color = WildlifeTheme.colors.oliveStrong,
+                )
+            }
+        }
+        val synced = lastSyncedAtMs?.let {
+            DateFormat.getDateInstance(DateFormat.MEDIUM).format(Date(it))
+        }
         Text(
-            text = "$entries entries · $species species",
-            style = MaterialTheme.typography.labelMedium,
-            color = MaterialTheme.colorScheme.onSurfaceVariant,
-        )
-        Text(
-            text = "$xp XP",
-            style = MaterialTheme.typography.labelMedium,
-            fontWeight = FontWeight.SemiBold,
-            color = WildlifeTheme.colors.oliveStrong,
+            text = if (synced != null) {
+                "Personal sightings stored on this device / synced $synced"
+            } else {
+                "Personal sightings stored on this device"
+            },
+            style = MaterialTheme.typography.labelSmall,
+            color = WildlifeTheme.colors.mutedText,
         )
     }
 }
@@ -205,13 +247,16 @@ private fun CollectionStatsRow(
 @Composable
 private fun CollectionMessage(
     message: String,
+    actionLabel: String? = null,
+    onAction: (() -> Unit)? = null,
     modifier: Modifier = Modifier,
 ) {
-    Box(
+    Column(
         modifier = modifier
             .fillMaxSize()
             .padding(WildlifeSpacing.Section),
-        contentAlignment = Alignment.Center,
+        verticalArrangement = Arrangement.Center,
+        horizontalAlignment = Alignment.CenterHorizontally,
     ) {
         Text(
             text = message,
@@ -219,10 +264,24 @@ private fun CollectionMessage(
             color = MaterialTheme.colorScheme.onSurfaceVariant,
             textAlign = TextAlign.Center,
         )
+        if (actionLabel != null && onAction != null) {
+            androidx.compose.material3.OutlinedButton(
+                onClick = onAction,
+                modifier = Modifier.padding(top = WildlifeSpacing.Screen),
+            ) { Text(actionLabel) }
+        }
     }
 }
 
 @Preview(showBackground = true, backgroundColor = 0xFF080B09, widthDp = 390, heightDp = 780)
+@Preview(
+    name = "Collection large text",
+    showBackground = true,
+    backgroundColor = 0xFF080B09,
+    widthDp = 390,
+    heightDp = 780,
+    fontScale = 2f,
+)
 @Composable
 private fun CollectionScreenPreview() {
     WildlifeTheme {
@@ -239,6 +298,8 @@ private fun CollectionScreenPreview() {
             ),
             onBack = {},
             onOpenSpecies = {},
+            onLinkAccount = {},
+            onRetry = {},
         )
     }
 }

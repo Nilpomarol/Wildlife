@@ -5,13 +5,16 @@ object CataloguePhotoPolicy {
 
     fun cardUrl(species: CatalogueSpecies): String? {
         val licence = normalizedLicence(species)
-        return species.photoUrl?.takeIf { licence == "cc0" || licence == "cc0-1.0" }
+        return species.photoUrl?.takeIf {
+            (licence == "cc0" || licence == "cc0-1.0") &&
+                !species.photoAttribution.isNullOrBlank()
+        }
     }
 
     fun detailUrl(species: CatalogueSpecies): String? {
         val licence = normalizedLicence(species) ?: return null
         if (licence !in detailLicences) return null
-        if (!licence.startsWith("cc0") && species.photoAttribution.isNullOrBlank()) return null
+        if (species.photoAttribution.isNullOrBlank()) return null
         return species.photoUrl
     }
 
@@ -26,9 +29,9 @@ object CataloguePhotoPolicy {
             ) {
                 attribution
             } else {
-                "$attribution · $licence"
+                "$attribution / $licence"
             }
-        } ?: licence
+        }
     }
 
     fun detailUrl(details: TaxonDetails): String? = detailUrl(
@@ -45,7 +48,7 @@ object CataloguePhotoPolicy {
     private fun detailUrl(url: String?, attribution: String?, licenceCode: String?): String? {
         val licence = licenceCode?.trim()?.lowercase()?.takeIf(String::isNotBlank) ?: return null
         if (licence !in detailLicences) return null
-        if (!licence.startsWith("cc0") && attribution.isNullOrBlank()) return null
+        if (attribution.isNullOrBlank()) return null
         return url
     }
 
@@ -53,7 +56,15 @@ object CataloguePhotoPolicy {
         if (detailUrl(url, attribution, licenceCode) == null) return null
         val licence = licenceCode?.trim()?.uppercase() ?: return null
         return attribution?.trim()?.takeIf(String::isNotBlank)?.let { value ->
-            if (value.contains(licence, ignoreCase = true)) value else "$value · $licence"
-        } ?: licence
+            val spacedLicence = licence.replace('-', ' ')
+            if (
+                value.contains(licence, ignoreCase = true) ||
+                value.contains(spacedLicence, ignoreCase = true)
+            ) {
+                value
+            } else {
+                "$value / $licence"
+            }
+        }
     }
 }
