@@ -62,6 +62,11 @@ import androidx.compose.ui.unit.dp
 import coil.compose.AsyncImage
 import coil.request.ImageRequest
 import com.wildlife.feasibility.WildlifeNetworkIdentity
+import com.wildlife.feasibility.ui.components.EncounterTrace
+import com.wildlife.feasibility.ui.components.RegionalCollectionMark
+import com.wildlife.feasibility.ui.components.RegionalCollectionStamp
+import com.wildlife.feasibility.ui.components.RegionalLegendMark
+import com.wildlife.feasibility.ui.components.SpeciesCardRarity
 import com.wildlife.feasibility.ui.theme.WildlifeSpacing
 import com.wildlife.feasibility.ui.theme.WildlifeTheme
 import java.text.DateFormat
@@ -73,6 +78,7 @@ fun SpeciesDetailScreen(
     onBack: () -> Unit,
     onOpenTaxon: (Long) -> Unit,
     onOpenObservation: (String) -> Unit,
+    onSeeAllObservations: () -> Unit,
     onOpenUrl: (String) -> Unit,
     onRetryMedia: () -> Unit,
 ) {
@@ -123,6 +129,17 @@ fun SpeciesDetailScreen(
                         modifier = Modifier.padding(horizontal = WildlifeSpacing.Screen),
                     )
                 }
+                state.regionalContext?.let { context ->
+                    item {
+                        RegionalContextPanel(
+                            context = context,
+                            modifier = Modifier.padding(
+                                horizontal = WildlifeSpacing.Screen,
+                                vertical = WildlifeSpacing.Small,
+                            ),
+                        )
+                    }
+                }
                 item {
                     FactPanel(
                         state = state,
@@ -147,6 +164,7 @@ fun SpeciesDetailScreen(
                         ObservationSection(
                             observations = state.observations,
                             onOpenObservation = onOpenObservation,
+                            onSeeAllObservations = onSeeAllObservations,
                         )
                     }
                 }
@@ -211,6 +229,60 @@ fun SpeciesDetailScreen(
             }
         }
     }
+}
+
+@Composable
+private fun RegionalContextPanel(
+    context: SpeciesRegionalContext,
+    modifier: Modifier = Modifier,
+) {
+    Card(
+        modifier = modifier.fillMaxWidth(),
+        colors = CardDefaults.cardColors(containerColor = MaterialTheme.colorScheme.surface),
+        border = BorderStroke(1.dp, MaterialTheme.colorScheme.outlineVariant),
+        elevation = CardDefaults.cardElevation(0.dp),
+    ) {
+        Column(modifier = Modifier.padding(WildlifeSpacing.Card)) {
+            Text(context.regionName, style = MaterialTheme.typography.labelMedium, color = WildlifeTheme.colors.parchment)
+            val rarity = when (context.rarity) {
+                com.wildlife.feasibility.EncounterRarity.UNKNOWN -> "Rarity under editorial review"
+                com.wildlife.feasibility.EncounterRarity.COMMON -> "Common"
+                com.wildlife.feasibility.EncounterRarity.UNCOMMON -> "Uncommon"
+                com.wildlife.feasibility.EncounterRarity.RARE -> "Rare"
+                com.wildlife.feasibility.EncounterRarity.VERY_RARE -> "Very rare"
+            }
+            Row(
+                modifier = Modifier.padding(top = WildlifeSpacing.Small),
+                horizontalArrangement = Arrangement.spacedBy(WildlifeSpacing.Small),
+                verticalAlignment = Alignment.CenterVertically,
+            ) {
+                context.rarity.toCardRarity()?.let { EncounterTrace(it) }
+                Text(rarity, style = MaterialTheme.typography.bodyMedium, color = WildlifeTheme.colors.oliveStrong)
+                if (context.prestige == com.wildlife.feasibility.RegionalPrestige.LEGENDARY) {
+                    RegionalLegendMark()
+                    Text("Regional Legend", style = MaterialTheme.typography.bodyMedium, color = WildlifeTheme.colors.gold)
+                }
+            }
+            val achievementLabels = context.achievementLabels
+            if (achievementLabels.isNotEmpty()) {
+                Row(
+                    modifier = Modifier.padding(top = WildlifeSpacing.Small),
+                    horizontalArrangement = Arrangement.spacedBy(WildlifeSpacing.Small),
+                ) {
+                    if ("essentials" in achievementLabels) RegionalCollectionStamp(RegionalCollectionMark.ESSENTIAL)
+                    if ("icons" in achievementLabels) RegionalCollectionStamp(RegionalCollectionMark.ICON)
+                }
+            }
+        }
+    }
+}
+
+private fun com.wildlife.feasibility.EncounterRarity.toCardRarity(): SpeciesCardRarity? = when (this) {
+    com.wildlife.feasibility.EncounterRarity.UNKNOWN -> null
+    com.wildlife.feasibility.EncounterRarity.COMMON -> SpeciesCardRarity.COMMON
+    com.wildlife.feasibility.EncounterRarity.UNCOMMON -> SpeciesCardRarity.UNCOMMON
+    com.wildlife.feasibility.EncounterRarity.RARE -> SpeciesCardRarity.RARE
+    com.wildlife.feasibility.EncounterRarity.VERY_RARE -> SpeciesCardRarity.VERY_RARE
 }
 
 @Composable
@@ -436,15 +508,16 @@ private fun SpeciesIdentity(state: SpeciesDetailUiState, modifier: Modifier = Mo
 
 @Composable
 private fun DiscoveryPanel(state: SpeciesDetailUiState, modifier: Modifier = Modifier) {
+    val regionSuffix = state.regionalContext?.let { " in ${it.regionName}" }.orEmpty()
     val title = when {
-        state.researchGrade -> "Research-grade discovery"
-        state.observed -> "Species discovered"
-        else -> "Not observed yet"
+        state.researchGrade -> "Research-grade discovery$regionSuffix"
+        state.observed -> "Species discovered$regionSuffix"
+        else -> "Not observed yet$regionSuffix"
     }
     val explanation = when {
-        state.researchGrade -> "The iNaturalist community has confirmed at least one of your observations."
-        state.observed -> "This species is in your collection and is still awaiting research grade."
-        else -> "Record this species through Wildlife and iNaturalist to add it to your collection."
+        state.researchGrade -> "The iNaturalist community has confirmed at least one of your observations for this region."
+        state.observed -> "This species is in this regional collection and is still awaiting research grade."
+        else -> "Record this species in this region through Wildlife and iNaturalist to add it to the collection."
     }
     Card(
         modifier = modifier.fillMaxWidth(),
@@ -629,6 +702,7 @@ private fun Fact(label: String, value: String, modifier: Modifier = Modifier) {
 private fun ObservationSection(
     observations: List<SpeciesDetailObservation>,
     onOpenObservation: (String) -> Unit,
+    onSeeAllObservations: () -> Unit,
 ) {
     Column(verticalArrangement = Arrangement.spacedBy(WildlifeSpacing.Small)) {
         Row(
@@ -643,11 +717,9 @@ private fun ObservationSection(
                 style = MaterialTheme.typography.titleLarge,
                 color = MaterialTheme.colorScheme.onBackground,
             )
-            Text(
-                text = observations.size.toString(),
-                style = MaterialTheme.typography.labelMedium,
-                color = WildlifeTheme.colors.oliveStrong,
-            )
+            TextButton(onClick = onSeeAllObservations) {
+                Text("See all (${observations.size})")
+            }
         }
         LazyRow(
             contentPadding = PaddingValues(horizontal = WildlifeSpacing.Screen),
@@ -801,6 +873,7 @@ private fun SpeciesDetailPreview() {
             onBack = {},
             onOpenTaxon = {},
             onOpenObservation = {},
+            onSeeAllObservations = {},
             onOpenUrl = {},
             onRetryMedia = {},
         )

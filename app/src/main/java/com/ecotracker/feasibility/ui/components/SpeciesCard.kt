@@ -3,6 +3,7 @@ package com.wildlife.feasibility.ui.components
 import androidx.compose.animation.Crossfade
 import androidx.compose.animation.core.tween
 import androidx.compose.foundation.BorderStroke
+import androidx.compose.foundation.border
 import androidx.compose.foundation.background
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
@@ -14,7 +15,6 @@ import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.shape.CircleShape
 import androidx.compose.material.icons.Icons
-import androidx.compose.material.icons.filled.Star
 import androidx.compose.material.icons.outlined.Biotech
 import androidx.compose.material.icons.outlined.Check
 import androidx.compose.material3.Card
@@ -37,16 +37,17 @@ import androidx.compose.ui.layout.ContentScale
 import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.semantics.clearAndSetSemantics
 import androidx.compose.ui.semantics.contentDescription
+import androidx.compose.ui.graphics.vector.ImageVector
 import androidx.compose.ui.text.font.FontStyle
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.style.TextOverflow
 import androidx.compose.ui.unit.dp
 import coil.compose.AsyncImage
+import coil.decode.SvgDecoder
 import coil.request.ImageRequest
 import com.wildlife.feasibility.WildlifeNetworkIdentity
 import com.wildlife.feasibility.ui.theme.WildlifeSpacing
 import com.wildlife.feasibility.ui.theme.WildlifeTheme
-import kotlin.math.absoluteValue
 
 data class SpeciesCardModel(
     val key: String,
@@ -62,6 +63,15 @@ data class SpeciesCardModel(
     val silhouetteUrl: String? = null,
     val silhouetteFallbackUrl: String? = null,
     val silhouetteMatchRank: String? = null,
+    /** Bundled zoological group glyph used only when no resolved silhouette is available. */
+    val fallbackSilhouetteGroup: String? = null,
+    val regionalEssential: Boolean = false,
+    val regionalIcon: Boolean = false,
+    /** Curated regional prestige. This is independent from encounter rarity and achievements. */
+    val regionalLegend: Boolean = false,
+    /** Offline fallback glyph (e.g. a taxonomic-group silhouette) shown when no photo or
+     *  remote silhouette is available, in place of the bare first-letter placeholder. */
+    val placeholderIcon: ImageVector? = null,
     val supportingTextItalic: Boolean = false,
     val status: SpeciesCardStatus = SpeciesCardStatus.NONE,
     val rarity: SpeciesCardRarity? = null,
@@ -85,29 +95,14 @@ enum class SpeciesCardStatus {
 }
 
 /**
- * Visual rarity tiers. In v1 this is a labelled placeholder (see [sampleRarityFor]); it does
- * not describe biological abundance. It communicates "collectible weight" only.
+ * Regional encounter-rarity tiers. They express encounter difficulty only, never prestige,
+ * conservation or verification.
  */
 enum class SpeciesCardRarity(val label: String) {
     COMMON("Common"),
     UNCOMMON("Uncommon"),
     RARE("Rare"),
     VERY_RARE("Very rare"),
-    LEGENDARY("Legendary"),
-}
-
-/**
- * Deterministic placeholder rarity derived from a stable species key so the grid looks alive
- * and collectible without inventing biology. Weighted toward common tiers.
- */
-fun sampleRarityFor(key: String): SpeciesCardRarity {
-    return when (key.hashCode().absoluteValue % 20) {
-        in 0..8 -> SpeciesCardRarity.COMMON
-        in 9..13 -> SpeciesCardRarity.UNCOMMON
-        in 14..16 -> SpeciesCardRarity.RARE
-        in 17..18 -> SpeciesCardRarity.VERY_RARE
-        else -> SpeciesCardRarity.LEGENDARY
-    }
 }
 
 @Composable
@@ -116,7 +111,6 @@ fun rarityColor(rarity: SpeciesCardRarity): Color = when (rarity) {
     SpeciesCardRarity.UNCOMMON -> WildlifeTheme.colors.rarityUncommon
     SpeciesCardRarity.RARE -> WildlifeTheme.colors.rarityRare
     SpeciesCardRarity.VERY_RARE -> WildlifeTheme.colors.rarityVeryRare
-    SpeciesCardRarity.LEGENDARY -> WildlifeTheme.colors.rarityLegendary
 }
 
 @Composable
@@ -144,10 +138,9 @@ fun SpeciesCard(
     val activePhoto = photoCandidates.getOrNull(activePhotoIndex)
     val rarity = species.rarity
     val highTier = rarity == SpeciesCardRarity.RARE ||
-        rarity == SpeciesCardRarity.VERY_RARE ||
-        rarity == SpeciesCardRarity.LEGENDARY
-    val borderColor = if (highTier && rarity != null) {
-        rarityColor(rarity).copy(alpha = 0.85f)
+        rarity == SpeciesCardRarity.VERY_RARE
+    val borderColor = if (highTier) {
+        rarityColor(requireNotNull(rarity)).copy(alpha = 0.85f)
     } else {
         MaterialTheme.colorScheme.outlineVariant
     }
@@ -156,6 +149,9 @@ fun SpeciesCard(
         append(", ")
         append(species.supportingText)
         rarity?.let { append(", ${it.label} tier") }
+        if (species.regionalLegend) append(", Regional Legend")
+        if (species.regionalIcon) append(", Regional Icon")
+        else if (species.regionalEssential) append(", Regional Essential")
         when (species.status) {
             SpeciesCardStatus.RESEARCH_GRADE -> append(", research grade")
             SpeciesCardStatus.OBSERVED -> append(", observed")
@@ -201,6 +197,8 @@ fun SpeciesCard(
                         silhouetteUrl = species.silhouetteUrl,
                         silhouetteFallbackUrl = species.silhouetteFallbackUrl,
                         silhouetteMatchRank = species.silhouetteMatchRank,
+                        fallbackSilhouetteGroup = species.fallbackSilhouetteGroup,
+                        placeholderIcon = species.placeholderIcon,
                         modifier = Modifier.fillMaxSize(),
                     )
                 }
@@ -217,8 +215,8 @@ fun SpeciesCard(
                         ),
                     ),
             )
-            if (rarity != null) {
-                RarityStar(
+            if (rarity != null && rarity != SpeciesCardRarity.COMMON) {
+                EncounterTrace(
                     rarity = rarity,
                     modifier = Modifier
                         .align(Alignment.TopStart)
@@ -262,15 +260,42 @@ fun SpeciesCard(
                     overflow = TextOverflow.Ellipsis,
                 )
             }
-            if (species.status != SpeciesCardStatus.NONE) {
-                SpeciesStatusBadge(
-                    status = species.status,
-                    modifier = Modifier
-                        .align(Alignment.TopEnd)
-                        .padding(WildlifeSpacing.Small),
-                )
+            Row(
+                modifier = Modifier.align(Alignment.TopEnd).padding(WildlifeSpacing.Small),
+                horizontalArrangement = Arrangement.spacedBy(WildlifeSpacing.Micro),
+                verticalAlignment = Alignment.Top,
+            ) {
+                if (species.regionalLegend) RegionalLegendMark()
+                if (species.regionalIcon) RegionalCollectionStamp(RegionalCollectionMark.ICON)
+                else if (species.regionalEssential) RegionalCollectionStamp(RegionalCollectionMark.ESSENTIAL)
+                if (species.status != SpeciesCardStatus.NONE) SpeciesStatusBadge(status = species.status)
             }
         }
+    }
+}
+
+/** The owner-supplied Field Mark artwork for the curated regional checklists. */
+enum class RegionalCollectionMark(val assetName: String, val contentLabel: String) {
+    ESSENTIAL("regional_essential.svg", "Regional Essential"),
+    ICON("regional_icon.svg", "Regional Icon"),
+}
+
+@Composable
+fun RegionalCollectionStamp(
+    mark: RegionalCollectionMark,
+    modifier: Modifier = Modifier,
+) {
+    val tint = if (mark == RegionalCollectionMark.ICON) WildlifeTheme.colors.gold else WildlifeTheme.colors.oliveStrong
+    Surface(
+        modifier = modifier
+            .size(30.dp)
+            .background(Color(0xD9080B09), CircleShape)
+            .border(BorderStroke(1.dp, tint.copy(alpha = 0.9f)), CircleShape),
+        color = Color.Transparent,
+        contentColor = tint,
+        shape = CircleShape,
+    ) {
+        FieldMarkAsset(mark.assetName, tint, Modifier.padding(6.dp))
     }
 }
 
@@ -298,23 +323,56 @@ internal fun SpeciesCardModel.orderedPhotoCandidates(): List<SpeciesCardPhotoCan
     }.distinctBy(SpeciesCardPhotoCandidate::url)
 
 @Composable
-private fun RarityStar(
+fun EncounterTrace(
     rarity: SpeciesCardRarity,
     modifier: Modifier = Modifier,
 ) {
+    val assetName = when (rarity) {
+        SpeciesCardRarity.COMMON -> return
+        SpeciesCardRarity.UNCOMMON -> "rarity_uncommon.svg"
+        SpeciesCardRarity.RARE -> "rarity_rare.svg"
+        SpeciesCardRarity.VERY_RARE -> "rarity_very_rare.svg"
+    }
+    val tint = rarityColor(rarity)
     Box(
         modifier = modifier
-            .size(26.dp)
-            .background(color = Color(0x99080B09), shape = CircleShape),
+            .size(30.dp)
+            .background(color = Color(0xB3080B09), shape = CircleShape)
+            .border(BorderStroke(1.dp, tint.copy(alpha = 0.7f)), CircleShape),
         contentAlignment = Alignment.Center,
     ) {
-        Icon(
-            imageVector = Icons.Filled.Star,
-            contentDescription = null,
-            tint = rarityColor(rarity),
-            modifier = Modifier.size(16.dp),
-        )
+        FieldMarkAsset(assetName, tint, Modifier.padding(6.dp))
     }
+}
+
+/** Owner-supplied prestige artwork, distinct from rarity and Icon membership. */
+@Composable
+fun RegionalLegendMark(modifier: Modifier = Modifier) {
+    val tint = WildlifeTheme.colors.legendary
+    Box(
+        modifier = modifier
+            .size(30.dp)
+            .background(Color(0xB3080B09), CircleShape)
+            .border(BorderStroke(1.dp, tint.copy(alpha = 0.85f)), CircleShape),
+        contentAlignment = Alignment.Center,
+    ) {
+        FieldMarkAsset("regional_legend.svg", tint, Modifier.padding(6.dp))
+    }
+}
+
+@Composable
+private fun FieldMarkAsset(assetName: String, tint: Color, modifier: Modifier = Modifier) {
+    val context = LocalContext.current
+    AsyncImage(
+        model = ImageRequest.Builder(context)
+            .data("file:///android_asset/field_marks/$assetName")
+            .decoderFactory(SvgDecoder.Factory())
+            .build(),
+        contentDescription = null,
+        colorFilter = ColorFilter.tint(tint),
+        contentScale = ContentScale.Fit,
+        modifier = modifier.fillMaxSize(),
+    )
 }
 
 @Composable
@@ -351,6 +409,8 @@ private fun NoPhotoState(
     silhouetteUrl: String?,
     silhouetteFallbackUrl: String?,
     silhouetteMatchRank: String?,
+    fallbackSilhouetteGroup: String?,
+    placeholderIcon: ImageVector? = null,
     modifier: Modifier = Modifier,
 ) {
     val context = LocalContext.current
@@ -394,6 +454,22 @@ private fun NoPhotoState(
                         silhouetteFailed = true
                     }
                 },
+            )
+        } else if (fallbackSilhouetteGroup != null) {
+            TaxonGroupGlyph(
+                groupKey = fallbackSilhouetteGroup,
+                tint = WildlifeTheme.colors.silhouette,
+                contentDescription = null,
+                size = 72.dp,
+            )
+        } else if (placeholderIcon != null) {
+            Icon(
+                imageVector = placeholderIcon,
+                contentDescription = null,
+                tint = WildlifeTheme.colors.silhouette,
+                modifier = Modifier
+                    .fillMaxSize(0.44f)
+                    .align(Alignment.Center),
             )
         } else {
             Text(

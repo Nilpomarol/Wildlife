@@ -10,6 +10,11 @@ enum class XpEventType(val key: String) {
     CONFIRMED_OBSERVATION("confirmed_observation"),
     FIRST_SPECIES("first_species"),
     RESEARCH_GRADE("research_grade"),
+    REGIONAL_DISCOVERY("regional_discovery"),
+    REGIONAL_RARITY("regional_rarity"),
+    REGIONAL_LEGEND("regional_legend"),
+    REGIONAL_ESSENTIALS("regional_essentials"),
+    REGIONAL_ICONS("regional_icons"),
     IDENTIFICATION_GIVEN("identification_given"),
     ANOMALY_CONFIRMED("anomaly_confirmed"),
     LEGACY("legacy"),
@@ -43,12 +48,23 @@ data class ProgressionState(
 )
 
 object ProgressionRules {
-    const val VERSION = "progression-0.1-placeholder"
+    const val VERSION = "progression-0.2-regional-experimental"
     const val CONFIRMED_OBSERVATION_XP = 10
     const val FIRST_SPECIES_XP = 500
 
     const val RESEARCH_GRADE_XP = 50
     const val RESEARCH_GRADE_ENABLED = true
+    const val REGIONAL_DISCOVERY_XP = 100
+    const val REGIONAL_LEGEND_XP = 1_000
+    const val REGIONAL_ESSENTIALS_XP = 1_500
+    const val REGIONAL_ICONS_XP = 3_000
+    fun regionalRarityXp(rarity: EncounterRarity): Int = when (rarity) {
+        EncounterRarity.COMMON -> 0
+        EncounterRarity.UNCOMMON -> 50
+        EncounterRarity.RARE -> 150
+        EncounterRarity.VERY_RARE -> 300
+        EncounterRarity.UNKNOWN -> 0
+    }
     const val IDENTIFICATION_GIVEN_XP = 25
     const val IDENTIFICATION_GIVEN_ENABLED = false
     const val ANOMALY_CONFIRMED_XP = 250

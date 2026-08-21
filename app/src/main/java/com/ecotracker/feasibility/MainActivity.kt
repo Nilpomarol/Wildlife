@@ -53,6 +53,7 @@ class CaptureActivity : ComponentActivity() {
     private var statusMessage = "Add photos to start one observation."
     private var reward: CaptureRewardUi? = null
     private var handoffUnavailable = false
+    private var openObservationsAfterHandoff = false
     private var uiState by mutableStateOf(CaptureUiState())
 
     private val cameraLauncher = registerForActivityResult(
@@ -133,7 +134,11 @@ class CaptureActivity : ComponentActivity() {
         if (::accountStore.isInitialized) {
             markers = markerStore.load()
             render()
-            if (hasPendingHandoffs()) scheduleRetry()
+            if (openObservationsAfterHandoff) {
+                openObservationsAfterHandoff = false
+                startActivity(Intent(this, ObservationsActivity::class.java))
+                finish()
+            }
         }
     }
 
@@ -288,7 +293,8 @@ class CaptureActivity : ComponentActivity() {
         try {
             startActivity(intent)
             markAsHandedOff(chosen)
-            showStatus("iNaturalist opened for one observation. Tell Wildlife if you submit it.")
+            openObservationsAfterHandoff = true
+            showStatus("iNaturalist opened for one observation. Review its status when you return.")
         } catch (_: ActivityNotFoundException) {
             handoffUnavailable = true
             showStatus("The official iNaturalist Android app is not installed.")
@@ -306,8 +312,9 @@ class CaptureActivity : ComponentActivity() {
         }
         handoffUnavailable = false
         markAsHandedOff(chosen)
+        openObservationsAfterHandoff = true
         openExternal("https://www.inaturalist.org/observations/upload")
-        showStatus("Web uploader opened. Add the photos manually, then tell Wildlife if you submit.")
+        showStatus("Web uploader opened. Review its status when you return.")
     }
 
     private fun markAsHandedOff(chosen: List<PendingMarker>) {
@@ -609,7 +616,7 @@ class CaptureActivity : ComponentActivity() {
 
     private fun render() {
         uiState = CaptureProjection.build(
-            markers = markers,
+            markers = markers.filter { it.state == MarkerState.CAPTURED },
             selectedMarkerIds = selectedMarkerIds,
             proposalsByMarker = proposalsByMarker,
             account = accountStore.verified(),

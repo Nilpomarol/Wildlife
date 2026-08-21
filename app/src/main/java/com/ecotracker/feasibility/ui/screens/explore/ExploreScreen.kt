@@ -20,18 +20,14 @@ import androidx.compose.foundation.lazy.grid.LazyVerticalGrid
 import androidx.compose.foundation.lazy.grid.items
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.outlined.Refresh
-import androidx.compose.material3.AlertDialog
 import androidx.compose.material3.Button
 import androidx.compose.material3.Card
 import androidx.compose.material3.CardDefaults
-import androidx.compose.material3.CircularProgressIndicator
 import androidx.compose.material3.FilterChip
 import androidx.compose.material3.Icon
-import androidx.compose.material3.IconButton
 import androidx.compose.material3.LinearProgressIndicator
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Text
-import androidx.compose.material3.TextButton
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
@@ -44,10 +40,10 @@ import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
-import com.wildlife.feasibility.CatalogueSnapshot
 import com.wildlife.feasibility.NearbySpecies
 import com.wildlife.feasibility.ui.components.CollectionSearchBar
 import com.wildlife.feasibility.ui.components.SpeciesCard
+import com.wildlife.feasibility.ui.components.SpeciesGrid
 import com.wildlife.feasibility.ui.components.SpeciesCardModel
 import com.wildlife.feasibility.ui.components.SpeciesCardStatus
 import com.wildlife.feasibility.ui.components.TaxonFilterRow
@@ -55,19 +51,16 @@ import com.wildlife.feasibility.ui.components.WildlifeScaffold
 import com.wildlife.feasibility.ui.components.responsiveSpeciesGridColumns
 import com.wildlife.feasibility.ui.theme.WildlifeSpacing
 import com.wildlife.feasibility.ui.theme.WildlifeTheme
-import java.text.DateFormat
-import java.util.Date
 
 enum class ExploreFilter(val label: String, val taxonGroup: String? = null) {
     ALL("All"),
     OBSERVED("Observed"),
     MISSING("Not observed"),
-    MAMMALS("Mammals", "Mammalia"),
-    BIRDS("Birds", "Aves"),
-    REPTILES("Reptiles", "Reptilia"),
-    AMPHIBIANS("Amphibians", "Amphibia"),
-    BUTTERFLIES("Butterflies", "Papilionoidea"),
-    DRAGONFLIES("Dragonflies", "Odonata"),
+    MAMMALS("Mammals", "mammals"),
+    BIRDS("Birds", "birds"),
+    REPTILES("Reptiles", "reptiles"),
+    AMPHIBIANS("Amphibians", "amphibians"),
+    FISH("Fish", "fish"),
 }
 
 private enum class ExploreSection(val label: String) {
@@ -79,7 +72,7 @@ private enum class ExploreSection(val label: String) {
 fun ExploreScreen(
     state: ExploreUiState,
     onBack: (() -> Unit)?,
-    onSync: () -> Unit,
+    onRefresh: () -> Unit,
     onOpenTaxon: (Long) -> Unit,
     onDiscoverNearby: () -> Unit,
     bottomBar: @Composable () -> Unit = {},
@@ -87,7 +80,6 @@ fun ExploreScreen(
     var selectedSection by rememberSaveable { mutableStateOf(ExploreSection.NEARBY) }
     var selectedFilter by rememberSaveable { mutableStateOf(ExploreFilter.ALL) }
     var query by rememberSaveable { mutableStateOf("") }
-    var confirmRefresh by rememberSaveable { mutableStateOf(false) }
     val availableFilters = ExploreFilter.entries.filter { filter ->
         filter.taxonGroup == null || state.entries.any { it.taxonGroup == filter.taxonGroup }
     }
@@ -106,28 +98,7 @@ fun ExploreScreen(
     WildlifeScaffold(
         title = "Explore",
         onBack = onBack,
-        actions = {
-            if (selectedSection == ExploreSection.GUIDE) {
-                IconButton(
-                    onClick = {
-                        if (state.snapshot == null) onSync() else confirmRefresh = true
-                    },
-                    enabled = !state.syncing && !state.silhouetteEnrichmentRunning,
-                ) {
-                    if (state.syncing) {
-                        CircularProgressIndicator(
-                            modifier = Modifier.padding(WildlifeSpacing.Small),
-                            strokeWidth = 2.dp,
-                        )
-                    } else {
-                        Icon(
-                            Icons.Outlined.Refresh,
-                            contentDescription = "Refresh stored Catalonia catalogue",
-                        )
-                    }
-                }
-            }
-        },
+        actions = {},
         bottomBar = bottomBar,
     ) { innerPadding ->
         Column(
@@ -140,12 +111,11 @@ fun ExploreScreen(
                 onSelected = { selectedSection = it },
             )
             when (selectedSection) {
-                ExploreSection.GUIDE -> if (state.snapshot == null) {
+            ExploreSection.GUIDE -> if (state.activeCatalogue == null) {
             EmptyCatalogue(
                 message = state.errorMessage
-                    ?: "Download the provisional Catalonia catalogue to explore species offline.",
-                syncing = state.syncing,
-                onSync = onSync,
+                    ?: "The installed regional guide could not be read.",
+                onRefresh = onRefresh,
                 modifier = Modifier.weight(1f),
             )
         } else {
@@ -154,7 +124,7 @@ fun ExploreScreen(
                     .fillMaxSize(),
             ) {
                 ExploreIntro(
-                    snapshot = state.snapshot,
+                    catalogue = state.activeCatalogue,
                     observedCount = state.observedCount,
                     errorMessage = state.errorMessage,
                     modifier = Modifier.padding(horizontal = WildlifeSpacing.Screen),
@@ -162,7 +132,7 @@ fun ExploreScreen(
                 CollectionSearchBar(
                     query = query,
                     onQueryChange = { query = it },
-                    placeholder = "Search species in Catalonia",
+                    placeholder = "Search this regional guide",
                     modifier = Modifier.padding(
                         start = WildlifeSpacing.Screen,
                         end = WildlifeSpacing.Screen,
@@ -180,15 +150,6 @@ fun ExploreScreen(
                         bottom = WildlifeSpacing.Small,
                     ),
                 )
-                if (state.syncing) LinearProgressIndicator(Modifier.fillMaxWidth())
-                if (state.silhouetteEnrichmentRunning) {
-                    Text(
-                        text = "Improving stored silhouettes in the background…",
-                        style = MaterialTheme.typography.labelSmall,
-                        color = WildlifeTheme.colors.mutedText,
-                        modifier = Modifier.padding(horizontal = WildlifeSpacing.Screen),
-                    )
-                }
                 if (filtered.isEmpty()) {
                     ExploreMessage("No species match this search and filter.")
                 } else {
@@ -208,29 +169,6 @@ fun ExploreScreen(
                 )
             }
         }
-    }
-    if (confirmRefresh) {
-        AlertDialog(
-            onDismissRequest = { confirmRefresh = false },
-            title = { Text("Refresh the Catalonia guide?") },
-            text = {
-                Text(
-                    "Wildlife will check iNaturalist for a new provisional species list. " +
-                        "Your current stored guide and media remain available if it fails.",
-                )
-            },
-            confirmButton = {
-                TextButton(
-                    onClick = {
-                        confirmRefresh = false
-                        onSync()
-                    },
-                ) { Text("Refresh") }
-            },
-            dismissButton = {
-                TextButton(onClick = { confirmRefresh = false }) { Text("Keep current guide") }
-            },
-        )
     }
 }
 
@@ -282,7 +220,7 @@ private fun NearbyDiscoveryContent(
                 color = WildlifeTheme.colors.parchment,
             )
             Text(
-                text = "Wildlife samples your location once when you ask, then finds species from the provisional guide reported within ${state.radiusKm} km during this calendar month across available years.",
+                text = "Wildlife samples your location once when you ask, then finds species in your selected regional guide reported within ${state.radiusKm} km during this calendar month across available years.",
                 style = MaterialTheme.typography.bodyMedium,
                 color = MaterialTheme.colorScheme.onSurfaceVariant,
                 modifier = Modifier.padding(top = WildlifeSpacing.Micro),
@@ -317,7 +255,7 @@ private fun NearbyDiscoveryContent(
             if (state.species.isEmpty()) {
                 item {
                     Text(
-                        text = "No species from the provisional guide appeared in the returned research-grade reports for this area and calendar month.",
+                        text = "No species from the selected regional guide appeared in the returned research-grade reports for this area and calendar month.",
                         style = MaterialTheme.typography.bodyMedium,
                         color = MaterialTheme.colorScheme.onSurfaceVariant,
                     )
@@ -390,7 +328,7 @@ private fun NearbySpeciesRow(
 
 @Composable
 private fun ExploreIntro(
-    snapshot: CatalogueSnapshot,
+    catalogue: RegionalExploreCatalogue,
     observedCount: Int,
     errorMessage: String?,
     modifier: Modifier = Modifier,
@@ -402,7 +340,7 @@ private fun ExploreIntro(
             verticalAlignment = Alignment.CenterVertically,
         ) {
             Text(
-                text = "Catalonia / Provisional catalogue",
+                text = catalogue.displayName,
                 style = MaterialTheme.typography.labelLarge,
                 color = WildlifeTheme.colors.oliveStrong,
                 fontWeight = FontWeight.SemiBold,
@@ -413,16 +351,13 @@ private fun ExploreIntro(
                 color = MaterialTheme.colorScheme.onSurfaceVariant,
             )
         }
-        val updated = snapshot.updatedAtMs?.let {
-            DateFormat.getDateInstance(DateFormat.MEDIUM).format(Date(it))
-        } ?: "unknown"
         Text(
-            text = "${snapshot.species.size} stored species / updated $updated",
+            text = "${catalogue.speciesCount} species · catalogue ${catalogue.version}",
             style = MaterialTheme.typography.labelMedium,
             color = MaterialTheme.colorScheme.onSurfaceVariant,
         )
         Text(
-            text = "Based on regional iNaturalist records; frequency is not rarity.",
+            text = "A frozen regional catalogue. Encounter rarity is calculated for this region.",
             style = MaterialTheme.typography.labelSmall,
             color = WildlifeTheme.colors.mutedText,
         )
@@ -442,38 +377,16 @@ private fun ExploreGrid(
     onOpenTaxon: (Long) -> Unit,
     modifier: Modifier = Modifier,
 ) {
-    val fontScale = LocalDensity.current.fontScale
-    BoxWithConstraints(modifier) {
-        val columns = responsiveSpeciesGridColumns(maxWidth.value, fontScale)
-        LazyVerticalGrid(
-            columns = GridCells.Fixed(columns),
-            contentPadding = PaddingValues(
-                start = WildlifeSpacing.Screen,
-                end = WildlifeSpacing.Screen,
-                bottom = WildlifeSpacing.Section,
-            ),
-            horizontalArrangement = Arrangement.spacedBy(WildlifeSpacing.Grid),
-            verticalArrangement = Arrangement.spacedBy(WildlifeSpacing.Grid),
-        ) {
-            items(entries, key = ExploreSpecies::taxonId) { entry ->
-                SpeciesCard(
-                    species = entry.card,
-                    onClick = { onOpenTaxon(entry.taxonId) },
-                    modifier = Modifier
-                        .fillMaxWidth()
-                        .aspectRatio(0.94f)
-                        .animateItem(),
-                )
-            }
-        }
-    }
+    SpeciesGrid(
+        entries = entries, key = ExploreSpecies::taxonId, model = ExploreSpecies::card,
+        onClick = { onOpenTaxon(it.taxonId) }, modifier = modifier, cardAspectRatio = 0.94f,
+    )
 }
 
 @Composable
 private fun EmptyCatalogue(
     message: String,
-    syncing: Boolean,
-    onSync: () -> Unit,
+    onRefresh: () -> Unit,
     modifier: Modifier = Modifier,
 ) {
     Column(
@@ -490,11 +403,10 @@ private fun EmptyCatalogue(
             textAlign = TextAlign.Center,
         )
         Button(
-            onClick = onSync,
-            enabled = !syncing,
+            onClick = onRefresh,
             modifier = Modifier.padding(top = WildlifeSpacing.Screen),
         ) {
-            Text(if (syncing) "Downloading…" else "Download catalogue")
+            Text("Try again")
         }
     }
 }
@@ -526,14 +438,11 @@ private fun ExplorePreview() {
     WildlifeTheme {
         ExploreScreen(
             state = ExploreUiState(
-                snapshot = CatalogueSnapshot(
-                    regionKey = "catalonia",
-                    placeId = 12997,
+                activeCatalogue = RegionalExploreCatalogue(
+                    regionKey = "mediterranean_europe",
+                    displayName = "Mediterranean Europe",
                     version = "preview",
-                    updatedAtMs = 0,
-                    provisional = true,
-                    species = emptyList(),
-                    cached = true,
+                    speciesCount = 800,
                 ),
                 entries = listOf(
                     previewEntry(1, "European robin", "Erithacus rubecula", "Aves", true),
@@ -541,7 +450,7 @@ private fun ExplorePreview() {
                 ),
             ),
             onBack = {},
-            onSync = {},
+            onRefresh = {},
             onOpenTaxon = {},
             onDiscoverNearby = {},
         )

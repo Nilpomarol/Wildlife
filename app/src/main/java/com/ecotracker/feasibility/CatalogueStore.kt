@@ -23,6 +23,7 @@ class CatalogueStore(context: Context) : SQLiteOpenHelper(context, DATABASE, nul
         )
         database.execSQL(CREATE_TAXON_DETAILS)
         database.execSQL(CREATE_REFRESH_STATE)
+        CREATE_REGIONAL_CONTENT.forEach(database::execSQL)
     }
 
     override fun onUpgrade(database: SQLiteDatabase, oldVersion: Int, newVersion: Int) {
@@ -61,6 +62,7 @@ class CatalogueStore(context: Context) : SQLiteOpenHelper(context, DATABASE, nul
             )
         }
         if (oldVersion < 8) database.execSQL(CREATE_REFRESH_STATE)
+        if (oldVersion < 9) CREATE_REGIONAL_CONTENT.forEach(database::execSQL)
     }
 
     fun clearAllLocalData() {
@@ -71,6 +73,10 @@ class CatalogueStore(context: Context) : SQLiteOpenHelper(context, DATABASE, nul
                 "taxon_details",
                 "catalogue_state",
                 "catalogue_refresh_state",
+                "regional_taxa",
+                "regional_achievements",
+                "catalogue_versions",
+                "regions",
             ).forEach { table -> writableDatabase.delete(table, null, null) }
             writableDatabase.setTransactionSuccessful()
         } finally {
@@ -507,7 +513,7 @@ class CatalogueStore(context: Context) : SQLiteOpenHelper(context, DATABASE, nul
     companion object {
         const val CATALONIA = "catalonia"
         private const val DATABASE = "wildlife_catalogue.db"
-        private const val VERSION = 8
+        private const val VERSION = 9
         private val CATALOGUE_EXTRA_COLUMNS = listOf(
             "family_name" to "TEXT", "wikipedia_summary" to "TEXT",
             "wikipedia_url" to "TEXT", "conservation_status" to "TEXT",
@@ -578,5 +584,45 @@ class CatalogueStore(context: Context) : SQLiteOpenHelper(context, DATABASE, nul
                 in_progress INTEGER NOT NULL DEFAULT 0
             )
         """
+        private val CREATE_REGIONAL_CONTENT = listOf(
+            """
+            CREATE TABLE IF NOT EXISTS regions (
+                region_key TEXT PRIMARY KEY,
+                display_name TEXT NOT NULL,
+                polygon_version TEXT NOT NULL,
+                display_order INTEGER NOT NULL
+            )
+            """.trimIndent(),
+            """
+            CREATE TABLE IF NOT EXISTS catalogue_versions (
+                region_key TEXT NOT NULL,
+                catalogue_version TEXT NOT NULL,
+                frozen INTEGER NOT NULL,
+                content_rules_version TEXT NOT NULL,
+                PRIMARY KEY(region_key, catalogue_version)
+            )
+            """.trimIndent(),
+            """
+            CREATE TABLE IF NOT EXISTS regional_taxa (
+                region_key TEXT NOT NULL,
+                catalogue_version TEXT NOT NULL,
+                taxon_id INTEGER NOT NULL,
+                encounter_rarity TEXT NOT NULL,
+                prestige TEXT NOT NULL,
+                inclusion_provenance TEXT NOT NULL,
+                PRIMARY KEY(region_key, catalogue_version, taxon_id)
+            )
+            """.trimIndent(),
+            """
+            CREATE TABLE IF NOT EXISTS regional_achievements (
+                region_key TEXT NOT NULL,
+                catalogue_version TEXT NOT NULL,
+                achievement_key TEXT NOT NULL,
+                achievement_type TEXT NOT NULL,
+                taxon_ids_json TEXT NOT NULL,
+                PRIMARY KEY(region_key, catalogue_version, achievement_key)
+            )
+            """.trimIndent(),
+        )
     }
 }

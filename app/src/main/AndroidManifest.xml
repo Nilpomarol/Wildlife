@@ -37,6 +37,10 @@
             android:exported="false" />
 
         <activity
+            android:name=".ObservationsActivity"
+            android:exported="false" />
+
+        <activity
             android:name=".SpeciesDetailActivity"
             android:exported="false" />
 

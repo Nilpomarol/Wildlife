@@ -15,6 +15,11 @@ import com.wildlife.feasibility.ObservationStore
 import com.wildlife.feasibility.OnDeviceWildlifeRepository
 import com.wildlife.feasibility.SyncedObservation
 import com.wildlife.feasibility.TaxonDetails
+import com.wildlife.feasibility.ActiveCatalogueStore
+import com.wildlife.feasibility.RegionalCatalogueAssetStore
+import com.wildlife.feasibility.InstalledRegionalTaxon
+import com.wildlife.feasibility.EncounterRarity
+import com.wildlife.feasibility.RegionalPrestige
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.launch
 import kotlinx.coroutines.withContext
@@ -27,6 +32,13 @@ data class SpeciesDetailObservation(
     val observedAtMs: Long,
     val qualityGrade: String,
     val photoUrl: String?,
+)
+
+data class SpeciesRegionalContext(
+    val regionName: String,
+    val rarity: EncounterRarity,
+    val prestige: RegionalPrestige,
+    val achievementLabels: Set<String> = emptySet(),
 )
 
 data class SpeciesDetailUiState(
@@ -64,6 +76,7 @@ data class SpeciesDetailUiState(
     val heroPhotoFallbackUrl: String? = null,
     val silhouetteFallbackUrl: String? = null,
     val mediaAttempt: Int = 0,
+    val regionalContext: SpeciesRegionalContext? = null,
 ) {
     val latestObservedAtMs: Long? get() = observations.firstOrNull()?.observedAtMs
 }
@@ -75,16 +88,19 @@ internal object SpeciesDetailProjection {
         snapshot: CatalogueSnapshot?,
         observations: List<SyncedObservation>,
         details: TaxonDetails? = null,
+        regionalTaxon: InstalledRegionalTaxon? = null,
+        regionalCatalogueVersion: String? = null,
     ): SpeciesDetailUiState {
         val catalogue = snapshot?.species?.firstOrNull { it.taxonId == taxonId }
         val personal = observations
             .filter { (it.collectionTaxonId ?: it.taxonId) == taxonId }
             .sortedByDescending(SyncedObservation::observedAtMs)
-        val label = catalogue?.commonName ?: details?.commonName
+        val label = catalogue?.commonName ?: details?.commonName ?: regionalTaxon?.commonName
             ?: personal.firstNotNullOfOrNull { it.label.takeIf(String::isNotBlank) }
             ?: fallbackLabel?.takeIf(String::isNotBlank)
-            ?: catalogue?.scientificName ?: details?.scientificName ?: "Unknown species"
-        val scientificName = (details?.scientificName ?: catalogue?.scientificName)
+            ?: catalogue?.scientificName ?: details?.scientificName ?: regionalTaxon?.scientificName
+            ?: "Unknown species"
+        val scientificName = (details?.scientificName ?: catalogue?.scientificName ?: regionalTaxon?.scientificName)
             ?.takeUnless { it == label }
         val personalPhoto = personal.firstNotNullOfOrNull(SyncedObservation::photoUrl)
         val cataloguePhoto = catalogue?.let(CataloguePhotoPolicy::detailUrl)?.let {
@@ -105,7 +121,8 @@ internal object SpeciesDetailProjection {
             taxonId = taxonId,
             commonName = label,
             scientificName = scientificName,
-            taxonGroup = (details?.taxonGroup ?: catalogue?.taxonGroup)?.let(::friendlyTaxonGroup),
+            taxonGroup = (details?.taxonGroup ?: catalogue?.taxonGroup ?: regionalTaxon?.taxonClass)
+                ?.let(::friendlyTaxonGroup),
             familyName = details?.familyName ?: catalogue?.familyName,
             aboutSummary = details?.wikipediaSummary ?: catalogue?.wikipediaSummary,
             wikipediaUrl = details?.wikipediaUrl ?: catalogue?.wikipediaUrl,
@@ -143,7 +160,7 @@ internal object SpeciesDetailProjection {
                 ?: catalogue?.silhouetteTaxonName,
             silhouetteMatchRank = details?.silhouetteMatchRank
                 ?: catalogue?.silhouetteMatchRank,
-            catalogueVersion = snapshot?.version,
+            catalogueVersion = regionalCatalogueVersion ?: snapshot?.version,
             observations = personal.map {
                 SpeciesDetailObservation(it.uuid, it.observedAtMs, it.qualityGrade, it.photoUrl)
             },
@@ -240,10 +257,40 @@ class SpeciesDetailViewModel(
         val (snapshot, details) = CatalogueStore(context).use { store ->
             store.load() to store.loadTaxonDetail(taxonId)
         }
+        val content = RegionalCatalogueAssetStore(context)
+        val catalogues = content.catalogues()
+        val selectedKey = ActiveCatalogueStore(context).selectedRegionKey()
+            .takeIf { key -> catalogues.any { it.regionKey == key } }
+            ?: catalogues.first().regionKey
+        val selected = catalogues.first { it.regionKey == selectedKey }
+        val regionalTaxon = content.taxa(selected.regionKey).firstOrNull { it.taxonId == taxonId }
+        val achievementLabels = content.achievements(selected.regionKey)
+            .filter { taxonId in it.taxonIds }
+            .mapTo(linkedSetOf()) { it.label }
         val observations = AccountStore(context).verified()?.let { account ->
-            ObservationStore(context).use { it.observations(account.userId) }
+            ObservationStore(context).use { store ->
+                store.observations(account.userId).filter { observation ->
+                    store.observationRegion(account.userId, observation.uuid)?.let { assignment ->
+                        assignment.earnsRegionalProgress && assignment.regionKey == selected.regionKey
+                    } == true
+                }
+            }
         }.orEmpty()
-        SpeciesDetailProjection.build(taxonId, fallbackLabel, snapshot, observations, details)
+        SpeciesDetailProjection.build(
+            taxonId, fallbackLabel, snapshot, observations, details,
+            regionalTaxon = regionalTaxon,
+            regionalCatalogueVersion = selected.version,
+        )
+            .copy(
+                regionalContext = regionalTaxon?.let {
+                    SpeciesRegionalContext(
+                        regionName = selected.displayName,
+                        rarity = it.rarity,
+                        prestige = it.prestige,
+                        achievementLabels = achievementLabels,
+                    )
+                },
+            )
             .copy(mediaAttempt = mediaAttempt)
     }.getOrElse { error ->
         SpeciesDetailUiState(

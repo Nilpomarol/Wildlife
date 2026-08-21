@@ -1,0 +1,299 @@
+name,iso,type,sovereign,proposed_region,review
+Argentina,AR,Sovereign country,Argentina,andes_southern_south_america,pre-filled from owner table
+Bolivia,BO,Sovereign country,Bolivia,andes_southern_south_america,pre-filled from owner table
+Chile,CL,Sovereign country,Chile,andes_southern_south_america,pre-filled from owner table
+Falkland Is.,FK,Disputed,United Kingdom,andes_southern_south_america,proposal pending disputed-boundary approval
+Paraguay,PY,Sovereign country,Paraguay,andes_southern_south_america,pre-filled from owner table
+Southern Patagonian Ice Field,—,Indeterminate,Southern Patagonian Ice Field,andes_southern_south_america,proposal pending disputed-boundary approval
+Uruguay,UY,Sovereign country,Uruguay,andes_southern_south_america,pre-filled from owner table
+Ashmore and Cartier Is.,—,Dependency,Australia,australasia,proposal pending owner approval
+Australia,AU,Country,Australia,australasia,pre-filled from owner table
+Bougainville,—,Geo unit,Papua New Guinea,australasia,proposal pending owner approval
+Christmas I.,CX,Geo unit,Australia,australasia,proposal pending owner approval
+Cocos Is.,CC,Geo unit,Australia,australasia,proposal pending owner approval
+Coral Sea Is.,—,Dependency,Australia,australasia,proposal pending owner approval
+Norfolk Island,NF,Dependency,Australia,australasia,proposal pending owner approval
+Papua New Guinea,—,Geo unit,Papua New Guinea,australasia,proposal pending owner approval
+Estonia,EE,Sovereign country,Estonia,boreal_europe,proposal pending owner approval
+Faeroe Is.,FO,Dependency,Denmark,boreal_europe,proposal pending owner approval
+Finland,FI,Country,Finland,boreal_europe,pre-filled from owner table
+Iceland,IS,Sovereign country,Iceland,boreal_europe,pre-filled from owner table
+Jan Mayen I.,—,Dependency,Norway,boreal_europe,proposal pending owner approval
+Norway,NO,Country,Norway,boreal_europe,pre-filled from owner table
+Svalbard Is.,SJ,Dependency,Norway,boreal_europe,proposal pending owner approval
+Sweden,SE,Sovereign country,Sweden,boreal_europe,pre-filled from owner table
+Åland,AX,Country,Finland,boreal_europe,proposal pending owner approval
+Anguilla,AI,Dependency,United Kingdom,caribbean,proposal pending owner approval
+Antigua,—,Geo unit,Antigua and Barbuda,caribbean,proposal pending owner approval
+Aruba,AW,Country,Netherlands,caribbean,proposal pending owner approval
+Bahamas,BS,Sovereign country,The Bahamas,caribbean,pre-filled from owner table
+Barbados,BB,Sovereign country,Barbados,caribbean,proposal pending owner approval
+Barbuda,—,Geo unit,Antigua and Barbuda,caribbean,proposal pending owner approval
+British Virgin Is.,VG,Dependency,United Kingdom,caribbean,proposal pending owner approval
+Caribbean Netherlands,BQ,Geo unit,Netherlands,caribbean,proposal pending owner approval
+Cayman Is.,KY,Dependency,United Kingdom,caribbean,proposal pending owner approval
+Cuba,CU,Sovereignty,Cuba,caribbean,pre-filled from owner table
+Curaçao,CW,Country,Netherlands,caribbean,proposal pending owner approval
+Dominica,DM,Sovereign country,Dominica,caribbean,proposal pending owner approval
+Dominican Rep.,DO,Sovereign country,Dominican Republic,caribbean,pre-filled from owner table
+Grenada,GD,Sovereign country,Grenada,caribbean,proposal pending owner approval
+Guadeloupe,—,Geo unit,France,caribbean,proposal pending owner approval
+Haiti,HT,Sovereign country,Haiti,caribbean,pre-filled from owner table
+Jamaica,JM,Sovereign country,Jamaica,caribbean,pre-filled from owner table
+Martinique,—,Geo unit,France,caribbean,proposal pending owner approval
+Montserrat,MS,Dependency,United Kingdom,caribbean,proposal pending owner approval
+Navassa I.,—,Geo unit,United States of America,caribbean,proposal pending owner approval
+Puerto Rico,PR,Dependency,United States of America,caribbean,proposal pending owner approval
+Saint Lucia,LC,Sovereign country,Saint Lucia,caribbean,proposal pending owner approval
+Sint Maarten,SX,Country,Netherlands,caribbean,proposal pending owner approval
+St-Barthélemy,BL,Dependency,France,caribbean,proposal pending owner approval
+St-Martin,MF,Dependency,France,caribbean,proposal pending owner approval
+St. Kitts and Nevis,KN,Sovereign country,Saint Kitts and Nevis,caribbean,proposal pending owner approval
+St. Vin. and Gren.,VC,Sovereign country,Saint Vincent and the Grenadines,caribbean,proposal pending owner approval
+Trinidad and Tobago,TT,Sovereign country,Trinidad and Tobago,caribbean,proposal pending owner approval
+Turks and Caicos Is.,TC,Dependency,United Kingdom,caribbean,proposal pending owner approval
+U.S. Virgin Is.,VI,Dependency,United States of America,caribbean,proposal pending owner approval
+USNB Guantanamo Bay,—,Lease,Cuba,caribbean,proposal pending owner approval
+Afghanistan,AF,Sovereign country,Afghanistan,central_asia,pre-filled from owner table
+Baikonur,—,Lease,Kazakhstan,central_asia,proposal pending owner approval
+Iran,IR,Sovereign country,Iran,central_asia,pre-filled from owner table
+Kazakhstan,KZ,Sovereignty,Kazakhstan,central_asia,pre-filled from owner table
+Kyrgyzstan,KG,Sovereign country,Kyrgyzstan,central_asia,pre-filled from owner table
+Tajikistan,TJ,Sovereign country,Tajikistan,central_asia,pre-filled from owner table
+Turkmenistan,TM,Sovereign country,Turkmenistan,central_asia,pre-filled from owner table
+Uzbekistan,UZ,Sovereign country,Uzbekistan,central_asia,pre-filled from owner table
+Burundi,BI,Sovereign country,Burundi,east_africa,pre-filled from owner table
+Djibouti,DJ,Sovereign country,Djibouti,east_africa,proposal pending owner approval
+Eritrea,ER,Sovereign country,Eritrea,east_africa,proposal pending owner approval
+Ethiopia,ET,Sovereign country,Ethiopia,east_africa,pre-filled from owner table
+Kenya,KE,Sovereign country,Kenya,east_africa,pre-filled from owner table
+Puntland,—,Geo unit,Somalia,east_africa,proposal pending owner approval
+Rwanda,RW,Sovereign country,Rwanda,east_africa,pre-filled from owner table
+S. Sudan,SS,Sovereign country,South Sudan,east_africa,pre-filled from owner table
+Somalia,—,Geo unit,Somalia,east_africa,proposal pending owner approval
+Somaliland,—,Sovereign country,Somaliland,east_africa,proposal pending owner approval
+Tanzania,TZ,Sovereign country,United Republic of Tanzania,east_africa,pre-filled from owner table
+Uganda,UG,Sovereign country,Uganda,east_africa,pre-filled from owner table
+Zanzibar,—,Geo unit,United Republic of Tanzania,east_africa,proposal pending owner approval
+Belarus,BY,Sovereign country,Belarus,eastern_europe_steppe,pre-filled from owner table
+Bulgaria,BG,Sovereign country,Bulgaria,eastern_europe_steppe,pre-filled from owner table
+Kosovo,—,Disputed,Kosovo,eastern_europe_steppe,proposal pending disputed-boundary approval
+Moldova,MD,Sovereign country,Moldova,eastern_europe_steppe,pre-filled from owner table
+Romania,RO,Sovereign country,Romania,eastern_europe_steppe,pre-filled from owner table
+Serbia,—,Geo unit,Republic of Serbia,eastern_europe_steppe,proposal pending owner approval
+Ukraine,UA,Sovereign country,Ukraine,eastern_europe_steppe,pre-filled from owner table
+Vojvodina,—,Geo unit,Republic of Serbia,eastern_europe_steppe,proposal pending owner approval
+Bangladesh,BD,Sovereign country,Bangladesh,indian_subcontinent,pre-filled from owner table
+Bhutan,BT,Sovereign country,Bhutan,indian_subcontinent,pre-filled from owner table
+India,IN,Sovereign country,India,indian_subcontinent,pre-filled from owner table
+Maldives,MV,Sovereign country,Maldives,indian_subcontinent,proposal pending owner approval
+Nepal,NP,Sovereign country,Nepal,indian_subcontinent,pre-filled from owner table
+Pakistan,PK,Sovereign country,Pakistan,indian_subcontinent,pre-filled from owner table
+Siachen Glacier,—,Indeterminate,Kashmir,indian_subcontinent,proposal pending disputed-boundary approval
+Sri Lanka,LK,Sovereign country,Sri Lanka,indian_subcontinent,pre-filled from owner table
+Indonesia,ID,Sovereign country,Indonesia,insular_southeast_asia,pre-filled from owner table
+Philippines,PH,Sovereign country,Philippines,insular_southeast_asia,pre-filled from owner table
+Timor-Leste,TL,Sovereign country,East Timor,insular_southeast_asia,pre-filled from owner table
+Br. Indian Ocean Ter.,IO,Disputed,United Kingdom,madagascar_west_indian_ocean,proposal pending owner approval
+Comoros,KM,Sovereign country,Comoros,madagascar_west_indian_ocean,pre-filled from owner table
+Madagascar,MG,Sovereign country,Madagascar,madagascar_west_indian_ocean,pre-filled from owner table
+Mauritius,MU,Sovereign country,Mauritius,madagascar_west_indian_ocean,pre-filled from owner table
+Mayotte,—,Disputed,France,madagascar_west_indian_ocean,proposal pending disputed-boundary approval
+Réunion,—,Geo unit,France,madagascar_west_indian_ocean,proposal pending owner approval
+Seychelles,SC,Sovereign country,Seychelles,madagascar_west_indian_ocean,pre-filled from owner table
+Algeria,DZ,Sovereign country,Algeria,maghreb_sahara,pre-filled from owner table
+Bir Tawil,—,Indeterminate,Bir Tawil,maghreb_sahara,proposal pending disputed-boundary approval
+Cabo Verde,CV,Sovereign country,Cabo Verde,maghreb_sahara,proposal pending owner approval
+Egypt,EG,Sovereign country,Egypt,maghreb_sahara,pre-filled from owner table
+Libya,LY,Sovereign country,Libya,maghreb_sahara,pre-filled from owner table
+Mauritania,MR,Sovereign country,Mauritania,maghreb_sahara,pre-filled from owner table
+Morocco,MA,Sovereign country,Morocco,maghreb_sahara,pre-filled from owner table
+Tunisia,TN,Sovereign country,Tunisia,maghreb_sahara,pre-filled from owner table
+W. Sahara,EH,Indeterminate,Western Sahara,maghreb_sahara,proposal pending disputed-boundary approval
+Brunei,BN,Sovereign country,Brunei,mainland_southeast_asia,pre-filled from owner table
+Cambodia,KH,Sovereign country,Cambodia,mainland_southeast_asia,pre-filled from owner table
+Laos,LA,Sovereign country,Laos,mainland_southeast_asia,pre-filled from owner table
+Malaysia,MY,Sovereign country,Malaysia,mainland_southeast_asia,pre-filled from owner table
+Myanmar,MM,Sovereign country,Myanmar,mainland_southeast_asia,pre-filled from owner table
+Singapore,SG,Sovereign country,Singapore,mainland_southeast_asia,pre-filled from owner table
+Thailand,TH,Sovereign country,Thailand,mainland_southeast_asia,pre-filled from owner table
+Vietnam,VN,Sovereign country,Vietnam,mainland_southeast_asia,pre-filled from owner table
+Bajo Nuevo Bank,—,Indeterminate,Bajo Nuevo Bank (Petrel Is.),marine_worldwide,proposal pending disputed-boundary approval
+Brazilian I.,—,Indeterminate,Brazilian Island,marine_worldwide,proposal pending disputed-boundary approval
+Paracel Is.,—,Geo unit,China,marine_worldwide,proposal pending disputed-boundary approval
+Scarborough Reef,—,Indeterminate,Scarborough Reef,marine_worldwide,proposal pending disputed-boundary approval
+Serranilla Bank,—,Indeterminate,Serranilla Bank,marine_worldwide,proposal pending disputed-boundary approval
+Spratly Is.,—,Indeterminate,Spratly Islands,marine_worldwide,proposal pending disputed-boundary approval
+Akrotiri,—,Dependency,United Kingdom,mediterranean_europe,proposal pending owner approval
+Albania,AL,Sovereign country,Albania,mediterranean_europe,pre-filled from owner table
+Andorra,AD,Sovereign country,Andorra,mediterranean_europe,proposal pending owner approval
+Azores,—,Geo unit,Portugal,mediterranean_europe,proposal pending owner approval
+Brcko District,—,Geo unit,Bosnia and Herzegovina,mediterranean_europe,proposal pending owner approval
+Croatia,HR,Sovereign country,Croatia,mediterranean_europe,pre-filled from owner table
+Cyprus,CY,Sovereign country,Cyprus,mediterranean_europe,pre-filled from owner table
+Cyprus U.N. Buffer Zone,—,Indeterminate,Cyprus No Mans Area,mediterranean_europe,proposal pending disputed-boundary approval
+Dhekelia,—,Dependency,United Kingdom,mediterranean_europe,proposal pending owner approval
+Fed. of Bos. & Herz.,—,Geo unit,Bosnia and Herzegovina,mediterranean_europe,proposal pending owner approval
+Gibraltar,GI,Disputed,United Kingdom,mediterranean_europe,proposal pending owner approval
+Greece,GR,Sovereign country,Greece,mediterranean_europe,pre-filled from owner table
+Italy,IT,Sovereign country,Italy,mediterranean_europe,pre-filled from owner table
+Madeira,—,Geo unit,Portugal,mediterranean_europe,proposal pending owner approval
+Malta,MT,Sovereign country,Malta,mediterranean_europe,pre-filled from owner table
+Monaco,MC,Sovereign country,Monaco,mediterranean_europe,proposal pending owner approval
+Montenegro,ME,Sovereign country,Montenegro,mediterranean_europe,pre-filled from owner table
+N. Cyprus,—,Sovereign country,Northern Cyprus,mediterranean_europe,proposal pending owner approval
+North Macedonia,MK,Sovereign country,North Macedonia,mediterranean_europe,proposal pending owner approval
+Portugal,—,Geo unit,Portugal,mediterranean_europe,proposal pending owner approval
+Rep. Srpska,—,Geo unit,Bosnia and Herzegovina,mediterranean_europe,proposal pending owner approval
+San Marino,SM,Sovereign country,San Marino,mediterranean_europe,proposal pending owner approval
+Slovenia,SI,Sovereign country,Slovenia,mediterranean_europe,proposal pending owner approval
+Spain,ES,Sovereign country,Spain,mediterranean_europe,pre-filled from owner table
+Vatican,VA,Sovereign country,Vatican,mediterranean_europe,proposal pending owner approval
+Belize,BZ,Sovereign country,Belize,mesoamerica,pre-filled from owner table
+Clipperton I.,—,Dependency,France,mesoamerica,proposal pending owner approval
+Costa Rica,CR,Sovereign country,Costa Rica,mesoamerica,pre-filled from owner table
+El Salvador,SV,Sovereign country,El Salvador,mesoamerica,pre-filled from owner table
+Guatemala,GT,Sovereign country,Guatemala,mesoamerica,pre-filled from owner table
+Honduras,HN,Sovereign country,Honduras,mesoamerica,pre-filled from owner table
+Mexico,MX,Sovereign country,Mexico,mesoamerica,pre-filled from owner table
+Nicaragua,NI,Sovereign country,Nicaragua,mesoamerica,pre-filled from owner table
+Panama,PA,Sovereign country,Panama,mesoamerica,pre-filled from owner table
+Adjara,—,Geo unit,Georgia,middle_east_arabia,proposal pending owner approval
+Armenia,AM,Sovereign country,Armenia,middle_east_arabia,proposal pending owner approval
+Azerbaijan,AZ,Sovereign country,Azerbaijan,middle_east_arabia,proposal pending owner approval
+Bahrain,BH,Sovereign country,Bahrain,middle_east_arabia,proposal pending owner approval
+Gaza,—,Geo unit,Israel,middle_east_arabia,proposal pending disputed-boundary approval
+Georgia,—,Geo unit,Georgia,middle_east_arabia,proposal pending owner approval
+Iraq,—,Geo unit,Iraq,middle_east_arabia,proposal pending owner approval
+Iraqi Kurdistan,—,Geo unit,Iraq,middle_east_arabia,proposal pending owner approval
+Israel,IL,Disputed,Israel,middle_east_arabia,proposal pending disputed-boundary approval
+Jordan,JO,Sovereign country,Jordan,middle_east_arabia,pre-filled from owner table
+Kuwait,KW,Sovereign country,Kuwait,middle_east_arabia,proposal pending owner approval
+Lebanon,LB,Sovereign country,Lebanon,middle_east_arabia,proposal pending owner approval
+Oman,OM,Sovereign country,Oman,middle_east_arabia,pre-filled from owner table
+Qatar,QA,Sovereign country,Qatar,middle_east_arabia,proposal pending owner approval
+Saudi Arabia,SA,Sovereign country,Saudi Arabia,middle_east_arabia,pre-filled from owner table
+Syria,SY,Geo unit,Syria,middle_east_arabia,proposal pending owner approval
+Turkey,TR,Sovereign country,Turkey,middle_east_arabia,pre-filled from owner table
+UNDOF Zone,XD,Overlay,Syria,middle_east_arabia,proposal pending owner approval
+United Arab Emirates,AE,Sovereign country,United Arab Emirates,middle_east_arabia,pre-filled from owner table
+West Bank,—,Geo unit,Israel,middle_east_arabia,proposal pending disputed-boundary approval
+Yemen,YE,Sovereign country,Yemen,middle_east_arabia,pre-filled from owner table
+American Samoa,AS,Dependency,United States of America,new_zealand_pacific,proposal pending owner approval
+Baker I.,—,Geo unit,United States of America,new_zealand_pacific,proposal pending owner approval
+Cook Is.,CK,Dependency,New Zealand,new_zealand_pacific,proposal pending owner approval
+Fiji,FJ,Sovereign country,Fiji,new_zealand_pacific,proposal pending owner approval
+Fr. Polynesia,PF,Dependency,France,new_zealand_pacific,proposal pending owner approval
+Guam,GU,Dependency,United States of America,new_zealand_pacific,proposal pending owner approval
+Howland I.,—,Geo unit,United States of America,new_zealand_pacific,proposal pending owner approval
+Jarvis I.,—,Geo unit,United States of America,new_zealand_pacific,proposal pending owner approval
+Johnston Atoll,—,Geo unit,United States of America,new_zealand_pacific,proposal pending owner approval
+Kingman Reef,—,Geo unit,United States of America,new_zealand_pacific,proposal pending owner approval
+Kiribati,KI,Sovereign country,Kiribati,new_zealand_pacific,proposal pending owner approval
+Marshall Is.,MH,Sovereign country,Marshall Islands,new_zealand_pacific,proposal pending owner approval
+Micronesia,FM,Sovereign country,Federated States of Micronesia,new_zealand_pacific,proposal pending owner approval
+Midway Is.,—,Geo unit,United States of America,new_zealand_pacific,proposal pending owner approval
+N. Mariana Is.,MP,Dependency,United States of America,new_zealand_pacific,proposal pending owner approval
+Nauru,NR,Sovereign country,Nauru,new_zealand_pacific,proposal pending owner approval
+New Caledonia,NC,Dependency,France,new_zealand_pacific,proposal pending owner approval
+New Zealand,NZ,Country,New Zealand,new_zealand_pacific,pre-filled from owner table
+Niue,NU,Dependency,New Zealand,new_zealand_pacific,proposal pending owner approval
+Palau,PW,Sovereign country,Palau,new_zealand_pacific,proposal pending owner approval
+Palmyra Atoll,—,Geo unit,United States of America,new_zealand_pacific,proposal pending owner approval
+Pitcairn Is.,PN,Dependency,United Kingdom,new_zealand_pacific,proposal pending owner approval
+Samoa,WS,Sovereign country,Samoa,new_zealand_pacific,proposal pending owner approval
+Solomon Is.,SB,Sovereign country,Solomon Islands,new_zealand_pacific,proposal pending owner approval
+Tokelau,TK,Geo unit,New Zealand,new_zealand_pacific,proposal pending owner approval
+Tonga,TO,Sovereign country,Tonga,new_zealand_pacific,proposal pending owner approval
+Tuvalu,TV,Sovereign country,Tuvalu,new_zealand_pacific,proposal pending owner approval
+Vanuatu,VU,Sovereign country,Vanuatu,new_zealand_pacific,proposal pending owner approval
+Wake Atoll,—,Geo unit,United States of America,new_zealand_pacific,proposal pending owner approval
+Wallis and Futuna Is.,WF,Dependency,France,new_zealand_pacific,proposal pending owner approval
+Burkina Faso,BF,Sovereign country,Burkina Faso,sahel,pre-filled from owner table
+Chad,TD,Sovereign country,Chad,sahel,pre-filled from owner table
+Gambia,GM,Sovereign country,Gambia,sahel,proposal pending owner approval
+Mali,ML,Sovereign country,Mali,sahel,pre-filled from owner table
+Niger,NE,Sovereign country,Niger,sahel,pre-filled from owner table
+Senegal,SN,Sovereign country,Senegal,sahel,pre-filled from owner table
+Sudan,SD,Sovereign country,Sudan,sahel,pre-filled from owner table
+Mongolia,MN,Sovereign country,Mongolia,siberia_boreal_asia,pre-filled from owner table
+Russia,RU,Sovereign country,Russia,siberia_boreal_asia,pre-filled from owner table
+Angola,AO,Sovereign country,Angola,southern_africa,pre-filled from owner table
+Botswana,BW,Sovereign country,Botswana,southern_africa,pre-filled from owner table
+Lesotho,LS,Sovereign country,Lesotho,southern_africa,proposal pending owner approval
+Malawi,MW,Sovereign country,Malawi,southern_africa,pre-filled from owner table
+Mozambique,MZ,Sovereign country,Mozambique,southern_africa,pre-filled from owner table
+Namibia,NA,Sovereign country,Namibia,southern_africa,pre-filled from owner table
+Saint Helena,SH,Dependency,United Kingdom,southern_africa,proposal pending owner approval
+South Africa,ZA,Sovereign country,South Africa,southern_africa,pre-filled from owner table
+Zambia,ZM,Sovereign country,Zambia,southern_africa,pre-filled from owner table
+Zimbabwe,ZW,Sovereign country,Zimbabwe,southern_africa,pre-filled from owner table
+eSwatini,SZ,Sovereign country,eSwatini,southern_africa,proposal pending owner approval
+Bermuda,BM,Dependency,United Kingdom,temperate_boreal_north_america,proposal pending owner approval
+Canada,CA,Sovereign country,Canada,temperate_boreal_north_america,pre-filled from owner table
+Greenland,GL,Country,Denmark,temperate_boreal_north_america,proposal pending owner approval
+St. Pierre and Miquelon,PM,Dependency,France,temperate_boreal_north_america,proposal pending owner approval
+United States of America,US,Country,United States of America,temperate_boreal_north_america,pre-filled from owner table
+China,CN,Country,China,temperate_east_asia,pre-filled from owner table
+Hong Kong,HK,Country,China,temperate_east_asia,proposal pending owner approval
+Japan,JP,Sovereign country,Japan,temperate_east_asia,pre-filled from owner table
+Korean DMZ (north),—,Overlay,North Korea,temperate_east_asia,proposal pending disputed-boundary approval
+Korean DMZ (south),—,Overlay,South Korea,temperate_east_asia,proposal pending disputed-boundary approval
+Macao,MO,Country,China,temperate_east_asia,proposal pending owner approval
+North Korea,KP,Sovereign country,North Korea,temperate_east_asia,pre-filled from owner table
+South Korea,KR,Sovereign country,South Korea,temperate_east_asia,pre-filled from owner table
+Taiwan,—,Sovereign country,Taiwan,temperate_east_asia,proposal pending owner approval
+Austria,AT,Sovereign country,Austria,temperate_europe,pre-filled from owner table
+Brussels,—,Geo unit,Belgium,temperate_europe,proposal pending owner approval
+Czechia,CZ,Sovereign country,Czechia,temperate_europe,pre-filled from owner table
+Denmark,DK,Country,Denmark,temperate_europe,proposal pending owner approval
+England,—,Geo unit,United Kingdom,temperate_europe,proposal pending owner approval
+Flemish,—,Geo unit,Belgium,temperate_europe,proposal pending owner approval
+France,FR,Geo unit,France,temperate_europe,proposal pending owner approval
+Germany,DE,Sovereign country,Germany,temperate_europe,pre-filled from owner table
+Guernsey,GG,Country,United Kingdom,temperate_europe,proposal pending owner approval
+Hungary,HU,Sovereign country,Hungary,temperate_europe,proposal pending owner approval
+Ireland,IE,Sovereign country,Ireland,temperate_europe,pre-filled from owner table
+Isle of Man,IM,Country,United Kingdom,temperate_europe,proposal pending owner approval
+Jersey,JE,Country,United Kingdom,temperate_europe,proposal pending owner approval
+Latvia,LV,Sovereign country,Latvia,temperate_europe,proposal pending owner approval
+Liechtenstein,LI,Sovereign country,Liechtenstein,temperate_europe,proposal pending owner approval
+Lithuania,LT,Sovereign country,Lithuania,temperate_europe,proposal pending owner approval
+Luxembourg,LU,Sovereign country,Luxembourg,temperate_europe,proposal pending owner approval
+N. Ireland,—,Geo unit,United Kingdom,temperate_europe,proposal pending owner approval
+Netherlands,—,Geo core,Netherlands,temperate_europe,proposal pending owner approval
+Poland,PL,Sovereign country,Poland,temperate_europe,pre-filled from owner table
+Scotland,—,Geo unit,United Kingdom,temperate_europe,proposal pending owner approval
+Slovakia,SK,Sovereign country,Slovakia,temperate_europe,proposal pending owner approval
+Switzerland,CH,Sovereign country,Switzerland,temperate_europe,pre-filled from owner table
+Wales,—,Geo unit,United Kingdom,temperate_europe,proposal pending owner approval
+Walloon,—,Geo unit,Belgium,temperate_europe,proposal pending owner approval
+Brazil,BR,Sovereign country,Brazil,tropical_north_south_america_amazon,pre-filled from owner table
+Colombia,CO,Sovereign country,Colombia,tropical_north_south_america_amazon,pre-filled from owner table
+Ecuador,EC,Sovereign country,Ecuador,tropical_north_south_america_amazon,pre-filled from owner table
+French Guiana,—,Geo unit,France,tropical_north_south_america_amazon,proposal pending owner approval
+Guyana,GY,Sovereign country,Guyana,tropical_north_south_america_amazon,pre-filled from owner table
+Peru,PE,Sovereign country,Peru,tropical_north_south_america_amazon,pre-filled from owner table
+Suriname,SR,Sovereign country,Suriname,tropical_north_south_america_amazon,pre-filled from owner table
+Venezuela,VE,Sovereign country,Venezuela,tropical_north_south_america_amazon,pre-filled from owner table
+Antarctica,AQ,Indeterminate,Antarctica,unsupported,proposal pending disputed-boundary approval
+Bouvet I.,BV,Dependency,Norway,unsupported,proposal: unsupported for regional progression
+Fr. S. Antarctic Lands,TF,Dependency,France,unsupported,proposal: unsupported for regional progression
+Heard I. and McDonald Is.,HM,Dependency,Australia,unsupported,proposal: unsupported for regional progression
+S. Geo. and the Is.,GS,Dependency,United Kingdom,unsupported,proposal: unsupported for regional progression
+Benin,BJ,Sovereign country,Benin,west_central_tropical_africa,pre-filled from owner table
+Cameroon,CM,Sovereign country,Cameroon,west_central_tropical_africa,pre-filled from owner table
+Central African Rep.,CF,Sovereign country,Central African Republic,west_central_tropical_africa,proposal pending owner approval
+Congo,CG,Sovereign country,Republic of the Congo,west_central_tropical_africa,pre-filled from owner table
+Côte d'Ivoire,CI,Sovereign country,Ivory Coast,west_central_tropical_africa,pre-filled from owner table
+Dem. Rep. Congo,CD,Sovereign country,Democratic Republic of the Congo,west_central_tropical_africa,pre-filled from owner table
+Eq. Guinea,GQ,Sovereign country,Equatorial Guinea,west_central_tropical_africa,proposal pending owner approval
+Gabon,GA,Sovereign country,Gabon,west_central_tropical_africa,pre-filled from owner table
+Ghana,GH,Sovereign country,Ghana,west_central_tropical_africa,pre-filled from owner table
+Guinea,GN,Sovereign country,Guinea,west_central_tropical_africa,pre-filled from owner table
+Guinea-Bissau,GW,Sovereign country,Guinea-Bissau,west_central_tropical_africa,pre-filled from owner table
+Liberia,LR,Sovereign country,Liberia,west_central_tropical_africa,pre-filled from owner table
+Nigeria,NG,Sovereign country,Nigeria,west_central_tropical_africa,pre-filled from owner table
+Sierra Leone,SL,Sovereign country,Sierra Leone,west_central_tropical_africa,pre-filled from owner table
+São Tomé and Principe,ST,Sovereign country,São Tomé and Principe,west_central_tropical_africa,proposal pending owner approval
+Togo,TG,Sovereign country,Togo,west_central_tropical_africa,pre-filled from owner table

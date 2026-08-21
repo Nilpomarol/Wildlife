@@ -46,6 +46,7 @@ class ObservationStore(context: Context) : SQLiteOpenHelper(context, DATABASE, n
         database.execSQL(CREATE_XP_EVENTS)
         database.execSQL(CREATE_QUALITY_EVENTS)
         database.execSQL(CREATE_MAP_VISIBILITY_OVERRIDES)
+        database.execSQL(CREATE_OBSERVATION_REGIONS)
     }
 
     override fun onUpgrade(database: SQLiteDatabase, oldVersion: Int, newVersion: Int) {
@@ -101,11 +102,13 @@ class ObservationStore(context: Context) : SQLiteOpenHelper(context, DATABASE, n
         if (oldVersion < 6) {
             database.execSQL(CREATE_MAP_VISIBILITY_OVERRIDES)
         }
+        if (oldVersion < 7) database.execSQL(CREATE_OBSERVATION_REGIONS)
     }
 
     fun replaceSnapshot(
         userId: Long,
         observations: List<SyncedObservation>,
+        regionalAssignments: List<ObservationRegion> = emptyList(),
         syncedAtMs: Long = System.currentTimeMillis(),
     ): ObservationSyncResult {
         val confirmedUuids = confirmedUuids(userId)
@@ -150,6 +153,11 @@ class ObservationStore(context: Context) : SQLiteOpenHelper(context, DATABASE, n
                         }
                     }
                 }
+            }
+            regionalAssignments.forEach { assignment ->
+                writableDatabase.insertWithOnConflict(
+                    "observation_regions", null, assignment.values(userId), SQLiteDatabase.CONFLICT_IGNORE,
+                )
             }
             saveSummary(
                 userId,
@@ -251,6 +259,22 @@ class ObservationStore(context: Context) : SQLiteOpenHelper(context, DATABASE, n
         }
     }
 
+    fun observationRegion(userId: Long, observationUuid: String): ObservationRegion? = readableDatabase.query(
+        "observation_regions",
+        arrayOf("region_key", "boundary_version", "assignment"),
+        "user_id = ? AND observation_uuid = ?",
+        arrayOf(userId.toString(), observationUuid),
+        null, null, null,
+    ).use { cursor ->
+        if (!cursor.moveToFirst()) return null
+        ObservationRegion(
+            observationUuid = observationUuid,
+            regionKey = if (cursor.isNull(0)) null else cursor.getString(0),
+            boundaryVersion = cursor.getString(1),
+            assignment = ObservationRegionAssignment.valueOf(cursor.getString(2)),
+        )
+    }
+
     fun setObservationMapVisible(userId: Long, observationUuid: String, visible: Boolean) {
         if (visible) {
             writableDatabase.delete(
@@ -280,6 +304,7 @@ class ObservationStore(context: Context) : SQLiteOpenHelper(context, DATABASE, n
                 "observation_quality_events",
                 "xp_events",
                 "observations",
+                "observation_regions",
                 "collection_summary",
             ).forEach { table -> writableDatabase.delete(table, null, null) }
             writableDatabase.setTransactionSuccessful()
@@ -288,7 +313,11 @@ class ObservationStore(context: Context) : SQLiteOpenHelper(context, DATABASE, n
         }
     }
 
-    fun confirmObservation(userId: Long, uuid: String): ObservationConfirmationResult {
+    fun confirmObservation(
+        userId: Long,
+        uuid: String,
+        regionalReward: RegionalRewardContext? = null,
+    ): ObservationConfirmationResult {
         writableDatabase.beginTransaction()
         try {
             val observation = writableDatabase.query(
@@ -363,6 +392,41 @@ class ObservationStore(context: Context) : SQLiteOpenHelper(context, DATABASE, n
                 "user_id = ? AND uuid = ?",
                 arrayOf(userId.toString(), uuid),
             )
+            if (regionalReward != null && collectionTaxonId == regionalReward.taxonId) {
+                awarded += award(
+                    writableDatabase, userId,
+                    "regional_discovery:${regionalReward.regionKey}:${regionalReward.catalogueVersion}:$collectionTaxonId",
+                    XpEventType.REGIONAL_DISCOVERY, uuid, collectionTaxonId, observation.label,
+                    ProgressionRules.REGIONAL_DISCOVERY_XP, now,
+                )
+                ProgressionRules.regionalRarityXp(regionalReward.rarity).takeIf { it > 0 }?.let { points ->
+                    awarded += award(
+                        writableDatabase, userId,
+                        "regional_rarity:${regionalReward.regionKey}:${regionalReward.catalogueVersion}:$collectionTaxonId",
+                        XpEventType.REGIONAL_RARITY, uuid, collectionTaxonId, observation.label, points, now,
+                    )
+                }
+                if (regionalReward.prestige == RegionalPrestige.LEGENDARY) {
+                    awarded += award(
+                        writableDatabase, userId,
+                        "regional_legend:${regionalReward.regionKey}:${regionalReward.catalogueVersion}:$collectionTaxonId",
+                        XpEventType.REGIONAL_LEGEND, uuid, collectionTaxonId, observation.label,
+                        ProgressionRules.REGIONAL_LEGEND_XP, now,
+                    )
+                }
+                if (hasAllRegionalTaxa(userId, regionalReward.regionKey, regionalReward.essentials, writableDatabase)) {
+                    awarded += award(writableDatabase, userId,
+                        "regional_essentials:${regionalReward.regionKey}:${regionalReward.catalogueVersion}",
+                        XpEventType.REGIONAL_ESSENTIALS, uuid, null, "Regional Essentials",
+                        ProgressionRules.REGIONAL_ESSENTIALS_XP, now)
+                }
+                if (hasAllRegionalTaxa(userId, regionalReward.regionKey, regionalReward.icons, writableDatabase)) {
+                    awarded += award(writableDatabase, userId,
+                        "regional_icons:${regionalReward.regionKey}:${regionalReward.catalogueVersion}",
+                        XpEventType.REGIONAL_ICONS, uuid, null, "Regional Icons",
+                        ProgressionRules.REGIONAL_ICONS_XP, now)
+                }
+            }
             val updatedSummary = calculatedSummary(
                 userId,
                 writableDatabase,
@@ -493,6 +557,23 @@ class ObservationStore(context: Context) : SQLiteOpenHelper(context, DATABASE, n
             """.trimIndent(),
             arrayOf(userId.toString(), excludingUuid, taxonId.toString()),
         ).use { it.moveToFirst() }
+
+    private fun hasAllRegionalTaxa(
+        userId: Long, regionKey: String, taxonIds: Set<Long>, database: SQLiteDatabase,
+    ): Boolean {
+        if (taxonIds.isEmpty()) return false
+        val placeholders = taxonIds.joinToString(",") { "?" }
+        val args = arrayOf(userId.toString(), regionKey) + taxonIds.map(Long::toString)
+        return database.rawQuery(
+            """SELECT COUNT(DISTINCT COALESCE(o.collection_taxon_id, o.taxon_id))
+                FROM observations o JOIN observation_regions r
+                ON r.user_id = o.user_id AND r.observation_uuid = o.uuid
+                WHERE o.user_id = ? AND o.confirmed = 1 AND r.region_key = ?
+                AND r.assignment IN ('LAND_POLYGON','OFFSHORE_BUFFER')
+                AND COALESCE(o.collection_taxon_id, o.taxon_id) IN ($placeholders)""".trimIndent(),
+            args,
+        ).use { cursor -> cursor.moveToFirst(); cursor.getInt(0) == taxonIds.size }
+    }
 
     private fun award(
         database: SQLiteDatabase,
@@ -643,9 +724,17 @@ class ObservationStore(context: Context) : SQLiteOpenHelper(context, DATABASE, n
         put("confirmed", if (confirmed) 1 else 0)
     }
 
+    private fun ObservationRegion.values(userId: Long) = ContentValues().apply {
+        put("user_id", userId)
+        put("observation_uuid", observationUuid)
+        regionKey?.let { put("region_key", it) }
+        put("boundary_version", boundaryVersion)
+        put("assignment", assignment.name)
+    }
+
     companion object {
         private const val DATABASE = "wildlife_observations.db"
-        private const val VERSION = 6
+        private const val VERSION = 7
         private const val CREATE_XP_EVENTS = """
             CREATE TABLE IF NOT EXISTS xp_events (
                 user_id INTEGER NOT NULL,
@@ -676,6 +765,16 @@ class ObservationStore(context: Context) : SQLiteOpenHelper(context, DATABASE, n
                 user_id INTEGER NOT NULL,
                 observation_uuid TEXT NOT NULL,
                 visible INTEGER NOT NULL,
+                PRIMARY KEY(user_id, observation_uuid)
+            )
+        """
+        private const val CREATE_OBSERVATION_REGIONS = """
+            CREATE TABLE IF NOT EXISTS observation_regions (
+                user_id INTEGER NOT NULL,
+                observation_uuid TEXT NOT NULL,
+                region_key TEXT,
+                boundary_version TEXT NOT NULL,
+                assignment TEXT NOT NULL,
                 PRIMARY KEY(user_id, observation_uuid)
             )
         """

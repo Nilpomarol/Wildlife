@@ -1,0 +1,31 @@
+# Approved 21 August 2026. This is input to boundary authoring and runtime assignment.
+schema_version: 1
+boundary_version: regional-boundaries-v1
+land:
+  strategy: local_versioned_polygons
+  nearest_country_fallback: prohibited
+  uncertain_assignment: region_uncertain
+  regional_progress_for_uncertain_assignment: false
+transcontinental_country_assignment:
+  strategy: single_explicit_region_for_v1
+  assignments:
+    - territory: TR
+      region: middle_east_arabia
+    - territory: RU
+      region: siberia_boreal_asia
+    - territory: EG
+      region: maghreb_sahara
+    - territory: KZ
+      region: central_asia
+marine:
+  strategy: reviewed_offshore_buffers_then_worldwide_fallback
+  buffer_source_requirement: local_versioned_polygon_with_source_license_and_version
+  buffer_overlap_result: region_uncertain
+  unmatched_result: marine_worldwide
+  regional_progress_inside_single_matching_buffer: true
+  regional_progress_for_marine_worldwide: false
+  marine_worldwide_is_one_of_the_24_land_regions: false
+uncovered_land:
+  antarctica: unsupported_for_regional_progression
+  other_uncovered_locations: unsupported_for_regional_progression
+  retain_in_personal_history: true

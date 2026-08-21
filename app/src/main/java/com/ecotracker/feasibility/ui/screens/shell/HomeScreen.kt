@@ -57,6 +57,7 @@ fun HomeScreen(
     onCollection: () -> Unit,
     onExplore: () -> Unit,
     onMyMap: () -> Unit,
+    onObservations: () -> Unit,
     onOpenSpecies: (Long) -> Unit,
     mappedObservationCount: Int,
     onLinkAccount: () -> Unit,
@@ -94,12 +95,10 @@ fun HomeScreen(
                     item { EmptyCollectionCard(onCapture = onCapture) }
                 }
 
-                if (state.pendingHandoffs > 0 || state.draftObservations > 0) {
-                    item { ObservationQueueCard(state = state, onReview = onCapture) }
-                }
-
                 item { MyMapCard(mappedObservationCount = mappedObservationCount, onMyMap = onMyMap) }
             }
+
+            item { ObservationQueueCard(state = state, onReview = onObservations) }
 
             state.errorMessage?.let { message ->
                 item {
@@ -271,6 +270,14 @@ private fun FieldRecordCard(state: ShellUiState, onClick: () -> Unit) {
             verticalArrangement = Arrangement.spacedBy(WildlifeSpacing.Card),
         ) {
             Text("Field record", style = MaterialTheme.typography.titleMedium)
+            state.regionalProgress?.let { progress ->
+                Text(
+                    text = "${progress.displayName} · ${progress.observedSpecies} / ${progress.totalSpecies}",
+                    style = MaterialTheme.typography.labelMedium,
+                    color = WildlifeTheme.colors.oliveStrong,
+                    fontWeight = FontWeight.SemiBold,
+                )
+            }
             Row(
                 modifier = Modifier.fillMaxWidth(),
                 horizontalArrangement = Arrangement.SpaceBetween,
@@ -280,7 +287,10 @@ private fun FieldRecordCard(state: ShellUiState, onClick: () -> Unit) {
                 HomeFact("XP", state.totalXp.toString())
             }
             Text(
-                text = if (state.catalogueSpecies > 0) {
+                text = state.regionalProgress?.let { progress ->
+                    "Essentials ${progress.essentialsObserved}/${progress.essentialsTotal} · " +
+                        "Icons ${progress.iconsObserved}/${progress.iconsTotal}"
+                } ?: if (state.catalogueSpecies > 0) {
                     "${state.catalogueSpecies} species available in the provisional Catalonia guide"
                 } else {
                     "Catalonia guide not downloaded yet"
@@ -346,9 +356,14 @@ private fun ObservationQueueCard(state: ShellUiState, onReview: () -> Unit) {
             modifier = Modifier.padding(WildlifeSpacing.Card),
             verticalArrangement = Arrangement.spacedBy(WildlifeSpacing.Micro),
         ) {
-            Text("Observation queue", style = MaterialTheme.typography.titleMedium)
+            Text("Your observations", style = MaterialTheme.typography.titleMedium)
             Text(
-                "${state.draftObservations} draft · ${state.pendingHandoffs} awaiting iNaturalist",
+                when {
+                    state.account == null -> "Review Wildlife drafts and link iNaturalist to check public submissions."
+                    state.draftObservations > 0 || state.pendingHandoffs > 0 ->
+                        "${state.draftObservations} draft · ${state.pendingHandoffs} awaiting iNaturalist"
+                    else -> "Review your public observation history and local map visibility."
+                },
                 style = MaterialTheme.typography.bodySmall,
                 color = MaterialTheme.colorScheme.onSurfaceVariant,
             )
@@ -362,7 +377,7 @@ private fun ObservationQueueCard(state: ShellUiState, onReview: () -> Unit) {
             OutlinedButton(
                 onClick = onReview,
                 modifier = Modifier.padding(top = WildlifeSpacing.Micro),
-            ) { Text("Review observations") }
+            ) { Text("Open observations") }
         }
     }
 }
@@ -453,7 +468,7 @@ private fun HomePreview() {
                     awaitingSpeciesIdentification = false,
                 ),
             ),
-            onCapture = {}, onCollection = {}, onExplore = {}, onMyMap = {},
+            onCapture = {}, onCollection = {}, onExplore = {}, onMyMap = {}, onObservations = {},
             onOpenSpecies = {}, mappedObservationCount = 72, onLinkAccount = {},
             bottomBar = {},
         )
@@ -466,7 +481,7 @@ private fun HomeUnlinkedPreview() {
     WildlifeTheme {
         HomeScreen(
             state = ShellUiState(catalogueSpecies = 568),
-            onCapture = {}, onCollection = {}, onExplore = {}, onMyMap = {},
+            onCapture = {}, onCollection = {}, onExplore = {}, onMyMap = {}, onObservations = {},
             onOpenSpecies = {}, mappedObservationCount = 0, onLinkAccount = {},
             bottomBar = {},
         )

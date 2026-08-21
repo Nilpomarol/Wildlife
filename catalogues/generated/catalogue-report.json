@@ -1,0 +1,29 @@
+{
+  "catalogues": [
+    {
+      "essentials": 10,
+      "icons": 5,
+      "region": "mediterranean_europe",
+      "taxa": 800,
+      "version": "mediterranean-europe-broad-draft-1"
+    },
+    {
+      "essentials": 10,
+      "icons": 5,
+      "region": "east_africa",
+      "taxa": 931,
+      "version": "east-africa-broad-draft-1"
+    },
+    {
+      "essentials": 10,
+      "icons": 5,
+      "region": "caribbean",
+      "taxa": 813,
+      "version": "caribbean-broad-draft-1"
+    }
+  ],
+  "global_taxa": 2419,
+  "media_records": 45,
+  "release_status": "draft",
+  "source_digest": "76466663789d7e0d50909d7e72b915ff6c9c5fba6bc473ddf78fafeec8d21c6f"
+}

@@ -1,0 +1,2959 @@
+{
+  "schema_version": 2,
+  "coverage_status": "complete",
+  "boundary_source": "natural_earth_admin0_map_units_10m_5_1_1",
+  "boundary_version": "regional-boundaries-v1",
+  "approval": "owner-approved-2026-08-21",
+  "notes": [
+    "ISO assignments are a review index only; point assignment must use the local versioned boundary geometry.",
+    "map_unit_assignments preserve source geometry pieces without an ISO territory code.",
+    "marine_worldwide and unsupported entries remain in personal history but do not progress a land region."
+  ],
+  "assignments": [
+    {
+      "territory": "AD",
+      "region": "mediterranean_europe"
+    },
+    {
+      "territory": "AE",
+      "region": "middle_east_arabia"
+    },
+    {
+      "territory": "AF",
+      "region": "central_asia"
+    },
+    {
+      "territory": "AI",
+      "region": "caribbean"
+    },
+    {
+      "territory": "AL",
+      "region": "mediterranean_europe"
+    },
+    {
+      "territory": "AM",
+      "region": "middle_east_arabia"
+    },
+    {
+      "territory": "AO",
+      "region": "southern_africa"
+    },
+    {
+      "territory": "AR",
+      "region": "andes_southern_south_america"
+    },
+    {
+      "territory": "AS",
+      "region": "new_zealand_pacific"
+    },
+    {
+      "territory": "AT",
+      "region": "temperate_europe"
+    },
+    {
+      "territory": "AU",
+      "region": "australasia"
+    },
+    {
+      "territory": "AW",
+      "region": "caribbean"
+    },
+    {
+      "territory": "AX",
+      "region": "boreal_europe"
+    },
+    {
+      "territory": "AZ",
+      "region": "middle_east_arabia"
+    },
+    {
+      "territory": "BB",
+      "region": "caribbean"
+    },
+    {
+      "territory": "BD",
+      "region": "indian_subcontinent"
+    },
+    {
+      "territory": "BF",
+      "region": "sahel"
+    },
+    {
+      "territory": "BG",
+      "region": "eastern_europe_steppe"
+    },
+    {
+      "territory": "BH",
+      "region": "middle_east_arabia"
+    },
+    {
+      "territory": "BI",
+      "region": "east_africa"
+    },
+    {
+      "territory": "BJ",
+      "region": "west_central_tropical_africa"
+    },
+    {
+      "territory": "BL",
+      "region": "caribbean"
+    },
+    {
+      "territory": "BM",
+      "region": "temperate_boreal_north_america"
+    },
+    {
+      "territory": "BN",
+      "region": "mainland_southeast_asia"
+    },
+    {
+      "territory": "BO",
+      "region": "andes_southern_south_america"
+    },
+    {
+      "territory": "BQ",
+      "region": "caribbean"
+    },
+    {
+      "territory": "BR",
+      "region": "tropical_north_south_america_amazon"
+    },
+    {
+      "territory": "BS",
+      "region": "caribbean"
+    },
+    {
+      "territory": "BT",
+      "region": "indian_subcontinent"
+    },
+    {
+      "territory": "BW",
+      "region": "southern_africa"
+    },
+    {
+      "territory": "BY",
+      "region": "eastern_europe_steppe"
+    },
+    {
+      "territory": "BZ",
+      "region": "mesoamerica"
+    },
+    {
+      "territory": "CA",
+      "region": "temperate_boreal_north_america"
+    },
+    {
+      "territory": "CC",
+      "region": "australasia"
+    },
+    {
+      "territory": "CD",
+      "region": "west_central_tropical_africa"
+    },
+    {
+      "territory": "CF",
+      "region": "west_central_tropical_africa"
+    },
+    {
+      "territory": "CG",
+      "region": "west_central_tropical_africa"
+    },
+    {
+      "territory": "CH",
+      "region": "temperate_europe"
+    },
+    {
+      "territory": "CI",
+      "region": "west_central_tropical_africa"
+    },
+    {
+      "territory": "CK",
+      "region": "new_zealand_pacific"
+    },
+    {
+      "territory": "CL",
+      "region": "andes_southern_south_america"
+    },
+    {
+      "territory": "CM",
+      "region": "west_central_tropical_africa"
+    },
+    {
+      "territory": "CN",
+      "region": "temperate_east_asia"
+    },
+    {
+      "territory": "CO",
+      "region": "tropical_north_south_america_amazon"
+    },
+    {
+      "territory": "CR",
+      "region": "mesoamerica"
+    },
+    {
+      "territory": "CU",
+      "region": "caribbean"
+    },
+    {
+      "territory": "CV",
+      "region": "maghreb_sahara"
+    },
+    {
+      "territory": "CW",
+      "region": "caribbean"
+    },
+    {
+      "territory": "CX",
+      "region": "australasia"
+    },
+    {
+      "territory": "CY",
+      "region": "mediterranean_europe"
+    },
+    {
+      "territory": "CZ",
+      "region": "temperate_europe"
+    },
+    {
+      "territory": "DE",
+      "region": "temperate_europe"
+    },
+    {
+      "territory": "DJ",
+      "region": "east_africa"
+    },
+    {
+      "territory": "DK",
+      "region": "temperate_europe"
+    },
+    {
+      "territory": "DM",
+      "region": "caribbean"
+    },
+    {
+      "territory": "DO",
+      "region": "caribbean"
+    },
+    {
+      "territory": "DZ",
+      "region": "maghreb_sahara"
+    },
+    {
+      "territory": "EC",
+      "region": "tropical_north_south_america_amazon"
+    },
+    {
+      "territory": "EE",
+      "region": "boreal_europe"
+    },
+    {
+      "territory": "EG",
+      "region": "maghreb_sahara"
+    },
+    {
+      "territory": "EH",
+      "region": "maghreb_sahara"
+    },
+    {
+      "territory": "ER",
+      "region": "east_africa"
+    },
+    {
+      "territory": "ES",
+      "region": "mediterranean_europe"
+    },
+    {
+      "territory": "ET",
+      "region": "east_africa"
+    },
+    {
+      "territory": "FI",
+      "region": "boreal_europe"
+    },
+    {
+      "territory": "FJ",
+      "region": "new_zealand_pacific"
+    },
+    {
+      "territory": "FK",
+      "region": "andes_southern_south_america"
+    },
+    {
+      "territory": "FM",
+      "region": "new_zealand_pacific"
+    },
+    {
+      "territory": "FO",
+      "region": "boreal_europe"
+    },
+    {
+      "territory": "FR",
+      "region": "temperate_europe"
+    },
+    {
+      "territory": "GA",
+      "region": "west_central_tropical_africa"
+    },
+    {
+      "territory": "GD",
+      "region": "caribbean"
+    },
+    {
+      "territory": "GG",
+      "region": "temperate_europe"
+    },
+    {
+      "territory": "GH",
+      "region": "west_central_tropical_africa"
+    },
+    {
+      "territory": "GI",
+      "region": "mediterranean_europe"
+    },
+    {
+      "territory": "GL",
+      "region": "temperate_boreal_north_america"
+    },
+    {
+      "territory": "GM",
+      "region": "sahel"
+    },
+    {
+      "territory": "GN",
+      "region": "west_central_tropical_africa"
+    },
+    {
+      "territory": "GQ",
+      "region": "west_central_tropical_africa"
+    },
+    {
+      "territory": "GR",
+      "region": "mediterranean_europe"
+    },
+    {
+      "territory": "GT",
+      "region": "mesoamerica"
+    },
+    {
+      "territory": "GU",
+      "region": "new_zealand_pacific"
+    },
+    {
+      "territory": "GW",
+      "region": "west_central_tropical_africa"
+    },
+    {
+      "territory": "GY",
+      "region": "tropical_north_south_america_amazon"
+    },
+    {
+      "territory": "HK",
+      "region": "temperate_east_asia"
+    },
+    {
+      "territory": "HN",
+      "region": "mesoamerica"
+    },
+    {
+      "territory": "HR",
+      "region": "mediterranean_europe"
+    },
+    {
+      "territory": "HT",
+      "region": "caribbean"
+    },
+    {
+      "territory": "HU",
+      "region": "temperate_europe"
+    },
+    {
+      "territory": "ID",
+      "region": "insular_southeast_asia"
+    },
+    {
+      "territory": "IE",
+      "region": "temperate_europe"
+    },
+    {
+      "territory": "IL",
+      "region": "middle_east_arabia"
+    },
+    {
+      "territory": "IM",
+      "region": "temperate_europe"
+    },
+    {
+      "territory": "IN",
+      "region": "indian_subcontinent"
+    },
+    {
+      "territory": "IO",
+      "region": "madagascar_west_indian_ocean"
+    },
+    {
+      "territory": "IR",
+      "region": "central_asia"
+    },
+    {
+      "territory": "IS",
+      "region": "boreal_europe"
+    },
+    {
+      "territory": "IT",
+      "region": "mediterranean_europe"
+    },
+    {
+      "territory": "JE",
+      "region": "temperate_europe"
+    },
+    {
+      "territory": "JM",
+      "region": "caribbean"
+    },
+    {
+      "territory": "JO",
+      "region": "middle_east_arabia"
+    },
+    {
+      "territory": "JP",
+      "region": "temperate_east_asia"
+    },
+    {
+      "territory": "KE",
+      "region": "east_africa"
+    },
+    {
+      "territory": "KG",
+      "region": "central_asia"
+    },
+    {
+      "territory": "KH",
+      "region": "mainland_southeast_asia"
+    },
+    {
+      "territory": "KI",
+      "region": "new_zealand_pacific"
+    },
+    {
+      "territory": "KM",
+      "region": "madagascar_west_indian_ocean"
+    },
+    {
+      "territory": "KN",
+      "region": "caribbean"
+    },
+    {
+      "territory": "KP",
+      "region": "temperate_east_asia"
+    },
+    {
+      "territory": "KR",
+      "region": "temperate_east_asia"
+    },
+    {
+      "territory": "KW",
+      "region": "middle_east_arabia"
+    },
+    {
+      "territory": "KY",
+      "region": "caribbean"
+    },
+    {
+      "territory": "KZ",
+      "region": "central_asia"
+    },
+    {
+      "territory": "LA",
+      "region": "mainland_southeast_asia"
+    },
+    {
+      "territory": "LB",
+      "region": "middle_east_arabia"
+    },
+    {
+      "territory": "LC",
+      "region": "caribbean"
+    },
+    {
+      "territory": "LI",
+      "region": "temperate_europe"
+    },
+    {
+      "territory": "LK",
+      "region": "indian_subcontinent"
+    },
+    {
+      "territory": "LR",
+      "region": "west_central_tropical_africa"
+    },
+    {
+      "territory": "LS",
+      "region": "southern_africa"
+    },
+    {
+      "territory": "LT",
+      "region": "temperate_europe"
+    },
+    {
+      "territory": "LU",
+      "region": "temperate_europe"
+    },
+    {
+      "territory": "LV",
+      "region": "temperate_europe"
+    },
+    {
+      "territory": "LY",
+      "region": "maghreb_sahara"
+    },
+    {
+      "territory": "MA",
+      "region": "maghreb_sahara"
+    },
+    {
+      "territory": "MC",
+      "region": "mediterranean_europe"
+    },
+    {
+      "territory": "MD",
+      "region": "eastern_europe_steppe"
+    },
+    {
+      "territory": "ME",
+      "region": "mediterranean_europe"
+    },
+    {
+      "territory": "MF",
+      "region": "caribbean"
+    },
+    {
+      "territory": "MG",
+      "region": "madagascar_west_indian_ocean"
+    },
+    {
+      "territory": "MH",
+      "region": "new_zealand_pacific"
+    },
+    {
+      "territory": "MK",
+      "region": "mediterranean_europe"
+    },
+    {
+      "territory": "ML",
+      "region": "sahel"
+    },
+    {
+      "territory": "MM",
+      "region": "mainland_southeast_asia"
+    },
+    {
+      "territory": "MN",
+      "region": "siberia_boreal_asia"
+    },
+    {
+      "territory": "MO",
+      "region": "temperate_east_asia"
+    },
+    {
+      "territory": "MP",
+      "region": "new_zealand_pacific"
+    },
+    {
+      "territory": "MR",
+      "region": "maghreb_sahara"
+    },
+    {
+      "territory": "MS",
+      "region": "caribbean"
+    },
+    {
+      "territory": "MT",
+      "region": "mediterranean_europe"
+    },
+    {
+      "territory": "MU",
+      "region": "madagascar_west_indian_ocean"
+    },
+    {
+      "territory": "MV",
+      "region": "indian_subcontinent"
+    },
+    {
+      "territory": "MW",
+      "region": "southern_africa"
+    },
+    {
+      "territory": "MX",
+      "region": "mesoamerica"
+    },
+    {
+      "territory": "MY",
+      "region": "mainland_southeast_asia"
+    },
+    {
+      "territory": "MZ",
+      "region": "southern_africa"
+    },
+    {
+      "territory": "NA",
+      "region": "southern_africa"
+    },
+    {
+      "territory": "NC",
+      "region": "new_zealand_pacific"
+    },
+    {
+      "territory": "NE",
+      "region": "sahel"
+    },
+    {
+      "territory": "NF",
+      "region": "australasia"
+    },
+    {
+      "territory": "NG",
+      "region": "west_central_tropical_africa"
+    },
+    {
+      "territory": "NI",
+      "region": "mesoamerica"
+    },
+    {
+      "territory": "NO",
+      "region": "boreal_europe"
+    },
+    {
+      "territory": "NP",
+      "region": "indian_subcontinent"
+    },
+    {
+      "territory": "NR",
+      "region": "new_zealand_pacific"
+    },
+    {
+      "territory": "NU",
+      "region": "new_zealand_pacific"
+    },
+    {
+      "territory": "NZ",
+      "region": "new_zealand_pacific"
+    },
+    {
+      "territory": "OM",
+      "region": "middle_east_arabia"
+    },
+    {
+      "territory": "PA",
+      "region": "mesoamerica"
+    },
+    {
+      "territory": "PE",
+      "region": "tropical_north_south_america_amazon"
+    },
+    {
+      "territory": "PF",
+      "region": "new_zealand_pacific"
+    },
+    {
+      "territory": "PH",
+      "region": "insular_southeast_asia"
+    },
+    {
+      "territory": "PK",
+      "region": "indian_subcontinent"
+    },
+    {
+      "territory": "PL",
+      "region": "temperate_europe"
+    },
+    {
+      "territory": "PM",
+      "region": "temperate_boreal_north_america"
+    },
+    {
+      "territory": "PN",
+      "region": "new_zealand_pacific"
+    },
+    {
+      "territory": "PR",
+      "region": "caribbean"
+    },
+    {
+      "territory": "PW",
+      "region": "new_zealand_pacific"
+    },
+    {
+      "territory": "PY",
+      "region": "andes_southern_south_america"
+    },
+    {
+      "territory": "QA",
+      "region": "middle_east_arabia"
+    },
+    {
+      "territory": "RO",
+      "region": "eastern_europe_steppe"
+    },
+    {
+      "territory": "RU",
+      "region": "siberia_boreal_asia"
+    },
+    {
+      "territory": "RW",
+      "region": "east_africa"
+    },
+    {
+      "territory": "SA",
+      "region": "middle_east_arabia"
+    },
+    {
+      "territory": "SB",
+      "region": "new_zealand_pacific"
+    },
+    {
+      "territory": "SC",
+      "region": "madagascar_west_indian_ocean"
+    },
+    {
+      "territory": "SD",
+      "region": "sahel"
+    },
+    {
+      "territory": "SE",
+      "region": "boreal_europe"
+    },
+    {
+      "territory": "SG",
+      "region": "mainland_southeast_asia"
+    },
+    {
+      "territory": "SH",
+      "region": "southern_africa"
+    },
+    {
+      "territory": "SI",
+      "region": "mediterranean_europe"
+    },
+    {
+      "territory": "SJ",
+      "region": "boreal_europe"
+    },
+    {
+      "territory": "SK",
+      "region": "temperate_europe"
+    },
+    {
+      "territory": "SL",
+      "region": "west_central_tropical_africa"
+    },
+    {
+      "territory": "SM",
+      "region": "mediterranean_europe"
+    },
+    {
+      "territory": "SN",
+      "region": "sahel"
+    },
+    {
+      "territory": "SR",
+      "region": "tropical_north_south_america_amazon"
+    },
+    {
+      "territory": "SS",
+      "region": "east_africa"
+    },
+    {
+      "territory": "ST",
+      "region": "west_central_tropical_africa"
+    },
+    {
+      "territory": "SV",
+      "region": "mesoamerica"
+    },
+    {
+      "territory": "SX",
+      "region": "caribbean"
+    },
+    {
+      "territory": "SY",
+      "region": "middle_east_arabia"
+    },
+    {
+      "territory": "SZ",
+      "region": "southern_africa"
+    },
+    {
+      "territory": "TC",
+      "region": "caribbean"
+    },
+    {
+      "territory": "TD",
+      "region": "sahel"
+    },
+    {
+      "territory": "TG",
+      "region": "west_central_tropical_africa"
+    },
+    {
+      "territory": "TH",
+      "region": "mainland_southeast_asia"
+    },
+    {
+      "territory": "TJ",
+      "region": "central_asia"
+    },
+    {
+      "territory": "TK",
+      "region": "new_zealand_pacific"
+    },
+    {
+      "territory": "TL",
+      "region": "insular_southeast_asia"
+    },
+    {
+      "territory": "TM",
+      "region": "central_asia"
+    },
+    {
+      "territory": "TN",
+      "region": "maghreb_sahara"
+    },
+    {
+      "territory": "TO",
+      "region": "new_zealand_pacific"
+    },
+    {
+      "territory": "TR",
+      "region": "middle_east_arabia"
+    },
+    {
+      "territory": "TT",
+      "region": "caribbean"
+    },
+    {
+      "territory": "TV",
+      "region": "new_zealand_pacific"
+    },
+    {
+      "territory": "TZ",
+      "region": "east_africa"
+    },
+    {
+      "territory": "UA",
+      "region": "eastern_europe_steppe"
+    },
+    {
+      "territory": "UG",
+      "region": "east_africa"
+    },
+    {
+      "territory": "US",
+      "region": "temperate_boreal_north_america"
+    },
+    {
+      "territory": "UY",
+      "region": "andes_southern_south_america"
+    },
+    {
+      "territory": "UZ",
+      "region": "central_asia"
+    },
+    {
+      "territory": "VA",
+      "region": "mediterranean_europe"
+    },
+    {
+      "territory": "VC",
+      "region": "caribbean"
+    },
+    {
+      "territory": "VE",
+      "region": "tropical_north_south_america_amazon"
+    },
+    {
+      "territory": "VG",
+      "region": "caribbean"
+    },
+    {
+      "territory": "VI",
+      "region": "caribbean"
+    },
+    {
+      "territory": "VN",
+      "region": "mainland_southeast_asia"
+    },
+    {
+      "territory": "VU",
+      "region": "new_zealand_pacific"
+    },
+    {
+      "territory": "WF",
+      "region": "new_zealand_pacific"
+    },
+    {
+      "territory": "WS",
+      "region": "new_zealand_pacific"
+    },
+    {
+      "territory": "XD",
+      "region": "middle_east_arabia"
+    },
+    {
+      "territory": "YE",
+      "region": "middle_east_arabia"
+    },
+    {
+      "territory": "ZA",
+      "region": "southern_africa"
+    },
+    {
+      "territory": "ZM",
+      "region": "southern_africa"
+    },
+    {
+      "territory": "ZW",
+      "region": "southern_africa"
+    }
+  ],
+  "map_unit_assignments": [
+    {
+      "map_unit": "Adjara",
+      "source_dataset": "natural_earth_admin0_map_units_10m_5_1_1",
+      "source_type": "Geo unit",
+      "region": "middle_east_arabia"
+    },
+    {
+      "map_unit": "Afghanistan",
+      "source_dataset": "natural_earth_admin0_map_units_10m_5_1_1",
+      "source_type": "Sovereign country",
+      "territory": "AF",
+      "region": "central_asia"
+    },
+    {
+      "map_unit": "Akrotiri",
+      "source_dataset": "natural_earth_admin0_map_units_10m_5_1_1",
+      "source_type": "Dependency",
+      "region": "mediterranean_europe"
+    },
+    {
+      "map_unit": "Albania",
+      "source_dataset": "natural_earth_admin0_map_units_10m_5_1_1",
+      "source_type": "Sovereign country",
+      "territory": "AL",
+      "region": "mediterranean_europe"
+    },
+    {
+      "map_unit": "Algeria",
+      "source_dataset": "natural_earth_admin0_map_units_10m_5_1_1",
+      "source_type": "Sovereign country",
+      "territory": "DZ",
+      "region": "maghreb_sahara"
+    },
+    {
+      "map_unit": "American Samoa",
+      "source_dataset": "natural_earth_admin0_map_units_10m_5_1_1",
+      "source_type": "Dependency",
+      "territory": "AS",
+      "region": "new_zealand_pacific"
+    },
+    {
+      "map_unit": "Andorra",
+      "source_dataset": "natural_earth_admin0_map_units_10m_5_1_1",
+      "source_type": "Sovereign country",
+      "territory": "AD",
+      "region": "mediterranean_europe"
+    },
+    {
+      "map_unit": "Angola",
+      "source_dataset": "natural_earth_admin0_map_units_10m_5_1_1",
+      "source_type": "Sovereign country",
+      "territory": "AO",
+      "region": "southern_africa"
+    },
+    {
+      "map_unit": "Anguilla",
+      "source_dataset": "natural_earth_admin0_map_units_10m_5_1_1",
+      "source_type": "Dependency",
+      "territory": "AI",
+      "region": "caribbean"
+    },
+    {
+      "map_unit": "Antarctica",
+      "source_dataset": "natural_earth_admin0_map_units_10m_5_1_1",
+      "source_type": "Indeterminate",
+      "territory": "AQ",
+      "assignment_result": "unsupported_for_regional_progression",
+      "boundary_status": "disputed_de_facto_geometry"
+    },
+    {
+      "map_unit": "Antigua",
+      "source_dataset": "natural_earth_admin0_map_units_10m_5_1_1",
+      "source_type": "Geo unit",
+      "region": "caribbean"
+    },
+    {
+      "map_unit": "Argentina",
+      "source_dataset": "natural_earth_admin0_map_units_10m_5_1_1",
+      "source_type": "Sovereign country",
+      "territory": "AR",
+      "region": "andes_southern_south_america"
+    },
+    {
+      "map_unit": "Armenia",
+      "source_dataset": "natural_earth_admin0_map_units_10m_5_1_1",
+      "source_type": "Sovereign country",
+      "territory": "AM",
+      "region": "middle_east_arabia"
+    },
+    {
+      "map_unit": "Aruba",
+      "source_dataset": "natural_earth_admin0_map_units_10m_5_1_1",
+      "source_type": "Country",
+      "territory": "AW",
+      "region": "caribbean"
+    },
+    {
+      "map_unit": "Ashmore and Cartier Is.",
+      "source_dataset": "natural_earth_admin0_map_units_10m_5_1_1",
+      "source_type": "Dependency",
+      "region": "australasia"
+    },
+    {
+      "map_unit": "Australia",
+      "source_dataset": "natural_earth_admin0_map_units_10m_5_1_1",
+      "source_type": "Country",
+      "territory": "AU",
+      "region": "australasia"
+    },
+    {
+      "map_unit": "Austria",
+      "source_dataset": "natural_earth_admin0_map_units_10m_5_1_1",
+      "source_type": "Sovereign country",
+      "territory": "AT",
+      "region": "temperate_europe"
+    },
+    {
+      "map_unit": "Azerbaijan",
+      "source_dataset": "natural_earth_admin0_map_units_10m_5_1_1",
+      "source_type": "Sovereign country",
+      "territory": "AZ",
+      "region": "middle_east_arabia"
+    },
+    {
+      "map_unit": "Azores",
+      "source_dataset": "natural_earth_admin0_map_units_10m_5_1_1",
+      "source_type": "Geo unit",
+      "region": "mediterranean_europe"
+    },
+    {
+      "map_unit": "Bahamas",
+      "source_dataset": "natural_earth_admin0_map_units_10m_5_1_1",
+      "source_type": "Sovereign country",
+      "territory": "BS",
+      "region": "caribbean"
+    },
+    {
+      "map_unit": "Bahrain",
+      "source_dataset": "natural_earth_admin0_map_units_10m_5_1_1",
+      "source_type": "Sovereign country",
+      "territory": "BH",
+      "region": "middle_east_arabia"
+    },
+    {
+      "map_unit": "Baikonur",
+      "source_dataset": "natural_earth_admin0_map_units_10m_5_1_1",
+      "source_type": "Lease",
+      "region": "central_asia"
+    },
+    {
+      "map_unit": "Bajo Nuevo Bank",
+      "source_dataset": "natural_earth_admin0_map_units_10m_5_1_1",
+      "source_type": "Indeterminate",
+      "assignment_result": "marine_worldwide",
+      "boundary_status": "disputed_de_facto_geometry"
+    },
+    {
+      "map_unit": "Baker I.",
+      "source_dataset": "natural_earth_admin0_map_units_10m_5_1_1",
+      "source_type": "Geo unit",
+      "region": "new_zealand_pacific"
+    },
+    {
+      "map_unit": "Bangladesh",
+      "source_dataset": "natural_earth_admin0_map_units_10m_5_1_1",
+      "source_type": "Sovereign country",
+      "territory": "BD",
+      "region": "indian_subcontinent"
+    },
+    {
+      "map_unit": "Barbados",
+      "source_dataset": "natural_earth_admin0_map_units_10m_5_1_1",
+      "source_type": "Sovereign country",
+      "territory": "BB",
+      "region": "caribbean"
+    },
+    {
+      "map_unit": "Barbuda",
+      "source_dataset": "natural_earth_admin0_map_units_10m_5_1_1",
+      "source_type": "Geo unit",
+      "region": "caribbean"
+    },
+    {
+      "map_unit": "Belarus",
+      "source_dataset": "natural_earth_admin0_map_units_10m_5_1_1",
+      "source_type": "Sovereign country",
+      "territory": "BY",
+      "region": "eastern_europe_steppe"
+    },
+    {
+      "map_unit": "Belize",
+      "source_dataset": "natural_earth_admin0_map_units_10m_5_1_1",
+      "source_type": "Sovereign country",
+      "territory": "BZ",
+      "region": "mesoamerica"
+    },
+    {
+      "map_unit": "Benin",
+      "source_dataset": "natural_earth_admin0_map_units_10m_5_1_1",
+      "source_type": "Sovereign country",
+      "territory": "BJ",
+      "region": "west_central_tropical_africa"
+    },
+    {
+      "map_unit": "Bermuda",
+      "source_dataset": "natural_earth_admin0_map_units_10m_5_1_1",
+      "source_type": "Dependency",
+      "territory": "BM",
+      "region": "temperate_boreal_north_america"
+    },
+    {
+      "map_unit": "Bhutan",
+      "source_dataset": "natural_earth_admin0_map_units_10m_5_1_1",
+      "source_type": "Sovereign country",
+      "territory": "BT",
+      "region": "indian_subcontinent"
+    },
+    {
+      "map_unit": "Bir Tawil",
+      "source_dataset": "natural_earth_admin0_map_units_10m_5_1_1",
+      "source_type": "Indeterminate",
+      "region": "maghreb_sahara",
+      "boundary_status": "disputed_de_facto_geometry"
+    },
+    {
+      "map_unit": "Bolivia",
+      "source_dataset": "natural_earth_admin0_map_units_10m_5_1_1",
+      "source_type": "Sovereign country",
+      "territory": "BO",
+      "region": "andes_southern_south_america"
+    },
+    {
+      "map_unit": "Botswana",
+      "source_dataset": "natural_earth_admin0_map_units_10m_5_1_1",
+      "source_type": "Sovereign country",
+      "territory": "BW",
+      "region": "southern_africa"
+    },
+    {
+      "map_unit": "Bougainville",
+      "source_dataset": "natural_earth_admin0_map_units_10m_5_1_1",
+      "source_type": "Geo unit",
+      "region": "australasia"
+    },
+    {
+      "map_unit": "Bouvet I.",
+      "source_dataset": "natural_earth_admin0_map_units_10m_5_1_1",
+      "source_type": "Dependency",
+      "territory": "BV",
+      "assignment_result": "unsupported_for_regional_progression"
+    },
+    {
+      "map_unit": "Br. Indian Ocean Ter.",
+      "source_dataset": "natural_earth_admin0_map_units_10m_5_1_1",
+      "source_type": "Disputed",
+      "territory": "IO",
+      "region": "madagascar_west_indian_ocean"
+    },
+    {
+      "map_unit": "Brazil",
+      "source_dataset": "natural_earth_admin0_map_units_10m_5_1_1",
+      "source_type": "Sovereign country",
+      "territory": "BR",
+      "region": "tropical_north_south_america_amazon"
+    },
+    {
+      "map_unit": "Brazilian I.",
+      "source_dataset": "natural_earth_admin0_map_units_10m_5_1_1",
+      "source_type": "Indeterminate",
+      "assignment_result": "marine_worldwide",
+      "boundary_status": "disputed_de_facto_geometry"
+    },
+    {
+      "map_unit": "Brcko District",
+      "source_dataset": "natural_earth_admin0_map_units_10m_5_1_1",
+      "source_type": "Geo unit",
+      "region": "mediterranean_europe"
+    },
+    {
+      "map_unit": "British Virgin Is.",
+      "source_dataset": "natural_earth_admin0_map_units_10m_5_1_1",
+      "source_type": "Dependency",
+      "territory": "VG",
+      "region": "caribbean"
+    },
+    {
+      "map_unit": "Brunei",
+      "source_dataset": "natural_earth_admin0_map_units_10m_5_1_1",
+      "source_type": "Sovereign country",
+      "territory": "BN",
+      "region": "mainland_southeast_asia"
+    },
+    {
+      "map_unit": "Brussels",
+      "source_dataset": "natural_earth_admin0_map_units_10m_5_1_1",
+      "source_type": "Geo unit",
+      "region": "temperate_europe"
+    },
+    {
+      "map_unit": "Bulgaria",
+      "source_dataset": "natural_earth_admin0_map_units_10m_5_1_1",
+      "source_type": "Sovereign country",
+      "territory": "BG",
+      "region": "eastern_europe_steppe"
+    },
+    {
+      "map_unit": "Burkina Faso",
+      "source_dataset": "natural_earth_admin0_map_units_10m_5_1_1",
+      "source_type": "Sovereign country",
+      "territory": "BF",
+      "region": "sahel"
+    },
+    {
+      "map_unit": "Burundi",
+      "source_dataset": "natural_earth_admin0_map_units_10m_5_1_1",
+      "source_type": "Sovereign country",
+      "territory": "BI",
+      "region": "east_africa"
+    },
+    {
+      "map_unit": "Cabo Verde",
+      "source_dataset": "natural_earth_admin0_map_units_10m_5_1_1",
+      "source_type": "Sovereign country",
+      "territory": "CV",
+      "region": "maghreb_sahara"
+    },
+    {
+      "map_unit": "Cambodia",
+      "source_dataset": "natural_earth_admin0_map_units_10m_5_1_1",
+      "source_type": "Sovereign country",
+      "territory": "KH",
+      "region": "mainland_southeast_asia"
+    },
+    {
+      "map_unit": "Cameroon",
+      "source_dataset": "natural_earth_admin0_map_units_10m_5_1_1",
+      "source_type": "Sovereign country",
+      "territory": "CM",
+      "region": "west_central_tropical_africa"
+    },
+    {
+      "map_unit": "Canada",
+      "source_dataset": "natural_earth_admin0_map_units_10m_5_1_1",
+      "source_type": "Sovereign country",
+      "territory": "CA",
+      "region": "temperate_boreal_north_america"
+    },
+    {
+      "map_unit": "Caribbean Netherlands",
+      "source_dataset": "natural_earth_admin0_map_units_10m_5_1_1",
+      "source_type": "Geo unit",
+      "territory": "BQ",
+      "region": "caribbean"
+    },
+    {
+      "map_unit": "Cayman Is.",
+      "source_dataset": "natural_earth_admin0_map_units_10m_5_1_1",
+      "source_type": "Dependency",
+      "territory": "KY",
+      "region": "caribbean"
+    },
+    {
+      "map_unit": "Central African Rep.",
+      "source_dataset": "natural_earth_admin0_map_units_10m_5_1_1",
+      "source_type": "Sovereign country",
+      "territory": "CF",
+      "region": "west_central_tropical_africa"
+    },
+    {
+      "map_unit": "Chad",
+      "source_dataset": "natural_earth_admin0_map_units_10m_5_1_1",
+      "source_type": "Sovereign country",
+      "territory": "TD",
+      "region": "sahel"
+    },
+    {
+      "map_unit": "Chile",
+      "source_dataset": "natural_earth_admin0_map_units_10m_5_1_1",
+      "source_type": "Sovereign country",
+      "territory": "CL",
+      "region": "andes_southern_south_america"
+    },
+    {
+      "map_unit": "China",
+      "source_dataset": "natural_earth_admin0_map_units_10m_5_1_1",
+      "source_type": "Country",
+      "territory": "CN",
+      "region": "temperate_east_asia"
+    },
+    {
+      "map_unit": "Christmas I.",
+      "source_dataset": "natural_earth_admin0_map_units_10m_5_1_1",
+      "source_type": "Geo unit",
+      "territory": "CX",
+      "region": "australasia"
+    },
+    {
+      "map_unit": "Clipperton I.",
+      "source_dataset": "natural_earth_admin0_map_units_10m_5_1_1",
+      "source_type": "Dependency",
+      "region": "mesoamerica"
+    },
+    {
+      "map_unit": "Cocos Is.",
+      "source_dataset": "natural_earth_admin0_map_units_10m_5_1_1",
+      "source_type": "Geo unit",
+      "territory": "CC",
+      "region": "australasia"
+    },
+    {
+      "map_unit": "Colombia",
+      "source_dataset": "natural_earth_admin0_map_units_10m_5_1_1",
+      "source_type": "Sovereign country",
+      "territory": "CO",
+      "region": "tropical_north_south_america_amazon"
+    },
+    {
+      "map_unit": "Comoros",
+      "source_dataset": "natural_earth_admin0_map_units_10m_5_1_1",
+      "source_type": "Sovereign country",
+      "territory": "KM",
+      "region": "madagascar_west_indian_ocean"
+    },
+    {
+      "map_unit": "Congo",
+      "source_dataset": "natural_earth_admin0_map_units_10m_5_1_1",
+      "source_type": "Sovereign country",
+      "territory": "CG",
+      "region": "west_central_tropical_africa"
+    },
+    {
+      "map_unit": "Cook Is.",
+      "source_dataset": "natural_earth_admin0_map_units_10m_5_1_1",
+      "source_type": "Dependency",
+      "territory": "CK",
+      "region": "new_zealand_pacific"
+    },
+    {
+      "map_unit": "Coral Sea Is.",
+      "source_dataset": "natural_earth_admin0_map_units_10m_5_1_1",
+      "source_type": "Dependency",
+      "region": "australasia"
+    },
+    {
+      "map_unit": "Costa Rica",
+      "source_dataset": "natural_earth_admin0_map_units_10m_5_1_1",
+      "source_type": "Sovereign country",
+      "territory": "CR",
+      "region": "mesoamerica"
+    },
+    {
+      "map_unit": "Croatia",
+      "source_dataset": "natural_earth_admin0_map_units_10m_5_1_1",
+      "source_type": "Sovereign country",
+      "territory": "HR",
+      "region": "mediterranean_europe"
+    },
+    {
+      "map_unit": "Cuba",
+      "source_dataset": "natural_earth_admin0_map_units_10m_5_1_1",
+      "source_type": "Sovereignty",
+      "territory": "CU",
+      "region": "caribbean"
+    },
+    {
+      "map_unit": "Curaçao",
+      "source_dataset": "natural_earth_admin0_map_units_10m_5_1_1",
+      "source_type": "Country",
+      "territory": "CW",
+      "region": "caribbean"
+    },
+    {
+      "map_unit": "Cyprus",
+      "source_dataset": "natural_earth_admin0_map_units_10m_5_1_1",
+      "source_type": "Sovereign country",
+      "territory": "CY",
+      "region": "mediterranean_europe"
+    },
+    {
+      "map_unit": "Cyprus U.N. Buffer Zone",
+      "source_dataset": "natural_earth_admin0_map_units_10m_5_1_1",
+      "source_type": "Indeterminate",
+      "region": "mediterranean_europe",
+      "boundary_status": "disputed_de_facto_geometry"
+    },
+    {
+      "map_unit": "Czechia",
+      "source_dataset": "natural_earth_admin0_map_units_10m_5_1_1",
+      "source_type": "Sovereign country",
+      "territory": "CZ",
+      "region": "temperate_europe"
+    },
+    {
+      "map_unit": "Côte d'Ivoire",
+      "source_dataset": "natural_earth_admin0_map_units_10m_5_1_1",
+      "source_type": "Sovereign country",
+      "territory": "CI",
+      "region": "west_central_tropical_africa"
+    },
+    {
+      "map_unit": "Dem. Rep. Congo",
+      "source_dataset": "natural_earth_admin0_map_units_10m_5_1_1",
+      "source_type": "Sovereign country",
+      "territory": "CD",
+      "region": "west_central_tropical_africa"
+    },
+    {
+      "map_unit": "Denmark",
+      "source_dataset": "natural_earth_admin0_map_units_10m_5_1_1",
+      "source_type": "Country",
+      "territory": "DK",
+      "region": "temperate_europe"
+    },
+    {
+      "map_unit": "Dhekelia",
+      "source_dataset": "natural_earth_admin0_map_units_10m_5_1_1",
+      "source_type": "Dependency",
+      "region": "mediterranean_europe"
+    },
+    {
+      "map_unit": "Djibouti",
+      "source_dataset": "natural_earth_admin0_map_units_10m_5_1_1",
+      "source_type": "Sovereign country",
+      "territory": "DJ",
+      "region": "east_africa"
+    },
+    {
+      "map_unit": "Dominica",
+      "source_dataset": "natural_earth_admin0_map_units_10m_5_1_1",
+      "source_type": "Sovereign country",
+      "territory": "DM",
+      "region": "caribbean"
+    },
+    {
+      "map_unit": "Dominican Rep.",
+      "source_dataset": "natural_earth_admin0_map_units_10m_5_1_1",
+      "source_type": "Sovereign country",
+      "territory": "DO",
+      "region": "caribbean"
+    },
+    {
+      "map_unit": "Ecuador",
+      "source_dataset": "natural_earth_admin0_map_units_10m_5_1_1",
+      "source_type": "Sovereign country",
+      "territory": "EC",
+      "region": "tropical_north_south_america_amazon"
+    },
+    {
+      "map_unit": "Egypt",
+      "source_dataset": "natural_earth_admin0_map_units_10m_5_1_1",
+      "source_type": "Sovereign country",
+      "territory": "EG",
+      "region": "maghreb_sahara"
+    },
+    {
+      "map_unit": "El Salvador",
+      "source_dataset": "natural_earth_admin0_map_units_10m_5_1_1",
+      "source_type": "Sovereign country",
+      "territory": "SV",
+      "region": "mesoamerica"
+    },
+    {
+      "map_unit": "England",
+      "source_dataset": "natural_earth_admin0_map_units_10m_5_1_1",
+      "source_type": "Geo unit",
+      "region": "temperate_europe"
+    },
+    {
+      "map_unit": "Eq. Guinea",
+      "source_dataset": "natural_earth_admin0_map_units_10m_5_1_1",
+      "source_type": "Sovereign country",
+      "territory": "GQ",
+      "region": "west_central_tropical_africa"
+    },
+    {
+      "map_unit": "Eritrea",
+      "source_dataset": "natural_earth_admin0_map_units_10m_5_1_1",
+      "source_type": "Sovereign country",
+      "territory": "ER",
+      "region": "east_africa"
+    },
+    {
+      "map_unit": "Estonia",
+      "source_dataset": "natural_earth_admin0_map_units_10m_5_1_1",
+      "source_type": "Sovereign country",
+      "territory": "EE",
+      "region": "boreal_europe"
+    },
+    {
+      "map_unit": "Ethiopia",
+      "source_dataset": "natural_earth_admin0_map_units_10m_5_1_1",
+      "source_type": "Sovereign country",
+      "territory": "ET",
+      "region": "east_africa"
+    },
+    {
+      "map_unit": "Faeroe Is.",
+      "source_dataset": "natural_earth_admin0_map_units_10m_5_1_1",
+      "source_type": "Dependency",
+      "territory": "FO",
+      "region": "boreal_europe"
+    },
+    {
+      "map_unit": "Falkland Is.",
+      "source_dataset": "natural_earth_admin0_map_units_10m_5_1_1",
+      "source_type": "Disputed",
+      "territory": "FK",
+      "region": "andes_southern_south_america",
+      "boundary_status": "disputed_de_facto_geometry"
+    },
+    {
+      "map_unit": "Fed. of Bos. & Herz.",
+      "source_dataset": "natural_earth_admin0_map_units_10m_5_1_1",
+      "source_type": "Geo unit",
+      "region": "mediterranean_europe"
+    },
+    {
+      "map_unit": "Fiji",
+      "source_dataset": "natural_earth_admin0_map_units_10m_5_1_1",
+      "source_type": "Sovereign country",
+      "territory": "FJ",
+      "region": "new_zealand_pacific"
+    },
+    {
+      "map_unit": "Finland",
+      "source_dataset": "natural_earth_admin0_map_units_10m_5_1_1",
+      "source_type": "Country",
+      "territory": "FI",
+      "region": "boreal_europe"
+    },
+    {
+      "map_unit": "Flemish",
+      "source_dataset": "natural_earth_admin0_map_units_10m_5_1_1",
+      "source_type": "Geo unit",
+      "region": "temperate_europe"
+    },
+    {
+      "map_unit": "Fr. Polynesia",
+      "source_dataset": "natural_earth_admin0_map_units_10m_5_1_1",
+      "source_type": "Dependency",
+      "territory": "PF",
+      "region": "new_zealand_pacific"
+    },
+    {
+      "map_unit": "Fr. S. Antarctic Lands",
+      "source_dataset": "natural_earth_admin0_map_units_10m_5_1_1",
+      "source_type": "Dependency",
+      "territory": "TF",
+      "assignment_result": "unsupported_for_regional_progression"
+    },
+    {
+      "map_unit": "France",
+      "source_dataset": "natural_earth_admin0_map_units_10m_5_1_1",
+      "source_type": "Geo unit",
+      "territory": "FR",
+      "region": "temperate_europe"
+    },
+    {
+      "map_unit": "French Guiana",
+      "source_dataset": "natural_earth_admin0_map_units_10m_5_1_1",
+      "source_type": "Geo unit",
+      "region": "tropical_north_south_america_amazon"
+    },
+    {
+      "map_unit": "Gabon",
+      "source_dataset": "natural_earth_admin0_map_units_10m_5_1_1",
+      "source_type": "Sovereign country",
+      "territory": "GA",
+      "region": "west_central_tropical_africa"
+    },
+    {
+      "map_unit": "Gambia",
+      "source_dataset": "natural_earth_admin0_map_units_10m_5_1_1",
+      "source_type": "Sovereign country",
+      "territory": "GM",
+      "region": "sahel"
+    },
+    {
+      "map_unit": "Gaza",
+      "source_dataset": "natural_earth_admin0_map_units_10m_5_1_1",
+      "source_type": "Geo unit",
+      "region": "middle_east_arabia",
+      "boundary_status": "disputed_de_facto_geometry"
+    },
+    {
+      "map_unit": "Georgia",
+      "source_dataset": "natural_earth_admin0_map_units_10m_5_1_1",
+      "source_type": "Geo unit",
+      "region": "middle_east_arabia"
+    },
+    {
+      "map_unit": "Germany",
+      "source_dataset": "natural_earth_admin0_map_units_10m_5_1_1",
+      "source_type": "Sovereign country",
+      "territory": "DE",
+      "region": "temperate_europe"
+    },
+    {
+      "map_unit": "Ghana",
+      "source_dataset": "natural_earth_admin0_map_units_10m_5_1_1",
+      "source_type": "Sovereign country",
+      "territory": "GH",
+      "region": "west_central_tropical_africa"
+    },
+    {
+      "map_unit": "Gibraltar",
+      "source_dataset": "natural_earth_admin0_map_units_10m_5_1_1",
+      "source_type": "Disputed",
+      "territory": "GI",
+      "region": "mediterranean_europe"
+    },
+    {
+      "map_unit": "Greece",
+      "source_dataset": "natural_earth_admin0_map_units_10m_5_1_1",
+      "source_type": "Sovereign country",
+      "territory": "GR",
+      "region": "mediterranean_europe"
+    },
+    {
+      "map_unit": "Greenland",
+      "source_dataset": "natural_earth_admin0_map_units_10m_5_1_1",
+      "source_type": "Country",
+      "territory": "GL",
+      "region": "temperate_boreal_north_america"
+    },
+    {
+      "map_unit": "Grenada",
+      "source_dataset": "natural_earth_admin0_map_units_10m_5_1_1",
+      "source_type": "Sovereign country",
+      "territory": "GD",
+      "region": "caribbean"
+    },
+    {
+      "map_unit": "Guadeloupe",
+      "source_dataset": "natural_earth_admin0_map_units_10m_5_1_1",
+      "source_type": "Geo unit",
+      "region": "caribbean"
+    },
+    {
+      "map_unit": "Guam",
+      "source_dataset": "natural_earth_admin0_map_units_10m_5_1_1",
+      "source_type": "Dependency",
+      "territory": "GU",
+      "region": "new_zealand_pacific"
+    },
+    {
+      "map_unit": "Guatemala",
+      "source_dataset": "natural_earth_admin0_map_units_10m_5_1_1",
+      "source_type": "Sovereign country",
+      "territory": "GT",
+      "region": "mesoamerica"
+    },
+    {
+      "map_unit": "Guernsey",
+      "source_dataset": "natural_earth_admin0_map_units_10m_5_1_1",
+      "source_type": "Country",
+      "territory": "GG",
+      "region": "temperate_europe"
+    },
+    {
+      "map_unit": "Guinea",
+      "source_dataset": "natural_earth_admin0_map_units_10m_5_1_1",
+      "source_type": "Sovereign country",
+      "territory": "GN",
+      "region": "west_central_tropical_africa"
+    },
+    {
+      "map_unit": "Guinea-Bissau",
+      "source_dataset": "natural_earth_admin0_map_units_10m_5_1_1",
+      "source_type": "Sovereign country",
+      "territory": "GW",
+      "region": "west_central_tropical_africa"
+    },
+    {
+      "map_unit": "Guyana",
+      "source_dataset": "natural_earth_admin0_map_units_10m_5_1_1",
+      "source_type": "Sovereign country",
+      "territory": "GY",
+      "region": "tropical_north_south_america_amazon"
+    },
+    {
+      "map_unit": "Haiti",
+      "source_dataset": "natural_earth_admin0_map_units_10m_5_1_1",
+      "source_type": "Sovereign country",
+      "territory": "HT",
+      "region": "caribbean"
+    },
+    {
+      "map_unit": "Heard I. and McDonald Is.",
+      "source_dataset": "natural_earth_admin0_map_units_10m_5_1_1",
+      "source_type": "Dependency",
+      "territory": "HM",
+      "assignment_result": "unsupported_for_regional_progression"
+    },
+    {
+      "map_unit": "Honduras",
+      "source_dataset": "natural_earth_admin0_map_units_10m_5_1_1",
+      "source_type": "Sovereign country",
+      "territory": "HN",
+      "region": "mesoamerica"
+    },
+    {
+      "map_unit": "Hong Kong",
+      "source_dataset": "natural_earth_admin0_map_units_10m_5_1_1",
+      "source_type": "Country",
+      "territory": "HK",
+      "region": "temperate_east_asia"
+    },
+    {
+      "map_unit": "Howland I.",
+      "source_dataset": "natural_earth_admin0_map_units_10m_5_1_1",
+      "source_type": "Geo unit",
+      "region": "new_zealand_pacific"
+    },
+    {
+      "map_unit": "Hungary",
+      "source_dataset": "natural_earth_admin0_map_units_10m_5_1_1",
+      "source_type": "Sovereign country",
+      "territory": "HU",
+      "region": "temperate_europe"
+    },
+    {
+      "map_unit": "Iceland",
+      "source_dataset": "natural_earth_admin0_map_units_10m_5_1_1",
+      "source_type": "Sovereign country",
+      "territory": "IS",
+      "region": "boreal_europe"
+    },
+    {
+      "map_unit": "India",
+      "source_dataset": "natural_earth_admin0_map_units_10m_5_1_1",
+      "source_type": "Sovereign country",
+      "territory": "IN",
+      "region": "indian_subcontinent"
+    },
+    {
+      "map_unit": "Indonesia",
+      "source_dataset": "natural_earth_admin0_map_units_10m_5_1_1",
+      "source_type": "Sovereign country",
+      "territory": "ID",
+      "region": "insular_southeast_asia"
+    },
+    {
+      "map_unit": "Iran",
+      "source_dataset": "natural_earth_admin0_map_units_10m_5_1_1",
+      "source_type": "Sovereign country",
+      "territory": "IR",
+      "region": "central_asia"
+    },
+    {
+      "map_unit": "Iraq",
+      "source_dataset": "natural_earth_admin0_map_units_10m_5_1_1",
+      "source_type": "Geo unit",
+      "region": "middle_east_arabia"
+    },
+    {
+      "map_unit": "Iraqi Kurdistan",
+      "source_dataset": "natural_earth_admin0_map_units_10m_5_1_1",
+      "source_type": "Geo unit",
+      "region": "middle_east_arabia"
+    },
+    {
+      "map_unit": "Ireland",
+      "source_dataset": "natural_earth_admin0_map_units_10m_5_1_1",
+      "source_type": "Sovereign country",
+      "territory": "IE",
+      "region": "temperate_europe"
+    },
+    {
+      "map_unit": "Isle of Man",
+      "source_dataset": "natural_earth_admin0_map_units_10m_5_1_1",
+      "source_type": "Country",
+      "territory": "IM",
+      "region": "temperate_europe"
+    },
+    {
+      "map_unit": "Israel",
+      "source_dataset": "natural_earth_admin0_map_units_10m_5_1_1",
+      "source_type": "Disputed",
+      "territory": "IL",
+      "region": "middle_east_arabia",
+      "boundary_status": "disputed_de_facto_geometry"
+    },
+    {
+      "map_unit": "Italy",
+      "source_dataset": "natural_earth_admin0_map_units_10m_5_1_1",
+      "source_type": "Sovereign country",
+      "territory": "IT",
+      "region": "mediterranean_europe"
+    },
+    {
+      "map_unit": "Jamaica",
+      "source_dataset": "natural_earth_admin0_map_units_10m_5_1_1",
+      "source_type": "Sovereign country",
+      "territory": "JM",
+      "region": "caribbean"
+    },
+    {
+      "map_unit": "Jan Mayen I.",
+      "source_dataset": "natural_earth_admin0_map_units_10m_5_1_1",
+      "source_type": "Dependency",
+      "region": "boreal_europe"
+    },
+    {
+      "map_unit": "Japan",
+      "source_dataset": "natural_earth_admin0_map_units_10m_5_1_1",
+      "source_type": "Sovereign country",
+      "territory": "JP",
+      "region": "temperate_east_asia"
+    },
+    {
+      "map_unit": "Jarvis I.",
+      "source_dataset": "natural_earth_admin0_map_units_10m_5_1_1",
+      "source_type": "Geo unit",
+      "region": "new_zealand_pacific"
+    },
+    {
+      "map_unit": "Jersey",
+      "source_dataset": "natural_earth_admin0_map_units_10m_5_1_1",
+      "source_type": "Country",
+      "territory": "JE",
+      "region": "temperate_europe"
+    },
+    {
+      "map_unit": "Johnston Atoll",
+      "source_dataset": "natural_earth_admin0_map_units_10m_5_1_1",
+      "source_type": "Geo unit",
+      "region": "new_zealand_pacific"
+    },
+    {
+      "map_unit": "Jordan",
+      "source_dataset": "natural_earth_admin0_map_units_10m_5_1_1",
+      "source_type": "Sovereign country",
+      "territory": "JO",
+      "region": "middle_east_arabia"
+    },
+    {
+      "map_unit": "Kazakhstan",
+      "source_dataset": "natural_earth_admin0_map_units_10m_5_1_1",
+      "source_type": "Sovereignty",
+      "territory": "KZ",
+      "region": "central_asia"
+    },
+    {
+      "map_unit": "Kenya",
+      "source_dataset": "natural_earth_admin0_map_units_10m_5_1_1",
+      "source_type": "Sovereign country",
+      "territory": "KE",
+      "region": "east_africa"
+    },
+    {
+      "map_unit": "Kingman Reef",
+      "source_dataset": "natural_earth_admin0_map_units_10m_5_1_1",
+      "source_type": "Geo unit",
+      "region": "new_zealand_pacific"
+    },
+    {
+      "map_unit": "Kiribati",
+      "source_dataset": "natural_earth_admin0_map_units_10m_5_1_1",
+      "source_type": "Sovereign country",
+      "territory": "KI",
+      "region": "new_zealand_pacific"
+    },
+    {
+      "map_unit": "Korean DMZ (north)",
+      "source_dataset": "natural_earth_admin0_map_units_10m_5_1_1",
+      "source_type": "Overlay",
+      "region": "temperate_east_asia",
+      "boundary_status": "disputed_de_facto_geometry"
+    },
+    {
+      "map_unit": "Korean DMZ (south)",
+      "source_dataset": "natural_earth_admin0_map_units_10m_5_1_1",
+      "source_type": "Overlay",
+      "region": "temperate_east_asia",
+      "boundary_status": "disputed_de_facto_geometry"
+    },
+    {
+      "map_unit": "Kosovo",
+      "source_dataset": "natural_earth_admin0_map_units_10m_5_1_1",
+      "source_type": "Disputed",
+      "region": "eastern_europe_steppe",
+      "boundary_status": "disputed_de_facto_geometry"
+    },
+    {
+      "map_unit": "Kuwait",
+      "source_dataset": "natural_earth_admin0_map_units_10m_5_1_1",
+      "source_type": "Sovereign country",
+      "territory": "KW",
+      "region": "middle_east_arabia"
+    },
+    {
+      "map_unit": "Kyrgyzstan",
+      "source_dataset": "natural_earth_admin0_map_units_10m_5_1_1",
+      "source_type": "Sovereign country",
+      "territory": "KG",
+      "region": "central_asia"
+    },
+    {
+      "map_unit": "Laos",
+      "source_dataset": "natural_earth_admin0_map_units_10m_5_1_1",
+      "source_type": "Sovereign country",
+      "territory": "LA",
+      "region": "mainland_southeast_asia"
+    },
+    {
+      "map_unit": "Latvia",
+      "source_dataset": "natural_earth_admin0_map_units_10m_5_1_1",
+      "source_type": "Sovereign country",
+      "territory": "LV",
+      "region": "temperate_europe"
+    },
+    {
+      "map_unit": "Lebanon",
+      "source_dataset": "natural_earth_admin0_map_units_10m_5_1_1",
+      "source_type": "Sovereign country",
+      "territory": "LB",
+      "region": "middle_east_arabia"
+    },
+    {
+      "map_unit": "Lesotho",
+      "source_dataset": "natural_earth_admin0_map_units_10m_5_1_1",
+      "source_type": "Sovereign country",
+      "territory": "LS",
+      "region": "southern_africa"
+    },
+    {
+      "map_unit": "Liberia",
+      "source_dataset": "natural_earth_admin0_map_units_10m_5_1_1",
+      "source_type": "Sovereign country",
+      "territory": "LR",
+      "region": "west_central_tropical_africa"
+    },
+    {
+      "map_unit": "Libya",
+      "source_dataset": "natural_earth_admin0_map_units_10m_5_1_1",
+      "source_type": "Sovereign country",
+      "territory": "LY",
+      "region": "maghreb_sahara"
+    },
+    {
+      "map_unit": "Liechtenstein",
+      "source_dataset": "natural_earth_admin0_map_units_10m_5_1_1",
+      "source_type": "Sovereign country",
+      "territory": "LI",
+      "region": "temperate_europe"
+    },
+    {
+      "map_unit": "Lithuania",
+      "source_dataset": "natural_earth_admin0_map_units_10m_5_1_1",
+      "source_type": "Sovereign country",
+      "territory": "LT",
+      "region": "temperate_europe"
+    },
+    {
+      "map_unit": "Luxembourg",
+      "source_dataset": "natural_earth_admin0_map_units_10m_5_1_1",
+      "source_type": "Sovereign country",
+      "territory": "LU",
+      "region": "temperate_europe"
+    },
+    {
+      "map_unit": "Macao",
+      "source_dataset": "natural_earth_admin0_map_units_10m_5_1_1",
+      "source_type": "Country",
+      "territory": "MO",
+      "region": "temperate_east_asia"
+    },
+    {
+      "map_unit": "Madagascar",
+      "source_dataset": "natural_earth_admin0_map_units_10m_5_1_1",
+      "source_type": "Sovereign country",
+      "territory": "MG",
+      "region": "madagascar_west_indian_ocean"
+    },
+    {
+      "map_unit": "Madeira",
+      "source_dataset": "natural_earth_admin0_map_units_10m_5_1_1",
+      "source_type": "Geo unit",
+      "region": "mediterranean_europe"
+    },
+    {
+      "map_unit": "Malawi",
+      "source_dataset": "natural_earth_admin0_map_units_10m_5_1_1",
+      "source_type": "Sovereign country",
+      "territory": "MW",
+      "region": "southern_africa"
+    },
+    {
+      "map_unit": "Malaysia",
+      "source_dataset": "natural_earth_admin0_map_units_10m_5_1_1",
+      "source_type": "Sovereign country",
+      "territory": "MY",
+      "region": "mainland_southeast_asia"
+    },
+    {
+      "map_unit": "Maldives",
+      "source_dataset": "natural_earth_admin0_map_units_10m_5_1_1",
+      "source_type": "Sovereign country",
+      "territory": "MV",
+      "region": "indian_subcontinent"
+    },
+    {
+      "map_unit": "Mali",
+      "source_dataset": "natural_earth_admin0_map_units_10m_5_1_1",
+      "source_type": "Sovereign country",
+      "territory": "ML",
+      "region": "sahel"
+    },
+    {
+      "map_unit": "Malta",
+      "source_dataset": "natural_earth_admin0_map_units_10m_5_1_1",
+      "source_type": "Sovereign country",
+      "territory": "MT",
+      "region": "mediterranean_europe"
+    },
+    {
+      "map_unit": "Marshall Is.",
+      "source_dataset": "natural_earth_admin0_map_units_10m_5_1_1",
+      "source_type": "Sovereign country",
+      "territory": "MH",
+      "region": "new_zealand_pacific"
+    },
+    {
+      "map_unit": "Martinique",
+      "source_dataset": "natural_earth_admin0_map_units_10m_5_1_1",
+      "source_type": "Geo unit",
+      "region": "caribbean"
+    },
+    {
+      "map_unit": "Mauritania",
+      "source_dataset": "natural_earth_admin0_map_units_10m_5_1_1",
+      "source_type": "Sovereign country",
+      "territory": "MR",
+      "region": "maghreb_sahara"
+    },
+    {
+      "map_unit": "Mauritius",
+      "source_dataset": "natural_earth_admin0_map_units_10m_5_1_1",
+      "source_type": "Sovereign country",
+      "territory": "MU",
+      "region": "madagascar_west_indian_ocean"
+    },
+    {
+      "map_unit": "Mayotte",
+      "source_dataset": "natural_earth_admin0_map_units_10m_5_1_1",
+      "source_type": "Disputed",
+      "region": "madagascar_west_indian_ocean",
+      "boundary_status": "disputed_de_facto_geometry"
+    },
+    {
+      "map_unit": "Mexico",
+      "source_dataset": "natural_earth_admin0_map_units_10m_5_1_1",
+      "source_type": "Sovereign country",
+      "territory": "MX",
+      "region": "mesoamerica"
+    },
+    {
+      "map_unit": "Micronesia",
+      "source_dataset": "natural_earth_admin0_map_units_10m_5_1_1",
+      "source_type": "Sovereign country",
+      "territory": "FM",
+      "region": "new_zealand_pacific"
+    },
+    {
+      "map_unit": "Midway Is.",
+      "source_dataset": "natural_earth_admin0_map_units_10m_5_1_1",
+      "source_type": "Geo unit",
+      "region": "new_zealand_pacific"
+    },
+    {
+      "map_unit": "Moldova",
+      "source_dataset": "natural_earth_admin0_map_units_10m_5_1_1",
+      "source_type": "Sovereign country",
+      "territory": "MD",
+      "region": "eastern_europe_steppe"
+    },
+    {
+      "map_unit": "Monaco",
+      "source_dataset": "natural_earth_admin0_map_units_10m_5_1_1",
+      "source_type": "Sovereign country",
+      "territory": "MC",
+      "region": "mediterranean_europe"
+    },
+    {
+      "map_unit": "Mongolia",
+      "source_dataset": "natural_earth_admin0_map_units_10m_5_1_1",
+      "source_type": "Sovereign country",
+      "territory": "MN",
+      "region": "siberia_boreal_asia"
+    },
+    {
+      "map_unit": "Montenegro",
+      "source_dataset": "natural_earth_admin0_map_units_10m_5_1_1",
+      "source_type": "Sovereign country",
+      "territory": "ME",
+      "region": "mediterranean_europe"
+    },
+    {
+      "map_unit": "Montserrat",
+      "source_dataset": "natural_earth_admin0_map_units_10m_5_1_1",
+      "source_type": "Dependency",
+      "territory": "MS",
+      "region": "caribbean"
+    },
+    {
+      "map_unit": "Morocco",
+      "source_dataset": "natural_earth_admin0_map_units_10m_5_1_1",
+      "source_type": "Sovereign country",
+      "territory": "MA",
+      "region": "maghreb_sahara"
+    },
+    {
+      "map_unit": "Mozambique",
+      "source_dataset": "natural_earth_admin0_map_units_10m_5_1_1",
+      "source_type": "Sovereign country",
+      "territory": "MZ",
+      "region": "southern_africa"
+    },
+    {
+      "map_unit": "Myanmar",
+      "source_dataset": "natural_earth_admin0_map_units_10m_5_1_1",
+      "source_type": "Sovereign country",
+      "territory": "MM",
+      "region": "mainland_southeast_asia"
+    },
+    {
+      "map_unit": "N. Cyprus",
+      "source_dataset": "natural_earth_admin0_map_units_10m_5_1_1",
+      "source_type": "Sovereign country",
+      "region": "mediterranean_europe"
+    },
+    {
+      "map_unit": "N. Ireland",
+      "source_dataset": "natural_earth_admin0_map_units_10m_5_1_1",
+      "source_type": "Geo unit",
+      "region": "temperate_europe"
+    },
+    {
+      "map_unit": "N. Mariana Is.",
+      "source_dataset": "natural_earth_admin0_map_units_10m_5_1_1",
+      "source_type": "Dependency",
+      "territory": "MP",
+      "region": "new_zealand_pacific"
+    },
+    {
+      "map_unit": "Namibia",
+      "source_dataset": "natural_earth_admin0_map_units_10m_5_1_1",
+      "source_type": "Sovereign country",
+      "territory": "NA",
+      "region": "southern_africa"
+    },
+    {
+      "map_unit": "Nauru",
+      "source_dataset": "natural_earth_admin0_map_units_10m_5_1_1",
+      "source_type": "Sovereign country",
+      "territory": "NR",
+      "region": "new_zealand_pacific"
+    },
+    {
+      "map_unit": "Navassa I.",
+      "source_dataset": "natural_earth_admin0_map_units_10m_5_1_1",
+      "source_type": "Geo unit",
+      "region": "caribbean"
+    },
+    {
+      "map_unit": "Nepal",
+      "source_dataset": "natural_earth_admin0_map_units_10m_5_1_1",
+      "source_type": "Sovereign country",
+      "territory": "NP",
+      "region": "indian_subcontinent"
+    },
+    {
+      "map_unit": "Netherlands",
+      "source_dataset": "natural_earth_admin0_map_units_10m_5_1_1",
+      "source_type": "Geo core",
+      "region": "temperate_europe"
+    },
+    {
+      "map_unit": "New Caledonia",
+      "source_dataset": "natural_earth_admin0_map_units_10m_5_1_1",
+      "source_type": "Dependency",
+      "territory": "NC",
+      "region": "new_zealand_pacific"
+    },
+    {
+      "map_unit": "New Zealand",
+      "source_dataset": "natural_earth_admin0_map_units_10m_5_1_1",
+      "source_type": "Country",
+      "territory": "NZ",
+      "region": "new_zealand_pacific"
+    },
+    {
+      "map_unit": "Nicaragua",
+      "source_dataset": "natural_earth_admin0_map_units_10m_5_1_1",
+      "source_type": "Sovereign country",
+      "territory": "NI",
+      "region": "mesoamerica"
+    },
+    {
+      "map_unit": "Niger",
+      "source_dataset": "natural_earth_admin0_map_units_10m_5_1_1",
+      "source_type": "Sovereign country",
+      "territory": "NE",
+      "region": "sahel"
+    },
+    {
+      "map_unit": "Nigeria",
+      "source_dataset": "natural_earth_admin0_map_units_10m_5_1_1",
+      "source_type": "Sovereign country",
+      "territory": "NG",
+      "region": "west_central_tropical_africa"
+    },
+    {
+      "map_unit": "Niue",
+      "source_dataset": "natural_earth_admin0_map_units_10m_5_1_1",
+      "source_type": "Dependency",
+      "territory": "NU",
+      "region": "new_zealand_pacific"
+    },
+    {
+      "map_unit": "Norfolk Island",
+      "source_dataset": "natural_earth_admin0_map_units_10m_5_1_1",
+      "source_type": "Dependency",
+      "territory": "NF",
+      "region": "australasia"
+    },
+    {
+      "map_unit": "North Korea",
+      "source_dataset": "natural_earth_admin0_map_units_10m_5_1_1",
+      "source_type": "Sovereign country",
+      "territory": "KP",
+      "region": "temperate_east_asia"
+    },
+    {
+      "map_unit": "North Macedonia",
+      "source_dataset": "natural_earth_admin0_map_units_10m_5_1_1",
+      "source_type": "Sovereign country",
+      "territory": "MK",
+      "region": "mediterranean_europe"
+    },
+    {
+      "map_unit": "Norway",
+      "source_dataset": "natural_earth_admin0_map_units_10m_5_1_1",
+      "source_type": "Country",
+      "territory": "NO",
+      "region": "boreal_europe"
+    },
+    {
+      "map_unit": "Oman",
+      "source_dataset": "natural_earth_admin0_map_units_10m_5_1_1",
+      "source_type": "Sovereign country",
+      "territory": "OM",
+      "region": "middle_east_arabia"
+    },
+    {
+      "map_unit": "Pakistan",
+      "source_dataset": "natural_earth_admin0_map_units_10m_5_1_1",
+      "source_type": "Sovereign country",
+      "territory": "PK",
+      "region": "indian_subcontinent"
+    },
+    {
+      "map_unit": "Palau",
+      "source_dataset": "natural_earth_admin0_map_units_10m_5_1_1",
+      "source_type": "Sovereign country",
+      "territory": "PW",
+      "region": "new_zealand_pacific"
+    },
+    {
+      "map_unit": "Palmyra Atoll",
+      "source_dataset": "natural_earth_admin0_map_units_10m_5_1_1",
+      "source_type": "Geo unit",
+      "region": "new_zealand_pacific"
+    },
+    {
+      "map_unit": "Panama",
+      "source_dataset": "natural_earth_admin0_map_units_10m_5_1_1",
+      "source_type": "Sovereign country",
+      "territory": "PA",
+      "region": "mesoamerica"
+    },
+    {
+      "map_unit": "Papua New Guinea",
+      "source_dataset": "natural_earth_admin0_map_units_10m_5_1_1",
+      "source_type": "Geo unit",
+      "region": "australasia"
+    },
+    {
+      "map_unit": "Paracel Is.",
+      "source_dataset": "natural_earth_admin0_map_units_10m_5_1_1",
+      "source_type": "Geo unit",
+      "assignment_result": "marine_worldwide",
+      "boundary_status": "disputed_de_facto_geometry"
+    },
+    {
+      "map_unit": "Paraguay",
+      "source_dataset": "natural_earth_admin0_map_units_10m_5_1_1",
+      "source_type": "Sovereign country",
+      "territory": "PY",
+      "region": "andes_southern_south_america"
+    },
+    {
+      "map_unit": "Peru",
+      "source_dataset": "natural_earth_admin0_map_units_10m_5_1_1",
+      "source_type": "Sovereign country",
+      "territory": "PE",
+      "region": "tropical_north_south_america_amazon"
+    },
+    {
+      "map_unit": "Philippines",
+      "source_dataset": "natural_earth_admin0_map_units_10m_5_1_1",
+      "source_type": "Sovereign country",
+      "territory": "PH",
+      "region": "insular_southeast_asia"
+    },
+    {
+      "map_unit": "Pitcairn Is.",
+      "source_dataset": "natural_earth_admin0_map_units_10m_5_1_1",
+      "source_type": "Dependency",
+      "territory": "PN",
+      "region": "new_zealand_pacific"
+    },
+    {
+      "map_unit": "Poland",
+      "source_dataset": "natural_earth_admin0_map_units_10m_5_1_1",
+      "source_type": "Sovereign country",
+      "territory": "PL",
+      "region": "temperate_europe"
+    },
+    {
+      "map_unit": "Portugal",
+      "source_dataset": "natural_earth_admin0_map_units_10m_5_1_1",
+      "source_type": "Geo unit",
+      "region": "mediterranean_europe"
+    },
+    {
+      "map_unit": "Puerto Rico",
+      "source_dataset": "natural_earth_admin0_map_units_10m_5_1_1",
+      "source_type": "Dependency",
+      "territory": "PR",
+      "region": "caribbean"
+    },
+    {
+      "map_unit": "Puntland",
+      "source_dataset": "natural_earth_admin0_map_units_10m_5_1_1",
+      "source_type": "Geo unit",
+      "region": "east_africa"
+    },
+    {
+      "map_unit": "Qatar",
+      "source_dataset": "natural_earth_admin0_map_units_10m_5_1_1",
+      "source_type": "Sovereign country",
+      "territory": "QA",
+      "region": "middle_east_arabia"
+    },
+    {
+      "map_unit": "Rep. Srpska",
+      "source_dataset": "natural_earth_admin0_map_units_10m_5_1_1",
+      "source_type": "Geo unit",
+      "region": "mediterranean_europe"
+    },
+    {
+      "map_unit": "Romania",
+      "source_dataset": "natural_earth_admin0_map_units_10m_5_1_1",
+      "source_type": "Sovereign country",
+      "territory": "RO",
+      "region": "eastern_europe_steppe"
+    },
+    {
+      "map_unit": "Russia",
+      "source_dataset": "natural_earth_admin0_map_units_10m_5_1_1",
+      "source_type": "Sovereign country",
+      "territory": "RU",
+      "region": "siberia_boreal_asia"
+    },
+    {
+      "map_unit": "Rwanda",
+      "source_dataset": "natural_earth_admin0_map_units_10m_5_1_1",
+      "source_type": "Sovereign country",
+      "territory": "RW",
+      "region": "east_africa"
+    },
+    {
+      "map_unit": "Réunion",
+      "source_dataset": "natural_earth_admin0_map_units_10m_5_1_1",
+      "source_type": "Geo unit",
+      "region": "madagascar_west_indian_ocean"
+    },
+    {
+      "map_unit": "S. Geo. and the Is.",
+      "source_dataset": "natural_earth_admin0_map_units_10m_5_1_1",
+      "source_type": "Dependency",
+      "territory": "GS",
+      "assignment_result": "unsupported_for_regional_progression"
+    },
+    {
+      "map_unit": "S. Sudan",
+      "source_dataset": "natural_earth_admin0_map_units_10m_5_1_1",
+      "source_type": "Sovereign country",
+      "territory": "SS",
+      "region": "east_africa"
+    },
+    {
+      "map_unit": "Saint Helena",
+      "source_dataset": "natural_earth_admin0_map_units_10m_5_1_1",
+      "source_type": "Dependency",
+      "territory": "SH",
+      "region": "southern_africa"
+    },
+    {
+      "map_unit": "Saint Lucia",
+      "source_dataset": "natural_earth_admin0_map_units_10m_5_1_1",
+      "source_type": "Sovereign country",
+      "territory": "LC",
+      "region": "caribbean"
+    },
+    {
+      "map_unit": "Samoa",
+      "source_dataset": "natural_earth_admin0_map_units_10m_5_1_1",
+      "source_type": "Sovereign country",
+      "territory": "WS",
+      "region": "new_zealand_pacific"
+    },
+    {
+      "map_unit": "San Marino",
+      "source_dataset": "natural_earth_admin0_map_units_10m_5_1_1",
+      "source_type": "Sovereign country",
+      "territory": "SM",
+      "region": "mediterranean_europe"
+    },
+    {
+      "map_unit": "Saudi Arabia",
+      "source_dataset": "natural_earth_admin0_map_units_10m_5_1_1",
+      "source_type": "Sovereign country",
+      "territory": "SA",
+      "region": "middle_east_arabia"
+    },
+    {
+      "map_unit": "Scarborough Reef",
+      "source_dataset": "natural_earth_admin0_map_units_10m_5_1_1",
+      "source_type": "Indeterminate",
+      "assignment_result": "marine_worldwide",
+      "boundary_status": "disputed_de_facto_geometry"
+    },
+    {
+      "map_unit": "Scotland",
+      "source_dataset": "natural_earth_admin0_map_units_10m_5_1_1",
+      "source_type": "Geo unit",
+      "region": "temperate_europe"
+    },
+    {
+      "map_unit": "Senegal",
+      "source_dataset": "natural_earth_admin0_map_units_10m_5_1_1",
+      "source_type": "Sovereign country",
+      "territory": "SN",
+      "region": "sahel"
+    },
+    {
+      "map_unit": "Serbia",
+      "source_dataset": "natural_earth_admin0_map_units_10m_5_1_1",
+      "source_type": "Geo unit",
+      "region": "eastern_europe_steppe"
+    },
+    {
+      "map_unit": "Serranilla Bank",
+      "source_dataset": "natural_earth_admin0_map_units_10m_5_1_1",
+      "source_type": "Indeterminate",
+      "assignment_result": "marine_worldwide",
+      "boundary_status": "disputed_de_facto_geometry"
+    },
+    {
+      "map_unit": "Seychelles",
+      "source_dataset": "natural_earth_admin0_map_units_10m_5_1_1",
+      "source_type": "Sovereign country",
+      "territory": "SC",
+      "region": "madagascar_west_indian_ocean"
+    },
+    {
+      "map_unit": "Siachen Glacier",
+      "source_dataset": "natural_earth_admin0_map_units_10m_5_1_1",
+      "source_type": "Indeterminate",
+      "region": "indian_subcontinent",
+      "boundary_status": "disputed_de_facto_geometry"
+    },
+    {
+      "map_unit": "Sierra Leone",
+      "source_dataset": "natural_earth_admin0_map_units_10m_5_1_1",
+      "source_type": "Sovereign country",
+      "territory": "SL",
+      "region": "west_central_tropical_africa"
+    },
+    {
+      "map_unit": "Singapore",
+      "source_dataset": "natural_earth_admin0_map_units_10m_5_1_1",
+      "source_type": "Sovereign country",
+      "territory": "SG",
+      "region": "mainland_southeast_asia"
+    },
+    {
+      "map_unit": "Sint Maarten",
+      "source_dataset": "natural_earth_admin0_map_units_10m_5_1_1",
+      "source_type": "Country",
+      "territory": "SX",
+      "region": "caribbean"
+    },
+    {
+      "map_unit": "Slovakia",
+      "source_dataset": "natural_earth_admin0_map_units_10m_5_1_1",
+      "source_type": "Sovereign country",
+      "territory": "SK",
+      "region": "temperate_europe"
+    },
+    {
+      "map_unit": "Slovenia",
+      "source_dataset": "natural_earth_admin0_map_units_10m_5_1_1",
+      "source_type": "Sovereign country",
+      "territory": "SI",
+      "region": "mediterranean_europe"
+    },
+    {
+      "map_unit": "Solomon Is.",
+      "source_dataset": "natural_earth_admin0_map_units_10m_5_1_1",
+      "source_type": "Sovereign country",
+      "territory": "SB",
+      "region": "new_zealand_pacific"
+    },
+    {
+      "map_unit": "Somalia",
+      "source_dataset": "natural_earth_admin0_map_units_10m_5_1_1",
+      "source_type": "Geo unit",
+      "region": "east_africa"
+    },
+    {
+      "map_unit": "Somaliland",
+      "source_dataset": "natural_earth_admin0_map_units_10m_5_1_1",
+      "source_type": "Sovereign country",
+      "region": "east_africa"
+    },
+    {
+      "map_unit": "South Africa",
+      "source_dataset": "natural_earth_admin0_map_units_10m_5_1_1",
+      "source_type": "Sovereign country",
+      "territory": "ZA",
+      "region": "southern_africa"
+    },
+    {
+      "map_unit": "South Korea",
+      "source_dataset": "natural_earth_admin0_map_units_10m_5_1_1",
+      "source_type": "Sovereign country",
+      "territory": "KR",
+      "region": "temperate_east_asia"
+    },
+    {
+      "map_unit": "Southern Patagonian Ice Field",
+      "source_dataset": "natural_earth_admin0_map_units_10m_5_1_1",
+      "source_type": "Indeterminate",
+      "region": "andes_southern_south_america",
+      "boundary_status": "disputed_de_facto_geometry"
+    },
+    {
+      "map_unit": "Spain",
+      "source_dataset": "natural_earth_admin0_map_units_10m_5_1_1",
+      "source_type": "Sovereign country",
+      "territory": "ES",
+      "region": "mediterranean_europe"
+    },
+    {
+      "map_unit": "Spratly Is.",
+      "source_dataset": "natural_earth_admin0_map_units_10m_5_1_1",
+      "source_type": "Indeterminate",
+      "assignment_result": "marine_worldwide",
+      "boundary_status": "disputed_de_facto_geometry"
+    },
+    {
+      "map_unit": "Sri Lanka",
+      "source_dataset": "natural_earth_admin0_map_units_10m_5_1_1",
+      "source_type": "Sovereign country",
+      "territory": "LK",
+      "region": "indian_subcontinent"
+    },
+    {
+      "map_unit": "St-Barthélemy",
+      "source_dataset": "natural_earth_admin0_map_units_10m_5_1_1",
+      "source_type": "Dependency",
+      "territory": "BL",
+      "region": "caribbean"
+    },
+    {
+      "map_unit": "St-Martin",
+      "source_dataset": "natural_earth_admin0_map_units_10m_5_1_1",
+      "source_type": "Dependency",
+      "territory": "MF",
+      "region": "caribbean"
+    },
+    {
+      "map_unit": "St. Kitts and Nevis",
+      "source_dataset": "natural_earth_admin0_map_units_10m_5_1_1",
+      "source_type": "Sovereign country",
+      "territory": "KN",
+      "region": "caribbean"
+    },
+    {
+      "map_unit": "St. Pierre and Miquelon",
+      "source_dataset": "natural_earth_admin0_map_units_10m_5_1_1",
+      "source_type": "Dependency",
+      "territory": "PM",
+      "region": "temperate_boreal_north_america"
+    },
+    {
+      "map_unit": "St. Vin. and Gren.",
+      "source_dataset": "natural_earth_admin0_map_units_10m_5_1_1",
+      "source_type": "Sovereign country",
+      "territory": "VC",
+      "region": "caribbean"
+    },
+    {
+      "map_unit": "Sudan",
+      "source_dataset": "natural_earth_admin0_map_units_10m_5_1_1",
+      "source_type": "Sovereign country",
+      "territory": "SD",
+      "region": "sahel"
+    },
+    {
+      "map_unit": "Suriname",
+      "source_dataset": "natural_earth_admin0_map_units_10m_5_1_1",
+      "source_type": "Sovereign country",
+      "territory": "SR",
+      "region": "tropical_north_south_america_amazon"
+    },
+    {
+      "map_unit": "Svalbard Is.",
+      "source_dataset": "natural_earth_admin0_map_units_10m_5_1_1",
+      "source_type": "Dependency",
+      "territory": "SJ",
+      "region": "boreal_europe"
+    },
+    {
+      "map_unit": "Sweden",
+      "source_dataset": "natural_earth_admin0_map_units_10m_5_1_1",
+      "source_type": "Sovereign country",
+      "territory": "SE",
+      "region": "boreal_europe"
+    },
+    {
+      "map_unit": "Switzerland",
+      "source_dataset": "natural_earth_admin0_map_units_10m_5_1_1",
+      "source_type": "Sovereign country",
+      "territory": "CH",
+      "region": "temperate_europe"
+    },
+    {
+      "map_unit": "Syria",
+      "source_dataset": "natural_earth_admin0_map_units_10m_5_1_1",
+      "source_type": "Geo unit",
+      "territory": "SY",
+      "region": "middle_east_arabia"
+    },
+    {
+      "map_unit": "São Tomé and Principe",
+      "source_dataset": "natural_earth_admin0_map_units_10m_5_1_1",
+      "source_type": "Sovereign country",
+      "territory": "ST",
+      "region": "west_central_tropical_africa"
+    },
+    {
+      "map_unit": "Taiwan",
+      "source_dataset": "natural_earth_admin0_map_units_10m_5_1_1",
+      "source_type": "Sovereign country",
+      "region": "temperate_east_asia"
+    },
+    {
+      "map_unit": "Tajikistan",
+      "source_dataset": "natural_earth_admin0_map_units_10m_5_1_1",
+      "source_type": "Sovereign country",
+      "territory": "TJ",
+      "region": "central_asia"
+    },
+    {
+      "map_unit": "Tanzania",
+      "source_dataset": "natural_earth_admin0_map_units_10m_5_1_1",
+      "source_type": "Sovereign country",
+      "territory": "TZ",
+      "region": "east_africa"
+    },
+    {
+      "map_unit": "Thailand",
+      "source_dataset": "natural_earth_admin0_map_units_10m_5_1_1",
+      "source_type": "Sovereign country",
+      "territory": "TH",
+      "region": "mainland_southeast_asia"
+    },
+    {
+      "map_unit": "Timor-Leste",
+      "source_dataset": "natural_earth_admin0_map_units_10m_5_1_1",
+      "source_type": "Sovereign country",
+      "territory": "TL",
+      "region": "insular_southeast_asia"
+    },
+    {
+      "map_unit": "Togo",
+      "source_dataset": "natural_earth_admin0_map_units_10m_5_1_1",
+      "source_type": "Sovereign country",
+      "territory": "TG",
+      "region": "west_central_tropical_africa"
+    },
+    {
+      "map_unit": "Tokelau",
+      "source_dataset": "natural_earth_admin0_map_units_10m_5_1_1",
+      "source_type": "Geo unit",
+      "territory": "TK",
+      "region": "new_zealand_pacific"
+    },
+    {
+      "map_unit": "Tonga",
+      "source_dataset": "natural_earth_admin0_map_units_10m_5_1_1",
+      "source_type": "Sovereign country",
+      "territory": "TO",
+      "region": "new_zealand_pacific"
+    },
+    {
+      "map_unit": "Trinidad and Tobago",
+      "source_dataset": "natural_earth_admin0_map_units_10m_5_1_1",
+      "source_type": "Sovereign country",
+      "territory": "TT",
+      "region": "caribbean"
+    },
+    {
+      "map_unit": "Tunisia",
+      "source_dataset": "natural_earth_admin0_map_units_10m_5_1_1",
+      "source_type": "Sovereign country",
+      "territory": "TN",
+      "region": "maghreb_sahara"
+    },
+    {
+      "map_unit": "Turkey",
+      "source_dataset": "natural_earth_admin0_map_units_10m_5_1_1",
+      "source_type": "Sovereign country",
+      "territory": "TR",
+      "region": "middle_east_arabia"
+    },
+    {
+      "map_unit": "Turkmenistan",
+      "source_dataset": "natural_earth_admin0_map_units_10m_5_1_1",
+      "source_type": "Sovereign country",
+      "territory": "TM",
+      "region": "central_asia"
+    },
+    {
+      "map_unit": "Turks and Caicos Is.",
+      "source_dataset": "natural_earth_admin0_map_units_10m_5_1_1",
+      "source_type": "Dependency",
+      "territory": "TC",
+      "region": "caribbean"
+    },
+    {
+      "map_unit": "Tuvalu",
+      "source_dataset": "natural_earth_admin0_map_units_10m_5_1_1",
+      "source_type": "Sovereign country",
+      "territory": "TV",
+      "region": "new_zealand_pacific"
+    },
+    {
+      "map_unit": "U.S. Virgin Is.",
+      "source_dataset": "natural_earth_admin0_map_units_10m_5_1_1",
+      "source_type": "Dependency",
+      "territory": "VI",
+      "region": "caribbean"
+    },
+    {
+      "map_unit": "UNDOF Zone",
+      "source_dataset": "natural_earth_admin0_map_units_10m_5_1_1",
+      "source_type": "Overlay",
+      "territory": "XD",
+      "region": "middle_east_arabia"
+    },
+    {
+      "map_unit": "USNB Guantanamo Bay",
+      "source_dataset": "natural_earth_admin0_map_units_10m_5_1_1",
+      "source_type": "Lease",
+      "region": "caribbean"
+    },
+    {
+      "map_unit": "Uganda",
+      "source_dataset": "natural_earth_admin0_map_units_10m_5_1_1",
+      "source_type": "Sovereign country",
+      "territory": "UG",
+      "region": "east_africa"
+    },
+    {
+      "map_unit": "Ukraine",
+      "source_dataset": "natural_earth_admin0_map_units_10m_5_1_1",
+      "source_type": "Sovereign country",
+      "territory": "UA",
+      "region": "eastern_europe_steppe"
+    },
+    {
+      "map_unit": "United Arab Emirates",
+      "source_dataset": "natural_earth_admin0_map_units_10m_5_1_1",
+      "source_type": "Sovereign country",
+      "territory": "AE",
+      "region": "middle_east_arabia"
+    },
+    {
+      "map_unit": "United States of America",
+      "source_dataset": "natural_earth_admin0_map_units_10m_5_1_1",
+      "source_type": "Country",
+      "territory": "US",
+      "region": "temperate_boreal_north_america"
+    },
+    {
+      "map_unit": "Uruguay",
+      "source_dataset": "natural_earth_admin0_map_units_10m_5_1_1",
+      "source_type": "Sovereign country",
+      "territory": "UY",
+      "region": "andes_southern_south_america"
+    },
+    {
+      "map_unit": "Uzbekistan",
+      "source_dataset": "natural_earth_admin0_map_units_10m_5_1_1",
+      "source_type": "Sovereign country",
+      "territory": "UZ",
+      "region": "central_asia"
+    },
+    {
+      "map_unit": "Vanuatu",
+      "source_dataset": "natural_earth_admin0_map_units_10m_5_1_1",
+      "source_type": "Sovereign country",
+      "territory": "VU",
+      "region": "new_zealand_pacific"
+    },
+    {
+      "map_unit": "Vatican",
+      "source_dataset": "natural_earth_admin0_map_units_10m_5_1_1",
+      "source_type": "Sovereign country",
+      "territory": "VA",
+      "region": "mediterranean_europe"
+    },
+    {
+      "map_unit": "Venezuela",
+      "source_dataset": "natural_earth_admin0_map_units_10m_5_1_1",
+      "source_type": "Sovereign country",
+      "territory": "VE",
+      "region": "tropical_north_south_america_amazon"
+    },
+    {
+      "map_unit": "Vietnam",
+      "source_dataset": "natural_earth_admin0_map_units_10m_5_1_1",
+      "source_type": "Sovereign country",
+      "territory": "VN",
+      "region": "mainland_southeast_asia"
+    },
+    {
+      "map_unit": "Vojvodina",
+      "source_dataset": "natural_earth_admin0_map_units_10m_5_1_1",
+      "source_type": "Geo unit",
+      "region": "eastern_europe_steppe"
+    },
+    {
+      "map_unit": "W. Sahara",
+      "source_dataset": "natural_earth_admin0_map_units_10m_5_1_1",
+      "source_type": "Indeterminate",
+      "territory": "EH",
+      "region": "maghreb_sahara",
+      "boundary_status": "disputed_de_facto_geometry"
+    },
+    {
+      "map_unit": "Wake Atoll",
+      "source_dataset": "natural_earth_admin0_map_units_10m_5_1_1",
+      "source_type": "Geo unit",
+      "region": "new_zealand_pacific"
+    },
+    {
+      "map_unit": "Wales",
+      "source_dataset": "natural_earth_admin0_map_units_10m_5_1_1",
+      "source_type": "Geo unit",
+      "region": "temperate_europe"
+    },
+    {
+      "map_unit": "Wallis and Futuna Is.",
+      "source_dataset": "natural_earth_admin0_map_units_10m_5_1_1",
+      "source_type": "Dependency",
+      "territory": "WF",
+      "region": "new_zealand_pacific"
+    },
+    {
+      "map_unit": "Walloon",
+      "source_dataset": "natural_earth_admin0_map_units_10m_5_1_1",
+      "source_type": "Geo unit",
+      "region": "temperate_europe"
+    },
+    {
+      "map_unit": "West Bank",
+      "source_dataset": "natural_earth_admin0_map_units_10m_5_1_1",
+      "source_type": "Geo unit",
+      "region": "middle_east_arabia",
+      "boundary_status": "disputed_de_facto_geometry"
+    },
+    {
+      "map_unit": "Yemen",
+      "source_dataset": "natural_earth_admin0_map_units_10m_5_1_1",
+      "source_type": "Sovereign country",
+      "territory": "YE",
+      "region": "middle_east_arabia"
+    },
+    {
+      "map_unit": "Zambia",
+      "source_dataset": "natural_earth_admin0_map_units_10m_5_1_1",
+      "source_type": "Sovereign country",
+      "territory": "ZM",
+      "region": "southern_africa"
+    },
+    {
+      "map_unit": "Zanzibar",
+      "source_dataset": "natural_earth_admin0_map_units_10m_5_1_1",
+      "source_type": "Geo unit",
+      "region": "east_africa"
+    },
+    {
+      "map_unit": "Zimbabwe",
+      "source_dataset": "natural_earth_admin0_map_units_10m_5_1_1",
+      "source_type": "Sovereign country",
+      "territory": "ZW",
+      "region": "southern_africa"
+    },
+    {
+      "map_unit": "eSwatini",
+      "source_dataset": "natural_earth_admin0_map_units_10m_5_1_1",
+      "source_type": "Sovereign country",
+      "territory": "SZ",
+      "region": "southern_africa"
+    },
+    {
+      "map_unit": "Åland",
+      "source_dataset": "natural_earth_admin0_map_units_10m_5_1_1",
+      "source_type": "Country",
+      "territory": "AX",
+      "region": "boreal_europe"
+    }
+  ]
+}

@@ -26,7 +26,21 @@ private val Fraunces = FontFamily(
     Font(R.font.fraunces_italic_variable, weight = FontWeight.Normal, style = FontStyle.Italic),
 )
 
+// Baloo 2 is the chunky, high-weight "game" face. Used for the gamified Collection surface —
+// big collector numbers, rank/level moments, filter and region chips — where the app should
+// feel like a friendly explorer game rather than a reference book. Heavier than the body sans,
+// it carries the playful, weighty personality the collector screens ask for.
+private val Baloo = FontFamily(
+    Font(R.font.baloo2_variable, weight = FontWeight.Medium),
+    Font(R.font.baloo2_variable, weight = FontWeight.SemiBold),
+    Font(R.font.baloo2_variable, weight = FontWeight.Bold),
+    Font(R.font.baloo2_variable, weight = FontWeight.ExtraBold),
+)
+
 val DisplayFontFamily = Fraunces
+
+/** Chunky, high-weight display face for the gamified collector surfaces. */
+val GameFontFamily = Baloo
 
 val WildlifeTypography = Typography(
     displayLarge = TextStyle(

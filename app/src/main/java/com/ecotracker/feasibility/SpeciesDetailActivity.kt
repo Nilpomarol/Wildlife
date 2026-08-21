@@ -36,6 +36,9 @@ class SpeciesDetailActivity : ComponentActivity() {
                     onOpenObservation = { uuid ->
                         open("https://www.inaturalist.org/observations/$uuid")
                     },
+                    onSeeAllObservations = {
+                        startActivity(ObservationsActivity.intent(this, viewModel.uiState.taxonId))
+                    },
                     onOpenUrl = ::open,
                     onRetryMedia = viewModel::retryMedia,
                 )

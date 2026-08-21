@@ -1,13 +1,13 @@
-# Regles de progressió de Wildlife — Proposta provisional v0.1
+# Regles de progressió de Wildlife — Execució regional v0.2
 
-**Estat:** Proposta provisional interna implementada; requereix revisió de producte abans de la beta tancada  
-**Data:** 13 d’agost de 2026  
-**Autoritat:** `Wildlife_prd.md` continua sent el document de referència. Aquest fitxer explicita les regles de progressió incompletes i permet editar-les fàcilment.  
+**Estat:** Implementades per al desenvolupament intern; els valors d’XP continuen sent experimentals
+**Data:** 21 d’agost de 2026
+**Autoritat:** `Wildlife_prd.md` continua sent el document de referència. Aquest fitxer registra la configuració actual d’execució i les decisions editables abans del llançament.
 **Document original:** [`progression_rules.md`](progression_rules.md)
 
 > Aquesta versió està preparada per a la revisió en català. Les claus tècniques i els valors numèrics coincideixen amb el document original perquè els comentaris es puguin traslladar sense ambigüitats.
 
-**Implementació:** `ProgressionRules.kt` és la configuració centralitzada d’execució d’aquesta versió. L’esquema SQLite v4 conserva les claus i els punts existents i hi afegeix metadades tipades per a l’historial. El perfil mostra el nivell projectat, el progrés, les recompenses recents i els títols aconseguits seleccionables. Les mecàniques desactivades en aquest document no es mostren ni concedeixen recompenses.
+**Implementació:** `ProgressionRules.kt` implementa `progression-0.2-regional-experimental`. Afegeix esdeveniments regionals sense reescriure els existents. El contracte regional és a [`regional_catalogues.md`](regional_catalogues.md).
 
 ## 1. Com revisar aquesta proposta
 
@@ -24,18 +24,26 @@ Les regles utilitzen claus estables com ara `confirmed_observation` i `field_ran
 - Les projeccions de la col·lecció poden canviar, però l’XP registrada continua sent un fet històric.
 - Els nivells i les recompenses són cosmètics. No poden modificar la visibilitat d’una observació, l’estat científic, la confiança d’una coincidència ni l’accés a informació biològica.
 - La raresa, la verificació i l’estat d’observació continuen sent conceptes separats.
+- La raresa d’encontre, el prestigi regional Llegendari, l’estat de conservació i la verificació són quatre conceptes separats.
+- Una espècie només pot desbloquejar el catàleg de la regió on s’ha fet l’observació.
+- Una assignació regional incerta no concedeix XP regional.
 - Les observacions històriques importades durant la sincronització inicial desbloquegen la col·lecció, però en aquesta versió provisional no concedeixen XP retroactiva.
 - Un traspàs ambigu no concedeix res fins que l’usuari confirma explícitament l’observació pública coincident.
 
 ## 3. Configuració dels esdeveniments d’XP
 
-Aquestes claus i aquests valors són la font editable de la implementació provisional.
+Aquestes claus i aquests valors són la font editable de la implementació interna actual.
 
 | Clau de l’esdeveniment | Activador | XP | Actiu | Notes |
 |---|---|---:|---|---|
 | `confirmed_observation` | Una observació pública coincident es confirma explícitament a Wildlife | 10 | Sí | Coincideix amb el registre actual |
-| `first_species` | Primer tàxon de col·lecció confirmat a nivell d’espècie de l’usuari | 500 | Sí | Coincideix amb el registre actual; clau basada en l’ID del tàxon de col·lecció |
+| `first_species` | Primer tàxon confirmat a nivell d’espècie globalment | 500 | Sí | Esdeveniment existent i estable; conserva el valor actual |
 | `research_grade` | Una observació pública ja coneguda arriba per primera vegada a Grau de recerca | 50 | Sí | Activat després d’implementar la detecció duradora i idempotent de transicions de qualitat a l’esquema de cicle de vida v5 |
+| `regional_discovery` | Primer desbloqueig confirmat d’un tàxon a la regió de l’observació | 100 | Sí | Clau per regió, versió congelada i tàxon |
+| `regional_rarity_bonus` | Bonificació additiva de raresa d’encontre en el primer desbloqueig regional | 0–300 | Sí | Mai és un multiplicador |
+| `regional_legend` | Primer desbloqueig regional d’una espècie Llegendària curada manualment | 1.000 | Sí | Prestigi independent de la raresa d’encontre |
+| `regional_essentials_complete` | Completar les 10 espècies Essentials de la regió | 1.500 | Sí | Una recompensa per versió congelada |
+| `regional_icons_complete` | Completar les 5 espècies Icons de la regió | 3.000 | Sí | Una recompensa per versió congelada |
 | `identification_given` | Una identificació vàlida aportada a un altre usuari d’iNaturalist | 25 | No | v1.2; requereix camps d’origen validats, excloure les autoidentificacions i un límit diari |
 | `anomaly_confirmed` | Una observació fora de distribució supera la revisió i el retard requerits | 250 | No | Requereix un indicador de distribució versionat; no s’ha d’inferir només del Grau de recerca |
 
@@ -50,20 +58,33 @@ Actualment, l’aplicació concedeix `confirmed_observation` una vegada per cada
 | 3a | 5 |
 | 4a i següents | 0 |
 
-`first_species` i un futur esdeveniment `research_grade` són independents d’aquesta reducció. Una observació sense identificar o identificada només fins al gènere pot concedir l’XP base d’observació, però només concedeix `first_species` si una sincronització posterior proporciona un tàxon de col·lecció a nivell d’espècie i encara no existeix l’esdeveniment corresponent de primera espècie.
+`first_species` i `research_grade` són independents d’aquesta reducció. Una observació sense identificar o identificada només fins al gènere pot concedir l’XP base d’observació, però només concedeix `first_species` si una sincronització posterior proporciona un tàxon de col·lecció a nivell d’espècie i encara no existeix l’esdeveniment corresponent de primera espècie.
 
-### 3.2 Configuració de la raresa
+### 3.2 Configuració de la raresa d’encontre
 
-Els multiplicadors de raresa estan desactivats mentre el catàleg i el model de raresa estacional siguin provisionals.
+Les bonificacions de raresa estan activades per als catàlegs pilot inclosos. Són additives i només s’apliquen al primer desbloqueig regional.
 
-| Categoria de raresa | Multiplicador proposat sobre l’XP base | Actiu |
+| Raresa d’encontre | Bonificació del primer desbloqueig regional | Activa |
 |---|---:|---|
-| Comuna | ×1 | No |
-| Poc comuna | ×5 | No |
-| Rara | ×20 | No |
-| Llegendària | ×50 | No |
+| Comuna | +0 | Sí |
+| Poc comuna | +50 | Sí |
+| Rara | +150 | Sí |
+| Molt rara | +300 | Sí |
 
-Abans d’activar aquests valors, cal validar les regles del catàleg estacional i simular si les recompenses de raresa dominen excessivament la progressió per primeres espècies. La freqüència bruta d’observacions no es pot presentar com a raresa biològica.
+La freqüència bruta d’observacions no es pot presentar com a raresa biològica. El generador ha de prioritzar dies d’observació diferents i cobertura espacial, excloure registres accidentals del catàleg normal i permetre excepcions revisades amb una justificació.
+
+### 3.3 Prestigi regional Llegendari
+
+`legendary` és un indicador de prestigi regional curat manualment, no una cinquena categoria de raresa d’encontre. Permet que una espècie sigui fàcil de veure i alhora tingui un gran valor dins del joc. Per exemple, un elefant africà es pot mostrar com **Comú · Llegenda regional**, mentre que un facoquer comú continua sent **Comú · Estàndard**.
+
+Les Regional Icons i el prestigi Llegendari són independents: una Icon pot ser Estàndard, i qualsevol espècie del catàleg pot ser Llegendària. La recompensa es concedeix una vegada per regió, versió de catàleg i tàxon. Una espècie pot ser Llegendària en més d’una regió, però una observació només compta a la regió on s’ha fet.
+
+| Exemple | Observació | Primera espècie global | Descoberta regional | Raresa | Llegendària | Total |
+|---|---:|---:|---:|---:|---:|---:|
+| Espècie comuna estàndard, primera observació | 10 | 500 | 100 | 0 | 0 | 610 |
+| Llegenda regional comuna, primera observació | 10 | 500 | 100 | 0 | 1.000 | 1.610 |
+| Llegenda regional comuna ja vista en una altra regió | 10 | 0 | 100 | 0 | 1.000 | 1.110 |
+| Espècie molt rara estàndard, primera observació | 10 | 500 | 100 | 300 | 0 | 910 |
 
 ## 4. Configuració dels nivells
 
@@ -91,27 +112,25 @@ progrés = (XP total - llindar actual) / (llindar següent - llindar actual)
 
 El progrés es limita a l’interval `0…1`. Al nivell més alt, es mostra l’XP total acumulada sense inventar un objectiu següent.
 
-### 4.2 Exemples de ritme de la proposta
+### 4.2 Ritme experimental
 
-Suposant una observació recompensada per cada espècie nova i cap altra font d’XP:
+Exemples d’esdeveniments de l’execució actual, abans d’una possible recompensa posterior per Grau de recerca:
 
-| Espècies noves confirmades | XP aproximada | Nivell resultant |
-|---:|---:|---|
-| 0 | 0 | Turista |
-| 1 | 510 | Explorador/a |
-| 5 | 2.550 | Naturalista |
-| 15 | 7.650 | Rastrejador/a |
-| 40 | 20.400 | Guarda de camp |
-| 99 | 50.490 | Guarda expert/a |
-| 197 | 100.470 | Guarda llegendari/ària |
+| Escenari | XP concedida | Nivell d’un compte nou |
+|---|---:|---|
+| Primera espècie regional comuna | 610 | Explorador/a |
+| Primera espècie regional molt rara | 910 | Explorador/a |
+| Primera Llegenda regional comuna | 1.610 | Explorador/a |
+| Completar Essentials després de l’últim primer desbloqueig regional | +1.500 | Depèn de les descobertes anteriors |
+| Completar Icons després de l’últim primer desbloqueig regional | +3.000 | Depèn de les descobertes anteriors |
 
-Abans de la beta, aquests exemples s’han de simular amb comptes representatius petits, mitjans i molt actius.
+Aquests exemples no prediuen el ritme real perquè les descobertes regionals, la raresa, el prestigi Llegendari i els assoliments versionats estan actius. Abans del llançament cal simular històries de camp regionals realistes i revisar els llindars si el progrés és massa lent o massa ràpid. Els esdeveniments ja registrats no canvien quan es revisen valors o llindars.
 
 ## 5. Recompenses i desbloquejos
 
-La proposta provisional només concedeix títols de perfil. L’usuari pot mostrar qualsevol títol del nivell més alt que hagi assolit o d’un nivell inferior.
+L’execució actual només concedeix títols de perfil. L’usuari pot mostrar qualsevol títol del nivell més alt que hagi assolit o d’un nivell inferior.
 
-| Tipus de recompensa | Regla provisional |
+| Tipus de recompensa | Regla actual |
 |---|---|
 | Títol de perfil | Actiu; un títol per nivell assolit |
 | Temes o paletes de colors | Desactivats |
@@ -124,7 +143,7 @@ Si els llindars canvien després de l’inici de la beta, un compte no pot perdr
 
 ## 6. Configuració de medalles i ratxes
 
-Les medalles i les ratxes continuen desactivades per a l’MVP, d’acord amb l’abast de la versió v1.1 del full de ruta. Les propostes següents són candidates per revisar, no compromisos d’implementació:
+Les medalles genèriques i les ratxes continuen desactivades. Regional Essentials i Regional Icons són assoliments centrals actius i versionats separadament.
 
 | Clau candidata | Requisit proposat | Activa | Definició pendent |
 |---|---|---|---|
@@ -145,6 +164,11 @@ Claus d’idempotència proposades:
 observation:<UUID de l’observació>
 first_species:<ID del tàxon de col·lecció>
 research_grade:<UUID de l’observació>
+regional_discovery:<clau de regió>:<versió de catàleg>:<ID del tàxon>
+regional_rarity:<clau de regió>:<versió de catàleg>:<ID del tàxon>
+regional_legend:<clau de regió>:<versió de catàleg>:<ID del tàxon>
+regional_essentials:<clau de regió>:<versió de catàleg>
+regional_icons:<clau de regió>:<versió de catàleg>
 identification_given:<ID de la identificació>
 anomaly_confirmed:<UUID de l’observació>:<versió de les regles de distribució>
 ```
@@ -156,8 +180,9 @@ anomaly_confirmed:<UUID de l’observació>:<versió de les regles de distribuci
 - Desenllaçar el compte oculta la progressió personal, però no l’esborra silenciosament; l’eliminació explícita de dades locals és una acció de privacitat separada.
 - Un canvi taxonòmic pot modificar la posició dins de la col·lecció, però no elimina esdeveniments d’XP antics.
 - Una actualització de les regles recalcula els nivells a partir de l’XP total, però no modifica els imports dels esdeveniments existents.
+- Una actualització del catàleg pot recalcular el progrés visible, però no revoca XP regional històrica ni assoliments versionats.
 
-## 8. Contracte de la interfície provisional
+## 8. Contracte de la interfície actual
 
 La primera interfície de progressió pot mostrar:
 
@@ -172,9 +197,10 @@ No pot mostrar medalles, multiplicadors de raresa, ratxes ni recompenses «prope
 
 ## 9. Política de versions i revisions
 
-| Camp | Valor provisional |
+| Camp | Valor actual |
 |---|---|
-| Versió de les regles | `progression-0.1-placeholder` |
+| Regles actuals d’execució | `progression-0.2-regional-experimental` |
+| Regles planificades | Congelar una versió revisada per al llançament abans de la beta |
 | Públic previst | Desenvolupament intern i proves en dispositiu abans de la beta |
 | Garantia d’estabilitat dels llindars | Cap abans de la beta tancada |
 | Es permet reescriure el registre d’XP | Mai |
@@ -188,3 +214,5 @@ La implementació ha de centralitzar els esdeveniments actius, els valors d’XP
 | Data | Versió de les regles | Persona revisora | Resum de la decisió |
 |---|---|---|---|
 | 13 d’agost de 2026 | `progression-0.1-placeholder` | Proposta de Codex | Proposta provisional editable inicial; pendent de revisió de producte |
+| 21 d’agost de 2026 | `progression-0.2-regional` | Direcció de la persona responsable del producte | Mantenir Llegendari com a prestigi regional separat de la raresa d’encontre i afegir descobertes i assoliments regionals sense reescriure XP existent |
+| 21 d’agost de 2026 | `progression-0.2-regional-experimental` | Implementació interna | Activades les recompenses de descoberta regional, raresa, Llegendari i llistes amb valors elevats per a proves internes; es poden ajustar abans del llançament |

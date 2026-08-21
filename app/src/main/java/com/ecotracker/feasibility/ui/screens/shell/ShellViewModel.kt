@@ -6,6 +6,7 @@ import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.setValue
 import androidx.lifecycle.AndroidViewModel
 import com.wildlife.feasibility.AccountStore
+import com.wildlife.feasibility.ActiveCatalogueStore
 import com.wildlife.feasibility.CatalogueStore
 import com.wildlife.feasibility.CollectionProjection
 import com.wildlife.feasibility.CollectionSpecies
@@ -19,6 +20,7 @@ import com.wildlife.feasibility.ObservationQualityTransition
 import com.wildlife.feasibility.ProgressionProjection
 import com.wildlife.feasibility.ProgressionState
 import com.wildlife.feasibility.ProgressionStore
+import com.wildlife.feasibility.RegionalCatalogueAssetStore
 import com.wildlife.feasibility.VerifiedAccount
 
 data class HomeHighlight(
@@ -29,6 +31,16 @@ data class HomeHighlight(
     val researchGrade: Boolean,
     val observationCount: Int,
     val awaitingSpeciesIdentification: Boolean,
+)
+
+data class RegionalHomeProgress(
+    val displayName: String,
+    val observedSpecies: Int,
+    val totalSpecies: Int,
+    val essentialsObserved: Int,
+    val essentialsTotal: Int,
+    val iconsObserved: Int,
+    val iconsTotal: Int,
 )
 
 data class ShellUiState(
@@ -49,6 +61,7 @@ data class ShellUiState(
     val pendingHandoffs: Int = 0,
     val draftObservations: Int = 0,
     val localData: LocalDataInventory = LocalDataInventory(),
+    val regionalProgress: RegionalHomeProgress? = null,
     val errorMessage: String? = null,
 )
 
@@ -110,6 +123,33 @@ class ShellViewModel(application: Application) : AndroidViewModel(application) {
             )
         }
         val summary = account?.let { observationStore?.summary(it.userId) }
+        val regionalProgress = account?.let { verified ->
+            val content = RegionalCatalogueAssetStore(context)
+            val catalogues = content.catalogues()
+            val selected = ActiveCatalogueStore(context).selectedRegionKey()
+                .takeIf { key -> catalogues.any { it.regionKey == key } }
+                ?.let { key -> catalogues.first { it.regionKey == key } }
+                ?: catalogues.firstOrNull()
+            selected?.let { catalogue ->
+                val observedTaxa = observations.filter { observation ->
+                    observationStore?.observationRegion(verified.userId, observation.uuid)?.let { assignment ->
+                        assignment.earnsRegionalProgress && assignment.regionKey == catalogue.regionKey
+                    } == true
+                }.mapNotNull { it.collectionTaxonId ?: it.taxonId }.toSet()
+                val achievements = content.achievements(catalogue.regionKey).associateBy { it.label }
+                val essentials = achievements["essentials"]?.taxonIds.orEmpty()
+                val icons = achievements["icons"]?.taxonIds.orEmpty()
+                RegionalHomeProgress(
+                    displayName = catalogue.displayName,
+                    observedSpecies = observedTaxa.intersect(content.taxa(catalogue.regionKey).map { it.taxonId }.toSet()).size,
+                    totalSpecies = content.taxa(catalogue.regionKey).size,
+                    essentialsObserved = observedTaxa.intersect(essentials).size,
+                    essentialsTotal = essentials.size,
+                    iconsObserved = observedTaxa.intersect(icons).size,
+                    iconsTotal = icons.size,
+                )
+            }
+        }
         val progression = account?.let {
             ProgressionProjection.project(
                 totalXp = summary?.totalXp ?: 0,
@@ -152,6 +192,7 @@ class ShellViewModel(application: Application) : AndroidViewModel(application) {
             },
             draftObservations = markers.count { it.state == MarkerState.CAPTURED },
             localData = LocalDataManager(context).inventory(),
+            regionalProgress = regionalProgress,
         )
         observationStore?.close()
         state

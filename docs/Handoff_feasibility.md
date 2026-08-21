@@ -1,12 +1,12 @@
 # Android handoff feasibility
 
-**Status:** Product flow implemented; Gate 1 field matrix remains open, 13 August 2026
+**Status:** Gate 1 passed by product-owner decision after one week of field testing, 21 August 2026
 
 ## Current app state
 
 The original feasibility prototype has been retained and developed into the current Android app. Capture and the post-handoff return/reward flow now use Field Guide Classic Compose. The implementation supports camera and gallery drafts, private camera media, EXIF inspection and repair, same-sighting validation, official-app handoff, explicit submitted/not-submitted return state, public-API retries, candidate inspection, explicit confirmation, local-only deletion, no-app fallback and a reward moment gated by a confirmed public observation.
 
-This implementation progress does not close Gate 1. The remaining question is whether matching and recovery are reliable in real field conditions, not whether the screens and state machine exist.
+The product owner subsequently used the app for one week and accepted the real handoff, EXIF, single/multiple-photo, delayed/offline recovery and matching behavior as sufficient to proceed. This closes Gate 1 as a product go decision. Closed beta still needs a larger reliability sample and must continue recording ambiguity and false matches.
 
 ## Proven
 
@@ -20,9 +20,9 @@ This implementation progress does not close Gate 1. The remaining question is wh
 - Public-user retrieval was validated live without OAuth: an exact username resolved to its immutable user ID and all 89/89 public observations were returned with taxon, date, quality grade, observation ID and URL.
 - The tester confirmed the real handoff-to-published-observation flow and later public retrieval both work. Public API propagation is delayed, so Wildlife keeps the marker pending and retries with backoff.
 
-The automated disposable-photo validation did not upload an observation. A separate tester-controlled real observation confirmed the end-to-end public retrieval path. The Compose implementation and automated candidate tests are stronger than the available field evidence, so the unproven cases below remain release decisions rather than polish items.
+The automated disposable-photo validation did not upload an observation. A separate tester-controlled real observation confirmed the end-to-end public retrieval path, followed by the product owner's one-week field acceptance. The cases below remain important beta measurements rather than Gate 1 blockers.
 
-## Not yet proven
+## Accepted for Gate 1; continue measuring in beta
 
 - A completed real camera capture preserves usable timestamp and location EXIF.
 - Single-photo handoff behaves correctly end to end.
@@ -31,9 +31,9 @@ The automated disposable-photo validation did not upload an observation. A separ
 
 ## Decision
 
-Keep Gate 1 open. One-observation Android handoff is viable and its product flow is implemented; reliable real-world correlation and offline recovery remain the main risks. Do not treat the completed reward UI as evidence that the handoff itself is reliable.
+Proceed past Gate 1. One-observation Android handoff is viable and the field-tested product flow is sufficient for continued development. This does not permit automatic confirmation of ambiguity and does not replace Gate 2 reliability targets.
 
-## Next validation
+## Closed-beta validation
 
 Run a small manual field matrix using a consenting test account:
 

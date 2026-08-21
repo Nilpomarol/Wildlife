@@ -1,0 +1,75 @@
+# Regional identity source. Stable keys are runtime identifiers; display names are localised copy.
+schema_version: 1
+regions:
+  - key: mediterranean_europe
+    order: 1
+    names: { en: Mediterranean Europe, ca: Europa mediterrània, es: Europa mediterránea }
+  - key: temperate_europe
+    order: 2
+    names: { en: Temperate Europe, ca: Europa temperada, es: Europa templada }
+  - key: boreal_europe
+    order: 3
+    names: { en: Boreal Europe, ca: Europa boreal, es: Europa boreal }
+  - key: eastern_europe_steppe
+    order: 4
+    names: { en: Eastern Europe / Steppe, ca: Europa oriental / estepa, es: Europa oriental / estepa }
+  - key: siberia_boreal_asia
+    order: 5
+    names: { en: Siberia and Boreal Asia, ca: Sibèria i Àsia boreal, es: Siberia y Asia boreal }
+  - key: maghreb_sahara
+    order: 6
+    names: { en: Maghreb and Sahara, ca: Magrib i Sàhara, es: Magreb y Sáhara }
+  - key: sahel
+    order: 7
+    names: { en: Sahel, ca: Sahel, es: Sahel }
+  - key: west_central_tropical_africa
+    order: 8
+    names: { en: West / Central Tropical Africa, ca: Àfrica tropical occidental / central, es: África tropical occidental / central }
+  - key: east_africa
+    order: 9
+    names: { en: East Africa, ca: Àfrica oriental, es: África oriental }
+  - key: southern_africa
+    order: 10
+    names: { en: Southern Africa, ca: Àfrica meridional, es: África meridional }
+  - key: madagascar_west_indian_ocean
+    order: 11
+    names: { en: Madagascar and Western Indian Ocean, ca: Madagascar i oceà Índic occidental, es: Madagascar y océano Índico occidental }
+  - key: middle_east_arabia
+    order: 12
+    names: { en: Middle East and Arabia, ca: Orient Mitjà i Aràbia, es: Oriente Medio y Arabia }
+  - key: central_asia
+    order: 13
+    names: { en: Central Asia, ca: Àsia central, es: Asia central }
+  - key: indian_subcontinent
+    order: 14
+    names: { en: Indian Subcontinent, ca: Subcontinent indi, es: Subcontinente indio }
+  - key: temperate_east_asia
+    order: 15
+    names: { en: Temperate East Asia, ca: Àsia oriental temperada, es: Asia oriental templada }
+  - key: mainland_southeast_asia
+    order: 16
+    names: { en: Mainland Southeast Asia, ca: Sud-est asiàtic continental, es: Sudeste Asiático continental }
+  - key: insular_southeast_asia
+    order: 17
+    names: { en: Insular Southeast Asia, ca: Sud-est asiàtic insular, es: Sudeste Asiático insular }
+  - key: australasia
+    order: 18
+    names: { en: Australasia, ca: Australàsia, es: Australasia }
+  - key: new_zealand_pacific
+    order: 19
+    names: { en: New Zealand and Pacific, ca: Nova Zelanda i Pacífic, es: Nueva Zelanda y Pacífico }
+  - key: temperate_boreal_north_america
+    order: 20
+    names: { en: Temperate / Boreal North America, ca: Amèrica del Nord temperada / boreal, es: América del Norte templada / boreal }
+  - key: mesoamerica
+    order: 21
+    names: { en: Mesoamerica, ca: Mesoamèrica, es: Mesoamérica }
+  - key: caribbean
+    order: 22
+    names: { en: Caribbean, ca: Carib, es: Caribe }
+  - key: tropical_north_south_america_amazon
+    order: 23
+    names: { en: Tropical Northern South America / Amazon, ca: Nord tropical d'Amèrica del Sud / Amazònia, es: Norte tropical de Sudamérica / Amazonia }
+  - key: andes_southern_south_america
+    order: 24
+    names: { en: Andes and Southern South America, ca: Andes i sud d'Amèrica del Sud, es: Andes y sur de Sudamérica }

@@ -1,0 +1,57 @@
+{
+  "schema_version": 1,
+  "regions": {
+    "mediterranean_europe": {
+      "places": [
+        { "id": 6774, "name": "Spain" },
+        { "id": 7122, "name": "Portugal" },
+        { "id": 6973, "name": "Italy" },
+        { "id": 7094, "name": "Greece" },
+        { "id": 8196, "name": "Croatia" },
+        { "id": 8505, "name": "Albania" },
+        { "id": 8859, "name": "Montenegro" },
+        { "id": 8240, "name": "Malta" },
+        { "id": 10289, "name": "Cyprus" }
+      ],
+      "groups": [
+        { "key": "mammals", "taxon_id": 40151, "target": 120 },
+        { "key": "birds", "taxon_id": 3, "target": 360 },
+        { "key": "reptiles", "taxon_id": 26036, "target": 110 },
+        { "key": "fish", "taxon_id": 47178, "target": 150 },
+        { "key": "amphibians", "taxon_id": 20978, "target": 60 }
+      ]
+    },
+    "east_africa": {
+      "places": [
+        { "id": 6846, "name": "Ethiopia" }, { "id": 7042, "name": "Kenya" },
+        { "id": 6968, "name": "Uganda" }, { "id": 7144, "name": "Tanzania" },
+        { "id": 7142, "name": "Rwanda" }, { "id": 7106, "name": "Burundi" },
+        { "id": 51754, "name": "South Sudan" }
+      ],
+      "groups": [
+        { "key": "mammals", "taxon_id": 40151, "target": 160 },
+        { "key": "birds", "taxon_id": 3, "target": 420 },
+        { "key": "reptiles", "taxon_id": 26036, "target": 110 },
+        { "key": "fish", "taxon_id": 47178, "target": 160 },
+        { "key": "amphibians", "taxon_id": 20978, "target": 80 }
+      ]
+    },
+    "caribbean": {
+      "places": [
+        { "id": 6944, "name": "Cuba" }, { "id": 8748, "name": "Jamaica" },
+        { "id": 7526, "name": "Haiti" }, { "id": 6931, "name": "Dominican Republic" },
+        { "id": 7313, "name": "Bahamas" }, { "id": 6848, "name": "Puerto Rico" },
+        { "id": 10319, "name": "United States Virgin Islands" },
+        { "id": 10318, "name": "British Virgin Islands" }, { "id": 10281, "name": "Anguilla" },
+        { "id": 8177, "name": "Guadeloupe" }, { "id": 10305, "name": "Martinique" }
+      ],
+      "groups": [
+        { "key": "mammals", "taxon_id": 40151, "target": 100 },
+        { "key": "birds", "taxon_id": 3, "target": 330 },
+        { "key": "reptiles", "taxon_id": 26036, "target": 130 },
+        { "key": "fish", "taxon_id": 47178, "target": 180 },
+        { "key": "amphibians", "taxon_id": 20978, "target": 70 }
+      ]
+    }
+  }
+}

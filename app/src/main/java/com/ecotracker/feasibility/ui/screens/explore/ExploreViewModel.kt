@@ -7,19 +7,23 @@ import androidx.compose.runtime.setValue
 import androidx.lifecycle.AndroidViewModel
 import androidx.lifecycle.viewModelScope
 import com.wildlife.feasibility.AccountStore
-import com.wildlife.feasibility.CatalogueSnapshot
 import com.wildlife.feasibility.CataloguePhotoPolicy
 import com.wildlife.feasibility.CatalogueStore
 import com.wildlife.feasibility.CollectionProjection
+import com.wildlife.feasibility.ActiveCatalogueStore
+import com.wildlife.feasibility.InstalledRegionalCatalogue
+import com.wildlife.feasibility.InstalledRegionalTaxon
 import com.wildlife.feasibility.NearbySpecies
 import com.wildlife.feasibility.ObservationStore
 import com.wildlife.feasibility.OnDeviceWildlifeRepository
+import com.wildlife.feasibility.RegionalCatalogueAssetStore
 import com.wildlife.feasibility.SyncedObservation
 import com.wildlife.feasibility.TaxonDetails
 import com.wildlife.feasibility.ui.components.SpeciesCardModel
 import com.wildlife.feasibility.ui.components.SpeciesCardPhotoKind
 import com.wildlife.feasibility.ui.components.SpeciesCardPhotoCandidate
 import com.wildlife.feasibility.ui.components.SpeciesCardStatus
+import com.wildlife.feasibility.ui.screens.collection.taxonGroupFor
 import com.wildlife.feasibility.ui.screens.map.PersonalObservationMap
 import com.wildlife.feasibility.ui.screens.map.PersonalObservationMapProjection
 import kotlinx.coroutines.Dispatchers
@@ -35,14 +39,20 @@ data class ExploreSpecies(
     val card: SpeciesCardModel,
 )
 
+/** The frozen regional content pack currently used by Explore. */
+data class RegionalExploreCatalogue(
+    val regionKey: String,
+    val displayName: String,
+    val version: String,
+    val speciesCount: Int,
+)
+
 data class ExploreUiState(
-    val snapshot: CatalogueSnapshot? = null,
+    val activeCatalogue: RegionalExploreCatalogue? = null,
     val entries: List<ExploreSpecies> = emptyList(),
     val accountLinked: Boolean = false,
     val personalMap: PersonalObservationMap = PersonalObservationMapProjection.build(emptyList()),
     val nearby: NearbyDiscoveryState = NearbyDiscoveryState(),
-    val syncing: Boolean = false,
-    val silhouetteEnrichmentRunning: Boolean = false,
     val errorMessage: String? = null,
 ) {
     val observedCount: Int get() = entries.count(ExploreSpecies::observed)
@@ -57,8 +67,9 @@ data class NearbyDiscoveryState(
 )
 
 internal object ExploreProjection {
+    /** Kept for the legacy snapshot tests and detail-cache migration. */
     fun entries(
-        snapshot: CatalogueSnapshot?,
+        snapshot: com.wildlife.feasibility.CatalogueSnapshot?,
         observations: List<SyncedObservation>,
         detailsByTaxon: Map<Long, TaxonDetails> = emptyMap(),
     ): List<ExploreSpecies> {
@@ -155,6 +166,58 @@ internal object ExploreProjection {
                     silhouetteFallbackUrl = (details?.silhouetteUrl ?: species.silhouetteUrl)
                         ?.takeIf { it != silhouetteUrl },
                     silhouetteMatchRank = silhouetteMatchRank,
+                    fallbackSilhouetteGroup = species.taxonGroup,
+                    supportingTextItalic = true,
+                    status = status,
+                ),
+            )
+        }
+    }
+
+    fun regionalEntries(
+        taxa: List<InstalledRegionalTaxon>,
+        observations: List<SyncedObservation>,
+        detailsByTaxon: Map<Long, TaxonDetails> = emptyMap(),
+    ): List<ExploreSpecies> {
+        val collectionByTaxon = CollectionProjection.species(observations)
+            .mapNotNull { entry -> entry.taxonId?.let { it to entry } }
+            .toMap()
+        return taxa.map { taxon ->
+            val collected = collectionByTaxon[taxon.taxonId]
+            val details = detailsByTaxon[taxon.taxonId]
+            val detailPhoto = details?.let(CataloguePhotoPolicy::detailUrl)
+            val personalPhoto = collected?.photoUrl
+            val referencePhoto = detailPhoto?.let { details?.photoLocalUri ?: it }
+            val displayedPhoto = if (collected != null) personalPhoto ?: referencePhoto else null
+            val status = when {
+                collected?.bestQualityGrade == "research" -> SpeciesCardStatus.RESEARCH_GRADE
+                collected != null -> SpeciesCardStatus.OBSERVED
+                else -> SpeciesCardStatus.NONE
+            }
+            val silhouetteUrl = details?.silhouetteLocalUri ?: details?.silhouetteUrl
+            ExploreSpecies(
+                taxonId = taxon.taxonId,
+                taxonGroup = taxonGroupFor(taxon.taxonClass),
+                commonName = taxon.commonName,
+                scientificName = taxon.scientificName,
+                observed = collected != null,
+                card = SpeciesCardModel(
+                    key = "taxon:${taxon.taxonId}",
+                    label = taxon.commonName,
+                    supportingText = taxon.scientificName,
+                    photoUrl = displayedPhoto,
+                    photoKind = when {
+                        displayedPhoto == null -> null
+                        displayedPhoto == personalPhoto -> SpeciesCardPhotoKind.PERSONAL
+                        else -> SpeciesCardPhotoKind.REFERENCE
+                    },
+                    photoAttribution = if (displayedPhoto == referencePhoto) {
+                        details?.let(CataloguePhotoPolicy::attribution)
+                    } else null,
+                    silhouetteUrl = silhouetteUrl,
+                    silhouetteFallbackUrl = details?.silhouetteUrl?.takeIf { it != silhouetteUrl },
+                    silhouetteMatchRank = details?.silhouetteMatchRank,
+                    fallbackSilhouetteGroup = taxonGroupFor(taxon.taxonClass),
                     supportingTextItalic = true,
                     status = status,
                 ),
@@ -177,19 +240,8 @@ class ExploreViewModel(application: Application) : AndroidViewModel(application)
     private var nearbyState = NearbyDiscoveryState()
     var uiState by mutableStateOf(loadLocal())
         private set
-    private var silhouetteEnrichmentInFlight = false
-
-    init {
-        enrichSilhouettesIfNeeded()
-    }
-
     fun refreshLocal() {
-        if (!uiState.syncing) {
-            uiState = loadLocal().copy(
-                silhouetteEnrichmentRunning = silhouetteEnrichmentInFlight,
-            )
-            enrichSilhouettesIfNeeded()
-        }
+        uiState = loadLocal()
     }
 
     fun setObservationMapVisible(observationUuid: String, visible: Boolean) {
@@ -200,33 +252,7 @@ class ExploreViewModel(application: Application) : AndroidViewModel(application)
                     it.setObservationMapVisible(account, observationUuid, visible)
                 }
             }
-            uiState = loadLocal().copy(
-                silhouetteEnrichmentRunning = silhouetteEnrichmentInFlight,
-            )
-        }
-    }
-
-    fun syncCatalogue() {
-        if (uiState.syncing) return
-        uiState = uiState.copy(syncing = true, errorMessage = null)
-        viewModelScope.launch {
-            val result = runCatching {
-                withContext(Dispatchers.IO) {
-                    OnDeviceWildlifeRepository(getApplication()).use {
-                        it.syncCataloniaCatalogue(force = true)
-                    }
-                }
-            }
-            uiState = result.fold(
-                onSuccess = { loadLocal() },
-                onFailure = { error ->
-                    loadLocal().copy(
-                        errorMessage = "Update failed. The stored catalogue is still available. " +
-                            (error.message ?: "Try again later."),
-                    )
-                },
-            )
-            enrichSilhouettesIfNeeded()
+            uiState = loadLocal()
         }
     }
 
@@ -295,65 +321,47 @@ class ExploreViewModel(application: Application) : AndroidViewModel(application)
         }
     }
 
-    private fun enrichSilhouettesIfNeeded() {
-        val snapshot = uiState.snapshot ?: return
-        if (
-            snapshot.silhouettePipelineVersion ==
-            OnDeviceWildlifeRepository.SILHOUETTE_PIPELINE_VERSION
-        ) return
-        if (silhouetteEnrichmentInFlight) return
-        silhouetteEnrichmentInFlight = true
-        uiState = uiState.copy(silhouetteEnrichmentRunning = true)
-        viewModelScope.launch {
-            val result = runCatching {
-                withContext(Dispatchers.IO) {
-                    OnDeviceWildlifeRepository(getApplication()).use {
-                        it.enrichCatalogueSilhouettes()
-                    }
-                }
-            }
-            val completed = result.getOrNull()?.silhouettePipelineVersion ==
-                OnDeviceWildlifeRepository.SILHOUETTE_PIPELINE_VERSION
-            uiState = if (completed) {
-                loadLocal()
-            } else {
-                loadLocal().copy(
-                    errorMessage = "Some detailed silhouettes could not be stored. " +
-                        "The catalogue remains available with broader silhouettes.",
-                )
-            }
-            silhouetteEnrichmentInFlight = false
-        }
-    }
-
     private fun loadLocal(): ExploreUiState = runCatching {
         val context = getApplication<Application>()
-        val (snapshot, detailsByTaxon) = CatalogueStore(context).use { catalogueStore ->
-            catalogueStore.load() to catalogueStore.loadTaxonDetails()
-        }
+        val detailsByTaxon = CatalogueStore(context).use { it.loadTaxonDetails() }
+        val content = RegionalCatalogueAssetStore(context)
+        val catalogues = content.catalogues()
+        val selectedKey = ActiveCatalogueStore(context).selectedRegionKey()
+            .takeIf { key -> catalogues.any { it.regionKey == key } }
+            ?: catalogues.first().regionKey
+        val selected = catalogues.first { it.regionKey == selectedKey }
         val account = AccountStore(context).verified()
         val observationStore = account?.let { ObservationStore(context) }
         val observations = account?.let { observationStore?.observations(it.userId) }.orEmpty()
+        val regionalObservations = account?.let { linkedAccount ->
+            observations.filter { observation ->
+                observationStore?.observationRegion(linkedAccount.userId, observation.uuid)?.let { assignment ->
+                    assignment.earnsRegionalProgress && assignment.regionKey == selectedKey
+                } == true
+            }
+        }.orEmpty()
         val hiddenObservationUuids = account?.let {
             observationStore?.mapHiddenObservationUuids(it.userId)
         }.orEmpty()
         observationStore?.close()
         ExploreUiState(
-            snapshot = snapshot,
-            entries = ExploreProjection.entries(snapshot, observations, detailsByTaxon),
+            activeCatalogue = RegionalExploreCatalogue(
+                regionKey = selected.regionKey,
+                displayName = selected.displayName,
+                version = selected.version,
+                speciesCount = content.taxa(selectedKey).size,
+            ),
+            entries = ExploreProjection.regionalEntries(
+                taxa = content.taxa(selectedKey), observations = regionalObservations,
+                detailsByTaxon = detailsByTaxon,
+            ),
             accountLinked = account != null,
             personalMap = PersonalObservationMapProjection.build(
                 observations = observations,
                 hiddenObservationUuids = hiddenObservationUuids,
             ),
             nearby = nearbyState,
-            errorMessage = when {
-                snapshot?.refreshInProgress == true ->
-                    "The previous catalogue refresh was interrupted. Your stored guide is intact."
-                snapshot?.lastRefreshErrorCode != null ->
-                    "The last catalogue refresh did not finish. Your stored guide is intact."
-                else -> null
-            },
+            errorMessage = null,
         )
     }.getOrElse { error ->
         ExploreUiState(

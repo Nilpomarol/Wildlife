@@ -1,0 +1,9 @@
+{
+  "schema_version": 1,
+  "boundary_version": "regional-boundaries-v1",
+  "source": "natural_earth_admin0_map_units_10m_5_1_1",
+  "source_feature_count": 298,
+  "regional_feature_count": 287,
+  "non_progressing_feature_count": 11,
+  "geojson": "regional-boundaries-v1.geojson"
+}

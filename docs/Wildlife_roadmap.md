@@ -1,231 +1,321 @@
 # Wildlife — Development Roadmap
 
-**Companion to:** PRD v4 (Permanent read-only)
-**Date:** August 2026
+**Companion to:** PRD v5 (Permanent read-only, regional expansion)
+**Date:** 21 August 2026
+**Planning basis:** Solo developer, part-time (~12–15 h/week). Effort days are more reliable than calendar dates.
 
----
+## 1. Product decision and current position
 
-## Planning assumptions
+Gate 1 is **passed**. After one week of field use, the product owner accepted the handoff, one/multiple-photo flow, delayed/offline recovery, public matching, catalogue/media viability, discovery quality and request posture as sufficient to continue.
 
-| Assumption | Value | If wrong |
-|---|---|---|
-| Team | Solo developer | Halve the calendar estimates for two people; the catalogue track parallelises best |
-| Availability | Part-time (~12–15 h/week) | One focused day means ~6 hours; calendar weeks remain illustrative |
-| Start | September 2026 | — |
-| Target public launch | Spring 2027 | Deliberately after winter — spring is when people go outside, and a nature app launching in November wastes its first impression |
-| iNaturalist access | Public, unauthenticated, read-only | The plan never assumes future OAuth approval |
+This is a go decision, not a statistical reliability claim. Closed beta still measures handoff completion, ambiguity, false matches, request volume and retention.
 
-Effort figures are the reliable ones. Calendar dates are illustrative.
+The project has also changed scope:
 
----
+- from a Catalonia-only MVP to an engine for 24 owner-defined world regions;
+- from rarity-only value to separate encounter rarity and regional Legendary prestige;
+- from a global species unlock projection to region-bound catalogue completion;
+- from generic later badges to two core curated achievements per region: 10 Regional Essentials and 5 Regional Icons;
+- from live catalogue construction toward deterministic, precomputed local content.
 
-## Critical path at a glance
+The adopted region definitions and content/data contract are in [`regional_catalogues.md`](regional_catalogues.md). The owner-supplied workbook's animal suggestions are not approved inputs and are ignored.
 
+## 2. Current implementation snapshot
+
+### Complete
+
+- Permanent read-only iNaturalist posture with official-app handoff.
+- Public bio-code account linking to immutable iNaturalist user ID.
+- On-device observation sync, SQLite caches and idempotent XP ledger.
+- Field Guide Classic Compose shell: Home, Collection, Capture, Explore and Profile.
+- Compose Collection, Explore/Near Me, Species Detail, Capture/reward and account flow.
+- One observation draft can contain multiple same-sighting photos.
+- EXIF inspection/repair, candidate matching, explicit confirmation and delayed retry.
+- Provisional 580-entry Catalonia catalogue and durable attributed media/silhouettes.
+- Foreground observation lifecycle sync including Research Grade transition rewards.
+- Coarse personal observation map with local visibility overrides.
+- Retained-data inventory, privacy-safe test report and deletion of Wildlife-owned local data.
+- Unit tests and debug build green as of the Gate 1 review.
+- Generated and bundled pilot catalogues for Mediterranean Europe, East Africa and the Caribbean, each with 10 Essentials and 5 Icons.
+- Local regional boundary assignment, region-bound collection/XP/achievements and active-region selection.
+- Regional Home progress, Explore guide/Near Me filtering and Species Detail context.
+
+### Implemented but provisional
+
+- The legacy Catalonia snapshot remains only a detail/media migration cache; product browsing uses the active bundled regional catalogue.
+- Pilot encounter rarity is generated from iNaturalist occurrence evidence and is explicitly draft/editorially revisable before release.
+- Level thresholds and global first-species XP are placeholder v0.1 rules.
+- The map basemap provider is a replaceable development dependency.
+- XP values and level thresholds are experimental internal-test tuning, not a release balance commitment.
+
+### Open product/engineering work
+
+- Observation management is mixed into Capture.
+- Multiple photos look like separate observations despite being handed off together.
+- The official iNaturalist app may require the user to reopen it/explicitly upload; Wildlife cannot control that process.
+- The remaining 21 regional catalogues, their reviewed evidence snapshots and final media curation are not yet available.
+- The supplied region groupings do not yet assign every country/territory or marine area unambiguously.
+- Rarity/prestige and Essentials/Icons are draft pilot curation; their values need continuing editorial review before release.
+- Structured export, localisation and broad accessibility/device validation remain before beta.
+
+## 3. Critical path
+
+```text
+Gate 1 GO
+   ↓
+Observation UX separation
+   ↓
+Regional rules + complete boundary manifest
+   ↓
+Catalogue authoring/generator
+   ↓
+Multi-region storage and observation assignment
+   ↓
+Regional collection + XP + achievements
+   ↓
+Regional/personal map layers
+   ↓
+Shared-component UI redesign
+   ↓
+Three-region closed beta
+   ↓
+Content scale-up to all 24 regions
 ```
-Feasibility ──► GATE 1 ──► Thin vertical slice ──► MVP ──► GATE 2 ──► Launch
-                                          ▲
-Catalogue curation ───────────────────────┘  (parallel, blocks launch not dev)
+
+Large-scale animal/media curation starts only after the generator produces deterministic output and useful diffs. The runtime targets 24 regions from the start; the first beta proves three curated regions.
+
+## 4. Phase A — Observation UX separation
+
+**Effort: 5–8 focused days**
+
+1. Add a focused Observations route, reached from Home and Species Detail.
+2. Move draft history, pending public confirmation, candidates, lifecycle status, retry, map visibility and local deletion out of Capture.
+3. Keep Capture limited to creating exactly one new observation.
+4. Present multiple photos as one observation container with a horizontal strip and “1 observation · N photos” copy.
+5. Add explicit “Open iNaturalist to finish uploading” recovery when a submitted handoff is still not public.
+6. Preserve the permanent read-only boundary: no edit/delete action for iNaturalist records.
+
+**Exit criteria:** Capture has one job; every persisted observation state is discoverable from Observations; single/multiple-photo, pending, ambiguous, offline and error states pass tests and device checks.
+
+## 5. Phase B — Regional foundation and authoring contract
+
+**Effort: 5–8 engineering days, plus owner review of region membership**
+
+1. Convert the 24 supplied region rows into stable keys and localised display names.
+2. Replace vague “related areas” wording with a complete ISO country/territory assignment manifest.
+3. Decide and encode transcontinental, dependent-territory, offshore/marine and uncovered-location policy.
+4. Acquire/review compatible local boundary data and record its source/licence/version.
+5. Freeze the catalogue inclusion rules: photographable vertebrates plus restrained conspicuous fish/invertebrates.
+6. Freeze the semantic separation:
+   - encounter rarity: Common / Uncommon / Rare / Very Rare;
+   - prestige: Standard / Legendary;
+   - verification: observed / Research Grade;
+   - conservation: sourced status only.
+
+**Exit criteria:** every supported land location resolves to exactly one region; uncertain/offshore handling is explicit; the same inputs can be reviewed without reading Android code.
+
+**Approved policy — 21 August 2026:** Turkey → Middle East and Arabia; Russia → Siberia and
+Boreal Asia; Egypt → Maghreb and Sahara; Kazakhstan → Central Asia. Marine points use only
+reviewed local offshore buffers; unmatched points are retained as `marine_worldwide` without
+land-region XP/completion until a curated marine catalogue exists. Antarctica and other
+uncovered land are retained personally but unsupported for regional progression. The Caribbean
+is the third pilot.
+
+## 6. Phase C — Catalogue toolchain
+
+**Effort: 7–12 focused days**
+
+Create developer-facing source manifests and a deterministic generator:
+
+```text
+catalogues/regions.yaml
+catalogues/boundaries/
+catalogues/taxa.yaml
+catalogues/regions/<region_key>/catalogue.yaml
+catalogues/regions/<region_key>/overrides.yaml
+catalogues/achievements.yaml
+catalogues/media_manifest.yaml
 ```
 
-Catalogue curation starts only after Gate 1 confirms that the catalogue and licensing model are viable. Community feedback starts during feasibility and continues throughout development.
+The toolchain must:
 
-## Current implementation snapshot — 13 August 2026
+- add/remove a regional species without an app-code edit;
+- set encounter rarity and a documented manual override;
+- mark Regional Legends;
+- curate exactly 10 Essentials and 5 Icons;
+- validate that achievement taxa belong to the catalogue;
+- deduplicate global taxon identity and reusable media;
+- require source/creator/licence metadata for reusable imagery;
+- generate a versioned SQLite catalogue and local boundary assets;
+- emit a human-readable diff and validation report;
+- fail deterministically on invalid IDs, duplicate regional ownership or incomplete manifests.
 
-The repository has advanced beyond the original phase boundaries, but Gate 1 remains open because implementation is not the same as field validation.
+**Exit criteria:** two runs from identical sources are logically deterministic; a one-species edit produces a small understandable diff; invalid achievements/licences fail the build.
 
-- The Android app is read-only with respect to iNaturalist and no longer depends on a Wildlife backend for its core loop.
-- A shared Field Guide Classic Compose shell provides Home, Collection, Capture, Explore and Profile.
-- Collection, Explore, Species Detail and Capture are implemented in Compose with explicit offline/error states, responsive grids and accessible image/state descriptions.
-- Capture supports camera and gallery drafts, EXIF inspection and repair, same-sighting validation, official-app handoff, submitted/not-submitted return handling, public-API retries, candidate inspection and explicit confirmation.
-- A confirmed public match updates the on-device collection and records confirmation/first-species XP idempotently before showing the reward moment.
-- Public observation, catalogue and taxon data are stored in SQLite. Catalogue replacement is transactional and reusable photo/silhouette files are stored durably with source, creator, licence and taxonomic match metadata.
-- The provisional Catalonia guide remains capped at 580 birds, mammals, reptiles, amphibians, butterflies and odonates. It is not the frozen launch catalogue and does not provide a trustworthy completion denominator or reviewed rarity model.
-- Account linking is implemented in themed Material 3 Compose with username entry, immutable user-ID resolution, bio-code instructions, clipboard/profile handoff, loading/error/expiry states, verification, public-profile access and unlink confirmation. Remaining diagnostic utilities may still use the older programmatic View UI until touched.
-- Placeholder levels, the first Profile progression surface, foreground Research Grade rewards, explicit “Near me” discovery and a coarse personal observations map over a real development basemap are implemented. Reviewed final progression thresholds, “what am I missing,” release basemap/provider approval, the curated multilingual release catalogue, privacy/export/deletion controls and the Gate 1 evidence pack remain incomplete.
+## 7. Phase D — Multi-region runtime migration
 
-The product-critical task remains the manual Gate 1 handoff/correlation matrix when field observations are practical. Account linking, placeholder progression, foreground observation lifecycle and the discovery/map foundation are implemented. The next coding slice is local privacy, export and deletion controls; catalogue freeze and field validation remain product/evidence tasks.
+**Effort: 10–18 focused days**
 
----
+1. Introduce `Region`, `CatalogueVersion`, `RegionalTaxon`, `RegionalAchievement` and `ObservationRegion` domain models.
+2. Migrate `CatalogueStore` from a default Catalonia load path to explicit region/version access.
+3. Keep global `TaxonDetails` and media deduplicated across catalogues.
+4. Add selected/active catalogue state with manual selection and optional explicit location suggestion.
+5. Implement local point-in-polygon observation assignment with boundary version and confidence.
+6. Never count an observation outside the assigned region toward that catalogue.
+7. Mark obscured/boundary-uncertain observations as `region_uncertain`; do not award progress/XP.
+8. Migrate current Catalonia development data into the Mediterranean Europe pilot without inventing completion.
 
-## Phase 0 — Feasibility
-**Effort: 7 days · Weeks 1–3 · Validation work; the resulting core has since been retained on device**
+**Exit criteria:** a species present in two catalogues unlocks only the observation's region; region switching works offline; boundary/version migrations preserve observations and ledger history.
 
-Unauthenticated API checks plus an Android handoff prototype. No OAuth permission is needed. The successful prototype has since been developed into the current on-device app, but its remaining real-world edge cases still require manual validation.
+## 8. Phase E — Regional progression and achievements
 
-**Handoff implementation status (13 August 2026):** the full Compose capture/return/confirmation/reward flow is implemented. One-observation transfer and later public-record retrieval are proven; propagation delay is handled as a pending state with retries. Real camera EXIF, offline recovery and ambiguous nearby matches remain field-validation gaps. See [Android handoff feasibility](Handoff_feasibility.md).
+**Effort: 7–12 focused days**
 
-| # | Question | Method |
-|---|---|---|
-| 1 | How many species does the Catalonia catalogue actually contain? | `species_counts?place_id=<CAT>&iconic_taxa=...` |
-| 2 | Is the rarity distribution playable, or a long tail nobody ever sees? | Histogram of observation counts |
-| 3 | Does "what am I missing here" return useful results? | `species_counts?unobserved_by_user_id=&lat=&lng=&radius=20` |
-| 4 | **What share of species have a compatible reference photo?** | Validate explicit licence, author, source URL and attribution metadata per asset |
-| 5 | Can one-observation handoffs with one/multiple photos be correlated reliably? | Android prototype: original metadata, cancellation, delayed/offline upload, obscured coordinates and ambiguous candidates |
-| 6 | Which public API version and fields support every feature? | Endpoint contract matrix with pagination, cacheability and failure tests |
-| 7 | What is the real upstream request cost per active user? | Replay representative small, medium and large accounts through a request-budget model |
-| 8 | What personal data is retained? | Data inventory, retention/deletion rules and location-minimisation review |
+Implement [`progression_rules.md`](progression_rules.md) v0.2:
 
-Questions 4–7 can change the product or its positioning; none may be treated as implementation detail.
+- retain all existing `progression-0.1-placeholder` ledger events unchanged;
+- keep global first-species reward at +500;
+- add first regional discovery (+100);
+- add additive rarity bonuses: +0 / +50 / +150 / +300;
+- add Regional Legend (+1,000) independently from rarity;
+- add Essentials completion (+1,500) and Icons completion (+3,000);
+- key every regional event by region, frozen catalogue version and taxon/checklist;
+- never revoke earned XP/achievements after catalogue or taxonomy changes;
+- resimulate levels against small, medium and highly active collections before freezing beta thresholds.
 
-### 🚦 Gate 1 — Go / adjust / rethink
+**Exit criteria:** a Common Legendary elephant is worth more than a Common Standard warthog without being labelled rare; retries never duplicate awards; an observation made in another region earns no progress here.
 
-| Signal | Threshold | Action if failed |
-|---|---|---|
-| Compatible photo coverage with complete attribution | **>70%** | 50–70%: manual Wikimedia curation for the gap, +2 weeks. Below 50%: redesign the visual collection |
-| Catalogue size | 400–1,200 species | Too small: widen taxonomic scope. Too large: narrow it |
-| "What am I missing" quality | Returns plausible, findable species | If dominated by obscure taxa, filter by minimum regional observation count |
-| Handoff correlation | Most cases auto-match; ambiguous cases can be confirmed safely | If not, make capture secondary and position the MVP as a companion dashboard |
-| Public API contract | Every MVP field has a tested read-only source | Remove or redesign unsupported features |
-| Request load | Sustainable per device with conservative pacing | Reduce background sync and ship more catalogue data preloaded |
+## 9. Phase F — Regional map and personal observations
 
-**Do not proceed past this gate without completing the checks and prototype.** Seven focused days can de-risk months of work.
+**Effort: 5–9 focused days**
 
----
+1. Add local 24-region polygons to the map.
+2. Use restrained olive intensity for completion.
+3. Use explicit gold marks/labels for Essentials and Icons completion.
+4. Keep the current coarse personal observation cells as a separately toggleable layer.
+5. Provide textual region status and an accessible legend; colour/effect is never the only state cue.
+6. Avoid continuous glow/animation; use a one-time completion transition only.
+7. Approve, replace or self-host the development basemap before release.
 
-## Phase 1 — Foundations
-**Effort: 24 days · Weeks 4–12**
+**Exit criteria:** the map remains useful without personal coordinates, remains privacy-safe with obscured data and exposes every state non-visually.
 
-Three tracks run in parallel after Gate 1.
+## 10. Phase G — Shared-component UI and navigation improvement
 
-### Track A — On-device data layer and vertical slice (15 days, critical path)
+**Effort: 10–18 focused days**
 
-Build in this order; each depends on the previous.
+Build shared foundations first:
 
-| # | Component | Effort |
-|---|---|---|
-| 1 | Versioned public API adapter, request pacing and durable cache | Implemented on-device: SQLite cache, UUID keys and conservative per-device pacing |
-| 2 | Bio-code linking to immutable iNaturalist user ID | Implemented and verified on device; no Wildlife account is required for core use |
-| 3 | Safe paginated sync and full local reconciliation | Implemented on-device with `id_above` pagination and replacement only after a complete fetch |
-| 4 | Idempotent XP event ledger and collection projections | Implemented for confirmed observations and first-species XP; level/badge presentation remains |
-| 5 | Thin end-to-end slice: link → handoff → sync → match/confirm → reward | Implemented in Compose and ready for the manual Gate 1 field matrix |
-| 6 | Local diagnostics, stale-data policy and regional cache | Partially implemented: durable regional/taxon caches and recoverable errors exist; dedicated diagnostics and policy documentation remain |
+- one reusable responsive `SpeciesGrid` for Collection, Explore and achievement lists;
+- `RegionSelector`;
+- `RegionalProgress` and map legend;
+- independent encounter-rarity and Legendary indicators;
+- observation row/tile and achievement card;
+- shared section headers, loading/empty/offline/error treatments.
 
-The app deliberately avoids frequent background polling. A separate service is deferred unless social, cross-device or competitive features require one.
+Then improve vertical slices in this order:
 
-### Track B — Catalogue curation (9 days, parallelisable, blocks launch)
+1. Collection — real selected region, completion and achievements.
+2. Home — current-region progress, Near Me, recent/pending observations, achievement progress and map summary.
+3. Observations — focused management experience.
+4. Species Detail — family/current facts, regional rarity/prestige, achievement membership, personal history and optional cached public distribution panel.
+5. Explore/Near Me — selected-region catalogue and missing-nearby filter.
+6. Map — region and observation layers.
+7. Profile/settings — progression, installed content, privacy/export and diagnostics.
 
-Build the versioned, curated catalogue dataset from the provisional scope-limited 580-entry snapshot: taxon identity and change mapping, scientific and vernacular names (ca/es/en), group, seasonal rarity tier and licence-verified reference image or silhouette with attribution. Output: a baseline SQLite catalogue plus an update strategy.
+The bottom destinations remain Home, Collection, Capture, Explore and Profile. Observations, Species Detail and Map are focused secondary routes.
 
-**Foundation implemented:** canonical Catalonia place ID `12997`; on-device Android SQLite snapshots; weekly refresh; offline name search; collection cross-reference; and explicit photo licence/attribution fields. The current 580-entry scope-limited research-grade occurrence snapshot is provisional. Remaining work is human-reviewed scope, multilingual completeness, seasonal rarity rules, conservation metadata, image licence approval and a preloaded release database.
+## 11. Phase H — Offline/local packaging
 
-It is dependency-light and blocks launch. Start it in week 4, after Gate 1.
+**Effort: 5–10 focused days**
 
-### Track C — Community review (ongoing, starts in Phase 0)
+- Bundle the global taxon core, all region definitions, boundaries, membership, rarity, prestige, achievements, localisation and compact thumbnails locally where size permits.
+- Deduplicate species/media shared by regions.
+- Keep user observation/cache/progression data local.
+- Package larger regional image sets as install-time, fast-follow or user-selected local packs rather than rebuilding catalogues from live APIs.
+- Keep high-resolution public distribution data and replaceable basemap tiles as online/cached enhancements.
+- Add storage inventory, pack version and removal controls without deleting user progression.
 
-Use iNaturalist normally and request feedback on data quality, gamification and API load. This is product-risk reduction, not preparation for OAuth.
+## 12. Phase I — Three-region closed beta
 
----
+**Effort: 8–12 focused days plus curation**
 
-## Phase 2 — Android MVP
-**Effort: 35 days · Weeks 13–25**
+Recommended pilots:
 
-Ordered riskiest-first, so that failure surfaces early.
+1. Mediterranean Europe — migration/current-user path.
+2. East Africa — validates easy-to-see Legendary fauna.
+3. Insular Southeast Asia or Caribbean — validates island/territory boundaries and endemism.
 
-| # | Feature | Current status | Remaining work |
-|---|---|---|---|
-| 1 | **Capture + one-observation handoff + matching/confirmation** | Implemented in Compose, including confirmed reward | Complete the manual Gate 1 field matrix and weekend-outing checkpoint |
-| 2 | Account linking flow | Implemented in themed Material 3 Compose with bio-code verification against the immutable public user ID, loading/error/expiry/unlink states, state previews and projection tests | Device/TalkBack validation and eventual localisation remain |
-| 3 | Sync + local database + offline/stale states | Implemented directly on device with SQLite, safe reconciliation and durable caches | Formalise stale-data/diagnostic policy; WorkManager remains deferred |
-| 4 | Field Guide Classic Compose foundation | Implemented | Continue reuse; do not create screen-specific design systems |
-| 5 | Pokédex and species detail | Implemented for Collection, provisional Explore and Species Detail | Curated release content, localisation and final device/accessibility validation remain |
-| 6 | XP, levels, progression UI | Placeholder v0.1 is implemented through centralized rules, lifetime-XP levels, weekly repeat diminishing returns, migrated ledger history, Profile progress/recent rewards, selectable earned titles and idempotent `+50 XP` when a known observation first reaches Research Grade | Product review and pacing simulation remain; rarity/badges/streaks stay disabled |
-| 7 | "What can I see here" / "what am I missing" | Explore contains Near me and Species guide. A dedicated My Map screen opens from Home and renders 0.1° personal cells over OpenFreeMap's Fiord vector basemap through MapLibre Native, with visible attribution and no offline prefetch | Validate discovery quality, add the linked-user missing-species filter, and approve or replace the development tile provider before release |
-| 8 | Onboarding, privacy controls, accessibility and polish | Core product screens include responsive grids, large-text previews and semantic state descriptions; Profile states the read-only boundary | Finish account/onboarding utilities, retained-data/export/deletion controls, localisation and broader device/TalkBack checks |
+Before beta:
 
-Current stack: Kotlin, Jetpack Compose, Material 3 and direct on-device SQLite. WorkManager is deferred; Room is not currently used.
+- curate every pilot catalogue and its 10 Essentials/5 Icons;
+- complete media licence/provenance review;
+- provide structured local-data export;
+- localise Catalan, Spanish and English;
+- validate TalkBack, large text, offline states and representative devices;
+- implement conservative batched WorkManager sync for due observations;
+- test migrations and catalogue pack updates.
 
-**Navigation checkpoint:** the shared Navigation Compose shell is implemented with Home, Collection, a central Capture handoff action, Explore and Profile. Capture return, confirmed reward, account linking and the first ledger-backed Profile progression surface are complete in Compose. Observation lifecycle status and delayed rewards are next.
+### Gate 2 metrics
 
-UI delivery follows `docs/style.md` and `docs/ui_architecture.md`. New and materially changed product screens use the final Field Guide Classic system; untouched feasibility/diagnostic screens may remain utilitarian until their slice is migrated.
+| Metric | Target |
+|---|---:|
+| Handoff completion | >70% |
+| Incorrect automatic matches | <1% |
+| Ambiguous matches | <10%; always explicit confirmation |
+| Research Grade rate at day 30 | >60% |
+| Week-4 retention | >30% |
+| Sightings per active user/week | >2 |
+| Upstream request load | No unresolved rate-limit incidents; within conservative per-device pacing |
+| Region assignment | No known false regional unlocks; uncertain cases remain unawarded |
 
-**Internal checkpoint after item 1:** use it for a full weekend outing. If switching or matching is still unreliable, capture becomes secondary and the MVP is positioned as a discovery/collection companion.
+## 13. Phase J — Scale to all 24 regions and launch
 
----
+**Engineering effort: 5–10 focused days after the pipeline is proven**
+**Curation effort: approximately 15–50 focused days, depending on catalogue size/media coverage**
 
-## Phase 3 — Closed beta
-**Effort: 12 days · Weeks 26–34 · 20–30 users in Catalonia**
+- Complete the remaining country/territory/marine assignments.
+- Curate the remaining 21 regional catalogues and checklists.
+- Validate rarity/prestige and licence manifests.
+- Generate/install/update packs through the same deterministic pipeline.
+- Run catalogue diffs and regression checks before every release.
+- Publish only regions that meet the same content/attribution quality floor as the pilots.
 
-Recruit through Catalan naturalist groups, ICHN, local birding communities. These people will be blunt with you, which is exactly what you need.
+## 14. Deferred work
 
-### Metrics that decide the launch
+- Generic badges and streaks beyond Regional Essentials/Icons.
+- Leaderboards and friend/social systems.
+- Collaborator-identification XP.
+- Filter-based raids.
+- Bird audio.
+- Weather enrichment.
+- iOS / Compose Multiplatform.
 
-| Metric | Target | Meaning |
-|---|---|---|
-| **Handoff completion rate** | >70% | The product-critical number. Sightings started in Wildlife that actually get posted. Below 50%, the core loop is broken |
-| **Research grade rate at day 30** | >60% | Fixed observation-age window avoids penalising recent records |
-| Week-4 retention | >30% | Does the collection mechanic hold? |
-| Sightings per active user per week | >2 | Engagement depth |
-| Upstream API requests per active device per day | Measured against conservative pacing targets | Determines whether refresh intervals or preloaded data need adjustment |
-| Ambiguous/incorrect handoff matches | <10% / <1% | Automatic matching may be uncertain; false matches must be exceptional |
+These remain valuable, but none should interrupt the regional data/content critical path.
 
-### 🚦 Gate 2 — Launch readiness
+## 15. Effort summary
 
-- Handoff completion above 70%; below that, reposition as a companion rather than silently lowering the target.
-- Research grade rate at day 30 above 60%, re-measured after any guidance change.
-- Incorrect automatic matches below 1%; ambiguous matches use confirmation.
-- No unresolved rate-limit incidents.
-- Privacy, deletion, licence attribution and Play data-safety requirements complete.
+| Work | Engineering effort |
+|---|---:|
+| Observation UX | 5–8 d |
+| Regional/boundary contract | 5–8 d |
+| Catalogue generator | 7–12 d |
+| Multi-region runtime | 10–18 d |
+| Regional progression | 7–12 d |
+| Map layers | 5–9 d |
+| Shared UI redesign | 10–18 d |
+| Offline packaging | 5–10 d |
+| Beta readiness | 8–12 d |
+| All-region scale-up engineering | 5–10 d |
+| **Total engineering** | **~67–117 focused days** |
 
----
+Catalogue, achievement, localisation and media curation add approximately **15–50 focused days**. At 12–15 hours/week, the expanded scope is roughly **7–14 months**, with a useful three-region beta substantially earlier than complete 24-region content.
 
-## Phase 4 — Public launch v1.0
-**Effort: 10 days · After Gate 2 · Target spring–summer 2027**
+## 16. Immediate next actions
 
-Play Store listing, Catalan-first store copy, a launch post on the iNaturalist forum framing Wildlife as a recruitment tool for the platform, and outreach to Catalan naturalist communities.
+1. Implement the Observation UX separation and multiple-photo clarification.
+2. Turn the 24-region workbook rows into a complete ISO country/territory assignment manifest; resolve omissions and vague “related areas”.
+3. Select compatible local land/marine boundary sources and record provenance.
+4. Scaffold the catalogue source format, validator and deterministic SQLite generator.
+5. Build the Mediterranean Europe pilot from the current Catalonia data without treating the old 580-entry snapshot as a frozen denominator.
 
-**Capacity policy:** measure requests per active device, prefer stale cached data over unnecessary refreshes and adjust refresh intervals before launch.
-
----
-
-## Phase 5 — Post-launch
-**Weeks 35+**
-
-| Release | Contents | Effort |
-|---|---|---|
-| **v1.1** | Badges, streaks, personal heatmap and regional completion | 10 d |
-| **v1.2** | Leaderboards, collaborator points, filter-based raids, bird audio (Xeno-canto) | 15 d |
-| **v1.3** | Expansion beyond Catalonia, weather capture | 10 d |
-
----
-
-## Summary
-
-| Phase | Effort | Calendar (part-time) |
-|---|---|---|
-| 0 — Feasibility | 7 d | Weeks 1–3 |
-| 1 — Foundations | 24 d | Weeks 4–12 |
-| 2 — Android MVP | 32 d | Weeks 13–25 |
-| 3 — Closed beta | 12 d | Weeks 26–34 |
-| 4 — Launch | 10 d | After Gate 2 |
-| **Total to v1.0** | **~85 focused days** | **~8–10 months at 12–15 h/week** |
-
----
-
-## Pivot and stop criteria
-
-Defined now, while judgement is uncontaminated by sunk cost.
-
-| Trigger | Response |
-|---|---|
-| Photo coverage below 50% at Gate 1 | Redesign the collection visual concept before building |
-| Handoff completion below 50% after the one-observation confirmation UX | Reposition as a discovery and collection companion; OAuth is not a fallback |
-| Research grade rate below 40% in beta | Stop recruiting. Fix capture guidance first — damaging the iNaturalist community damages the product's foundation |
-| Week-4 retention below 15% | The gamification does not hold. Fix the loop before adding features |
-| Catalogue curation past 15 days | Cut scope to vertebrates only |
-
----
-
-## Immediate next actions
-
-1. **Now — product-critical:** complete the manual handoff/correlation matrix with a consenting test account: real single-photo capture with EXIF, same-sighting multi-photo handoff, offline upload recovery, obscured coordinates and two observations close in time/location. Record propagation delay, automatic matches, ambiguity and false matches; never auto-confirm ambiguity.
-2. **In parallel — Gate 1 evidence:** finish catalogue/photo-licence coverage, “what am I missing” quality, endpoint-contract and representative request-budget validation. Record the result against every Gate 1 threshold rather than inferring it from implemented code.
-3. **Complete — placeholder progression foundation:** [`progression_rules.md`](progression_rules.md) now maps to centralized versioned rules, SQLite ledger metadata/history, weekly repeat diminishing returns, lifetime-XP levels, Profile progress/recent rewards and selectable earned titles. Disabled rarity, badge and streak mechanics remain out of the UI.
-4. **Complete — foreground observation lifecycle:** app resume and manual retry use the centralized on-device sync; Profile exposes syncing/error/stale/last-checked state; schema v5 stores idempotent quality transitions; `needs_id → research` can award `+50 XP` once; confirmed reward writes repair after restart; pending handoffs survive restart and show when a public candidate is ready for explicit review. Already-linked observations are excluded from new match proposals.
-5. **After request-budget evidence:** add conservative WorkManager refresh using local per-observation `next_check_at` priorities and optional delayed-reward notification. Batch due records where the validated API permits; do not issue one request per observation. Needs ID and recently active observations remain eligible, while Research Grade leaves routine refresh after one confirmation pass and returns only for manual or rare reconciliation. Until then, foreground refresh remains the documented automatic behavior.
-6. **Complete — discovery/map foundation:** Explore now opens on Near me with Species guide as its second mode. Near me samples location once after an explicit action, performs one logical public read for up to 100 research-grade species counts within 25 km for the current calendar month, intersects results with the provisional guide, persistently stores neither the search coordinate nor its results, and labels frequency truthfully. My Map moved to a focused personal-history screen opened from Home. It groups the linked observation cache into 0.1° cells (roughly 8–11 km in Catalonia), includes obscured-state disclosure, excludes unavailable coordinates and opens the latest public record in an area. MapLibre Native renders those local overlays over OpenFreeMap's Fiord vector style with attribution; viewed tile regions reach the provider, exact overlay data does not, and no offline prefetch is offered. Result quality, “what am I missing” and release provider approval remain Gate 1 follow-ups.
-7. **After Gate 1:** freeze the reviewed multilingual release catalogue.
-8. **In progress — privacy controls and testability:** per-observation map visibility, location-state disclosure, a retained-data inventory, a privacy-safe copyable test report, account unlinking and confirmed deletion of all Wildlife-owned local data are complete. A structured user-data export, localisation and broader accessibility/device validation remain before beta. Early community feedback remains a product task.
-
-The map privacy sub-slice stores exclusions separately from the replaceable observation cache. Users can hide or restore individual observations without changing iNaturalist, and the UI distinguishes obscured, unavailable and user-hidden location states.
-
-The Profile diagnostics sub-slice reports only app/build status and aggregate local counts. Its copied test report excludes account identity, coordinates, species labels, URLs and file paths. “Delete Wildlife local data” clears the account link, handoff markers and private capture copies, observation/progression/map state, catalogue/reference media and temporary cache after explicit confirmation; it never deletes or edits iNaturalist data.
+Do not begin manual curation of all 24 catalogues until actions 2–4 make changes reviewable, reproducible and testable.

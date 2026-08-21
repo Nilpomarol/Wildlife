@@ -1,0 +1,23 @@
+{
+  "schema_version": 1,
+  "mediterranean_europe": {
+    "118552": "Domestic cat; not a wildlife collection entry.",
+    "123070": "Domestic goat; not a wildlife collection entry.",
+    "121578": "Domestic sheep; not a wildlife collection entry.",
+    "47144": "Domestic dog; not a wildlife collection entry.",
+    "74113": "Domestic cattle; not a wildlife collection entry.",
+    "209233": "Domestic horse; not a wildlife collection entry.",
+    "148030": "Domestic donkey; not a wildlife collection entry.",
+    "39782": "Released non-native Pond Slider; excluded from the representative wildlife guide.",
+    "39830": "Released non-native River Cooter; excluded from the representative wildlife guide.",
+    "39824": "Released non-native Florida Red-bellied Cooter; excluded from the representative wildlife guide.",
+    "39950": "Released non-native Chinese Pond Turtle; excluded from the representative wildlife guide.",
+    "371940": "Released non-native Ouachita Map Turtle; excluded from the representative wildlife guide.",
+    "39847": "Released non-native False Map Turtle; excluded from the representative wildlife guide.",
+    "101204": "Introduced Eastern Mosquitofish; excluded from the representative wildlife guide.",
+    "58612": "Domestic Goldfish; excluded from the representative wildlife guide.",
+    "65979": "Introduced American Bullfrog; excluded from the representative wildlife guide.",
+    "992054": "Introduced African Green Toad; excluded from the representative wildlife guide.",
+    "25457": "Introduced African Clawed Frog; excluded from the representative wildlife guide."
+  }
+}

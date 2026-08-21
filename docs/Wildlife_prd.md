@@ -1,7 +1,7 @@
-# Wildlife — Product Requirements Document v4 (Permanent read-only)
+# Wildlife — Product Requirements Document v5 (Permanent read-only, regional expansion)
 
-**Status:** Draft for design & development
-**Date:** August 2026
+**Status:** Adopted direction for design and development
+**Date:** 21 August 2026
 **Platform:** Native Android (Kotlin + Jetpack Compose)
 **Backend:** Not required for core features; optional later for social features
 **API posture:** **Permanently read-only. No OAuth dependency and no writes to iNaturalist.**
@@ -17,8 +17,10 @@
 | API access | **Unauthenticated read only.** OAuth is not part of the product plan |
 | Capture | **Handoff only** — photo taken in Wildlife, submitted through the official iNaturalist app |
 | Account linking | **Username + bio-code verification.** No password, no OAuth |
-| Geographic scope v1 | Catalonia |
-| Taxonomic scope v1 | Birds, mammals, reptiles, amphibians, butterflies and odonates (development cap: 580); reviewed conspicuous fish may be added later |
+| Geographic scope | 24 owner-defined world regions with staged catalogue rollout; architecture must support later additions/splits |
+| Initial catalogue rollout | Three contrasting pilot regions, beginning with Mediterranean Europe as the migration path from Catalonia |
+| Taxonomic scope | Photographable mammals, birds, reptiles, amphibians, conspicuous fish and a restrained selection of distinctive invertebrates |
+| Regional game layer | Frozen catalogue completion, 10 Regional Essentials, 5 Regional Icons and regional Legendary prestige |
 
 ---
 
@@ -37,9 +39,10 @@ Turn nature observation into a collection game, using iNaturalist as the biologi
 1. **iNaturalist is the source of truth.** Wildlife's database holds only the game layer plus a read cache keyed by `inat_uuid`.
 2. **Read-only API posture.** Every endpoint used is public and unauthenticated. No iNaturalist tokens are stored. Wildlife still processes personal data and must provide normal privacy, retention and deletion controls.
 3. **Core traffic is direct from the device.** The on-device adapter uses a custom User-Agent, conservative request pacing and durable caches. It never writes to iNaturalist.
-4. **Regional data is cached once per device and refreshed conservatively.**
+4. **Regional data is built and versioned before release.** Catalogue membership, boundaries, rarity, prestige, achievement definitions, names and thumbnails are local and refreshed only through explicit versioned content updates.
 5. **Derived state is recomputed, rewards are ledgered.** Collection state, badges and percentages recalculate on sync. XP is recorded once in an idempotent event ledger and is never duplicated or removed.
 6. **Offline browsing, online sync.** Capture no longer needs offline support — the iNaturalist app owns that — but the catalogue and collection must be fully browsable without coverage.
+7. **Global taxa, regional membership.** Taxon identity/media are deduplicated globally; catalogue membership, encounter rarity, Legendary prestige and completion are regional.
 
 ---
 
@@ -95,6 +98,17 @@ Intent(Intent.ACTION_SEND).apply {
 
 **What this version gains:** iNaturalist's computer vision identification, which is unavailable to third parties through the API. The v2 in-app path had no AI at all. This is a genuine product improvement, not only a compliance workaround.
 
+### 4.1 Observation management
+
+Capture creates exactly one new observation draft and does not act as the long-term observation-management destination.
+
+- One draft is presented as one container with a horizontal photo strip and an explicit “1 observation · N photos” label.
+- Drafts, submitted/pending handoffs, ambiguous candidates, synced observations and lifecycle status live in a focused **Observations** screen.
+- Home exposes recent/pending observations and a “See all” route. Species Detail opens the same screen filtered to that taxon.
+- The Observations screen may retry Wildlife sync, confirm a candidate, hide/restore an observation on Wildlife's map, delete Wildlife-owned local state and open the official public record.
+- It never edits or deletes an iNaturalist observation.
+- Wildlife cannot force the official app to upload in the background. If a submitted handoff is still unavailable publicly, Wildlife explains that the user may need to reopen iNaturalist and provides an explicit action to do so.
+
 ---
 
 ## 5. Sync engine
@@ -139,6 +153,8 @@ GET public identification activity, only if the validated API contract supports 
 
 - Unobserved species appear as grey silhouettes; observed species unlock in full colour using the user's own photo as the card image.
 - Browsable by taxonomic group and by region.
+- The active catalogue may be suggested from an explicit local location sample and can always be changed manually. Automatic suggestions never interrupt browsing.
+- A species observed in another region does not unlock this region's catalogue entry. Region assignment is persisted against the observation UUID and boundary version.
 - **Taxon-counting rule:** collection entries are keyed by the species-level ancestor taxon ID, not the observation's lowest exact taxon ID. Subspecies and varieties unlock and appear under their parent species; their exact identification remains visible in species detail. Genus-only or higher identifications remain as separate "awaiting species identification" entries. Show the overall number as **collection entries**, with identified-species and awaiting-identification subtotals, because iNaturalist's `species_counts` result can include coarser taxa.
 - Cache the observation's exact taxon ID and rank plus its collection taxon ID and rank. Recompute this projection whenever iNaturalist changes an identification so Wildlife follows the semantics of iNaturalist's `species_counts` endpoint.
 - **Verification state is part of the collection UI:** an entry enters as *unverified* and becomes *confirmed* when iNaturalist reaches research grade. Half of all iNat observations are identified within two days, average around 18 days — a naturally paced delayed reward.
@@ -148,7 +164,9 @@ GET public identification activity, only if the validated API contract supports 
 
 Names and taxonomy come from a versioned iNaturalist export. Photo reuse is decided by explicit licence metadata, not by hosting domain. Store author, source URL, licence code and required attribution for every reference image.
 
-**Regional source contract:** canonical Catalonia uses iNaturalist place ID `12997` (`Cataluña`, administrative level 10). The raw research-grade species pool is approximately 12,806 at validation time and is not the launch denominator. During development, Wildlife keeps a versioned scope-limited snapshot capped at 580 entries: birds 250, mammals 80, reptiles 50, amphibians 30, butterflies 120 and odonates 50. After the first download it remains stored until the user explicitly confirms a refresh; startup and ordinary browsing never poll or replace it. The revision identifier is derived from the stable taxon denominator, not the download date or changing observation counts. The quotas are ordered by observation count for practical prototyping; they are not rarity or conservation classifications. Fish require a manually reviewed conspicuous-species allowlist and are empty by default. The snapshot is clearly labelled provisional. A curated, frozen seasonal catalogue bundled with a release replaces it before launch.
+**Regional source contract:** [`regional_catalogues.md`](regional_catalogues.md) defines the 24 owner-supplied regions, boundary-completion requirements, catalogue schema, content policy, achievement lists and authoring validation. The attached source workbook's animal proposals are not approved content and are ignored.
+
+The existing Catalonia `place_id=12997` / 580-entry snapshot remains a provisional development input while Mediterranean Europe becomes the first pilot catalogue. Raw regional occurrence pools are never launch denominators. Each release catalogue is curated, frozen and bundled from deterministic source manifests. Ordinary startup/browsing never regenerates or silently replaces a catalogue from live API frequency.
 
 Build the launch reference image set from licences compatible with the intended distribution and business model. Provide in-app attribution and a machine-readable provenance manifest. Species Detail prioritises a Wikimedia Commons image only when it is explicitly assessed as Featured or Quality, maps to the taxon through its linked Wikipedia article or a Wikidata record verified against the iNaturalist taxon ID, and has a compatible Public Domain, CC0, CC BY or CC BY-SA licence. It then falls back to the licensed iNaturalist taxon default, another explicitly compatible research-grade iNaturalist observation photo, and finally a silhouette. Explore keeps undiscovered species hidden behind silhouettes. An observed species uses the user's own sighting photo when available, then an attributed stored reference image. Collection cards remain personal and do not substitute curated catalogue photography for a missing sighting. Wikimedia lookups are lazy rather than catalogue-wide. Temporary failures retain previous references and remain retryable. Missing imagery uses a licence-verified PhyloPic silhouette resolved through species, genus, family and order before the broad catalogue group fallback. Catalogue loading resolves and persists one family-level silhouette for related species in the background; opening Species Detail may later improve that species to an exact species or genus match. Representative match rank remains available in source credits and accessibility descriptions without adding redundant status text over image cards. Store reusable media in app-owned durable files, not the disposable image cache; keep creator, source, licence, assessment and taxonomic match metadata in SQLite. Pipeline versions mark which resolver policy produced a record and trigger targeted repair, but do not require downloading a separately versioned media pack or discarding valid local files.
 
@@ -162,14 +180,20 @@ Bird songs require **Xeno-canto** (open API, CC-licensed). Birds only.
 
 | Event | XP |
 |---|---|
-| Common species | 10 |
-| Uncommon (×5) / Rare (×20) / Legendary (×50) | scaled |
-| First catch of a species | +500 |
+| Confirmed observation repeats in one ISO week | 10, 5, 5, then 0 |
+| First species globally | +500 |
+| First valid unlock in the containing regional catalogue | +100 |
+| Regional encounter rarity on first unlock | Common +0; Uncommon +50; Rare +150; Very Rare +300 |
+| Regional Legend on first regional unlock | +1,000 |
+| Complete 10 Regional Essentials | +1,500 |
+| Complete 5 Regional Icons | +3,000 |
 | Reaching research grade | +50 |
 | Identification given to another user on iNaturalist | +25 |
 | **Out-of-range sighting confirmed after review delay** | **+250, "Anomaly" badge** |
 
-**Rarity tiers** use a documented seasonal snapshot derived from Catalonia observations and reviewed catalogue rules. Raw observation count is a proxy affected by observer effort and detectability, so it must be tested and capped rather than treated as biological abundance.
+**Encounter rarity** is regional and versioned: Common, Uncommon, Rare and Very Rare. It estimates encounter/photograph difficulty from reviewed evidence; raw observation count, conservation status and verification are not rarity.
+
+**Legendary prestige** is orthogonal to rarity and Regional Icon status. It is a manually curated regional game designation that may apply to any catalogue species; Regional Icons remain a separate fixed five-species achievement list. A species may be `Common · Regional Legend`: for example, an elephant can be locally attainable but still carry more game value than a common warthog because it defines the regional collection fantasy. Legendary is not a claim that the species is scarce or threatened.
 
 **Out-of-range rewards.** Define the signal explicitly using validated public API fields or a versioned range dataset. Research Grade alone is not fraud-proof. Award only after a delay, exclude the bonus from competitive ranking until confirmed, and flag ambiguous cases for review.
 
@@ -181,7 +205,7 @@ Bird songs require **Xeno-canto** (open API, CC-licensed). Birds only.
 
 The editable internal placeholder for level thresholds, event eligibility, cosmetic rewards, disabled mechanics and migration behavior is maintained in [`progression_rules.md`](progression_rules.md). It is not a final product decision and must be reviewed before closed beta.
 
-**Denominator stability.** Regional species lists grow over time, which would silently erode users' completion percentages. **Freeze the catalogue per season** ("Fauna of the Ebre Delta 2027") and refresh annually, announcing it as new content.
+**Denominator stability.** Regional species lists grow over time, which would silently erode users' completion percentages. Freeze every regional catalogue/checklist version and announce replacements as new content. Completion may be recalculated for the selected catalogue version; ledgered XP and earned versioned achievements are never revoked.
 
 ### 7.3 Anti-spam
 
@@ -200,19 +224,21 @@ The strongest fit with the API, and entirely unauthenticated.
 
 | Feature | Source |
 |---|---|
-| Hierarchy: World > Country > Community > Comarca / Natural park | `/v1/places/nearby` (`admin_level`); Catalan comarques and protected areas already exist as iNat places |
+| 24-region definitions and active catalogue | Local versioned polygons and country/territory membership from the regional catalogue pack |
+| Hierarchy below a region | `/v1/places/nearby` where useful, resolved and cached conservatively |
 | "What can I see here?" | `species_counts?lat=&lng=&radius=&month=` |
 | "What am I missing?" | `species_counts?unobserved_by_user_id=&lat=&lng=` — works with a public user ID, no auth needed |
-| Completion bars per region | Frozen seasonal catalogue vs. user's species list |
+| Completion and achievements per region | Frozen catalogue/checklists vs. observations assigned to that region |
 | Map | App-owned coarse observation overlays on a separately licensed basemap; the development implementation uses MapLibre Native with OpenFreeMap/OpenStreetMap attribution and no offline prefetch. iNaturalist tiles are not used |
 
-Resolve Catalonia and comarca `place_id` values once at build time via `/v1/places/autocomplete` and store them.
+Resolve required iNaturalist place IDs during catalogue authoring and store them. Runtime region assignment uses local versioned boundaries rather than live place lookup. Obscured/boundary-uncertain observations do not earn regional progress until safely assignable.
 
 ---
 
 ## 9. Dashboard
 
-- **Personal heatmap** — dark map, fog-of-war revealed by exploration, coarse grid to absorb coordinate obscuring.
+- **Regional world map** — local region polygons coloured by completion, with separate non-colour marks for Essentials, Icons and mastery.
+- **Personal observation layer** — dark map with coarse on-device cells to absorb coordinate obscuring; it may be toggled independently from regional progress.
 - **Timeline** — chronological feed with thumbnail maps.
 - **Habit charts** — taxonomic distribution; 24-hour radial activity chart.
 - **Regional progress** — completion bars ranked by percentage.
@@ -236,7 +262,7 @@ Resolve Catalonia and comarca `place_id` values once at build time via `/v1/plac
 - **Battery** — GPS sampled at capture and at "what can I see here" only, never continuously.
 - **Visual system** — product-facing UI follows the dark-first **Field Guide Classic** contract in `style.md` and `ui_architecture.md`: wildlife imagery first, serif identity typography, compact information density, restrained olive/parchment/gold semantics and progressive Compose migration.
 - **Dark mode** — native and the primary visual mode, essential for dusk and night observation. A future light theme must preserve semantic tokens rather than introduce a second screen-specific style.
-- **Preloaded database** — species names, taxonomy and thumbnails for the Catalonia catalogue shipped with the app.
+- **Precomputed local content** — region definitions, boundaries, catalogue membership, names, taxonomy, rarity, prestige, achievements, attribution and thumbnails are generated before release and available locally. Taxon/media records shared across regions are deduplicated. Optional regional media packs may be downloaded and then remain local.
 - **Localisation** — Catalan first; Spanish and English at launch.
 - **Custom User-Agent** on every direct upstream request, identifying the app.
 - **Privacy controls** — clear consent and disclosure, data minimisation, retention limits, export, unlink and deletion.
@@ -259,7 +285,7 @@ Resolve Catalonia and comarca `place_id` values once at build time via `/v1/plac
 | Full invertebrate coverage | Thousands of species; curation infeasible for v1 |
 | Weather at time of sighting | Defer to a later version (Open-Meteo has free historical data) |
 | Non-bird audio | No source with adequate coverage |
-| Global scope | Catalogue curation cost |
+| Exhaustive global biodiversity catalogue | Conflicts with the photographable, curated 24-region product and cannot be maintained responsibly |
 
 ---
 
@@ -280,17 +306,19 @@ Resolve Catalonia and comarca `place_id` values once at build time via `/v1/plac
 
 ## 14. Phasing
 
-**Validation (week 1–3, throwaway prototypes only)** — confirm catalogue rules and size, rarity playability, discovery quality and explicitly licensed photo coverage. In parallel, prototype single-observation Android handoff with one/multiple photos, EXIF preservation, offline behavior and observation matching; validate the exact public API fields/version; model upstream request cost; and draft the privacy/data-retention boundary.
+**Gate 1 — passed 21 August 2026.** After one week of owner field testing, the product owner accepted the handoff, EXIF/one-and-multiple-photo flow, delayed/offline recovery, matching behavior, public read contract, catalogue/media viability, discovery quality and request posture as sufficient to proceed. This is a product go decision, not a statistical reliability guarantee; closed beta still measures completion, ambiguity, false matches and request cost.
 
-**Implementation note — 13 August 2026:** the successful on-device prototype has advanced into a Compose application with account linking, public observation sync, a provisional stored Catalonia catalogue, Collection, Explore, Species Detail, capture/handoff, candidate confirmation and an idempotent confirmation/first-species XP reward. This does not pass the validation gate: real camera EXIF, offline upload recovery, obscured/nearby matching, catalogue/photo coverage, discovery quality and representative request cost still need recorded evidence. Current implementation status and remaining work are tracked in `Wildlife_roadmap.md`; handoff evidence is tracked in `Handoff_feasibility.md`.
+**Implementation note — 21 August 2026:** the successful on-device Compose prototype and Gate 1 field week support moving into production-shaped foundations. The next critical path is observation UX separation, regional catalogue authoring/data architecture and the regional progression contract. Current implementation and remaining work are tracked in `Wildlife_roadmap.md`.
 
-**MVP** — On-device account linking, sync engine, Catalonia catalogue, Pokédex, XP and levels, "what am I missing near me", handoff capture.
+**Regional foundation** — Observation management, multi-photo clarity, catalogue generator, local boundaries, global taxon/regional membership model and three pilot catalogues.
 
-**v1.1** — Badges, streaks, heatmap and regional completion.
+**Expanded MVP** — On-device linking/sync, handoff capture, region-bound collection, encounter rarity, Legendary prestige, Regional Essentials/Icons, near-me discovery and regional/personal map layers.
 
-**v1.2** — Leaderboards, collaborator points, filter-based raids, bird audio.
+**Closed beta** — Three pilot regions, progression simulation, localisation/accessibility, structured export and Gate 2 metrics.
 
-**Later** — Expansion beyond Catalonia, weather capture, iOS via Compose Multiplatform (the sync engine and gamification core are already shareable).
+**Content scale-up** — Curate and package the remaining regions after the three-pilot generator, assignment and migration checks pass.
+
+**Later** — Generic badges/streaks, leaderboards, collaborator points, filter-based raids, bird audio, weather capture and iOS via Compose Multiplatform.
 
 ---
 
@@ -304,4 +332,4 @@ If handoff matching remains unreliable after single-observation handoff and manu
 
 ## 16. Current action item
 
-Complete the expanded Gate 1 validation in Section 14. The app now implements the core loop, but the go/no-go decision still requires evidence that the catalogue is viable, licences are usable, public APIs provide the needed data, the request budget scales, and real handoffs can be matched or explicitly confirmed without OAuth.
+Implement the first roadmap slice: move observation management out of Capture, clarify one-observation/multiple-photo presentation, then establish the deterministic regional authoring contract and three-region pilot data needed for the multi-region migration.

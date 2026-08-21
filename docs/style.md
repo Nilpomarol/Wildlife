@@ -154,19 +154,22 @@ Do not make gold the default interactive color. It should retain meaning.
 
 ---
 
-## 4. Rarity Colors
+## 4. Encounter rarity and Legendary prestige
 
-Rarity should be communicated through a **small icon, border, or label**, never by recoloring an entire screen.
+Encounter rarity should be communicated through a **small icon, border, or label**, never by recoloring an entire screen.
 
 ```text
 Common       #A8A48F
 Uncommon     #899A55
 Rare         #D39A3D
 Very Rare    #C57B3A
-Legendary    #A66C91
 ```
 
 Always pair color with text or an icon.
+
+**Regional Legend / Legendary** is a separate curated prestige tier, normally reserved for a region's five Icons. Use warm gold (`#F0AA2A`) and the owner-supplied **Legendary glyph**. A species can be both `Common` encounter rarity and `Legendary` regional prestige. Accessibility text and Species Detail must expose both values rather than replacing one with the other.
+
+Legendary never implies threat, scarcity, Research Grade or biological rarity.
 
 ---
 
@@ -321,7 +324,8 @@ Each card contains:
 
 ```text
 Image or silhouette
-State / rarity marker
+State / encounter-rarity marker
+Optional Legendary prestige glyph
 Common name
 Scientific name
 ```
@@ -370,7 +374,7 @@ If clarification is needed, surface the verification label on the detail page ra
 - silhouette centered in upper area
 - low-contrast species text
 - no fake image
-- rarity marker may remain visible if rarity is known
+- encounter-rarity marker and Legendary prestige may remain visible if known
 
 The missing state should feel mysterious, not disabled.
 
@@ -601,7 +605,7 @@ Examples:
 
 Use olive for normal progression.
 
-Gold is reserved for exceptional / rarity-related progression.
+Gold is reserved for exceptional progression and Legendary regional prestige.
 
 Avoid large circular progress widgets unless the percentage itself is the focus of the screen.
 
@@ -711,7 +715,8 @@ SpeciesGrid
 ObservationTile
 SpeciesFactsGrid
 CollectionProgress
-RarityIndicator
+EncounterRarityIndicator
+LegendaryPrestigeIndicator
 ObservationStateBadge
 CaptureButton
 WildlifeBottomBar
@@ -862,13 +867,28 @@ adjusts, but does not discard, §2.5 and §25.
 ### Now embraced (previously understated)
 
 - **Fraunces display type** for titles, species identity and collection/level headers.
-- **Rarity stars** on species cards (top-left), tier-coloured per §4, paired with an
-  accessible label. High tiers (Rare and above) may also tint the card border.
+- **Encounter-rarity markers** on species cards, tier-coloured per §4, paired with an
+  accessible label. Rare and Very Rare may also tint the card border.
+- **Legendary prestige glyphs** on regional Icons. The visible label may use “Legendary”
+  as the collectible tier, while screen-reader/detail copy also states the independent
+  encounter rarity (for example “Common encounter rarity; Regional Legend”).
 - **A collector header** on Collection: region selector, a completion meter, a collector
   rank and an XP figure — the "HUD" the baseline avoided is now welcome, kept compact.
 - **Stronger image scrims and taller cards** (width ≈ 1, height ≈ 1.35) so photography and
   labels both read boldly.
 - **Warmer, slightly brighter olive/gold accents** for the game moments.
+
+### Field marks
+
+The game layer uses a deliberately small, Wildlife-specific mark language instead of generic
+game icons:
+
+- **Encounter rarity:** owner-supplied Uncommon, Rare and Very Rare glyphs; Common intentionally
+  has no glyph. Every glyph is paired with a rarity label in TalkBack and on Species Detail.
+- **Regional Essential:** owner-supplied Essential artwork, tinted olive.
+- **Regional Icon:** owner-supplied Icon artwork, tinted gold.
+- **Regional Legend:** owner-supplied Legendary artwork, tinted bright gold and distinct from encounter
+  rarity and Icon membership.
 
 ### Still prohibited
 
@@ -878,13 +898,21 @@ real game feel," not a mobile arcade game.
 
 ### Placeholder rarity and completion (v1)
 
-Until the catalogue denominator is frozen and a reviewed seasonal rarity snapshot exists
-(PRD §6.1, §7.1), rarity tiers and regional completion are a **labelled visual placeholder**:
+Regional cards read independent, frozen `encounterRarity` and `prestige` fields. Unknown
+rarity stays unmarked and is labelled “under editorial review” on Species Detail; it must
+never be presented as Common. Legendary remains visually prominent but is never encoded as
+biological rarity.
 
-- Rarity is derived deterministically from a stable species key (`sampleRarityFor`), never
-  from biological data, and the screen states it is a sample.
-- Completion meters show real observed counts against a clearly-labelled *provisional*
-  target, never a curated total or a claim of true regional completeness.
+## 29. Regional map and achievement character
 
-When real rarity and a frozen catalogue land, these placeholders are replaced in place with
-no visual change to the component contracts.
+Regional progress uses a local world-map polygon layer:
+
+- neutral/dark fill: no progress;
+- restrained olive intensity: catalogue completion;
+- gold outline or compact `ESS.` stamp: Regional Essentials complete;
+- stronger gold `ICON` stamp/label: Regional Icons complete;
+- one-time discovery animation only; no continuous glow or pulsing map.
+
+Always provide a legend and textual status. Colour or visual effect alone never communicates
+completion. Observation cells remain a separate toggleable layer so personal history does
+not become confused with regional catalogue progress.

@@ -1,0 +1,23 @@
+{
+  "schema_version": 1,
+  "sources": [
+    {
+      "key": "natural_earth_admin0_map_units_10m_5_1_1",
+      "status": "reviewed_candidate",
+      "provider": "Natural Earth",
+      "dataset": "Admin 0 – Map Units, 1:10m",
+      "version": "5.1.1",
+      "licence": "Public Domain",
+      "source_url": "https://www.naturalearthdata.com/downloads/10m-cultural-vectors/10m-admin-0-details/",
+      "terms_url": "https://www.naturalearthdata.com/about/terms-of-use/",
+      "retrieved_on": "2026-08-21",
+      "archive_sha256": "45bebe2aaf8bf42b9daf4428594925bcb11eabd32fe9dc6e0acf681438053eb5",
+      "purpose": "land and dependent-territory authoring input",
+      "limitations": [
+        "Natural Earth uses de facto boundaries by default.",
+        "Disputed-area treatment and each territory-to-Wildlife-region assignment require owner review.",
+        "No maritime buffer geometry is supplied or inferred by this source."
+      ]
+    }
+  ]
+}

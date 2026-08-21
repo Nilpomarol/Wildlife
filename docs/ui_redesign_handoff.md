@@ -2,7 +2,7 @@
 
 **Date:** 13 August 2026
 **Scope:** Product-facing UI lift toward a bolder, gamified *Field Guide Classic*.
-**Status:** In progress, phase-by-phase. Home + Collection landed; Explore, Species Detail and Profile/Home polish remain.
+**Status:** Historical implementation handoff. Home + Collection landed; the active continuation is the regional roadmap dated 21 August 2026.
 **Authoritative style:** [`style.md`](style.md) (see the new §28) › [`ui_architecture.md`](ui_architecture.md) › product truth in [`Wildlife_prd.md`](Wildlife_prd.md).
 
 ---
@@ -12,10 +12,10 @@
 The user asked for a **more gamified, visual, "collectible"** feel — bolder than the original restrained baseline — while keeping the field-guide soul. Agreed constraints:
 
 - **Bolder than the previous docs.** `style.md` §28 ("Adopted revision — a bolder game layer") now documents this so the system stays coherent. Still prohibited: neon, glow, particles, animated gradients, fantasy chrome, arcade fonts, paper-texture skeuomorphism.
-- **Rarity and completion % are a labelled visual placeholder** (v1). No fabricated biology, no logic/data changes:
+- **Rarity and completion % are a labelled visual placeholder**. No fabricated biology, no logic/data changes:
   - Rarity is derived deterministically from a stable species key via `sampleRarityFor(key)` in `SpeciesCard.kt`.
   - Completion meters show a real observed count against a clearly-labelled *provisional* target (`SAMPLE_REGION_TARGET`), never a curated total.
-  - Both are to be replaced in place once the catalogue denominator is frozen and a reviewed seasonal rarity snapshot exists (PRD §6.1, §7.1) — with no change to component contracts.
+  - Both are to be replaced when the regional catalogue model lands. `encounterRarity` and regional `prestige` become independent fields; this supersedes the original assumption that no component-contract change was needed.
 - **UI-only.** No business logic was changed. The one exception, explicitly approved: a single read-only derived field (`ShellUiState.latestDiscovery`) computed from data the shell already loads, so Home can show a real photo.
 
 ---
@@ -64,17 +64,15 @@ Rebuilt from a button-menu into an **image-led dashboard**:
 
 ---
 
-## 4. Remaining phases (phase-by-phase, await review each)
+## 4. Superseded continuation
 
-1. **Explore** — apply rarity stars + taller cards; restyle the Near-me / Species-guide section switch (currently two full-width `FilterChip`s) into a field-guide tab treatment; keep the truthful provisional/frequency wording.
-2. **Species Detail** — richer hero (multi-photo affordance), fuller facts grid, reorder to **observations before About** (matches style §13 and the reference), gamier identity block; keep "only sourced facts" and attribution rules.
-3. **Profile / Home consistency** — de-duplicate stats across Home/Collection/Profile (Phase 2 of the original plan), align progression visuals with the new game layer.
+Further UI work follows [`Wildlife_roadmap.md`](Wildlife_roadmap.md): observation-management separation first, then shared regional components and vertical slices. Do not continue the old screen-by-screen rarity placeholder rollout.
 
 ---
 
 ## 5. Known follow-ups / notes
 
-- **Placeholder replacement:** swap `sampleRarityFor` and `SAMPLE_REGION_TARGET` for real capped rarity + frozen catalogue denominator when available (PRD §6.1/§7.1). The UI contracts are designed to absorb this without visual change.
+- **Placeholder replacement:** replace `sampleRarityFor` and `SAMPLE_REGION_TARGET` with real regional catalogue data. `LEGENDARY` moves out of encounter rarity and becomes regional prestige; see `style.md` §4/§28 and `regional_catalogues.md`.
 - **Stray file:** a `window.xml` (UI Automator dump from an unrelated app, `cat.receptari.app.debug`) was found in the repo root and deliberately **excluded** from commits. Delete it.
 - **Package/dir mismatch (pre-existing):** sources live under `com/ecotracker/feasibility` but declare `package com.wildlife.feasibility`. Not addressed here.
 - Design-doc governance lives in `style.md`; update §28 if the game-layer intensity changes again.

@@ -214,6 +214,17 @@ data class CollectionSpecies(
     val bestQualityGrade: String,
     val awaitingSpeciesIdentification: Boolean,
     val photoUrl: String?,
+    /** Licence-verified silhouette cached by the shared catalogue media pipeline. */
+    val silhouetteUrl: String? = null,
+    val silhouetteFallbackUrl: String? = null,
+    val silhouetteMatchRank: String? = null,
+    val regionalEssential: Boolean = false,
+    val regionalIcon: Boolean = false,
+    val scientificName: String? = null,
+    val encounterRarity: EncounterRarity? = null,
+    val regionalPrestige: RegionalPrestige? = null,
+    /** Normalized taxonomic group key: mammals, birds, reptiles, amphibians, fish; null if unknown. */
+    val taxonGroup: String? = null,
 )
 
 object CollectionProjection {

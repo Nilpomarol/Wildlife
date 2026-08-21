@@ -28,7 +28,6 @@ val WildlifeRarityCommon = Color(0xFFA8A48F)
 val WildlifeRarityUncommon = Color(0xFF9DB25A)
 val WildlifeRarityRare = Color(0xFFE6B24C)
 val WildlifeRarityVeryRare = Color(0xFFD98B44)
-val WildlifeRarityLegendary = Color(0xFFC585B0)
 
 @Immutable
 data class WildlifeColors(
@@ -36,6 +35,8 @@ data class WildlifeColors(
     val olive: Color,
     val oliveStrong: Color,
     val gold: Color,
+    /** Brighter gold reserved for the distinct Regional Legend prestige mark. */
+    val legendary: Color,
     val silhouette: Color,
     val confirmed: Color,
     val mutedText: Color,
@@ -43,7 +44,6 @@ data class WildlifeColors(
     val rarityUncommon: Color,
     val rarityRare: Color,
     val rarityVeryRare: Color,
-    val rarityLegendary: Color,
 )
 
 internal val LocalWildlifeColors = staticCompositionLocalOf {
@@ -52,6 +52,7 @@ internal val LocalWildlifeColors = staticCompositionLocalOf {
         olive = WildlifeOlive,
         oliveStrong = WildlifeOliveStrong,
         gold = WildlifeGold,
+        legendary = WildlifeGoldStrong,
         silhouette = WildlifeSilhouette,
         confirmed = WildlifeConfirmed,
         mutedText = WildlifeTextMuted,
@@ -59,6 +60,5 @@ internal val LocalWildlifeColors = staticCompositionLocalOf {
         rarityUncommon = WildlifeRarityUncommon,
         rarityRare = WildlifeRarityRare,
         rarityVeryRare = WildlifeRarityVeryRare,
-        rarityLegendary = WildlifeRarityLegendary,
     )
 }

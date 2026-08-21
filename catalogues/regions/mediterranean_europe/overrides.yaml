@@ -1,0 +1,9 @@
+{
+  "schema_version": 1,
+  "overrides": [
+    {
+      "scope": "release_decision",
+      "reason": "Owner approved Mediterranean Europe catalogue v1 on 2026-08-21: 15 curated taxa, 10 Essentials, 5 Icons and licence-verified selected media. Future changes require a new catalogue version."
+    }
+  ]
+}

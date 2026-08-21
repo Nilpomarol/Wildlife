@@ -11,6 +11,7 @@ import java.io.Closeable
 class OnDeviceWildlifeRepository(context: Context) : Closeable {
     private val appContext = context.applicationContext
     private val observations = ObservationStore(appContext)
+    private val regionalBoundaries by lazy { RegionalBoundaryAssetLoader.load(appContext) }
     private val catalogue = CatalogueStore(appContext)
     private val iNaturalist = INaturalistClient()
     private val phyloPic = PhyloPicClient()
@@ -36,16 +37,39 @@ class OnDeviceWildlifeRepository(context: Context) : Closeable {
             )
         }
         val remote = iNaturalist.syncedObservations(account.userId)
-        return observations.replaceSnapshot(account.userId, remote)
+        val assignments = remote.map { observation ->
+            regionalBoundaries.assign(
+                observationUuid = observation.uuid,
+                latitude = observation.latitude,
+                longitude = observation.longitude,
+                obscured = observation.obscured,
+            )
+        }
+        return observations.replaceSnapshot(account.userId, remote, assignments)
     }
 
     fun confirmObservation(
         account: VerifiedAccount,
         observationUuid: String,
-    ): ObservationConfirmationResult = observations.confirmObservation(
-        account.userId,
-        observationUuid,
-    )
+    ): ObservationConfirmationResult {
+        val observation = observations.observations(account.userId).firstOrNull { it.uuid == observationUuid }
+        val assignment = observations.observationRegion(account.userId, observationUuid)
+        val reward = observation?.let { item ->
+            assignment?.takeIf { it.earnsRegionalProgress }?.regionKey?.let { regionKey ->
+                val content = RegionalCatalogueAssetStore(appContext)
+                val catalogue = content.catalogues().firstOrNull { it.regionKey == regionKey } ?: return@let null
+                val taxonId = item.collectionTaxonId ?: item.taxonId ?: return@let null
+                val regionalTaxon = content.taxa(regionKey).firstOrNull { it.taxonId == taxonId } ?: return@let null
+                val achievements = content.achievements(regionKey)
+                RegionalRewardContext(
+                    regionKey, catalogue.version, taxonId, regionalTaxon.rarity, regionalTaxon.prestige,
+                    achievements.firstOrNull { it.label == "essentials" }?.taxonIds.orEmpty(),
+                    achievements.firstOrNull { it.label == "icons" }?.taxonIds.orEmpty(),
+                )
+            }
+        }
+        return observations.confirmObservation(account.userId, observationUuid, reward)
+    }
 
     fun setObservationMapVisible(
         account: VerifiedAccount,
@@ -228,6 +252,49 @@ class OnDeviceWildlifeRepository(context: Context) : Closeable {
             catalogue.markSilhouettePipeline(snapshot.regionKey, SILHOUETTE_PIPELINE_VERSION)
         }
         return catalogue.load()
+    }
+
+    /**
+     * Adds a small, rate-limited batch of regional silhouettes to the same durable cache used
+     * by Species Guide. Regional content deliberately carries no media, so this is kept separate
+     * from catalogue generation and never runs from a composable.
+     */
+    fun enrichRegionalSilhouettes(
+        candidates: List<RegionalSilhouetteCandidate>,
+        batchSize: Int = REGIONAL_SILHOUETTE_BATCH_SIZE,
+    ): Boolean {
+        val known = catalogue.loadTaxonDetails().toMutableMap()
+        val withoutSilhouette = candidates.filter { candidate ->
+            known[candidate.taxonId]?.silhouetteLocalUri?.let(localMedia::isStored) != true
+        }
+        var changed = false
+        val groupSilhouettes = withoutSilhouette.mapNotNull(RegionalSilhouetteCandidate::taxonGroup)
+            .distinct()
+            .associateWith { group ->
+                silhouetteGroupName(group)?.let { name ->
+                    runCatching { phyloPic.resolve(name, "group")?.toDurableSilhouette() }.getOrNull()
+                }
+            }
+        withoutSilhouette.forEach { candidate ->
+            val silhouette = groupSilhouettes[candidate.taxonGroup] ?: return@forEach
+            val detail = candidate.detailWith(silhouette, known[candidate.taxonId])
+            catalogue.upsertTaxonDetail(detail)
+            known[candidate.taxonId] = detail
+            changed = true
+        }
+
+        candidates.filter { candidate ->
+            known[candidate.taxonId]?.silhouetteMatchRank != "species"
+        }.take(batchSize).forEach { candidate ->
+            val silhouette = runCatching {
+                phyloPic.resolve(candidate.scientificName, "species")?.toDurableSilhouette()
+            }.getOrNull() ?: return@forEach
+            val detail = candidate.detailWith(silhouette, known[candidate.taxonId])
+            catalogue.upsertTaxonDetail(detail)
+            known[candidate.taxonId] = detail
+            changed = true
+        }
+        return changed
     }
 
     fun syncTaxonDetail(taxonId: Long, force: Boolean = false): TaxonDetails {
@@ -499,6 +566,7 @@ class OnDeviceWildlifeRepository(context: Context) : Closeable {
         internal const val SILHOUETTE_PIPELINE_VERSION = 3
         private const val MIN_SYNC_INTERVAL_MS = 30_000L
         private const val TAXON_REFRESH_MS = 30L * 24L * 60L * 60L * 1_000L
+        private const val REGIONAL_SILHOUETTE_BATCH_SIZE = 12
         private val CATALOGUE_SCOPES = listOf(
             CatalogueScope("Aves", 250, mapOf("iconic_taxa" to "Aves"), listOf("Aves", "Erithacus rubecula")),
             CatalogueScope("Mammalia", 80, mapOf("iconic_taxa" to "Mammalia"), listOf("Mammalia")),
@@ -509,6 +577,52 @@ class OnDeviceWildlifeRepository(context: Context) : Closeable {
         )
     }
 }
+
+private fun silhouetteGroupName(group: String): String? = when (group) {
+    "mammals" -> "Mammalia"
+    "birds" -> "Aves"
+    "reptiles" -> "Reptilia"
+    "amphibians" -> "Amphibia"
+    "fish" -> "Actinopterygii"
+    else -> null
+}
+
+private fun RegionalSilhouetteCandidate.detailWith(
+    silhouette: SilhouetteAsset,
+    existing: TaxonDetails?,
+): TaxonDetails = (existing ?: TaxonDetails(
+    taxonId = taxonId,
+    scientificName = scientificName,
+    commonName = null,
+    taxonGroup = taxonGroup,
+    familyName = null,
+    wikipediaSummary = null,
+    wikipediaUrl = null,
+    conservationStatus = null,
+    conservationAuthority = null,
+    conservationUrl = null,
+    photoUrl = null,
+    photoAttribution = null,
+    photoLicenseCode = null,
+    silhouetteUrl = null,
+    silhouetteSourceUrl = null,
+    silhouetteAttribution = null,
+    silhouetteLicenseCode = null,
+    silhouetteLicenseUrl = null,
+    silhouetteTaxonName = null,
+    silhouetteMatchRank = null,
+    updatedAtMs = System.currentTimeMillis(),
+)).copy(
+    silhouetteUrl = silhouette.url,
+    silhouetteSourceUrl = silhouette.sourceUrl,
+    silhouetteAttribution = silhouette.attribution,
+    silhouetteLicenseCode = silhouette.licenceCode,
+    silhouetteLicenseUrl = silhouette.licenceUrl,
+    silhouetteTaxonName = silhouette.taxonName,
+    silhouetteMatchRank = silhouette.matchRank,
+    silhouetteLocalUri = silhouette.localUri,
+    silhouetteResolverVersion = silhouette.resolverVersion,
+)
 
 internal fun catalogueRefreshErrorCode(error: Exception): String = when (error) {
     is RemoteDataException.HttpFailure -> when (error.statusCode) {

@@ -124,6 +124,9 @@ class MainActivity : ComponentActivity() {
                     onCollection = { navController.openDestination(WildlifeDestination.COLLECTION) },
                     onExplore = { navController.openDestination(WildlifeDestination.EXPLORE) },
                     onMyMap = { navController.navigate(PERSONAL_MAP_ROUTE) },
+                    onObservations = {
+                        startActivity(Intent(this@MainActivity, ObservationsActivity::class.java))
+                    },
                     onOpenSpecies = { taxonId ->
                         startActivity(
                             SpeciesDetailActivity.intent(
@@ -155,6 +158,11 @@ class MainActivity : ComponentActivity() {
                     },
                     onLinkAccount = ::openAccountManagement,
                     onRetry = collectionViewModel::refresh,
+                    onSelectCatalogue = { regionKey ->
+                        collectionViewModel.selectRegion(regionKey)
+                        exploreViewModel.refreshLocal()
+                        shellViewModel.refresh()
+                    },
                     bottomBar = bottomBar,
                 )
             }
@@ -162,7 +170,7 @@ class MainActivity : ComponentActivity() {
                 ExploreScreen(
                     state = exploreViewModel.uiState,
                     onBack = null,
-                    onSync = exploreViewModel::syncCatalogue,
+                    onRefresh = exploreViewModel::refreshLocal,
                     onOpenTaxon = { taxonId ->
                         val species = exploreViewModel.uiState.entries.firstOrNull {
                             it.taxonId == taxonId
@@ -268,10 +276,7 @@ class MainActivity : ComponentActivity() {
     }
 
     private fun deleteLocalData() {
-        if (
-            observationSyncInFlight || exploreViewModel.uiState.syncing ||
-            exploreViewModel.uiState.silhouetteEnrichmentRunning
-        ) {
+        if (observationSyncInFlight) {
             Toast.makeText(this, "Wait for the current update to finish, then try again.", Toast.LENGTH_LONG).show()
             return
         }
