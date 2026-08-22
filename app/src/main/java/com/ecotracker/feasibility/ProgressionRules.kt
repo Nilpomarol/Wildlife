@@ -48,42 +48,28 @@ data class ProgressionState(
 )
 
 object ProgressionRules {
-    const val VERSION = "progression-0.2-regional-experimental"
-    const val CONFIRMED_OBSERVATION_XP = 10
-    const val FIRST_SPECIES_XP = 500
+    val VERSION get() = GeneratedProgressionConfig.VERSION
+    val CONFIRMED_OBSERVATION_XP get() = GeneratedProgressionConfig.confirmedObservationXp
+    val FIRST_SPECIES_XP get() = GeneratedProgressionConfig.firstSpeciesXp
 
-    const val RESEARCH_GRADE_XP = 50
-    const val RESEARCH_GRADE_ENABLED = true
-    const val REGIONAL_DISCOVERY_XP = 100
-    const val REGIONAL_LEGEND_XP = 1_000
-    const val REGIONAL_ESSENTIALS_XP = 1_500
-    const val REGIONAL_ICONS_XP = 3_000
-    fun regionalRarityXp(rarity: EncounterRarity): Int = when (rarity) {
-        EncounterRarity.COMMON -> 0
-        EncounterRarity.UNCOMMON -> 50
-        EncounterRarity.RARE -> 150
-        EncounterRarity.VERY_RARE -> 300
-        EncounterRarity.UNKNOWN -> 0
-    }
-    const val IDENTIFICATION_GIVEN_XP = 25
-    const val IDENTIFICATION_GIVEN_ENABLED = false
-    const val ANOMALY_CONFIRMED_XP = 250
-    const val ANOMALY_CONFIRMED_ENABLED = false
+    val RESEARCH_GRADE_XP get() = GeneratedProgressionConfig.researchGradeXp
+    val RESEARCH_GRADE_ENABLED get() = GeneratedProgressionConfig.researchGradeEnabled
+    val REGIONAL_DISCOVERY_XP get() = GeneratedProgressionConfig.regionalDiscoveryXp
+    val REGIONAL_LEGEND_XP get() = GeneratedProgressionConfig.regionalLegendXp
+    val REGIONAL_ESSENTIALS_XP get() = GeneratedProgressionConfig.regionalEssentialsXp
+    val REGIONAL_ICONS_XP get() = GeneratedProgressionConfig.regionalIconsXp
+    fun regionalRarityXp(rarity: EncounterRarity): Int = GeneratedProgressionConfig.rarityXp[rarity] ?: 0
+    val IDENTIFICATION_GIVEN_XP get() = GeneratedProgressionConfig.identificationGivenXp
+    val IDENTIFICATION_GIVEN_ENABLED get() = GeneratedProgressionConfig.identificationGivenEnabled
+    val ANOMALY_CONFIRMED_XP get() = GeneratedProgressionConfig.anomalyConfirmedXp
+    val ANOMALY_CONFIRMED_ENABLED get() = GeneratedProgressionConfig.anomalyConfirmedEnabled
     const val RARITY_MULTIPLIERS_ENABLED = false
     const val BADGES_ENABLED = false
     const val STREAKS_ENABLED = false
 
-    val repeatObservationXp = listOf(10, 5, 5)
+    val repeatObservationXp get() = GeneratedProgressionConfig.repeatObservationXp
 
-    val levels = listOf(
-        ProgressionLevel("tourist", "Tourist", 0),
-        ProgressionLevel("explorer", "Explorer", 500),
-        ProgressionLevel("naturalist", "Naturalist", 2_500),
-        ProgressionLevel("tracker", "Tracker", 7_500),
-        ProgressionLevel("field_ranger", "Field Ranger", 20_000),
-        ProgressionLevel("master_ranger", "Master Ranger", 50_000),
-        ProgressionLevel("legendary_ranger", "Legendary Ranger", 100_000),
-    )
+    val levels get() = GeneratedProgressionConfig.levels
 
     fun confirmedObservationXp(previousSameSpeciesThisWeek: Int): Int =
         repeatObservationXp.getOrElse(previousSameSpeciesThisWeek.coerceAtLeast(0)) { 0 }

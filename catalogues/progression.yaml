@@ -1,0 +1,90 @@
+{
+  "schema_version": 1,
+  "version": "progression-0.2-regional-experimental",
+  "events": {
+    "confirmed_observation": {
+      "xp": 10,
+      "enabled": true
+    },
+    "first_species": {
+      "xp": 500,
+      "enabled": true
+    },
+    "research_grade": {
+      "xp": 50,
+      "enabled": true
+    },
+    "regional_discovery": {
+      "xp": 100,
+      "enabled": true
+    },
+    "regional_legend": {
+      "xp": 1000,
+      "enabled": true
+    },
+    "regional_essentials": {
+      "xp": 1500,
+      "enabled": true
+    },
+    "regional_icons": {
+      "xp": 3000,
+      "enabled": true
+    },
+    "identification_given": {
+      "xp": 25,
+      "enabled": false
+    },
+    "anomaly_confirmed": {
+      "xp": 250,
+      "enabled": false
+    }
+  },
+  "rarity_xp": {
+    "common": 0,
+    "uncommon": 50,
+    "rare": 150,
+    "very_rare": 300
+  },
+  "repeat_observation_xp": [
+    10,
+    5,
+    5
+  ],
+  "levels": [
+    {
+      "key": "tourist",
+      "display_name": "Tourist",
+      "threshold_xp": 0
+    },
+    {
+      "key": "explorer",
+      "display_name": "Explorer",
+      "threshold_xp": 500
+    },
+    {
+      "key": "naturalist",
+      "display_name": "Naturalist",
+      "threshold_xp": 2500
+    },
+    {
+      "key": "tracker",
+      "display_name": "Tracker",
+      "threshold_xp": 7500
+    },
+    {
+      "key": "field_ranger",
+      "display_name": "Field Ranger",
+      "threshold_xp": 20000
+    },
+    {
+      "key": "master_ranger",
+      "display_name": "Master Ranger",
+      "threshold_xp": 50000
+    },
+    {
+      "key": "legendary_ranger",
+      "display_name": "Legendary Ranger",
+      "threshold_xp": 100000
+    }
+  ]
+}

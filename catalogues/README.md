@@ -54,16 +54,31 @@ Then validate the regional foundation:
 .\tools\Test-RegionalFoundation.ps1
 ```
 
-## Owner-managed Regional Essentials and Icons
+## Owner-managed content workbook
 
-Each pilot can keep its 10 Essentials and 5 Icons in a small spreadsheet-friendly review CSV.
-For Mediterranean Europe, edit `review/mediterranean_europe_checklists.csv`: reorder entries,
-change the curated encounter rarity, or replace a taxon with one already present in `taxa.yaml`.
-Keep exactly ten `essential` rows and five `icon` rows. Icons are always `legendary`; Essentials
-are always `standard`.
+Use `review/wildlife-content-manager.xlsx` as the single editing surface for all three pilot
+catalogues, their 10 Essentials and 5 Icons, XP awards and level thresholds. The reference name
+columns are deliberately not imported: the taxon ID is the stable identity.
 
-Import the reviewed CSV into the source manifests with:
+You may add, remove or reorder a regional catalogue row, provided its taxon ID already exists in
+`taxa.yaml`. Essentials must be `standard`; Icons are automatically marked `legendary` by the
+importer. Every pilot always requires exactly 10 Essentials and 5 Icons.
+
+First validate the workbook without changing sources:
 
 ```powershell
-& 'C:\Users\nilpo\.cache\codex-runtimes\codex-primary-runtime\dependencies\python\python.exe' .\tools\import_regional_checklist.py mediterranean_europe --csv .\catalogues\review\mediterranean_europe_checklists.csv
+& 'C:\Users\nilpo\.cache\codex-runtimes\codex-primary-runtime\dependencies\python\python.exe' .\tools\import_content_workbook.py
 ```
+
+When validation is clean, apply the change. The importer writes the three regional catalogues,
+the achievements source, the versioned `progression.yaml`, and the generated Kotlin progression
+configuration as one reviewed change.
+
+```powershell
+& 'C:\Users\nilpo\.cache\codex-runtimes\codex-primary-runtime\dependencies\python\python.exe' .\tools\import_content_workbook.py --apply
+& 'C:\Users\nilpo\.cache\codex-runtimes\codex-primary-runtime\dependencies\python\python.exe' .\tools\generate_catalogues.py
+```
+
+The importer never changes global taxon identity or media provenance. Add those separately and
+keep the workbook in git with the generated source changes so every content/balance decision is
+reviewable.
