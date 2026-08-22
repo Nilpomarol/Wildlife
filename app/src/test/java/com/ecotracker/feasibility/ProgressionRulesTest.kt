@@ -43,6 +43,31 @@ class ProgressionRulesTest {
     }
 
     @Test
+    fun previouslyEarnedTitleRemainsAvailableAfterThresholdsRise() {
+        val state = ProgressionProjection.project(
+            totalXp = 500,
+            selectedLevelKey = "naturalist",
+            highestLevelKey = "naturalist",
+        )
+
+        assertEquals("explorer", state.currentLevel.key)
+        assertEquals("naturalist", state.selectedTitle.key)
+        assertEquals(listOf("tourist", "explorer", "naturalist"), state.earnedLevels.map(ProgressionLevel::key))
+    }
+
+    @Test
+    fun highestLevelNeverMovesBackwards() {
+        assertEquals(
+            "naturalist",
+            HighestLevelProjection.highestLevelKey(
+                currentLevelKey = "explorer",
+                previouslyReachedKey = "naturalist",
+                levels = ProgressionRules.levels,
+            ),
+        )
+    }
+
+    @Test
     fun repeatObservationScheduleStopsAfterThreeRewards() {
         assertEquals(10, ProgressionRules.confirmedObservationXp(0))
         assertEquals(5, ProgressionRules.confirmedObservationXp(1))

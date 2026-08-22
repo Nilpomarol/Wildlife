@@ -185,6 +185,10 @@ def load_workbook_content(workbook_path: Path) -> tuple[dict, dict, dict]:
         fail("Levels need unique keys and must start at 0 XP")
     if any(later["threshold_xp"] <= earlier["threshold_xp"] for earlier, later in zip(levels, levels[1:])):
         fail("Level thresholds must strictly increase")
+    existing_levels = json.loads((CATALOGUES / "progression.yaml").read_text(encoding="utf-8")).get("levels", [])
+    removed_level_keys = {level.get("key") for level in existing_levels}.difference(level["key"] for level in levels)
+    if removed_level_keys:
+        fail(f"Level keys cannot be removed after publication: {', '.join(sorted(removed_level_keys))}")
 
     repeats = []
     for index, row in enumerate(workbook["XP and levels"].iter_rows(min_row=2, min_col=10, max_col=12, values_only=True), start=2):

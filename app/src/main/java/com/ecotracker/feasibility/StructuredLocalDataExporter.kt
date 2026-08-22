@@ -51,6 +51,7 @@ class StructuredLocalDataExporter(context: Context) {
             put("pending_handoffs", JSONArray().apply { MarkerStore(appContext).load().forEach { put(it.toJson()) } })
             put("progression", JSONObject().apply {
                 put("selected_level_key", account?.let { ProgressionStore(appContext).selectedLevelKey(it.userId) } ?: JSONObject.NULL)
+                put("highest_level_key", account?.let { ProgressionStore(appContext).highestLevelKey(it.userId) } ?: JSONObject.NULL)
             })
         }
         val directory = File(appContext.filesDir, EXPORT_DIRECTORY).apply { mkdirs() }

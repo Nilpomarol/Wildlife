@@ -81,13 +81,19 @@ object ProgressionProjection {
         events: List<XpEventRecord> = emptyList(),
         recentLimit: Int = 5,
         selectedLevelKey: String? = null,
+        highestLevelKey: String? = null,
     ): ProgressionState {
         val safeXp = totalXp.coerceAtLeast(0)
         val currentIndex = ProgressionRules.levels.indexOfLast { safeXp >= it.thresholdXp }
             .coerceAtLeast(0)
         val current = ProgressionRules.levels[currentIndex]
         val next = ProgressionRules.levels.getOrNull(currentIndex + 1)
-        val earnedLevels = ProgressionRules.levels.take(currentIndex + 1)
+        val highestIndex = HighestLevelProjection.highestIndex(
+            currentIndex = currentIndex,
+            previouslyReachedKey = highestLevelKey,
+            levels = ProgressionRules.levels,
+        )
+        val earnedLevels = ProgressionRules.levels.take(highestIndex + 1)
         val selectedTitle = earnedLevels.firstOrNull { it.key == selectedLevelKey } ?: current
         val progress = if (next == null) {
             1f
@@ -112,4 +118,22 @@ object ProgressionProjection {
                 .toList(),
         )
     }
+}
+
+internal object HighestLevelProjection {
+    fun highestLevelKey(
+        currentLevelKey: String,
+        previouslyReachedKey: String?,
+        levels: List<ProgressionLevel>,
+    ): String = levels[highestIndex(
+        currentIndex = levels.indexOfFirst { it.key == currentLevelKey }.coerceAtLeast(0),
+        previouslyReachedKey = previouslyReachedKey,
+        levels = levels,
+    )].key
+
+    fun highestIndex(
+        currentIndex: Int,
+        previouslyReachedKey: String?,
+        levels: List<ProgressionLevel>,
+    ): Int = maxOf(currentIndex, levels.indexOfFirst { it.key == previouslyReachedKey }.coerceAtLeast(0))
 }

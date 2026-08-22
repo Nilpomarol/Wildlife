@@ -164,7 +164,11 @@ The runtime grants profile titles only. A user may display any title at or below
 | Competitive advantage | Prohibited |
 | Physical or monetary reward | Out of scope |
 
-If thresholds change after beta begins, an account must not lose an already reached title. Store or derive `highest_level_achieved` during the migration before raising any threshold.
+If thresholds change after beta begins, an account must not lose an already reached title. Wildlife
+stores `highest_level_achieved` locally the first time a title is reached; a later threshold rise
+can lower the projected current level but cannot remove that cosmetic title entitlement. Workbook
+imports also preserve every existing level key, so a historic entitlement always has a current
+title definition.
 
 ## 6. Badge and streak configuration
 

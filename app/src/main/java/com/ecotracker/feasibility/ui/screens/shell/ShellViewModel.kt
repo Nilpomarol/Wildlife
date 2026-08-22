@@ -151,11 +151,15 @@ class ShellViewModel(application: Application) : AndroidViewModel(application) {
             }
         }
         val progression = account?.let {
-            ProgressionProjection.project(
+            val progressionStore = ProgressionStore(context)
+            val projected = ProgressionProjection.project(
                 totalXp = summary?.totalXp ?: 0,
                 events = observationStore?.xpEvents(it.userId).orEmpty(),
-                selectedLevelKey = ProgressionStore(context).selectedLevelKey(it.userId),
+                selectedLevelKey = progressionStore.selectedLevelKey(it.userId),
+                highestLevelKey = progressionStore.highestLevelKey(it.userId),
             )
+            progressionStore.recordHighestLevel(it.userId, projected.currentLevel.key)
+            projected
         }
         val markers = MarkerStore(context).load()
         val pendingStatus = account?.let {
