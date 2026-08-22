@@ -22,8 +22,42 @@ data class InstalledRegionalTaxon(
 
 data class InstalledRegionalAchievement(val label: String, val taxonIds: Set<Long>)
 
+/** Metadata for the immutable regional-content bundle currently installed on the device. */
+data class RegionalContentPackInventory(
+    val sourceDigest: String,
+    val fileBytes: Long,
+    val installedAtMs: Long,
+    val catalogues: List<InstalledRegionalCatalogue>,
+) {
+    val isInstalled: Boolean
+        get() = fileBytes > 0
+}
+
 /** Reads the generated, versioned content pack bundled with the app; it never contacts a service. */
 class RegionalCatalogueAssetStore(private val context: Context) {
+    /**
+     * The base bundle can be safely re-created from the APK. This method removes only that copied
+     * content and its metadata; observations, assignments and progression live in other stores.
+     */
+    fun removeInstalledBasePack(): Boolean {
+        val destination = destinationFile()
+        val staged = stagedFile()
+        val backup = backupFile()
+        val removed = listOf(destination, staged, backup).all { file -> !file.exists() || file.delete() }
+        preferences().edit().clear().commit()
+        return removed
+    }
+
+    fun inventory(): RegionalContentPackInventory {
+        val destination = installedDatabase()
+        return RegionalContentPackInventory(
+            sourceDigest = sourceDigest(),
+            fileBytes = destination.length(),
+            installedAtMs = preferences().getLong(KEY_INSTALLED_AT_MS, 0L),
+            catalogues = catalogues(),
+        )
+    }
+
     fun catalogues(): List<InstalledRegionalCatalogue> = database().use { database ->
         database.rawQuery(
             "SELECT DISTINCT region_key, catalogue_version FROM regional_taxon ORDER BY region_key",
@@ -82,25 +116,67 @@ class RegionalCatalogueAssetStore(private val context: Context) {
         }
     }
 
-    private fun database(): SQLiteDatabase {
-        val destination = File(context.noBackupFilesDir, "regional-catalogue.sqlite")
-        val digest = context.assets.open(REPORT).bufferedReader().use { reader ->
-            org.json.JSONObject(reader.readText()).getString("source_digest")
+    private fun database(): SQLiteDatabase = SQLiteDatabase.openDatabase(
+        installedDatabase().path,
+        null,
+        SQLiteDatabase.OPEN_READONLY,
+    )
+
+    private fun installedDatabase(): File {
+        val destination = destinationFile()
+        val digest = sourceDigest()
+        if (destination.exists() && preferences().getString(KEY_DIGEST, null) == digest) {
+            return destination
         }
-        val preferences = context.getSharedPreferences(PREFERENCES, Context.MODE_PRIVATE)
-        if (!destination.exists() || preferences.getString(KEY_DIGEST, null) != digest) {
-            destination.parentFile?.mkdirs()
-            context.assets.open(ASSET).use { input -> destination.outputStream().use(input::copyTo) }
-            preferences.edit().putString(KEY_DIGEST, digest).apply()
-        }
-        return SQLiteDatabase.openDatabase(destination.path, null, SQLiteDatabase.OPEN_READONLY)
+        installBasePack(destination, digest)
+        return destination
     }
+
+    /** Stages the asset before replacing the prior readable bundle to survive interrupted updates. */
+    private fun installBasePack(destination: File, digest: String) {
+        destination.parentFile?.mkdirs()
+        val staged = stagedFile()
+        val backup = backupFile()
+        staged.delete()
+        backup.delete()
+        try {
+            context.assets.open(ASSET).use { input -> staged.outputStream().use(input::copyTo) }
+            check(staged.length() > 0L) { "Regional content bundle is empty." }
+            if (destination.exists()) check(destination.renameTo(backup)) {
+                "Could not stage the previous regional content bundle."
+            }
+            check(staged.renameTo(destination)) { "Could not install the regional content bundle." }
+            backup.delete()
+            preferences().edit()
+                .putString(KEY_DIGEST, digest)
+                .putLong(KEY_INSTALLED_AT_MS, System.currentTimeMillis())
+                .apply()
+        } catch (error: Exception) {
+            staged.delete()
+            if (!destination.exists() && backup.exists()) backup.renameTo(destination)
+            throw error
+        }
+    }
+
+    private fun sourceDigest(): String = context.assets.open(REPORT).bufferedReader().use { reader ->
+        org.json.JSONObject(reader.readText()).getString("source_digest")
+    }
+
+    private fun destinationFile() = File(context.noBackupFilesDir, DATABASE)
+
+    private fun stagedFile() = File(context.noBackupFilesDir, "$DATABASE.staged")
+
+    private fun backupFile() = File(context.noBackupFilesDir, "$DATABASE.backup")
+
+    private fun preferences() = context.getSharedPreferences(PREFERENCES, Context.MODE_PRIVATE)
 
     private companion object {
         const val ASSET = "catalogues/catalogue.sqlite"
         const val REPORT = "catalogues/catalogue-report.json"
+        const val DATABASE = "regional-catalogue.sqlite"
         const val PREFERENCES = "regional_catalogue_content"
         const val KEY_DIGEST = "source_digest"
+        const val KEY_INSTALLED_AT_MS = "installed_at_ms"
         val DISPLAY_NAMES = mapOf(
             "mediterranean_europe" to "Mediterranean Europe",
             "east_africa" to "East Africa",

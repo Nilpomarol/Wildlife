@@ -97,6 +97,9 @@ class LocalDataManager(context: Context) {
         }
         ObservationStore(appContext).use(ObservationStore::clearAllLocalData)
         CatalogueStore(appContext).use(CatalogueStore::clearAllLocalData)
+        check(RegionalCatalogueAssetStore(appContext).removeInstalledBasePack()) {
+            "The installed regional content bundle could not be removed."
+        }
         LocalMediaStore(appContext).clear()
         clearDirectory(File(appContext.filesDir, HANDOFF_DIRECTORY))
         appContext.cacheDir.listFiles().orEmpty().forEach(File::deleteRecursively)
