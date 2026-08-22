@@ -48,6 +48,8 @@ The adopted region definitions and content/data contract are in [`regional_catal
 - Level thresholds and global first-species XP are placeholder v0.1 rules.
 - Field Atlas completion effects and broad device/accessibility validation remain provisional.
 - XP values and level thresholds are experimental internal-test tuning, not a release balance commitment.
+- Regional content packs can be generated with a deterministic checksum manifest and atomically
+  installed locally; remote delivery and publisher signing are intentionally not implemented yet.
 
 ### Open product/engineering work
 

@@ -8,6 +8,7 @@ import json
 import re
 import shutil
 import sqlite3
+import zipfile
 from pathlib import Path
 
 
@@ -221,6 +222,36 @@ def write_outputs(
     ANDROID_ASSETS.mkdir(parents=True, exist_ok=True)
     shutil.copy2(database_path, ANDROID_ASSETS / "catalogue.sqlite")
     shutil.copy2(OUTPUT / "catalogue-report.json", ANDROID_ASSETS / "catalogue-report.json")
+    write_content_pack(database_path, OUTPUT / "catalogue-report.json", digest)
+
+
+def write_content_pack(database_path: Path, report_path: Path, digest: str) -> None:
+    """Package generated content for a later validated on-device install.
+
+    The archive proves accidental-corruption integrity through SHA-256 checksums. It is not a
+    remote trust/signature protocol; download and release authorization remain a separate step.
+    """
+    files = {
+        "catalogue.sqlite": database_path,
+        "catalogue-report.json": report_path,
+    }
+    manifest = {
+        "schema_version": 1,
+        "source_digest": digest,
+        "files": {
+            name: hashlib.sha256(path.read_bytes()).hexdigest()
+            for name, path in files.items()
+        },
+    }
+    pack_path = OUTPUT / "wildlife-content-pack.zip"
+    with zipfile.ZipFile(pack_path, "w", compression=zipfile.ZIP_DEFLATED, compresslevel=9) as archive:
+        for name, path in files.items():
+            info = zipfile.ZipInfo(name, date_time=(1980, 1, 1, 0, 0, 0))
+            info.compress_type = zipfile.ZIP_DEFLATED
+            archive.writestr(info, path.read_bytes())
+        info = zipfile.ZipInfo("manifest.json", date_time=(1980, 1, 1, 0, 0, 0))
+        info.compress_type = zipfile.ZIP_DEFLATED
+        archive.writestr(info, json.dumps(manifest, indent=2, sort_keys=True) + "\n")
 
 
 def main() -> None:

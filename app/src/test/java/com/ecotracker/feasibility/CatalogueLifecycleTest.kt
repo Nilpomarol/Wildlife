@@ -4,6 +4,7 @@ import java.io.IOException
 import java.net.SocketTimeoutException
 import org.junit.Assert.assertEquals
 import org.junit.Assert.assertNotEquals
+import org.junit.Assert.assertNull
 import org.junit.Assert.assertSame
 import org.junit.Test
 
@@ -39,6 +40,24 @@ class CatalogueLifecycleTest {
 
         assertSame(species, closerSilhouette(family, species))
         assertSame(species, closerSilhouette(species, family))
+    }
+
+    @Test
+    fun `content pack manifest accepts only versioned sha256 metadata`() {
+        val digest = "a".repeat(64)
+        val checksum = "b".repeat(64)
+
+        assertEquals(
+            RegionalContentPackManifest(digest, checksum),
+            RegionalContentPackManifest.fromJson(
+                """{"schema_version":1,"source_digest":"$digest","files":{"catalogue.sqlite":"$checksum"}}""",
+            ),
+        )
+        assertNull(
+            RegionalContentPackManifest.fromJson(
+                """{"schema_version":2,"source_digest":"short","files":{"catalogue.sqlite":"bad"}}""",
+            ),
+        )
     }
 
     private fun silhouette(rank: String) = SilhouetteAsset(

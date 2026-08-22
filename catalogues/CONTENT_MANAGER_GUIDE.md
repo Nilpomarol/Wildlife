@@ -32,6 +32,17 @@ The importer updates the regional catalogue sources, achievements, `progression.
 generated Android progression configuration. Review all resulting changes together before
 committing.
 
+## Packaging a reviewed catalogue for a future runtime install
+
+Every catalogue generation also writes `generated/wildlife-content-pack.zip`. It contains the
+SQLite catalogue, its report and a manifest with SHA-256 checksums. The app can validate and
+atomically install this file through its internal content-pack API without touching observation
+history or earned XP.
+
+This is deliberately only a local install contract today: Wildlife does not download packs,
+accept arbitrary user files through the UI, or treat a checksum as publisher authorization. A
+signed release channel and download policy are separate future work.
+
 ## Refreshing iNaturalist evidence
 
 Wildlife uses the public iNaturalist API read-only. It does not use OAuth and never writes to
