@@ -65,6 +65,7 @@ fun ObservationsScreen(
     onOpenObservation: (String) -> Unit,
     onOpenINaturalist: () -> Unit,
     onDeleteLocal: (String) -> Unit,
+    bottomBar: @Composable () -> Unit = {},
 ) {
     val needsAction = state.managed.filter { it.proposals.isNotEmpty() || it.state == MarkerState.HANDED_OFF }
     val awaiting = state.managed.filter { it.state == MarkerState.PENDING && it.proposals.isEmpty() }
@@ -85,6 +86,7 @@ fun ObservationsScreen(
                 Icon(Icons.Outlined.Refresh, "Sync observations")
             }
         },
+        bottomBar = bottomBar,
     ) { padding ->
         LazyColumn(
             modifier = Modifier

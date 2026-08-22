@@ -13,6 +13,7 @@ import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.layout.navigationBars
 import androidx.compose.foundation.layout.windowInsetsPadding
+import androidx.compose.foundation.clickable
 import androidx.compose.foundation.selection.selectable
 import androidx.compose.foundation.selection.selectableGroup
 import androidx.compose.foundation.shape.CircleShape
@@ -69,14 +70,25 @@ fun WildlifeBottomBar(
             WildlifeDestination.entries.forEach { destination ->
                 val isCapture = destination == WildlifeDestination.CAPTURE
                 val isSelected = destination == selected
+                // Capture launches an Activity and can never become the selected tab, so it must
+                // not announce itself as one. Every other item stays a real tab.
+                val activation = if (isCapture) {
+                    Modifier.clickable(
+                        onClick = { onSelect(destination) },
+                        role = Role.Button,
+                        onClickLabel = "Record a new sighting",
+                    )
+                } else {
+                    Modifier.selectable(
+                        selected = isSelected,
+                        onClick = { onSelect(destination) },
+                        role = Role.Tab,
+                    )
+                }
                 Column(
                     modifier = Modifier
                         .weight(1f)
-                        .selectable(
-                            selected = isSelected,
-                            onClick = { onSelect(destination) },
-                            role = Role.Tab,
-                        )
+                        .then(activation)
                         .padding(vertical = WildlifeSpacing.Micro),
                     horizontalAlignment = Alignment.CenterHorizontally,
                 ) {
@@ -114,10 +126,10 @@ fun WildlifeBottomBar(
                         text = destination.label,
                         style = MaterialTheme.typography.labelSmall,
                         fontWeight = if (isSelected) FontWeight.SemiBold else FontWeight.Normal,
-                        color = if (isSelected || isCapture) {
-                            WildlifeTheme.colors.parchment
-                        } else {
-                            MaterialTheme.colorScheme.onSurfaceVariant
+                        color = when {
+                            isCapture -> WildlifeTheme.colors.parchment
+                            isSelected -> WildlifeTheme.colors.oliveStrong
+                            else -> MaterialTheme.colorScheme.onSurfaceVariant
                         },
                         modifier = if (isCapture) Modifier.offset(y = (-8).dp) else Modifier,
                     )

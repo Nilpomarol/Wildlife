@@ -10,6 +10,7 @@ import com.wildlife.feasibility.AccountStore
 import com.wildlife.feasibility.CollectionProjection
 import com.wildlife.feasibility.CollectionSpecies
 import com.wildlife.feasibility.ObservationStore
+import com.wildlife.feasibility.SyncedObservation
 import com.wildlife.feasibility.ActiveCatalogueStore
 import com.wildlife.feasibility.InstalledRegionalCatalogue
 import com.wildlife.feasibility.RegionalCatalogueAssetStore
@@ -72,13 +73,9 @@ class CollectionViewModel(application: Application) : AndroidViewModel(applicati
 
     private fun load(): CollectionUiState {
         val context = getApplication<Application>()
+        // Unlinked users still see the regional guide as silhouettes; only the personal
+        // observation layer is missing, so the screen no longer replaces itself with a wall.
         val account = AccountStore(context).verified()
-            ?: return CollectionUiState(
-                linked = false,
-                entries = emptyList(),
-                observationCount = 0,
-                totalXp = 0,
-            )
         return runCatching {
             val content = RegionalCatalogueAssetStore(context)
             val catalogues = content.catalogues()
@@ -86,14 +83,18 @@ class CollectionViewModel(application: Application) : AndroidViewModel(applicati
                 .takeIf { selected -> catalogues.any { it.regionKey == selected } }
                 ?: catalogues.first().regionKey
             val selected = catalogues.first { it.regionKey == selectedKey }
-            val (observations, summary) = ObservationStore(context).use { store ->
-                val all = store.observations(account.userId)
-                val regionalObservations = all.filter { observation ->
-                    store.observationRegion(account.userId, observation.uuid)?.let { assignment ->
-                        assignment.earnsRegionalProgress && assignment.regionKey == selectedKey
-                    } == true
+            val (observations, summary) = if (account == null) {
+                emptyList<SyncedObservation>() to null
+            } else {
+                ObservationStore(context).use { store ->
+                    val all = store.observations(account.userId)
+                    val regionalObservations = all.filter { observation ->
+                        store.observationRegion(account.userId, observation.uuid)?.let { assignment ->
+                            assignment.earnsRegionalProgress && assignment.regionKey == selectedKey
+                        } == true
+                    }
+                    regionalObservations to store.summary(account.userId)
                 }
-                regionalObservations to store.summary(account.userId)
             }
             val observationsByTaxon = observations.groupBy { it.collectionTaxonId ?: it.taxonId }
             val achievementTypesByTaxon = content.achievements(selectedKey)
@@ -127,11 +128,11 @@ class CollectionViewModel(application: Application) : AndroidViewModel(applicati
                 )
             }
             CollectionUiState(
-                linked = true,
+                linked = account != null,
                 entries = entries,
                 observationCount = observations.size,
-                totalXp = summary.totalXp,
-                lastSyncedAtMs = summary.lastSyncedAtMs,
+                totalXp = summary?.totalXp ?: 0,
+                lastSyncedAtMs = summary?.lastSyncedAtMs,
                 selectedCatalogue = selected,
                 installedCatalogues = catalogues,
                 achievements = content.achievements(selectedKey),
@@ -139,7 +140,7 @@ class CollectionViewModel(application: Application) : AndroidViewModel(applicati
             )
         }.getOrElse { error ->
             CollectionUiState(
-                linked = true,
+                linked = account != null,
                 entries = emptyList(),
                 observationCount = 0,
                 totalXp = 0,
@@ -149,7 +150,7 @@ class CollectionViewModel(application: Application) : AndroidViewModel(applicati
     }
 
     private fun enrichSilhouettesIfNeeded() {
-        if (silhouetteEnrichmentInFlight || !uiState.linked || silhouetteBatchesRemaining <= 0) return
+        if (silhouetteEnrichmentInFlight || silhouetteBatchesRemaining <= 0) return
         val candidates = uiState.entries.mapNotNull { entry ->
             entry.taxonId?.let { taxonId ->
                 entry.scientificName?.let { name ->

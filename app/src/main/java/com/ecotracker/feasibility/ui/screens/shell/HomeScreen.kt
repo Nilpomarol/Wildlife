@@ -20,14 +20,17 @@ import androidx.compose.material.icons.outlined.CameraAlt
 import androidx.compose.material.icons.outlined.Explore
 import androidx.compose.material.icons.outlined.Link
 import androidx.compose.material.icons.outlined.Map
+import androidx.compose.material.icons.outlined.NearMe
 import androidx.compose.material3.Button
 import androidx.compose.material3.Card
 import androidx.compose.material3.CardDefaults
 import androidx.compose.material3.Icon
+import androidx.compose.material3.LinearProgressIndicator
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.OutlinedButton
 import androidx.compose.material3.Surface
 import androidx.compose.material3.Text
+import androidx.compose.material3.TextButton
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
@@ -42,9 +45,12 @@ import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import coil.compose.AsyncImage
 import coil.request.ImageRequest
+import com.wildlife.feasibility.NearbySpecies
 import com.wildlife.feasibility.VerifiedAccount
 import com.wildlife.feasibility.WildlifeNetworkIdentity
+import com.wildlife.feasibility.ui.components.NearbySpeciesRow
 import com.wildlife.feasibility.ui.components.WildlifeScaffold
+import com.wildlife.feasibility.ui.screens.explore.NearbyDiscoveryState
 import com.wildlife.feasibility.ui.theme.WildlifeSpacing
 import com.wildlife.feasibility.ui.theme.WildlifeTheme
 import java.text.DateFormat
@@ -60,6 +66,9 @@ fun HomeScreen(
     onObservations: () -> Unit,
     onOpenSpecies: (Long) -> Unit,
     mappedObservationCount: Int,
+    nearby: NearbyDiscoveryState,
+    onDiscoverNearby: () -> Unit,
+    onSeeAllNearby: () -> Unit,
     onLinkAccount: () -> Unit,
     bottomBar: @Composable () -> Unit,
 ) {
@@ -94,7 +103,18 @@ fun HomeScreen(
                 } else {
                     item { EmptyCollectionCard(onCapture = onCapture) }
                 }
+            }
 
+            item {
+                NearbyPreviewCard(
+                    nearby = nearby,
+                    onDiscover = onDiscoverNearby,
+                    onOpenTaxon = onOpenSpecies,
+                    onSeeAll = onSeeAllNearby,
+                )
+            }
+
+            if (state.account != null) {
                 item { MyMapCard(mappedObservationCount = mappedObservationCount, onMyMap = onMyMap) }
             }
 
@@ -270,21 +290,14 @@ private fun FieldRecordCard(state: ShellUiState, onClick: () -> Unit) {
             verticalArrangement = Arrangement.spacedBy(WildlifeSpacing.Card),
         ) {
             Text("Field record", style = MaterialTheme.typography.titleMedium)
+            // Counts live on Collection and XP on Profile; Home carries only the regional teaser.
             state.regionalProgress?.let { progress ->
                 Text(
                     text = "${progress.displayName} · ${progress.observedSpecies} / ${progress.totalSpecies}",
-                    style = MaterialTheme.typography.labelMedium,
+                    style = MaterialTheme.typography.titleLarge,
                     color = WildlifeTheme.colors.oliveStrong,
                     fontWeight = FontWeight.SemiBold,
                 )
-            }
-            Row(
-                modifier = Modifier.fillMaxWidth(),
-                horizontalArrangement = Arrangement.SpaceBetween,
-            ) {
-                HomeFact("Species", state.identifiedSpecies.toString())
-                HomeFact("Observations", state.observations.toString())
-                HomeFact("XP", state.totalXp.toString())
             }
             Text(
                 text = state.regionalProgress?.let { progress ->
@@ -299,23 +312,6 @@ private fun FieldRecordCard(state: ShellUiState, onClick: () -> Unit) {
                 color = WildlifeTheme.colors.mutedText,
             )
         }
-    }
-}
-
-@Composable
-private fun HomeFact(label: String, value: String) {
-    Column {
-        Text(
-            text = value,
-            style = MaterialTheme.typography.titleLarge,
-            fontWeight = FontWeight.SemiBold,
-            color = WildlifeTheme.colors.parchment,
-        )
-        Text(
-            text = label,
-            style = MaterialTheme.typography.labelSmall,
-            color = MaterialTheme.colorScheme.onSurfaceVariant,
-        )
     }
 }
 
@@ -381,6 +377,96 @@ private fun ObservationQueueCard(state: ShellUiState, onReview: () -> Unit) {
         }
     }
 }
+
+/**
+ * Home-sized preview of Explore's Near me discovery: the same one-shot request, but only the
+ * strongest few results. The full ordered list stays on Explore behind "See all".
+ */
+@Composable
+private fun NearbyPreviewCard(
+    nearby: NearbyDiscoveryState,
+    onDiscover: () -> Unit,
+    onOpenTaxon: (Long) -> Unit,
+    onSeeAll: () -> Unit,
+) {
+    val preview = nearby.species.take(NEARBY_PREVIEW_LIMIT)
+    Card(
+        colors = CardDefaults.cardColors(containerColor = MaterialTheme.colorScheme.surface),
+        border = BorderStroke(1.dp, MaterialTheme.colorScheme.outlineVariant),
+        elevation = CardDefaults.cardElevation(0.dp),
+    ) {
+        Column(
+            modifier = Modifier.padding(WildlifeSpacing.Card),
+            verticalArrangement = Arrangement.spacedBy(WildlifeSpacing.Small),
+        ) {
+            Row(horizontalArrangement = Arrangement.spacedBy(WildlifeSpacing.Small)) {
+                Icon(Icons.Outlined.NearMe, contentDescription = null)
+                Text("Near me", style = MaterialTheme.typography.titleMedium)
+            }
+
+            when {
+                nearby.loading -> {
+                    Text(
+                        text = "Checking what has been reported within ${nearby.radiusKm} km…",
+                        style = MaterialTheme.typography.bodySmall,
+                        color = MaterialTheme.colorScheme.onSurfaceVariant,
+                    )
+                    LinearProgressIndicator(Modifier.fillMaxWidth())
+                }
+
+                nearby.errorMessage != null -> {
+                    Text(
+                        text = nearby.errorMessage,
+                        style = MaterialTheme.typography.bodySmall,
+                        color = MaterialTheme.colorScheme.error,
+                    )
+                    OutlinedButton(onClick = onDiscover) { Text("Try again") }
+                }
+
+                !nearby.requested -> {
+                    Text(
+                        text = "Check which species from your regional guide have been reported " +
+                            "within ${nearby.radiusKm} km this month.",
+                        style = MaterialTheme.typography.bodySmall,
+                        color = MaterialTheme.colorScheme.onSurfaceVariant,
+                    )
+                    Text(
+                        text = "Your location is sampled once and is not stored.",
+                        style = MaterialTheme.typography.labelMedium,
+                        color = WildlifeTheme.colors.mutedText,
+                    )
+                    OutlinedButton(onClick = onDiscover) { Text("Check near me") }
+                }
+
+                preview.isEmpty() -> {
+                    Text(
+                        text = "No species from your regional guide were reported in this area " +
+                            "for this calendar month.",
+                        style = MaterialTheme.typography.bodySmall,
+                        color = MaterialTheme.colorScheme.onSurfaceVariant,
+                    )
+                    OutlinedButton(onClick = onDiscover) { Text("Check again") }
+                }
+
+                else -> {
+                    Text(
+                        text = "${nearby.species.size} reported species, most frequently reported first",
+                        style = MaterialTheme.typography.bodySmall,
+                        color = MaterialTheme.colorScheme.onSurfaceVariant,
+                    )
+                    preview.forEach { species ->
+                        NearbySpeciesRow(species = species, onOpenTaxon = onOpenTaxon)
+                    }
+                    TextButton(onClick = onSeeAll) {
+                        Text("See all ${nearby.species.size} in Explore")
+                    }
+                }
+            }
+        }
+    }
+}
+
+private const val NEARBY_PREVIEW_LIMIT = 5
 
 @Composable
 private fun MyMapCard(mappedObservationCount: Int, onMyMap: () -> Unit) {
@@ -469,7 +555,15 @@ private fun HomePreview() {
                 ),
             ),
             onCapture = {}, onCollection = {}, onExplore = {}, onMyMap = {}, onObservations = {},
-            onOpenSpecies = {}, mappedObservationCount = 72, onLinkAccount = {},
+            onOpenSpecies = {}, mappedObservationCount = 72,
+            nearby = NearbyDiscoveryState(
+                requested = true,
+                species = listOf(
+                    NearbySpecies(1, "European robin", "Erithacus rubecula", "Aves", 412),
+                    NearbySpecies(2, "Common kingfisher", "Alcedo atthis", "Aves", 96),
+                ),
+            ),
+            onDiscoverNearby = {}, onSeeAllNearby = {}, onLinkAccount = {},
             bottomBar = {},
         )
     }
@@ -482,7 +576,9 @@ private fun HomeUnlinkedPreview() {
         HomeScreen(
             state = ShellUiState(catalogueSpecies = 568),
             onCapture = {}, onCollection = {}, onExplore = {}, onMyMap = {}, onObservations = {},
-            onOpenSpecies = {}, mappedObservationCount = 0, onLinkAccount = {},
+            onOpenSpecies = {}, mappedObservationCount = 0,
+            nearby = NearbyDiscoveryState(),
+            onDiscoverNearby = {}, onSeeAllNearby = {}, onLinkAccount = {},
             bottomBar = {},
         )
     }

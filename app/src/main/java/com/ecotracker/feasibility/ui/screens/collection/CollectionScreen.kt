@@ -42,7 +42,10 @@ import androidx.compose.material.icons.filled.Visibility
 import androidx.compose.material.icons.filled.Water
 import androidx.compose.material.icons.filled.Waves
 import androidx.compose.material.icons.filled.WorkspacePremium
+import androidx.compose.material3.Card
+import androidx.compose.material3.CardDefaults
 import androidx.compose.material3.Icon
+import androidx.compose.material3.OutlinedButton
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Surface
 import androidx.compose.material3.Text
@@ -71,6 +74,8 @@ import com.wildlife.feasibility.InstalledRegionalAchievement
 import com.wildlife.feasibility.InstalledRegionalCatalogue
 import com.wildlife.feasibility.RegionalPrestige
 import com.wildlife.feasibility.ui.components.CollectionSearchBar
+import com.wildlife.feasibility.ui.components.RegionPill
+import com.wildlife.feasibility.ui.components.regionVisual
 import com.wildlife.feasibility.ui.components.EncounterTrace
 import com.wildlife.feasibility.ui.components.RegionalCollectionMark
 import com.wildlife.feasibility.ui.components.RegionalCollectionStamp
@@ -85,12 +90,12 @@ import com.wildlife.feasibility.ui.components.WildlifeDropdown
 import com.wildlife.feasibility.ui.components.WildlifeScaffold
 import com.wildlife.feasibility.ui.theme.GameFontFamily
 import com.wildlife.feasibility.ui.theme.WildlifeGold
+import com.wildlife.feasibility.ui.theme.CaribbeanTeal
 import com.wildlife.feasibility.ui.theme.WildlifeOliveStrong
 import com.wildlife.feasibility.ui.theme.WildlifeSpacing
 import com.wildlife.feasibility.ui.theme.WildlifeTheme
 
 /** A playful teal reserved for the island catalogue; adds a splash of game colour to the dark base. */
-private val CaribbeanTeal = Color(0xFF4FB3B0)
 
 enum class CollectionFilter(val label: String, val icon: ImageVector) {
     ALL("All", Icons.Filled.GridView),
@@ -133,7 +138,6 @@ fun CollectionScreen(
     onOpenSpecies: (CollectionSpecies) -> Unit,
     onLinkAccount: () -> Unit,
     onRetry: () -> Unit,
-    onSelectCatalogue: (String) -> Unit,
     bottomBar: @Composable () -> Unit = {},
 ) {
     var selectedFilter by rememberSaveable { mutableStateOf(CollectionFilter.ALL) }
@@ -174,12 +178,6 @@ fun CollectionScreen(
 
     WildlifeScaffold(title = "Collection", onBack = onBack, bottomBar = bottomBar) { innerPadding ->
         when {
-            !state.linked -> CollectionMessage(
-                message = "Verify your iNaturalist account to build your personal field collection.",
-                actionLabel = "Link iNaturalist",
-                onAction = onLinkAccount,
-                modifier = Modifier.padding(innerPadding),
-            )
             state.errorMessage != null -> CollectionMessage(
                 message = state.errorMessage,
                 actionLabel = "Try again",
@@ -206,11 +204,12 @@ fun CollectionScreen(
                             rareCount = state.entries.count { it.observationCount > 0 && it.isRare() },
                             xp = state.totalXp,
                             selectedCatalogue = state.selectedCatalogue,
-                            catalogues = state.installedCatalogues,
-                            onSelectCatalogue = onSelectCatalogue,
                             achievements = state.achievements,
                             observedTaxa = state.observedRegionalTaxa,
                         )
+                        if (!state.linked) {
+                            UnlinkedCollectionBanner(onLinkAccount = onLinkAccount)
+                        }
                         CollectionSearchBar(query = query, onQueryChange = { query = it })
                         FilterBar(
                             selectedFilter = selectedFilter,
@@ -242,8 +241,6 @@ private fun CollectorHeader(
     rareCount: Int,
     xp: Int,
     selectedCatalogue: InstalledRegionalCatalogue?,
-    catalogues: List<InstalledRegionalCatalogue>,
-    onSelectCatalogue: (String) -> Unit,
     achievements: List<InstalledRegionalAchievement>,
     observedTaxa: Set<Long>,
     modifier: Modifier = Modifier,
@@ -279,14 +276,7 @@ private fun CollectorHeader(
                 verticalAlignment = Alignment.CenterVertically,
             ) {
                 if (selectedCatalogue != null) {
-                    WildlifeDropdown(
-                        selected = selectedCatalogue,
-                        options = catalogues,
-                        label = InstalledRegionalCatalogue::displayName,
-                        onSelected = { onSelectCatalogue(it.regionKey) },
-                        accent = accent,
-                        leading = { RegionGlyph(regionVisual(it.regionKey)) },
-                    )
+                    RegionPill(selected = selectedCatalogue)
                 }
                 RankBadge(tier = tier, accent = accent)
             }
@@ -580,16 +570,6 @@ private fun RankBadge(tier: RankTier, accent: Color) {
     }
 }
 
-@Composable
-private fun RegionGlyph(visual: RegionVisual) {
-    Box(
-        modifier = Modifier.size(26.dp).background(visual.accent.copy(alpha = 0.22f), CircleShape),
-        contentAlignment = Alignment.Center,
-    ) {
-        Icon(visual.icon, contentDescription = null, tint = visual.accent, modifier = Modifier.size(16.dp))
-    }
-}
-
 /**
  * All collection controls on a single horizontally-scrolling row of dropdowns: status filter,
  * taxonomic group (when the region has any), and sort order. A compact count sits underneath.
@@ -727,14 +707,6 @@ private fun rankTierFor(collected: Int): RankTier =
 private fun nextRankTier(collected: Int): RankTier? =
     RANK_TIERS.firstOrNull { collected < it.floor }
 
-private data class RegionVisual(val icon: ImageVector, val accent: Color)
-
-private fun regionVisual(regionKey: String): RegionVisual = when (regionKey) {
-    "mediterranean_europe" -> RegionVisual(Icons.Filled.Forest, WildlifeOliveStrong)
-    "east_africa" -> RegionVisual(Icons.Filled.Landscape, WildlifeGold)
-    "caribbean" -> RegionVisual(Icons.Filled.Waves, CaribbeanTeal)
-    else -> RegionVisual(Icons.Filled.Public, WildlifeOliveStrong)
-}
 
 // endregion
 
@@ -797,6 +769,34 @@ private fun EncounterRarity.toCardRarity() = when (this) {
 }
 
 // endregion
+
+/**
+ * Shown instead of replacing the whole screen: an unlinked user can still browse the regional
+ * guide as silhouettes, they just have nothing collected yet.
+ */
+@Composable
+private fun UnlinkedCollectionBanner(onLinkAccount: () -> Unit) {
+    Card(
+        modifier = Modifier.fillMaxWidth(),
+        colors = CardDefaults.cardColors(containerColor = MaterialTheme.colorScheme.surfaceVariant),
+        border = BorderStroke(1.dp, MaterialTheme.colorScheme.outlineVariant),
+        elevation = CardDefaults.cardElevation(0.dp),
+    ) {
+        Column(
+            modifier = Modifier.padding(WildlifeSpacing.Card),
+            verticalArrangement = Arrangement.spacedBy(WildlifeSpacing.Small),
+        ) {
+            Text("Nothing collected yet", style = MaterialTheme.typography.titleMedium)
+            Text(
+                text = "This is the regional guide. Link iNaturalist and your confirmed sightings " +
+                    "will fill these cards in.",
+                style = MaterialTheme.typography.bodySmall,
+                color = MaterialTheme.colorScheme.onSurfaceVariant,
+            )
+            OutlinedButton(onClick = onLinkAccount) { Text("Link iNaturalist") }
+        }
+    }
+}
 
 @Composable
 private fun CollectionMessage(
@@ -863,7 +863,6 @@ private fun CollectionScreenPreview() {
             onOpenSpecies = {},
             onLinkAccount = {},
             onRetry = {},
-            onSelectCatalogue = {},
         )
     }
 }

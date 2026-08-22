@@ -51,6 +51,7 @@ data class RegionalExploreCatalogue(
 
 data class ExploreUiState(
     val activeCatalogue: RegionalExploreCatalogue? = null,
+    val installedCatalogues: List<InstalledRegionalCatalogue> = emptyList(),
     val entries: List<ExploreSpecies> = emptyList(),
     val accountLinked: Boolean = false,
     val personalMap: PersonalObservationMap = PersonalObservationMapProjection.build(emptyList()),
@@ -247,6 +248,15 @@ class ExploreViewModel(application: Application) : AndroidViewModel(application)
         uiState = loadLocal()
     }
 
+    /**
+     * Explore owns the active regional guide: it is the one surface that works unlinked, so the
+     * choice must not sit behind an account wall on Collection.
+     */
+    fun selectRegion(regionKey: String) {
+        ActiveCatalogueStore(getApplication()).selectRegion(regionKey)
+        refreshLocal()
+    }
+
     fun setObservationMapVisible(observationUuid: String, visible: Boolean) {
         val account = AccountStore(getApplication()).verified() ?: return
         viewModelScope.launch {
@@ -371,6 +381,7 @@ class ExploreViewModel(application: Application) : AndroidViewModel(application)
                 version = selected.version,
                 speciesCount = content.taxa(selectedKey).size,
             ),
+            installedCatalogues = catalogues,
             entries = ExploreProjection.regionalEntries(
                 taxa = content.taxa(selectedKey), observations = regionalObservations,
                 detailsByTaxon = detailsByTaxon,

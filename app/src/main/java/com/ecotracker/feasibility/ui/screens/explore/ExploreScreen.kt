@@ -23,7 +23,9 @@ import androidx.compose.material.icons.outlined.Refresh
 import androidx.compose.material3.Button
 import androidx.compose.material3.Card
 import androidx.compose.material3.CardDefaults
-import androidx.compose.material3.FilterChip
+import androidx.compose.material3.ExperimentalMaterial3Api
+import androidx.compose.material3.SecondaryTabRow
+import androidx.compose.material3.Tab
 import androidx.compose.material3.Icon
 import androidx.compose.material3.LinearProgressIndicator
 import androidx.compose.material3.MaterialTheme
@@ -42,6 +44,9 @@ import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import com.wildlife.feasibility.NearbySpecies
 import com.wildlife.feasibility.ui.components.CollectionSearchBar
+import com.wildlife.feasibility.ui.components.NearbySpeciesRow
+import com.wildlife.feasibility.ui.components.RegionSelector
+import com.wildlife.feasibility.ui.screens.map.PersonalMapContent
 import com.wildlife.feasibility.ui.components.SpeciesCard
 import com.wildlife.feasibility.ui.components.SpeciesGrid
 import com.wildlife.feasibility.ui.components.SpeciesCardModel
@@ -63,9 +68,10 @@ enum class ExploreFilter(val label: String, val taxonGroup: String? = null) {
     FISH("Fish", "fish"),
 }
 
-private enum class ExploreSection(val label: String) {
-    NEARBY("Near me"),
+enum class ExploreSection(val label: String) {
     GUIDE("Species guide"),
+    NEARBY("Near me"),
+    MAP("My map"),
 }
 
 @Composable
@@ -75,9 +81,13 @@ fun ExploreScreen(
     onRefresh: () -> Unit,
     onOpenTaxon: (Long) -> Unit,
     onDiscoverNearby: () -> Unit,
+    onSelectRegion: (String) -> Unit,
+    onOpenObservation: (String) -> Unit,
+    onMapVisibilityChanged: (String, Boolean) -> Unit,
     bottomBar: @Composable () -> Unit = {},
+    selectedSection: ExploreSection,
+    onSectionChange: (ExploreSection) -> Unit,
 ) {
-    var selectedSection by rememberSaveable { mutableStateOf(ExploreSection.NEARBY) }
     var selectedFilter by rememberSaveable { mutableStateOf(ExploreFilter.ALL) }
     var query by rememberSaveable { mutableStateOf("") }
     val availableFilters = ExploreFilter.entries.filter { filter ->
@@ -98,7 +108,16 @@ fun ExploreScreen(
     WildlifeScaffold(
         title = "Explore",
         onBack = onBack,
-        actions = {},
+        actions = {
+            RegionSelector(
+                selected = state.installedCatalogues.firstOrNull {
+                    it.regionKey == state.activeCatalogue?.regionKey
+                },
+                catalogues = state.installedCatalogues,
+                onSelectRegion = onSelectRegion,
+                modifier = Modifier.padding(end = WildlifeSpacing.Small),
+            )
+        },
         bottomBar = bottomBar,
     ) { innerPadding ->
         Column(
@@ -108,7 +127,7 @@ fun ExploreScreen(
         ) {
             ExploreSectionSelector(
                 selected = selectedSection,
-                onSelected = { selectedSection = it },
+                onSelected = onSectionChange,
             )
             when (selectedSection) {
             ExploreSection.GUIDE -> if (state.activeCatalogue == null) {
@@ -167,31 +186,44 @@ fun ExploreScreen(
                     onOpenTaxon = onOpenTaxon,
                     modifier = Modifier.weight(1f),
                 )
+
+                ExploreSection.MAP -> PersonalMapContent(
+                    accountLinked = state.accountLinked,
+                    map = state.personalMap,
+                    regionalProgress = state.regionalMapProgress,
+                    onOpenObservation = onOpenObservation,
+                    onMapVisibilityChanged = onMapVisibilityChanged,
+                    modifier = Modifier.weight(1f),
+                )
             }
         }
     }
 }
 
+@OptIn(ExperimentalMaterial3Api::class)
 @Composable
 private fun ExploreSectionSelector(
     selected: ExploreSection,
     onSelected: (ExploreSection) -> Unit,
 ) {
-    Row(
-        modifier = Modifier
-            .fillMaxWidth()
-            .padding(
-                horizontal = WildlifeSpacing.Screen,
-                vertical = WildlifeSpacing.Small,
-            ),
-        horizontalArrangement = Arrangement.spacedBy(WildlifeSpacing.Small),
+    SecondaryTabRow(
+        selectedTabIndex = selected.ordinal,
+        containerColor = MaterialTheme.colorScheme.background,
+        contentColor = WildlifeTheme.colors.oliveStrong,
     ) {
         ExploreSection.entries.forEach { section ->
-            FilterChip(
+            Tab(
                 selected = section == selected,
                 onClick = { onSelected(section) },
-                label = { Text(section.label) },
-                modifier = Modifier.weight(1f),
+                text = {
+                    Text(
+                        text = section.label,
+                        style = MaterialTheme.typography.labelLarge,
+                        maxLines = 1,
+                    )
+                },
+                selectedContentColor = WildlifeTheme.colors.oliveStrong,
+                unselectedContentColor = MaterialTheme.colorScheme.onSurfaceVariant,
             )
         }
     }
@@ -278,50 +310,6 @@ private fun NearbyDiscoveryContent(
                     NearbySpeciesRow(species, onOpenTaxon)
                 }
             }
-        }
-    }
-}
-
-@Composable
-private fun NearbySpeciesRow(
-    species: NearbySpecies,
-    onOpenTaxon: (Long) -> Unit,
-) {
-    Card(
-        colors = CardDefaults.cardColors(containerColor = MaterialTheme.colorScheme.surface),
-        border = BorderStroke(1.dp, MaterialTheme.colorScheme.outlineVariant),
-        modifier = Modifier
-            .fillMaxWidth()
-            .clickable { onOpenTaxon(species.taxonId) },
-    ) {
-        Row(
-            modifier = Modifier
-                .fillMaxWidth()
-                .padding(WildlifeSpacing.Card),
-            horizontalArrangement = Arrangement.SpaceBetween,
-            verticalAlignment = Alignment.CenterVertically,
-        ) {
-            Column(Modifier.weight(1f)) {
-                Text(
-                    text = species.commonName ?: species.scientificName,
-                    style = MaterialTheme.typography.titleSmall,
-                    color = MaterialTheme.colorScheme.onSurface,
-                )
-                if (species.commonName != null) {
-                    Text(
-                        text = species.scientificName,
-                        style = MaterialTheme.typography.bodySmall,
-                        color = MaterialTheme.colorScheme.onSurfaceVariant,
-                        fontStyle = androidx.compose.ui.text.font.FontStyle.Italic,
-                    )
-                }
-            }
-            Text(
-                text = "${species.observationCount} reports",
-                style = MaterialTheme.typography.labelLarge,
-                color = WildlifeTheme.colors.oliveStrong,
-                modifier = Modifier.padding(start = WildlifeSpacing.Small),
-            )
         }
     }
 }
@@ -453,6 +441,11 @@ private fun ExplorePreview() {
             onRefresh = {},
             onOpenTaxon = {},
             onDiscoverNearby = {},
+            onSelectRegion = {},
+            onOpenObservation = {},
+            onMapVisibilityChanged = { _, _ -> },
+            selectedSection = ExploreSection.GUIDE,
+            onSectionChange = {},
         )
     }
 }

@@ -59,7 +59,7 @@ fun ProfileScreen(
     onManageAccount: () -> Unit,
     onOpenPublicProfile: (String) -> Unit,
     onSelectProgressionTitle: (String) -> Unit,
-    onSyncObservations: () -> Unit,
+    onOpenObservations: () -> Unit,
     onCopyTestReport: (String) -> Unit,
     onDeleteLocalData: () -> Unit,
     bottomBar: @Composable () -> Unit,
@@ -74,6 +74,7 @@ fun ProfileScreen(
             contentPadding = PaddingValues(WildlifeSpacing.Screen),
             verticalArrangement = Arrangement.spacedBy(WildlifeSpacing.Screen),
         ) {
+            item { ProfileSectionHeader("Account") }
             item {
                 Card(
                     modifier = Modifier.fillMaxWidth(),
@@ -99,9 +100,30 @@ fun ProfileScreen(
                     }
                 }
             }
-            state.account?.let {
+            item {
+                OutlinedButton(onClick = onManageAccount, modifier = Modifier.fillMaxWidth()) {
+                    Icon(Icons.Outlined.Link, contentDescription = null)
+                    Text(
+                        if (state.account == null) "Link iNaturalist" else "Manage linked account",
+                        Modifier.padding(start = WildlifeSpacing.Small),
+                    )
+                }
+            }
+            state.account?.let { account ->
                 item {
-                    ObservationSyncCard(state = state, onSyncObservations = onSyncObservations)
+                    OutlinedButton(
+                        onClick = { onOpenPublicProfile(account.login) },
+                        modifier = Modifier.fillMaxWidth(),
+                    ) {
+                        Icon(Icons.AutoMirrored.Outlined.OpenInNew, contentDescription = null)
+                        Text("Open public iNaturalist profile", Modifier.padding(start = WildlifeSpacing.Small))
+                    }
+                }
+            }
+            state.account?.let {
+                item { ProfileSectionHeader("Progression") }
+                item {
+                    ObservationSyncCard(state = state, onOpenObservations = onOpenObservations)
                 }
                 item {
                     ProgressionCard(
@@ -110,6 +132,7 @@ fun ProfileScreen(
                     )
                 }
             }
+            item { ProfileSectionHeader("Data & diagnostics") }
             item {
                 DiagnosticsAndDataCard(
                     state = state,
@@ -132,26 +155,6 @@ fun ProfileScreen(
                             color = MaterialTheme.colorScheme.onErrorContainer,
                             style = MaterialTheme.typography.bodyMedium,
                         )
-                    }
-                }
-            }
-            item {
-                OutlinedButton(onClick = onManageAccount, modifier = Modifier.fillMaxWidth()) {
-                    Icon(Icons.Outlined.Link, contentDescription = null)
-                    Text(
-                        if (state.account == null) "Link iNaturalist" else "Manage linked account",
-                        Modifier.padding(start = WildlifeSpacing.Small),
-                    )
-                }
-            }
-            state.account?.let { account ->
-                item {
-                    OutlinedButton(
-                        onClick = { onOpenPublicProfile(account.login) },
-                        modifier = Modifier.fillMaxWidth(),
-                    ) {
-                        Icon(Icons.AutoMirrored.Outlined.OpenInNew, contentDescription = null)
-                        Text("Open public iNaturalist profile", Modifier.padding(start = WildlifeSpacing.Small))
                     }
                 }
             }
@@ -223,6 +226,16 @@ fun ProfileScreen(
             },
         )
     }
+}
+
+@Composable
+private fun ProfileSectionHeader(title: String) {
+    Text(
+        text = title,
+        style = MaterialTheme.typography.titleMedium,
+        color = WildlifeTheme.colors.oliveStrong,
+        fontWeight = FontWeight.SemiBold,
+    )
 }
 
 @Composable
@@ -322,7 +335,7 @@ private fun DiagnosticRow(label: String, value: String) {
 @Composable
 private fun ObservationSyncCard(
     state: ShellUiState,
-    onSyncObservations: () -> Unit,
+    onOpenObservations: () -> Unit,
 ) {
     Card(
         modifier = Modifier.fillMaxWidth(),
@@ -381,15 +394,11 @@ private fun ObservationSyncCard(
             }
 
             OutlinedButton(
-                onClick = onSyncObservations,
-                enabled = !state.observationSyncing,
+                onClick = onOpenObservations,
                 modifier = Modifier.fillMaxWidth(),
             ) {
                 Icon(Icons.Outlined.Sync, contentDescription = null)
-                Text(
-                    if (state.observationSyncError == null) "Check now" else "Try again",
-                    Modifier.padding(start = WildlifeSpacing.Small),
-                )
+                Text("Open observations", Modifier.padding(start = WildlifeSpacing.Small))
             }
         }
     }
@@ -582,7 +591,7 @@ private fun ProfilePreview() {
             onManageAccount = {},
             onOpenPublicProfile = {},
             onSelectProgressionTitle = {},
-            onSyncObservations = {},
+            onOpenObservations = {},
             onCopyTestReport = {},
             onDeleteLocalData = {},
             bottomBar = {},
@@ -635,7 +644,7 @@ private fun ProfileProgressionPreview() {
             onManageAccount = {},
             onOpenPublicProfile = {},
             onSelectProgressionTitle = {},
-            onSyncObservations = {},
+            onOpenObservations = {},
             onCopyTestReport = {},
             onDeleteLocalData = {},
             bottomBar = {},
@@ -665,7 +674,7 @@ private fun ProfileProgressionLargeTextPreview() {
             onManageAccount = {},
             onOpenPublicProfile = {},
             onSelectProgressionTitle = {},
-            onSyncObservations = {},
+            onOpenObservations = {},
             onCopyTestReport = {},
             onDeleteLocalData = {},
             bottomBar = {},

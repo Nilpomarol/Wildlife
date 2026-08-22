@@ -19,6 +19,7 @@ val WildlifeOliveDark = Color(0xFF4F551D)
 val WildlifeParchment = Color(0xFFDFCDAA)
 val WildlifeGold = Color(0xFFD9A441)
 val WildlifeGoldStrong = Color(0xFFF0AA2A)
+val CaribbeanTeal = Color(0xFF4FB3B0)
 val WildlifeConfirmed = Color(0xFF78882D)
 val WildlifeSilhouette = Color(0xFF343832)
 

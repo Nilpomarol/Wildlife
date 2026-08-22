@@ -61,7 +61,6 @@ import coil.request.SuccessResult
 import com.wildlife.feasibility.BuildConfig
 import com.wildlife.feasibility.ui.components.RegionalCollectionMark
 import com.wildlife.feasibility.ui.components.RegionalCollectionStamp
-import com.wildlife.feasibility.ui.components.WildlifeScaffold
 import com.wildlife.feasibility.ui.theme.WildlifeSpacing
 import com.wildlife.feasibility.ui.theme.WildlifeTheme
 import kotlinx.coroutines.Dispatchers
@@ -106,13 +105,18 @@ import org.maplibre.geojson.Point
 import org.maplibre.geojson.Polygon
 
 @Composable
-fun PersonalMapScreen(
+fun PersonalMapContent(
     accountLinked: Boolean,
     map: PersonalObservationMap,
     regionalProgress: List<RegionalMapProgress>,
-    onBack: () -> Unit,
     onOpenObservation: (String) -> Unit,
     onMapVisibilityChanged: (String, Boolean) -> Unit,
+    modifier: Modifier = Modifier,
+    contentPadding: PaddingValues = PaddingValues(
+        start = WildlifeSpacing.Screen,
+        end = WildlifeSpacing.Screen,
+        bottom = WildlifeSpacing.Section,
+    ),
 ) {
     var showVisibilityManager by rememberSaveable { mutableStateOf(false) }
     var showRegionalProgress by rememberSaveable { mutableStateOf(true) }
@@ -129,16 +133,9 @@ fun PersonalMapScreen(
             onDismiss = { showVisibilityManager = false },
         )
     }
-    WildlifeScaffold(title = "My map", onBack = onBack) { innerPadding ->
-        LazyColumn(
-                modifier = Modifier
-                    .fillMaxSize()
-                    .padding(innerPadding),
-                contentPadding = PaddingValues(
-                    start = WildlifeSpacing.Screen,
-                    end = WildlifeSpacing.Screen,
-                    bottom = WildlifeSpacing.Section,
-                ),
+    LazyColumn(
+                modifier = modifier.fillMaxSize(),
+                contentPadding = contentPadding,
                 verticalArrangement = Arrangement.spacedBy(WildlifeSpacing.Small),
             ) {
                 item {
@@ -274,7 +271,6 @@ fun PersonalMapScreen(
                     }
                 }
             }
-    }
 }
 
 @Composable
@@ -956,11 +952,10 @@ private fun MapMessage(message: String, modifier: Modifier = Modifier) {
 @Composable
 private fun PersonalMapUnlinkedPreview() {
     WildlifeTheme {
-        PersonalMapScreen(
+        PersonalMapContent(
             accountLinked = false,
             map = PersonalObservationMapProjection.build(emptyList()),
             regionalProgress = emptyList(),
-            onBack = {},
             onOpenObservation = {},
             onMapVisibilityChanged = { _, _ -> },
         )
