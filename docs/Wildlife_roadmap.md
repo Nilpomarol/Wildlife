@@ -50,6 +50,8 @@ The adopted region definitions and content/data contract are in [`regional_catal
 - XP values and level thresholds are experimental internal-test tuning, not a release balance commitment.
 - Regional content packs can be generated with a deterministic checksum manifest and atomically
   installed locally; remote delivery and publisher signing are intentionally not implemented yet.
+- A non-mutating pilot release audit reports each content, evidence, media and generated-pack
+  blocker before a pilot may be frozen; owner curation and Gate 2 device checks remain required.
 
 ### Open product/engineering work
 

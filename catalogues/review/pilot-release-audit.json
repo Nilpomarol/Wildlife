@@ -1,0 +1,80 @@
+{
+  "schema_version": 1,
+  "release_ready": false,
+  "source_digest": "76466663789d7e0d50909d7e72b915ff6c9c5fba6bc473ddf78fafeec8d21c6f",
+  "pack": {
+    "present": true,
+    "valid": true,
+    "source_digest_matches": true
+  },
+  "regions": [
+    {
+      "region": "mediterranean_europe",
+      "catalogue_version": "mediterranean-europe-broad-draft-1",
+      "taxa": 800,
+      "unknown_rarity": 0,
+      "checks": {
+        "catalogue_frozen": false,
+        "matching_checklist_version": true,
+        "ten_essentials": true,
+        "five_icons": true,
+        "checklists_in_catalogue": true,
+        "achievement_media_licenced": true,
+        "iNaturalist_evidence_present": true,
+        "no_unknown_rarity": true
+      }
+    },
+    {
+      "region": "east_africa",
+      "catalogue_version": "east-africa-broad-draft-1",
+      "taxa": 931,
+      "unknown_rarity": 0,
+      "checks": {
+        "catalogue_frozen": false,
+        "matching_checklist_version": true,
+        "ten_essentials": true,
+        "five_icons": true,
+        "checklists_in_catalogue": true,
+        "achievement_media_licenced": true,
+        "iNaturalist_evidence_present": true,
+        "no_unknown_rarity": true
+      }
+    },
+    {
+      "region": "caribbean",
+      "catalogue_version": "caribbean-broad-draft-1",
+      "taxa": 813,
+      "unknown_rarity": 0,
+      "checks": {
+        "catalogue_frozen": false,
+        "matching_checklist_version": true,
+        "ten_essentials": true,
+        "five_icons": true,
+        "checklists_in_catalogue": true,
+        "achievement_media_licenced": true,
+        "iNaturalist_evidence_present": true,
+        "no_unknown_rarity": true
+      }
+    }
+  ],
+  "blockers": [
+    {
+      "region": "mediterranean_europe",
+      "checks": [
+        "catalogue_frozen"
+      ]
+    },
+    {
+      "region": "east_africa",
+      "checks": [
+        "catalogue_frozen"
+      ]
+    },
+    {
+      "region": "caribbean",
+      "checks": [
+        "catalogue_frozen"
+      ]
+    }
+  ]
+}
