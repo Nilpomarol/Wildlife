@@ -191,6 +191,7 @@ class MainActivity : ComponentActivity() {
                 PersonalMapScreen(
                     accountLinked = exploreViewModel.uiState.accountLinked,
                     map = exploreViewModel.uiState.personalMap,
+                    regionalProgress = exploreViewModel.uiState.regionalMapProgress,
                     onBack = { navController.popBackStack() },
                     onOpenObservation = { uuid ->
                         openExternal("https://www.inaturalist.org/observations/$uuid")

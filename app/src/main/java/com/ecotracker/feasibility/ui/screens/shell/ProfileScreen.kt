@@ -366,7 +366,7 @@ private fun ObservationSyncCard(
 
             if (state.pendingMatchesReady > 0) {
                 Text(
-                    text = "${state.pendingMatchesReady} pending handoff ready to review in Capture",
+                    text = "${state.pendingMatchesReady} pending handoff ready to review in Observations",
                     style = MaterialTheme.typography.bodyMedium,
                     color = MaterialTheme.colorScheme.secondary,
                 )

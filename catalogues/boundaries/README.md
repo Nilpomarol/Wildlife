@@ -17,6 +17,12 @@ app can perform local assignment without a live iNaturalist place lookup. During
 sync, an assignment is written once with its boundary version and is not silently recomputed by
 later syncs.
 
+`tools/generate_map_atlas.py` separately dissolves those map units into 24 display regions,
+simplifies them with topology preservation and emits representative-point label/achievement
+anchors under `app/src/main/assets/atlas/`. This smaller atlas is presentation-only. It must never
+be used for observation assignment or replace the full versioned boundary asset. Install its
+isolated authoring dependency with `pip install -r tools/requirements-map-atlas.txt`.
+
 Assignment order is fixed by `../region_assignment_policy.yaml`:
 
 1. exactly one matching land polygon assigns the observation to that land region;

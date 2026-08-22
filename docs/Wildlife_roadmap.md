@@ -39,20 +39,18 @@ The adopted region definitions and content/data contract are in [`regional_catal
 - Generated and bundled pilot catalogues for Mediterranean Europe, East Africa and the Caribbean, each with 10 Essentials and 5 Icons.
 - Local regional boundary assignment, region-bound collection/XP/achievements and active-region selection.
 - Regional Home progress, Explore guide/Near Me filtering and Species Detail context.
+- Focused Observations route with grouped multi-photo handoffs, candidate review, retry and iNaturalist recovery guidance.
 
 ### Implemented but provisional
 
 - The legacy Catalonia snapshot remains only a detail/media migration cache; product browsing uses the active bundled regional catalogue.
 - Pilot encounter rarity is generated from iNaturalist occurrence evidence and is explicitly draft/editorially revisable before release.
 - Level thresholds and global first-species XP are placeholder v0.1 rules.
-- The map basemap provider is a replaceable development dependency.
+- Field Atlas completion effects and broad device/accessibility validation remain provisional.
 - XP values and level thresholds are experimental internal-test tuning, not a release balance commitment.
 
 ### Open product/engineering work
 
-- Observation management is mixed into Capture.
-- Multiple photos look like separate observations despite being handed off together.
-- The official iNaturalist app may require the user to reopen it/explicitly upload; Wildlife cannot control that process.
 - The remaining 21 regional catalogues, their reviewed evidence snapshots and final media curation are not yet available.
 - The supplied region groupings do not yet assign every country/territory or marine area unambiguously.
 - Rarity/prestige and Essentials/Icons are draft pilot curation; their values need continuing editorial review before release.
@@ -63,19 +61,15 @@ The adopted region definitions and content/data contract are in [`regional_catal
 ```text
 Gate 1 GO
    ↓
-Observation UX separation
+Finish the in-progress regional/personal map logic
    ↓
-Regional rules + complete boundary manifest
+Core beta logic and data integrity
    ↓
-Catalogue authoring/generator
+Content-pack lifecycle and migration resilience
    ↓
-Multi-region storage and observation assignment
+Pilot editorial freeze and beta operations
    ↓
-Regional collection + XP + achievements
-   ↓
-Regional/personal map layers
-   ↓
-Shared-component UI redesign
+Shared-component UI consolidation
    ↓
 Three-region closed beta
    ↓
@@ -84,7 +78,22 @@ Content scale-up to all 24 regions
 
 Large-scale animal/media curation starts only after the generator produces deterministic output and useful diffs. The runtime targets 24 regions from the start; the first beta proves three curated regions.
 
-## 4. Phase A — Observation UX separation
+### Replanned delivery slices — logic first
+
+The work below is ordered by dependency, not calendar dates. At the current part-time pace, use each slice as a decision point: do not begin the next slice until its exit criteria hold. Only the minimum standard Material UI needed to exercise a new logic path belongs in Slices 1–4; the final shared-component redesign is deliberately deferred to Slice 5.
+
+| Slice | Scope | Main exit criteria | Indicative effort |
+|---|---|---|---:|
+| 1. Finish map logic | Complete the local Field Atlas integration: regional completion projection, independent privacy-safe personal layer, local assets, state handling and focused automated/device checks. | The map projects real regional state correctly, does not depend on personal coordinates, and remains useful offline. | Remaining 2–5 focused days |
+| 2. Core beta integrity | Implement conservative due-observation background batching, retry/backoff and idempotency; add structured local-data export; simulate and freeze beta progression thresholds. | Sync never creates duplicate rewards or unsafe request bursts; exported data is complete for Wildlife-owned data; progression rules are frozen for beta. | 8–15 focused days |
+| 3. Content-pack resilience | Build pack version/install/remove/storage/migration behavior; test catalogue, taxonomy and boundary-version migrations plus offline recovery. | A content update or pack removal never loses observation history or earned progression. | 8–15 focused days |
+| 4. Pilot release logic and editorial freeze | Finish pilot catalogue, rarity/prestige, achievement and media-provenance reviews; add beta instrumentation and exercise operational failure paths. | All three pilot packs are reproducible, attributable and measurable against Gate 2 metrics. | 8–12 engineering days + curation |
+| 5. Shared UI consolidation | Apply the final reusable Field Guide components and perform localisation, accessibility and representative-device validation. | The tested beta logic is exposed consistently, accessibly and without duplicate screen implementations. | 10–18 focused days |
+| 6. Closed beta, then scale | Run Gate 2, correct evidence-backed issues, then curate and release the remaining 21 regions through the same pipeline. | Beta gates are met before each additional region is published. | Ongoing; scale-up is 5–10 engineering days + curation |
+
+Pilot editorial review can proceed alongside Slices 2 and 3, but it must not bypass their pack-validation and migration exit criteria. Do not begin broad UI polish or manual curation of all 24 catalogues ahead of those logic foundations.
+
+## 4. Phase A — Observation UX separation — Complete (21 August 2026)
 
 **Effort: 5–8 focused days**
 
@@ -97,7 +106,7 @@ Large-scale animal/media curation starts only after the generator produces deter
 
 **Exit criteria:** Capture has one job; every persisted observation state is discoverable from Observations; single/multiple-photo, pending, ambiguous, offline and error states pass tests and device checks.
 
-## 5. Phase B — Regional foundation and authoring contract
+## 5. Phase B — Regional foundation and authoring contract — Complete (21 August 2026)
 
 **Effort: 5–8 engineering days, plus owner review of region membership**
 
@@ -121,7 +130,7 @@ land-region XP/completion until a curated marine catalogue exists. Antarctica an
 uncovered land are retained personally but unsupported for regional progression. The Caribbean
 is the third pilot.
 
-## 6. Phase C — Catalogue toolchain
+## 6. Phase C — Catalogue toolchain — Complete (21 August 2026)
 
 **Effort: 7–12 focused days**
 
@@ -152,7 +161,7 @@ The toolchain must:
 
 **Exit criteria:** two runs from identical sources are logically deterministic; a one-species edit produces a small understandable diff; invalid achievements/licences fail the build.
 
-## 7. Phase D — Multi-region runtime migration
+## 7. Phase D — Multi-region runtime migration — Complete (21 August 2026)
 
 **Effort: 10–18 focused days**
 
@@ -167,7 +176,7 @@ The toolchain must:
 
 **Exit criteria:** a species present in two catalogues unlocks only the observation's region; region switching works offline; boundary/version migrations preserve observations and ledger history.
 
-## 8. Phase E — Regional progression and achievements
+## 8. Phase E — Regional progression and achievements — Complete for the pilot v0.1 contract (21 August 2026)
 
 **Effort: 7–12 focused days**
 
@@ -185,7 +194,7 @@ Implement [`progression_rules.md`](progression_rules.md) v0.2:
 
 **Exit criteria:** a Common Legendary elephant is worth more than a Common Standard warthog without being labelled rare; retries never duplicate awards; an observation made in another region earns no progress here.
 
-## 9. Phase F — Regional map and personal observations
+## 9. Phase F — Regional map and personal observations — In progress
 
 **Effort: 5–9 focused days**
 
@@ -195,11 +204,11 @@ Implement [`progression_rules.md`](progression_rules.md) v0.2:
 4. Keep the current coarse personal observation cells as a separately toggleable layer.
 5. Provide textual region status and an accessible legend; colour/effect is never the only state cue.
 6. Avoid continuous glow/animation; use a one-time completion transition only.
-7. Approve, replace or self-host the development basemap before release.
+7. Validate the local Field Atlas palette, selection, marks and completion motion across target devices.
 
 **Exit criteria:** the map remains useful without personal coordinates, remains privacy-safe with obscured data and exposes every state non-visually.
 
-## 10. Phase G — Shared-component UI and navigation improvement
+## 10. Phase G — Shared-component UI and navigation improvement — Deferred until logic slices complete
 
 **Effort: 10–18 focused days**
 
@@ -312,10 +321,11 @@ Catalogue, achievement, localisation and media curation add approximately **15�
 
 ## 16. Immediate next actions
 
-1. Implement the Observation UX separation and multiple-photo clarification.
-2. Turn the 24-region workbook rows into a complete ISO country/territory assignment manifest; resolve omissions and vague “related areas”.
-3. Select compatible local land/marine boundary sources and record provenance.
-4. Scaffold the catalogue source format, validator and deterministic SQLite generator.
-5. Build the Mediterranean Europe pilot from the current Catalonia data without treating the old 580-entry snapshot as a frozen denominator.
+1. Complete the regional/personal map logic and its focused state/device validation; keep map polish limited to what is needed to validate the behavior.
+2. Implement and test conservative batched background sync, retry/backoff and idempotent reward handling.
+3. Deliver structured export of Wildlife-owned local data and freeze beta progression thresholds through collection simulations.
+4. Build and test the regional content-pack lifecycle: versioning, storage accounting, install/remove and safe catalogue/taxonomy/boundary migrations.
+5. Continue pilot catalogue, rarity/prestige, achievement and media-provenance review in parallel with the logic slices.
+6. Add beta instrumentation and operational checks, then begin the shared-component UI, localisation and broad accessibility/device pass.
 
-Do not begin manual curation of all 24 catalogues until actions 2–4 make changes reviewable, reproducible and testable.
+Do not begin broad UI polish or manual curation of all 24 catalogues until the pilot pipeline, sync, pack migrations, assignment and map projections remain reviewable, reproducible and testable.

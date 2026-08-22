@@ -1,7 +1,13 @@
 package com.wildlife.feasibility.ui.screens.map
 
+import com.wildlife.feasibility.InstalledRegionalAchievement
+import com.wildlife.feasibility.InstalledRegionalCatalogue
+import com.wildlife.feasibility.InstalledRegionalTaxon
+import com.wildlife.feasibility.ObservationRegion
+import com.wildlife.feasibility.ObservationRegionAssignment
 import com.wildlife.feasibility.SyncedObservation
 import org.junit.Assert.assertEquals
+import org.junit.Assert.assertFalse
 import org.junit.Assert.assertTrue
 import org.junit.Test
 
@@ -70,6 +76,85 @@ class PersonalObservationMapProjectionTest {
 
         assertEquals("Unidentified observation", map.cells.single().latestLabel)
     }
+
+    @Test
+    fun `regional map progress only counts assigned catalogue taxa`() {
+        val mediterranean = catalogue("mediterranean", "Mediterranean")
+        val caribbean = catalogue("caribbean", "Caribbean")
+        val observations = listOf(
+            observation("med-robin", 41.38, 2.17, "research").copy(collectionTaxonId = 1),
+            observation("med-duplicate", 41.39, 2.18, "needs_id").copy(collectionTaxonId = 1),
+            observation("caribbean", 18.47, -66.11, "needs_id").copy(collectionTaxonId = 2),
+            observation("unassigned", null, null, "needs_id").copy(collectionTaxonId = 3),
+            observation("outside-guide", 41.4, 2.2, "needs_id").copy(collectionTaxonId = 99),
+        )
+
+        val progress = RegionalMapProgressProjection.build(
+            catalogues = listOf(mediterranean, caribbean),
+            taxaByRegion = mapOf(
+                "mediterranean" to listOf(taxon(1), taxon(3)),
+                "caribbean" to listOf(taxon(2)),
+            ),
+            achievementsByRegion = mapOf(
+                "mediterranean" to listOf(
+                    InstalledRegionalAchievement("ESSENTIALS", setOf(1)),
+                    InstalledRegionalAchievement("icons", setOf(1, 3)),
+                ),
+            ),
+            observations = observations,
+            assignmentsByObservationUuid = mapOf(
+                "med-robin" to assignment("med-robin", "mediterranean"),
+                "med-duplicate" to assignment("med-duplicate", "mediterranean"),
+                "caribbean" to assignment("caribbean", "caribbean"),
+                "outside-guide" to assignment("outside-guide", "mediterranean"),
+            ),
+        )
+
+        assertEquals(1, progress[0].observedSpecies)
+        assertEquals(2, progress[0].totalSpecies)
+        assertTrue(progress[0].essentialsComplete)
+        assertFalse(progress[0].iconsComplete)
+        assertEquals(1, progress[1].observedSpecies)
+        assertEquals(1f, progress[1].completionFraction)
+    }
+
+    @Test
+    fun `uncertain and marine assignments do not contribute to regional map progress`() {
+        val progress = RegionalMapProgressProjection.build(
+            catalogues = listOf(catalogue("mediterranean", "Mediterranean")),
+            taxaByRegion = mapOf("mediterranean" to listOf(taxon(1))),
+            achievementsByRegion = emptyMap(),
+            observations = listOf(
+                observation("uncertain", 41.38, 2.17, "needs_id").copy(collectionTaxonId = 1),
+                observation("marine", 41.38, 2.17, "needs_id").copy(collectionTaxonId = 1),
+            ),
+            assignmentsByObservationUuid = mapOf(
+                "uncertain" to assignment("uncertain", "mediterranean", ObservationRegionAssignment.REGION_UNCERTAIN),
+                "marine" to assignment("marine", null, ObservationRegionAssignment.MARINE_WORLDWIDE),
+            ),
+        ).single()
+
+        assertEquals(0, progress.observedSpecies)
+        assertEquals(0f, progress.completionFraction)
+    }
+
+    private fun catalogue(regionKey: String, displayName: String) =
+        InstalledRegionalCatalogue(regionKey, displayName, "test")
+
+    private fun taxon(id: Long) = InstalledRegionalTaxon(
+        taxonId = id,
+        commonName = "Test species $id",
+        scientificName = "Testus species$id",
+        rarity = com.wildlife.feasibility.EncounterRarity.COMMON,
+        prestige = com.wildlife.feasibility.RegionalPrestige.STANDARD,
+        taxonClass = "Aves",
+    )
+
+    private fun assignment(
+        uuid: String,
+        regionKey: String?,
+        assignment: ObservationRegionAssignment = ObservationRegionAssignment.LAND_POLYGON,
+    ) = ObservationRegion(uuid, regionKey, "test", assignment)
 
     private fun observation(
         uuid: String,

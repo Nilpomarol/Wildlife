@@ -1,5 +1,9 @@
 package com.wildlife.feasibility.ui.screens.map
 
+import com.wildlife.feasibility.InstalledRegionalAchievement
+import com.wildlife.feasibility.InstalledRegionalCatalogue
+import com.wildlife.feasibility.InstalledRegionalTaxon
+import com.wildlife.feasibility.ObservationRegion
 import com.wildlife.feasibility.SyncedObservation
 import kotlin.math.floor
 
@@ -34,6 +38,66 @@ data class PersonalObservationMap(
     val minLongitude: Double,
     val maxLongitude: Double,
 )
+
+/** A frozen-catalogue progress summary for the regional map layer. */
+data class RegionalMapProgress(
+    val regionKey: String,
+    val displayName: String,
+    val observedSpecies: Int,
+    val totalSpecies: Int,
+    val essentialsComplete: Boolean,
+    val iconsComplete: Boolean,
+) {
+    val completionFraction: Float
+        get() = if (totalSpecies == 0) 0f else (observedSpecies.toFloat() / totalSpecies).coerceIn(0f, 1f)
+}
+
+/**
+ * Builds the regional map layer from frozen catalogue membership and persisted observation
+ * assignments. Observations only contribute to the single region assigned at sync time.
+ */
+internal object RegionalMapProgressProjection {
+    fun build(
+        catalogues: List<InstalledRegionalCatalogue>,
+        taxaByRegion: Map<String, List<InstalledRegionalTaxon>>,
+        achievementsByRegion: Map<String, List<InstalledRegionalAchievement>>,
+        observations: List<SyncedObservation>,
+        assignmentsByObservationUuid: Map<String, ObservationRegion>,
+    ): List<RegionalMapProgress> {
+        val observedByRegion = observations.asSequence()
+            .mapNotNull { observation ->
+                val assignment = assignmentsByObservationUuid[observation.uuid]
+                    ?.takeIf(ObservationRegion::earnsRegionalProgress)
+                    ?: return@mapNotNull null
+                val regionKey = assignment.regionKey ?: return@mapNotNull null
+                val taxonId = observation.collectionTaxonId ?: observation.taxonId
+                    ?: return@mapNotNull null
+                regionKey to taxonId
+            }
+            .groupBy({ it.first }, { it.second })
+            .mapValues { (_, taxa) -> taxa.toSet() }
+
+        return catalogues.map { catalogue ->
+            val catalogueTaxa = taxaByRegion[catalogue.regionKey].orEmpty()
+                .mapTo(hashSetOf(), InstalledRegionalTaxon::taxonId)
+            val observedTaxa = observedByRegion[catalogue.regionKey].orEmpty()
+                .intersect(catalogueTaxa)
+            val achievements = achievementsByRegion[catalogue.regionKey].orEmpty()
+            val essentials = achievements.firstOrNull { it.label.equals("essentials", ignoreCase = true) }
+                ?.taxonIds.orEmpty()
+            val icons = achievements.firstOrNull { it.label.equals("icons", ignoreCase = true) }
+                ?.taxonIds.orEmpty()
+            RegionalMapProgress(
+                regionKey = catalogue.regionKey,
+                displayName = catalogue.displayName,
+                observedSpecies = observedTaxa.size,
+                totalSpecies = catalogueTaxa.size,
+                essentialsComplete = essentials.isNotEmpty() && observedTaxa.containsAll(essentials),
+                iconsComplete = icons.isNotEmpty() && observedTaxa.containsAll(icons),
+            )
+        }
+    }
+}
 
 internal object PersonalObservationMapProjection {
     // Roughly 8–11 km in Catalonia. Exact public coordinates are never rendered as pins.

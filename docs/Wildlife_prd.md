@@ -229,7 +229,7 @@ The strongest fit with the API, and entirely unauthenticated.
 | "What can I see here?" | `species_counts?lat=&lng=&radius=&month=` |
 | "What am I missing?" | `species_counts?unobserved_by_user_id=&lat=&lng=` — works with a public user ID, no auth needed |
 | Completion and achievements per region | Frozen catalogue/checklists vs. observations assigned to that region |
-| Map | App-owned coarse observation overlays on a separately licensed basemap; the development implementation uses MapLibre Native with OpenFreeMap/OpenStreetMap attribution and no offline prefetch. iNaturalist tiles are not used |
+| Map | App-owned local Field Atlas rendered by MapLibre Native from a simplified, dissolved Natural Earth-derived display asset; coarse observation overlays remain on device. No external basemap or iNaturalist tiles are used |
 
 Resolve required iNaturalist place IDs during catalogue authoring and store them. Runtime region assignment uses local versioned boundaries rather than live place lookup. Obscured/boundary-uncertain observations do not earn regional progress until safely assignable.
 
@@ -238,7 +238,7 @@ Resolve required iNaturalist place IDs during catalogue authoring and store them
 ## 9. Dashboard
 
 - **Regional world map** — local region polygons coloured by completion, with separate non-colour marks for Essentials, Icons and mastery.
-- **Personal observation layer** — dark map with coarse on-device cells to absorb coordinate obscuring; it may be toggled independently from regional progress.
+- **Personal observation layer** — warm field-atlas map with coarse on-device cells to absorb coordinate obscuring; it may be toggled independently from regional progress.
 - **Timeline** — chronological feed with thumbnail maps.
 - **Habit charts** — taxonomic distribution; 24-hour radial activity chart.
 - **Regional progress** — completion bars ranked by percentage.
@@ -267,7 +267,7 @@ Resolve required iNaturalist place IDs during catalogue authoring and store them
 - **Custom User-Agent** on every direct upstream request, identifying the app.
 - **Privacy controls** — clear consent and disclosure, data minimisation, retention limits, export, unlink and deletion.
 - **Testing diagnostics** — Profile shows aggregate retained-data counts and can copy a privacy-safe operational report without identity, coordinates, species labels, URLs or local paths. Confirmed local deletion removes all Wildlife-owned durable data and cache while leaving iNaturalist untouched. A structured user-data export remains distinct from this test report.
-- **Map privacy** — observation overlays remain on device and use coarse cells. Each observation can be excluded from or restored to the map through a local preference that survives observation-cache refresh and never changes iNaturalist. Obscured, unavailable and user-hidden locations are represented separately. Loading the development basemap discloses viewed tile regions to OpenFreeMap/CDN infrastructure; exact overlay coordinates are not submitted to the tile provider. Keep the provider/style replaceable and review its terms before release.
+- **Map privacy** — observation overlays remain on device and use coarse cells. Each observation can be excluded from or restored to the map through a local preference that survives observation-cache refresh and never changes iNaturalist. Obscured, unavailable and user-hidden locations are represented separately. The bundled Field Atlas makes no external tile request; the accurate assignment geometry and simplified display geometry are separate local assets.
 - **Accessibility** — scalable text, screen-reader labels, sufficient contrast and non-colour status indicators.
 - **Image integrity** — AI concept imagery is never shipped. Every catalogue/reference photo requires source, creator, licence code and attribution; otherwise the UI uses an accessible species silhouette.
 - **Diagnostics** — local request pacing, stale-data age, sync failures and handoff ambiguity are measurable during beta without collecting them remotely by default.
@@ -308,7 +308,7 @@ Resolve required iNaturalist place IDs during catalogue authoring and store them
 
 **Gate 1 — passed 21 August 2026.** After one week of owner field testing, the product owner accepted the handoff, EXIF/one-and-multiple-photo flow, delayed/offline recovery, matching behavior, public read contract, catalogue/media viability, discovery quality and request posture as sufficient to proceed. This is a product go decision, not a statistical reliability guarantee; closed beta still measures completion, ambiguity, false matches and request cost.
 
-**Implementation note — 21 August 2026:** the successful on-device Compose prototype and Gate 1 field week support moving into production-shaped foundations. The next critical path is observation UX separation, regional catalogue authoring/data architecture and the regional progression contract. Current implementation and remaining work are tracked in `Wildlife_roadmap.md`.
+**Implementation note — 21 August 2026:** the successful on-device Compose prototype and Gate 1 field week established observation management, regional catalogue authoring/data architecture and the pilot progression contract. The active work is the regional/personal map layer, followed by closed-beta readiness. Current implementation and remaining work are tracked in `Wildlife_roadmap.md`.
 
 **Regional foundation** — Observation management, multi-photo clarity, catalogue generator, local boundaries, global taxon/regional membership model and three pilot catalogues.
 
@@ -332,4 +332,4 @@ If handoff matching remains unreliable after single-observation handoff and manu
 
 ## 16. Current action item
 
-Implement the first roadmap slice: move observation management out of Capture, clarify one-observation/multiple-photo presentation, then establish the deterministic regional authoring contract and three-region pilot data needed for the multi-region migration.
+Complete the regional/personal map layer and its device validation, then prepare the three-region closed beta: structured local-data export, Catalan/Spanish/English localisation, accessibility/device coverage and conservative batched sync.

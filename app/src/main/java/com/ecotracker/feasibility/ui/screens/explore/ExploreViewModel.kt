@@ -26,6 +26,8 @@ import com.wildlife.feasibility.ui.components.SpeciesCardStatus
 import com.wildlife.feasibility.ui.screens.collection.taxonGroupFor
 import com.wildlife.feasibility.ui.screens.map.PersonalObservationMap
 import com.wildlife.feasibility.ui.screens.map.PersonalObservationMapProjection
+import com.wildlife.feasibility.ui.screens.map.RegionalMapProgress
+import com.wildlife.feasibility.ui.screens.map.RegionalMapProgressProjection
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.launch
 import kotlinx.coroutines.withContext
@@ -52,6 +54,7 @@ data class ExploreUiState(
     val entries: List<ExploreSpecies> = emptyList(),
     val accountLinked: Boolean = false,
     val personalMap: PersonalObservationMap = PersonalObservationMapProjection.build(emptyList()),
+    val regionalMapProgress: List<RegionalMapProgress> = emptyList(),
     val nearby: NearbyDiscoveryState = NearbyDiscoveryState(),
     val errorMessage: String? = null,
 ) {
@@ -333,9 +336,15 @@ class ExploreViewModel(application: Application) : AndroidViewModel(application)
         val account = AccountStore(context).verified()
         val observationStore = account?.let { ObservationStore(context) }
         val observations = account?.let { observationStore?.observations(it.userId) }.orEmpty()
+        val observationRegionsByUuid = account?.let { linked ->
+            observations.mapNotNull { observation ->
+                observationStore?.observationRegion(linked.userId, observation.uuid)
+                    ?.let { assignment -> observation.uuid to assignment }
+            }.toMap()
+        }.orEmpty()
         val regionalObservations = account?.let { linkedAccount ->
             observations.filter { observation ->
-                observationStore?.observationRegion(linkedAccount.userId, observation.uuid)?.let { assignment ->
+                observationRegionsByUuid[observation.uuid]?.let { assignment ->
                     assignment.earnsRegionalProgress && assignment.regionKey == selectedKey
                 } == true
             }
@@ -343,6 +352,17 @@ class ExploreViewModel(application: Application) : AndroidViewModel(application)
         val hiddenObservationUuids = account?.let {
             observationStore?.mapHiddenObservationUuids(it.userId)
         }.orEmpty()
+        val regionalMapProgress = RegionalMapProgressProjection.build(
+            catalogues = catalogues,
+            taxaByRegion = catalogues.associate { catalogue ->
+                catalogue.regionKey to content.taxa(catalogue.regionKey)
+            },
+            achievementsByRegion = catalogues.associate { catalogue ->
+                catalogue.regionKey to content.achievements(catalogue.regionKey)
+            },
+            observations = observations,
+            assignmentsByObservationUuid = observationRegionsByUuid,
+        )
         observationStore?.close()
         ExploreUiState(
             activeCatalogue = RegionalExploreCatalogue(
@@ -360,6 +380,7 @@ class ExploreViewModel(application: Application) : AndroidViewModel(application)
                 observations = observations,
                 hiddenObservationUuids = hiddenObservationUuids,
             ),
+            regionalMapProgress = regionalMapProgress,
             nearby = nearbyState,
             errorMessage = null,
         )
