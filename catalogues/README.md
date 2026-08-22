@@ -60,6 +60,9 @@ Use `review/wildlife-content-manager.xlsx` as the single editing surface for all
 catalogues, their 10 Essentials and 5 Icons, XP awards and level thresholds. The reference name
 columns are deliberately not imported: the taxon ID is the stable identity.
 
+For the complete everyday workflow, including read-only iNaturalist candidate and rarity refresh,
+see [`CONTENT_MANAGER_GUIDE.md`](CONTENT_MANAGER_GUIDE.md).
+
 You may add, remove or reorder a regional catalogue row, provided its taxon ID already exists in
 `taxa.yaml`. Essentials must be `standard`; Icons are automatically marked `legendary` by the
 importer. Every pilot always requires exactly 10 Essentials and 5 Icons.
