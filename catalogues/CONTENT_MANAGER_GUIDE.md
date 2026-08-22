@@ -37,27 +37,22 @@ committing.
 Wildlife uses the public iNaturalist API read-only. It does not use OAuth and never writes to
 iNaturalist accounts.
 
-Run this for each region you want to refresh (`mediterranean_europe`, `east_africa`, or
-`caribbean`):
+Refresh all pilot evidence with one command (or pass one or more region keys to refresh only
+those regions):
 
 ```powershell
-& 'C:\Users\nilpo\.cache\codex-runtimes\codex-primary-runtime\dependencies\python\python.exe' .\tools\generate_inaturalist_candidates.py mediterranean_europe --pages 3 --refresh
+& 'C:\Users\nilpo\.cache\codex-runtimes\codex-primary-runtime\dependencies\python\python.exe' .\tools\refresh_inaturalist_evidence.py --pages 3 --refresh
 ```
 
-This writes a reviewable candidate list at `review/<region>_inaturalist_candidates.csv`, with
-taxon identity, common/scientific names, observation counts and a recommended candidate flag.
-Increase `--pages` to sample more than the top 200 species per animal group.
+This keeps the raw candidate list and writes `review/<region>_inaturalist_evidence.csv`. The
+evidence file puts candidate identity, observation count and its frequency-relative rarity
+proposal beside the current editorial catalogue rarity and prestige. Increase `--pages` to sample
+more than the top 200 species per animal group. To regenerate those comparison files from already
+stored candidate data without network access, add `--offline`.
 
-The current automatic rarity proposal can be produced from refreshed candidates:
-
-```powershell
-& 'C:\Users\nilpo\.cache\codex-runtimes\codex-primary-runtime\dependencies\python\python.exe' .\tools\assign_regional_rarity.py
-```
-
-It assigns regional, animal-group-relative frequency bands and records the model version in the
-catalogue source. Treat these as evidence only: copy the proposed values you accept into the
-workbook before running the workbook importer again. Frequency is not biological rarity,
-conservation status, or a substitute for editorial judgement.
+Treat the proposed frequency tier as evidence only: copy the values you accept into the workbook
+before running the workbook importer again. This refresh never edits a catalogue, so frequency is
+not biological rarity, conservation status, or a substitute for editorial judgement.
 
 ## Bringing new iNaturalist candidates into a draft catalogue
 
