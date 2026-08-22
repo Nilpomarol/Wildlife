@@ -129,6 +129,28 @@ Illustrative runtime events, before any later Research Grade reward:
 
 These examples no longer predict runtime pacing because regional discoveries, rarity, Legendary prestige and versioned checklist completion are active. Before any release, simulate realistic regional field histories and revise thresholds if users progress too slowly or too quickly. Existing ledger events remain unchanged when values or thresholds are revised.
 
+### 4.3 Preliminary pilot-pack simulation — 22 August 2026
+
+The first deterministic simulation reads the current three generated pilot catalogue sources. It
+assumes one explicitly confirmed observation for each distinct regional taxon, no Research Grade
+transition, one global first-species award, all regional first-discovery/rarity/Legendary awards,
+and both checklist completion awards. It does not treat the catalogue order as a likely field
+history.
+
+| Scenario | XP | Projected level |
+|---|---:|---|
+| 10 Common regional first discoveries | 1,600 | Explorer |
+| 50 Common regional first discoveries | 6,000 | Naturalist |
+| 200 Common regional first discoveries | 22,500 | Field Ranger |
+| Complete Mediterranean Europe (800 taxa) | 129,050 | Legendary Ranger |
+| Complete East Africa (931 taxa) | 148,960 | Legendary Ranger |
+| Complete Caribbean (813 taxa) | 131,830 | Legendary Ranger |
+
+The complete-pack totals include the current generated rarity and Legendary distributions and the
+10-Essentials/5-Icons awards. These results are a useful boundary check, not a beta freeze:
+the pilot rarity/prestige fields remain editorially provisional, and realistic user histories must
+still be sampled before the product owner approves a release rules version.
+
 ## 5. Rewards and unlocks
 
 The runtime grants profile titles only. A user may display any title at or below the highest level they have reached.
