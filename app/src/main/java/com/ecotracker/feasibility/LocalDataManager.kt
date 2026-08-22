@@ -47,6 +47,15 @@ data class LocalDataInventory(
 class LocalDataManager(context: Context) {
     private val appContext = context.applicationContext
 
+    /** Derived locally when a beta report is requested; it is never uploaded or retained as telemetry. */
+    fun betaMetrics(): BetaMetrics {
+        val account = AccountStore(appContext).verified()
+        val candidates = account?.let { linked ->
+            ObservationStore(appContext).use { store -> store.candidates(linked.userId) }
+        }.orEmpty()
+        return BetaMetricsProjection.project(MarkerStore(appContext).load(), candidates)
+    }
+
     fun inventory(): LocalDataInventory {
         val account = AccountStore(appContext).verified()
         val observationStore = ObservationStore(appContext)
