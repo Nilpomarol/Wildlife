@@ -89,6 +89,7 @@ class LocalDataManager(context: Context) {
     }
 
     fun clearAllLocalData() {
+        ObservationSyncScheduler.cancel(appContext)
         check(AccountStore(appContext).unlink()) { "Account preferences could not be cleared." }
         check(MarkerStore(appContext).clear()) { "Handoff markers could not be cleared." }
         check(ProgressionStore(appContext).clear()) {

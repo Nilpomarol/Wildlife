@@ -85,6 +85,7 @@ class MainActivity : ComponentActivity() {
 
     override fun onResume() {
         super.onResume()
+        ObservationSyncScheduler.schedule(this)
         shellViewModel.refresh()
         collectionViewModel.refresh()
         exploreViewModel.refreshLocal()
@@ -282,6 +283,7 @@ class MainActivity : ComponentActivity() {
             return
         }
         lifecycleScope.launch {
+            ObservationSyncScheduler.cancel(this@MainActivity)
             val result = withContext(Dispatchers.IO) {
                 runCatching { LocalDataManager(this@MainActivity).clearAllLocalData() }
             }

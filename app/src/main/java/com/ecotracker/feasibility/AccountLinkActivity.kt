@@ -180,6 +180,7 @@ class AccountLinkActivity : ComponentActivity() {
 
     private fun unlink() {
         accountStore.unlink()
+        ObservationSyncScheduler.cancel(this)
         setResult(RESULT_OK)
         refreshState(username = "", message = "Account unlinked. No iNaturalist data was changed.")
     }
