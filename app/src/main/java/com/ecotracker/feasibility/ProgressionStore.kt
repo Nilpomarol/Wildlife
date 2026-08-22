@@ -28,6 +28,13 @@ class ProgressionStore(context: Context) {
         return highest
     }
 
+    fun restore(userId: Long, selectedLevelKey: String?, highestLevelKey: String?) {
+        preferences.edit()
+            .putString("$KEY_SELECTED_LEVEL_PREFIX$userId", selectedLevelKey)
+            .putString("$KEY_HIGHEST_LEVEL_PREFIX$userId", highestLevelKey)
+            .apply()
+    }
+
     fun clear(): Boolean = preferences.edit().clear().commit()
 
     companion object {

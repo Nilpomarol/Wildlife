@@ -60,6 +60,14 @@ class StructuredLocalDataExporter(context: Context) {
         }
     }
 
+    /** Keeps three rolling local copies; these never leave the device or include shared content. */
+    fun autoBackup(): File {
+        val directory = File(appContext.filesDir, AUTO_BACKUP_DIRECTORY).apply { mkdirs() }
+        val backup = export().copyTo(File(directory, "user-backup-${System.currentTimeMillis()}.json"), overwrite = true)
+        directory.listFiles().orEmpty().sortedByDescending(File::lastModified).drop(MAX_AUTO_BACKUPS).forEach(File::delete)
+        return backup
+    }
+
     private data class ExportSnapshot(
         val observations: List<SyncedObservation> = emptyList(),
         val hiddenObservationUuids: Set<String> = emptySet(),
@@ -137,5 +145,7 @@ class StructuredLocalDataExporter(context: Context) {
 
     private companion object {
         const val EXPORT_DIRECTORY = "exports"
+        const val AUTO_BACKUP_DIRECTORY = "auto-backups"
+        const val MAX_AUTO_BACKUPS = 3
     }
 }

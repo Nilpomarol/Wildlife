@@ -49,6 +49,15 @@ class AccountStore(context: Context) {
             .apply()
     }
 
+    fun restoreVerified(account: VerifiedAccount) {
+        preferences.edit()
+            .putLong(KEY_VERIFIED_ID, account.userId)
+            .putString(KEY_VERIFIED_LOGIN, account.login)
+            .putLong(KEY_VERIFIED_AT, account.verifiedAtMs)
+            .remove(KEY_PENDING_ID).remove(KEY_PENDING_LOGIN).remove(KEY_PENDING_CODE).remove(KEY_PENDING_CREATED_AT)
+            .apply()
+    }
+
     fun clearPending() {
         preferences.edit()
             .remove(KEY_PENDING_ID)

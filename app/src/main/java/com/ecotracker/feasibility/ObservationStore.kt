@@ -176,6 +176,46 @@ class ObservationStore(context: Context) : SQLiteOpenHelper(context, DATABASE, n
         )
     }
 
+    /** Replaces only one user's portable Wildlife state; shared catalogues and media are untouched. */
+    fun restoreUserBackup(
+        userId: Long,
+        observations: List<SyncedObservation>,
+        regionalAssignments: List<ObservationRegion>,
+        hiddenObservationUuids: Set<String>,
+        xpEvents: List<XpEventRecord>,
+        qualityTransitions: List<ObservationQualityTransition>,
+    ) {
+        writableDatabase.beginTransaction()
+        try {
+            listOf("map_visibility_overrides", "observation_quality_events", "xp_events", "observations", "observation_regions", "collection_summary")
+                .forEach { table -> writableDatabase.delete(table, "user_id = ?", arrayOf(userId.toString())) }
+            observations.forEach { writableDatabase.insertOrThrow("observations", null, it.values(userId)) }
+            regionalAssignments.forEach { writableDatabase.insertOrThrow("observation_regions", null, it.values(userId)) }
+            hiddenObservationUuids.forEach { uuid ->
+                writableDatabase.insertOrThrow("map_visibility_overrides", null, ContentValues().apply {
+                    put("user_id", userId); put("observation_uuid", uuid); put("visible", 0)
+                })
+            }
+            xpEvents.forEach { event ->
+                writableDatabase.insertOrThrow("xp_events", null, ContentValues().apply {
+                    put("user_id", userId); put("event_key", event.eventKey); put("event_type", event.type.key)
+                    put("observation_uuid", event.observationUuid ?: ""); event.subjectTaxonId?.let { put("subject_taxon_id", it) }
+                    event.label?.let { put("label", it) }; put("points", event.points); put("created_at_ms", event.createdAtMs)
+                })
+            }
+            qualityTransitions.forEach { transition ->
+                writableDatabase.insertOrThrow("observation_quality_events", null, ContentValues().apply {
+                    put("user_id", userId); put("event_key", "restored:${transition.observationUuid}:${transition.detectedAtMs}")
+                    put("observation_uuid", transition.observationUuid); put("label", transition.label)
+                    put("from_quality_grade", transition.fromQualityGrade); put("to_quality_grade", transition.toQualityGrade)
+                    put("detected_at_ms", transition.detectedAtMs)
+                })
+            }
+            saveSummary(userId, calculatedSummary(userId, writableDatabase, System.currentTimeMillis()), writableDatabase)
+            writableDatabase.setTransactionSuccessful()
+        } finally { writableDatabase.endTransaction() }
+    }
+
     fun candidates(userId: Long): List<ObservationCandidate> {
         val cursor = readableDatabase.query(
             "observations",
