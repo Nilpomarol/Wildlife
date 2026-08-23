@@ -608,7 +608,6 @@ class CatalogueStore(context: Context) : SQLiteOpenHelper(context, DATABASE, nul
                 catalogue_version TEXT NOT NULL,
                 taxon_id INTEGER NOT NULL,
                 encounter_rarity TEXT NOT NULL,
-                prestige TEXT NOT NULL,
                 inclusion_provenance TEXT NOT NULL,
                 PRIMARY KEY(region_key, catalogue_version, taxon_id)
             )

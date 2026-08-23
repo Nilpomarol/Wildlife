@@ -492,7 +492,9 @@ private fun GuideCard(item: RedesignItem) {
                 Modifier.align(Alignment.TopStart).padding(7.dp),
                 verticalArrangement = Arrangement.spacedBy(5.dp),
             ) {
-                if (item.legendary) RegionalChip("regional_legend", Brass)
+                // `regional_legend.svg` became `regional_icon.svg` when the Legend tier
+                // was removed. Same artwork, so this study's Legend chip is unchanged.
+                if (item.legendary) RegionalChip("regional_icon", Brass)
                 if (item.icon) RegionalChip("regional_icon", Parchment)
                 if (item.essential) RegionalChip("regional_essential", Moss)
             }

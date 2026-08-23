@@ -274,9 +274,6 @@ internal fun StandingMark(option: StandingFilter, tint: Color) {
         StandingFilter.ANY -> Unit
         StandingFilter.ESSENTIALS -> FieldMark("regional_essential", tint, Modifier.size(15.dp))
         StandingFilter.ICONS -> FieldMark("regional_icon", tint, Modifier.size(15.dp))
-        // The bundled legend mark, not a drawn sparkle: Awaiting ID already uses the
-        // sparkle, and one glyph carrying two unrelated meanings teaches neither.
-        StandingFilter.LEGENDS -> FieldMark("regional_legend", tint, Modifier.size(15.dp))
     }
 }
 

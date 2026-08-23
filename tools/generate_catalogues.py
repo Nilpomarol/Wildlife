@@ -95,8 +95,6 @@ def validate(strict: bool) -> tuple[list[dict], list[dict], list[dict], str]:
             seen.add(taxon_id)
             if entry.get("encounter_rarity") not in {"unknown", "common", "uncommon", "rare", "very_rare"}:
                 fail(f"{region}/{taxon_id} requires an encounter rarity")
-            if entry.get("prestige") not in {"standard", "legendary"}:
-                fail(f"{region}/{taxon_id} requires standard or legendary prestige")
             if not entry.get("inclusion_provenance"):
                 fail(f"{region}/{taxon_id} requires inclusion provenance")
         catalogue_rows.append({"region": region, "version": version, "status": catalogue.get("status"), "taxa": entries})
@@ -149,7 +147,7 @@ def write_outputs(
             CREATE TABLE taxon (taxon_id INTEGER PRIMARY KEY, scientific_name TEXT NOT NULL,
                 common_names_json TEXT NOT NULL, taxonomy_json TEXT NOT NULL);
             CREATE TABLE regional_taxon (region_key TEXT NOT NULL, catalogue_version TEXT NOT NULL,
-                taxon_id INTEGER NOT NULL, encounter_rarity TEXT NOT NULL, prestige TEXT NOT NULL,
+                taxon_id INTEGER NOT NULL, encounter_rarity TEXT NOT NULL,
                 seasonality_json TEXT NOT NULL, sort_order INTEGER NOT NULL, inclusion_provenance TEXT NOT NULL,
                 PRIMARY KEY(region_key, catalogue_version, taxon_id));
             CREATE TABLE regional_achievement (region_key TEXT NOT NULL, catalogue_version TEXT NOT NULL,
@@ -171,9 +169,9 @@ def write_outputs(
             ))
         for catalogue in sorted(catalogues, key=lambda row: row["region"]):
             for index, entry in enumerate(catalogue["taxa"], start=1):
-                database.execute("INSERT INTO regional_taxon VALUES (?, ?, ?, ?, ?, ?, ?, ?)", (
+                database.execute("INSERT INTO regional_taxon VALUES (?, ?, ?, ?, ?, ?, ?)", (
                     catalogue["region"], catalogue["version"], entry["taxon_id"], entry["encounter_rarity"],
-                    entry["prestige"], json.dumps(entry.get("seasonality", {}), sort_keys=True), index,
+                    json.dumps(entry.get("seasonality", {}), sort_keys=True), index,
                     entry["inclusion_provenance"],
                 ))
             achievement = catalogue["achievements"]

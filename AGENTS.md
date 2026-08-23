@@ -35,7 +35,7 @@ If a concept screenshot conflicts with these documents, the documents win. The s
 - Shared components own presentation and accessibility contracts; screen state/projections own product data and decisions. Do not put repository access, taxonomy rules, rarity calculation or navigation policy inside reusable visual components.
 - Wildlife photography is the main visual content. Never ship AI reference imagery or an unlicensed remote image. Preserve source, author, licence code and attribution for every reusable photo.
 - Common names lead; scientific names are italic and secondary. Never invent biological facts, rarity, range or conservation data to satisfy a design.
-- Encounter rarity, Legendary regional prestige, conservation, verification and observed state are separate concepts and must use separate semantic indicators.
+- Encounter rarity, regional standing (Essential / Icon), conservation, verification and observed state are separate concepts and must use separate semantic indicators.
 - Support system-bar insets, 48dp tap targets, font scaling, screen readers and non-colour state labels from the first implementation.
 - New product UI must include Compose previews for reusable visual components and state variants when practical.
 

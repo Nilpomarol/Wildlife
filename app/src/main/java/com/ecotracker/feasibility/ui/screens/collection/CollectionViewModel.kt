@@ -131,7 +131,6 @@ class CollectionViewModel(application: Application) : AndroidViewModel(applicati
                     regionalIcon = "icons" in achievementTypesByTaxon[taxon.taxonId].orEmpty(),
                     scientificName = taxon.scientificName,
                     encounterRarity = taxon.rarity,
-                    regionalPrestige = taxon.prestige,
                     taxonGroup = taxonGroupFor(taxon.taxonClass),
                 )
             }

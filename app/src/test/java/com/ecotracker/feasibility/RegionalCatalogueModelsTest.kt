@@ -7,15 +7,14 @@ import org.junit.Test
 
 class RegionalCatalogueModelsTest {
     @Test
-    fun `regional prestige remains separate from encounter rarity`() {
+    fun `encounter rarity is the only tier a regional taxon carries`() {
         val elephant = RegionalTaxon(
             regionKey = "east_africa", catalogueVersion = "draft-1", taxonId = 123,
-            encounterRarity = EncounterRarity.COMMON, prestige = RegionalPrestige.LEGENDARY,
+            encounterRarity = EncounterRarity.COMMON,
             inclusionProvenance = "reviewed pilot example",
         )
 
         assertEquals(EncounterRarity.COMMON, elephant.encounterRarity)
-        assertEquals(RegionalPrestige.LEGENDARY, elephant.prestige)
     }
 
     @Test

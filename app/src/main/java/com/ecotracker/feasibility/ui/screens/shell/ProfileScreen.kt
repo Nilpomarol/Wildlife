@@ -574,7 +574,7 @@ private fun rewardLabel(event: XpEventRecord): String = when (event.type) {
     XpEventType.RESEARCH_GRADE -> "Reached Research Grade"
     XpEventType.REGIONAL_DISCOVERY -> "Regional discovery"
     XpEventType.REGIONAL_RARITY -> "Regional rarity bonus"
-    XpEventType.REGIONAL_LEGEND -> "Regional Legend discovered"
+    XpEventType.REGIONAL_ICON_DISCOVERY -> "Regional Icon discovered"
     XpEventType.REGIONAL_ESSENTIALS -> "Regional Essentials complete"
     XpEventType.REGIONAL_ICONS -> "Regional Icons complete"
     XpEventType.IDENTIFICATION_GIVEN -> "Identification contributed"

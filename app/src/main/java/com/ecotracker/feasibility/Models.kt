@@ -222,7 +222,6 @@ data class CollectionSpecies(
     val regionalIcon: Boolean = false,
     val scientificName: String? = null,
     val encounterRarity: EncounterRarity? = null,
-    val regionalPrestige: RegionalPrestige? = null,
     /** Normalized taxonomic group key: mammals, birds, reptiles, amphibians, fish; null if unknown. */
     val taxonGroup: String? = null,
 )

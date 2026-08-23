@@ -103,6 +103,20 @@ class ObservationStore(context: Context) : SQLiteOpenHelper(context, DATABASE, n
             database.execSQL(CREATE_MAP_VISIBILITY_OVERRIDES)
         }
         if (oldVersion < 7) database.execSQL(CREATE_OBSERVATION_REGIONS)
+        if (oldVersion < 8) {
+            // The Legend tier collapsed into the Regional Icon standing. Rewriting the rows
+            // rather than dropping them keeps earned XP and its history intact, and keeps the
+            // idempotency key aligned with the one the award path now writes, so a species
+            // already rewarded as a Legend is not rewarded a second time as an Icon.
+            database.execSQL(
+                """
+                UPDATE OR IGNORE xp_events
+                SET event_key = 'regional_icon_discovery:' || SUBSTR(event_key, LENGTH('regional_legend:') + 1),
+                    event_type = 'regional_icon_discovery'
+                WHERE event_key LIKE 'regional_legend:%'
+                """.trimIndent(),
+            )
+        }
     }
 
     fun replaceSnapshot(
@@ -446,12 +460,15 @@ class ObservationStore(context: Context) : SQLiteOpenHelper(context, DATABASE, n
                         XpEventType.REGIONAL_RARITY, uuid, collectionTaxonId, observation.label, points, now,
                     )
                 }
-                if (regionalReward.prestige == RegionalPrestige.LEGENDARY) {
+                // The five Icons of a region carry a discovery bonus of their own. This was
+                // once a separate Legend prestige tier, but it always named exactly the same
+                // five species, so the standing and the tier were one thing wearing two names.
+                if (regionalReward.taxonId in regionalReward.icons) {
                     awarded += award(
                         writableDatabase, userId,
-                        "regional_legend:${regionalReward.regionKey}:${regionalReward.catalogueVersion}:$collectionTaxonId",
-                        XpEventType.REGIONAL_LEGEND, uuid, collectionTaxonId, observation.label,
-                        ProgressionRules.REGIONAL_LEGEND_XP, now,
+                        "regional_icon_discovery:${regionalReward.regionKey}:${regionalReward.catalogueVersion}:$collectionTaxonId",
+                        XpEventType.REGIONAL_ICON_DISCOVERY, uuid, collectionTaxonId, observation.label,
+                        ProgressionRules.REGIONAL_ICON_DISCOVERY_XP, now,
                     )
                 }
                 if (hasAllRegionalTaxa(userId, regionalReward.regionKey, regionalReward.essentials, writableDatabase)) {
@@ -774,7 +791,7 @@ class ObservationStore(context: Context) : SQLiteOpenHelper(context, DATABASE, n
 
     companion object {
         private const val DATABASE = "wildlife_observations.db"
-        private const val VERSION = 7
+        private const val VERSION = 8
         private const val CREATE_XP_EVENTS = """
             CREATE TABLE IF NOT EXISTS xp_events (
                 user_id INTEGER NOT NULL,

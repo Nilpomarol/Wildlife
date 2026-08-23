@@ -19,7 +19,6 @@ import com.wildlife.feasibility.ActiveCatalogueStore
 import com.wildlife.feasibility.RegionalCatalogueAssetStore
 import com.wildlife.feasibility.InstalledRegionalTaxon
 import com.wildlife.feasibility.EncounterRarity
-import com.wildlife.feasibility.RegionalPrestige
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.launch
 import kotlinx.coroutines.withContext
@@ -37,7 +36,6 @@ data class SpeciesDetailObservation(
 data class SpeciesRegionalContext(
     val regionName: String,
     val rarity: EncounterRarity,
-    val prestige: RegionalPrestige,
     val achievementLabels: Set<String> = emptySet(),
 )
 
@@ -286,7 +284,6 @@ class SpeciesDetailViewModel(
                     SpeciesRegionalContext(
                         regionName = selected.displayName,
                         rarity = it.rarity,
-                        prestige = it.prestige,
                         achievementLabels = achievementLabels,
                     )
                 },

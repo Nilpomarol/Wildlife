@@ -65,7 +65,6 @@ import com.wildlife.feasibility.WildlifeNetworkIdentity
 import com.wildlife.feasibility.ui.components.EncounterTrace
 import com.wildlife.feasibility.ui.components.RegionalCollectionMark
 import com.wildlife.feasibility.ui.components.RegionalCollectionStamp
-import com.wildlife.feasibility.ui.components.RegionalLegendMark
 import com.wildlife.feasibility.ui.components.SpeciesCardRarity
 import com.wildlife.feasibility.ui.theme.WildlifeSpacing
 import com.wildlife.feasibility.ui.theme.WildlifeTheme
@@ -258,10 +257,6 @@ private fun RegionalContextPanel(
             ) {
                 context.rarity.toCardRarity()?.let { EncounterTrace(it) }
                 Text(rarity, style = MaterialTheme.typography.bodyMedium, color = WildlifeTheme.colors.oliveStrong)
-                if (context.prestige == com.wildlife.feasibility.RegionalPrestige.LEGENDARY) {
-                    RegionalLegendMark()
-                    Text("Regional Legend", style = MaterialTheme.typography.bodyMedium, color = WildlifeTheme.colors.gold)
-                }
             }
             val achievementLabels = context.achievementLabels
             if (achievementLabels.isNotEmpty()) {

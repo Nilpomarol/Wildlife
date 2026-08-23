@@ -87,7 +87,6 @@ def write_evidence(region: str) -> Path:
             "observation_count": candidate["observation_count"],
             "proposed_frequency_rarity": proposals.get(taxon_id, "not_ranked"),
             "current_editorial_rarity": entry["encounter_rarity"] if entry else "",
-            "current_prestige": entry["prestige"] if entry else "",
             "model_version": MODEL_VERSION,
             "review_action": "compare then edit workbook",
         })
@@ -112,7 +111,6 @@ def write_evidence(region: str) -> Path:
             "observation_count": "",
             "proposed_frequency_rarity": "not_sampled",
             "current_editorial_rarity": entry["encounter_rarity"],
-            "current_prestige": entry["prestige"],
             "model_version": MODEL_VERSION,
             "review_action": "retain or review manually",
         })

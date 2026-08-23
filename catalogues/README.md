@@ -12,10 +12,10 @@ toolchain dependency-free.
    for review; map-unit entries preserve islands, dependencies and boundary pieces that lack an
    ISO code.
 2. Add globally deduplicated taxon identity to `taxa.yaml`.
-3. Add a taxon to a pilot's `regions/<key>/catalogue.yaml`, with encounter rarity, prestige and
+3. Add a taxon to a pilot's `regions/<key>/catalogue.yaml`, with encounter rarity and
    inclusion provenance. Raw iNaturalist frequency is never a valid rarity value by itself.
-4. Curate 10 Essentials and 5 Icons in `achievements.yaml`; Icons normally have `legendary`
-   prestige in the corresponding regional entry.
+4. Curate 10 Essentials and 5 Icons in `achievements.yaml`. Icon membership is the whole of a
+   species' standing; there is no separate prestige field to keep in step with it.
 5. Add only licence-verified reusable media to `media_manifest.yaml` with source URL, creator,
    licence code and taxon ID.
 
@@ -64,8 +64,7 @@ For the complete everyday workflow, including read-only iNaturalist candidate an
 see [`CONTENT_MANAGER_GUIDE.md`](CONTENT_MANAGER_GUIDE.md).
 
 You may add, remove or reorder a regional catalogue row, provided its taxon ID already exists in
-`taxa.yaml`. Essentials must be `standard`; Icons are automatically marked `legendary` by the
-importer. Every pilot always requires exactly 10 Essentials and 5 Icons.
+`taxa.yaml`. Every pilot always requires exactly 10 Essentials and 5 Icons.
 
 First validate the workbook without changing sources:
 

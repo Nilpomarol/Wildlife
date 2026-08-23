@@ -119,8 +119,8 @@ Build only components that recur or carry core identity:
 | `SpeciesCard` | One stable layout for observed, confirmed, pending and silhouette states |
 | `SpeciesGrid` | Three columns normally; two on compact/large-text layouts; one at very large text or very narrow widths |
 | `ObservationStateBadge` | Verification state only; never rarity |
-| `EncounterRarityIndicator` | Common/Uncommon/Rare/Very Rare only; independent from prestige and verification |
-| `LegendaryPrestigeIndicator` | Gold Regional Legend treatment with accessible copy that also preserves encounter rarity |
+| `EncounterRarityIndicator` | Common/Uncommon/Rare/Very Rare only; independent from regional standing and verification |
+| `RegionalStandingIndicator` | Olive Essential and gold Icon treatments, with accessible copy that also preserves encounter rarity |
 | `RegionalAchievementCard` | Progress for 10 Essentials or 5 Icons, keyed by frozen catalogue version |
 | `SpeciesHero` | Licensed hero image, scrim and navigation actions |
 | `SpeciesFactsGrid` | Compact reusable facts panel; hides unavailable facts rather than inventing them |
@@ -184,7 +184,7 @@ Until the curated catalogue is frozen, the UI must say **Provisional catalogue**
 - Only sourced facts appear. Missing facts are omitted or explicitly unavailable.
 - Personal observations and verification status are derived from the linked account cache.
 - Image attribution remains reachable from the detail screen.
-- Adds regional encounter rarity, Legendary prestige, catalogue/achievement membership, seasonality when sourced and the observation's valid regional unlock state.
+- Adds regional encounter rarity, catalogue/achievement membership, seasonality when sourced and the observation's valid regional unlock state.
 - May show a cached public iNaturalist distribution/observation panel as an online enhancement; the local identity, collection state and personal observation strip remain available offline.
 
 ### Capture and handoff
@@ -253,10 +253,10 @@ In catalogue, not unlocked in this region
 Unlocked in this region
 Region assignment uncertain
 Regional Essential
-Regional Icon / Legendary
+Regional Essential / Icon
 ```
 
-Encounter rarity, Legendary prestige, conservation, observed state and verification are independent fields.
+Encounter rarity, regional standing, conservation, observed state and verification are independent fields.
 
 ## 9. Navigation strategy
 
@@ -302,14 +302,14 @@ Each step must leave a usable, testable app. Do not block data work on convertin
 
 - **Gate 1 passed — 21 August 2026:** the product owner accepted the core field loop after one week of testing. Closed beta still measures reliability; implementation work may now proceed past feasibility.
 - **Next architecture migration:** complete map-layer device/accessibility validation, then continue beta-readiness work (export, localisation, broader accessibility/device coverage and conservative batched sync). The regional catalogue contract is established in [`regional_catalogues.md`](regional_catalogues.md).
-- **Complete:** shared `SpeciesGrid` reads independent regional encounter-rarity/prestige fields. Its shared Field Marks use encounter traces, Essential/Icon stamps and a distinct Legendary constellation mark; rarity, prestige, verification and achievement membership remain independent.
+- **Complete:** shared `SpeciesGrid` reads the regional encounter-rarity field and achievement membership, which are independent of each other. Its shared Field Marks use encounter traces plus Essential and Icon stamps; rarity, standing and verification remain independent.
 
 - **Complete:** Compose compiler/dependencies, dark Field Guide Classic theme, semantic colours, centralized typography/shapes/spacing, safe-edge scaffold, compact filter tabs, summary panel and reusable image-led species card.
 - **Complete:** Collection migrated from programmatic Views to Compose and verified on device with the real 57-entry / 89-observation cache. It uses real user observation photographs, accessible microscope icons for research-grade observations, near-square 3-column cards with 2-column and 1-column large-font fallbacks, search and filters, and actionable unlinked/error plus explicit empty/filter-empty states. The oversized summary panel was removed in favour of compact truthful stats and stored/sync context; no completion percentage appears before the catalogue denominator is curated.
 - **Complete:** Lora is bundled under the SIL Open Font License for display headings; sans-serif remains the compact UI/body face.
 - **Complete:** Species Detail uses a shared local taxon cache and lazily refreshes public iNaturalist taxon metadata. It can show scientific/common names, group, family, Wikipedia summary and global IUCN status for observations outside the regional catalogue without OAuth. Cached content remains available offline and enrichment failures are non-blocking.
 - **Complete:** Explore reads the selected installed regional catalogue with the shared Compose grid, offline/error states, regional search, observed/not-observed discovery filters and responsive taxonomic filters. The observed state is regional: sightings assigned to another region do not unlock the selected guide. Unobserved taxa remain silhouettes. Observed cards lead with the user's sighting and can fall back to an attributed stored reference.
-- **Complete:** Species Detail is internally reachable from Collection and Explore. When the opened species belongs to the active regional catalogue, its discovery state is resolved from observations assigned to that region and the screen shows that region’s encounter rarity, Legend status and Essentials/Icons membership separately. It also provides an image-led identity, truthful local facts, compatible CC0/CC BY/CC BY-SA reference imagery with attribution, explicit missing-data states and links back to the corresponding iNaturalist records.
+- **Complete:** Species Detail is internally reachable from Collection and Explore. When the opened species belongs to the active regional catalogue, its discovery state is resolved from observations assigned to that region and the screen shows that region’s encounter rarity and Essentials/Icons membership separately. It also provides an image-led identity, truthful local facts, compatible CC0/CC BY/CC BY-SA reference imagery with attribution, explicit missing-data states and links back to the corresponding iNaturalist records.
 - **Complete:** Missing Explore imagery and Species Detail heroes support attributed PhyloPic silhouettes. Catalogue sync caches broad group fallbacks; detail sync resolves species, genus, family and order in sequence and cached closer matches replace generic Explore silhouettes. If an iNaturalist default photo is unusable, detail sync searches research-grade observations for an explicitly compatible alternative and records its direct source and recovery status. The UI distinguishes exact and representative silhouettes and explains when no reusable photo was found.
 - **Current catalogue scope:** Explore uses the bundled pilot catalogues for Mediterranean Europe, East Africa and the Caribbean. Their curated contents prioritise mammals, birds, reptiles, fish and amphibians; plants, fungi and invertebrates are outside this pilot scope.
 - **Complete:** Shared Navigation Compose shell with Home, Collection, central Capture action, Explore and Profile. Home shows truthful local collection/catalogue/queue state; Profile exposes the existing account flow and permanent read-only boundary. Collection and Explore retain their screen/filter state when switching destinations.

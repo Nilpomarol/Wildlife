@@ -74,7 +74,6 @@ import com.wildlife.feasibility.InstalledRegionalCatalogue
 import com.wildlife.feasibility.ProgressionLevel
 import com.wildlife.feasibility.ProgressionProjection
 import com.wildlife.feasibility.ProgressionState
-import com.wildlife.feasibility.RegionalPrestige
 import com.wildlife.feasibility.ui.components.CollectionSearchBar
 import com.wildlife.feasibility.ui.components.RegionPill
 import com.wildlife.feasibility.ui.components.regionVisual
@@ -647,7 +646,7 @@ private fun EmptyFilterNote(activeLabels: List<String>) {
 // region — Card mapping
 
 private fun CollectionSpecies.rarityWeight(): Int = when {
-    regionalPrestige == RegionalPrestige.LEGENDARY -> 5
+    regionalIcon -> 5
     encounterRarity == EncounterRarity.VERY_RARE -> 4
     encounterRarity == EncounterRarity.RARE -> 3
     encounterRarity == EncounterRarity.UNCOMMON -> 2
@@ -675,7 +674,6 @@ private fun CollectionSpecies.toCardModel() = SpeciesCardModel(
     fallbackSilhouetteGroup = taxonGroup,
     regionalEssential = regionalEssential,
     regionalIcon = regionalIcon,
-    regionalLegend = regionalPrestige == RegionalPrestige.LEGENDARY,
     placeholderIcon = groupFor(taxonGroup)?.icon,
     supportingTextItalic = observationCount == 0 || awaitingSpeciesIdentification,
     collected = observationCount > 0,
@@ -771,7 +769,7 @@ private fun CollectionScreenPreview() {
                 linked = true,
                 entries = listOf(
                     previewSpecies("European robin", "robin", "research", rarity = EncounterRarity.COMMON, group = "birds"),
-                    previewSpecies("Iberian lynx", "lynx", "research", rarity = EncounterRarity.VERY_RARE, legendary = true, group = "mammals"),
+                    previewSpecies("Iberian lynx", "lynx", "research", rarity = EncounterRarity.VERY_RARE, icon = true, group = "mammals"),
                     previewSpecies("Otter", "otter", "needs_id", rarity = EncounterRarity.UNCOMMON, group = "mammals"),
                     previewSpecies("Golden eagle", "eagle", "needs_id", rarity = EncounterRarity.RARE, group = "birds"),
                     previewSpecies("Genus identification", "genus", "needs_id", awaiting = true),
@@ -800,7 +798,7 @@ private fun previewSpecies(
     quality: String,
     awaiting: Boolean = false,
     rarity: EncounterRarity? = null,
-    legendary: Boolean = false,
+    icon: Boolean = false,
     group: String? = null,
 ) = CollectionSpecies(
     key = key,
@@ -814,6 +812,6 @@ private fun previewSpecies(
     awaitingSpeciesIdentification = awaiting,
     photoUrl = null,
     encounterRarity = rarity,
-    regionalPrestige = if (legendary) RegionalPrestige.LEGENDARY else RegionalPrestige.STANDARD,
+    regionalIcon = icon,
     taxonGroup = group,
 )

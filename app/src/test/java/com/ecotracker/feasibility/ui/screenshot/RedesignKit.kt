@@ -10,7 +10,6 @@ import androidx.compose.ui.graphics.Brush
 import androidx.compose.ui.graphics.Color
 import com.wildlife.feasibility.CollectionSpecies
 import com.wildlife.feasibility.EncounterRarity
-import com.wildlife.feasibility.RegionalPrestige
 import kotlin.math.abs
 
 /**
@@ -38,7 +37,11 @@ fun CollectionSpecies.toRedesignItem() = RedesignItem(
     rarity = encounterRarity,
     collected = observationCount > 0,
     confirmed = bestQualityGrade == "research",
-    legendary = regionalPrestige == RegionalPrestige.LEGENDARY,
+    // The candidates were drawn while Legend was still a tier of its own, above Icon.
+    // The tier is gone from the app — it always named the same species as Icon — but the
+    // studies are kept as they were reviewed, so the flag now comes from the sandbox's own
+    // list rather than from a model field that no longer exists.
+    legendary = key in SampleCollection.legendaryStudyKeys,
     essential = regionalEssential,
     icon = regionalIcon,
     awaiting = awaitingSpeciesIdentification,

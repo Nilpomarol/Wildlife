@@ -2,7 +2,6 @@ package com.wildlife.feasibility.ui.screens.collection
 
 import com.wildlife.feasibility.CollectionSpecies
 import com.wildlife.feasibility.EncounterRarity
-import com.wildlife.feasibility.RegionalPrestige
 import org.junit.Assert.assertEquals
 import org.junit.Assert.assertFalse
 import org.junit.Assert.assertTrue
@@ -24,7 +23,6 @@ class CollectionFiltersTest {
         rarity: EncounterRarity = EncounterRarity.COMMON,
         essential: Boolean = false,
         icon: Boolean = false,
-        legend: Boolean = false,
         group: String = "birds",
     ) = CollectionSpecies(
         key = "taxon:1",
@@ -41,7 +39,6 @@ class CollectionFiltersTest {
         regionalIcon = icon,
         scientificName = null,
         encounterRarity = rarity,
-        regionalPrestige = if (legend) RegionalPrestige.LEGENDARY else RegionalPrestige.STANDARD,
         taxonGroup = group,
     )
 
@@ -49,7 +46,7 @@ class CollectionFiltersTest {
     fun `no filters match everything`() {
         val filters = CollectionFilters.None
         assertTrue(filters.matches(species()))
-        assertTrue(filters.matches(species(observations = 3, legend = true)))
+        assertTrue(filters.matches(species(observations = 3, icon = true)))
         assertEquals(0, filters.activeCount)
         assertFalse(filters.isActive)
     }
@@ -71,14 +68,14 @@ class CollectionFiltersTest {
     }
 
     @Test
-    fun `missing legends excludes legends already recorded`() {
+    fun `missing icons excludes icons already recorded`() {
         val filters = CollectionFilters(
             status = StatusFilter.MISSING,
-            standing = StandingFilter.LEGENDS,
+            standing = StandingFilter.ICONS,
         )
-        assertTrue(filters.matches(species(legend = true, observations = 0)))
-        assertFalse(filters.matches(species(legend = true, observations = 1)))
-        assertFalse(filters.matches(species(legend = false, observations = 0)))
+        assertTrue(filters.matches(species(icon = true, observations = 0)))
+        assertFalse(filters.matches(species(icon = true, observations = 1)))
+        assertFalse(filters.matches(species(icon = false, observations = 0)))
     }
 
     @Test
@@ -144,7 +141,7 @@ class CollectionFiltersTest {
             4,
             CollectionFilters(
                 status = StatusFilter.RECORDED,
-                standing = StandingFilter.LEGENDS,
+                standing = StandingFilter.ICONS,
                 rarity = RarityFilter.COMMON,
                 group = SpeciesGroup.FISH,
             ).activeCount,

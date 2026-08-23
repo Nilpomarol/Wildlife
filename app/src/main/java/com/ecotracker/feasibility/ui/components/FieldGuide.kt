@@ -476,20 +476,18 @@ fun RegionalStandingChip(markName: String, tint: Color, modifier: Modifier = Mod
 }
 
 /**
- * The stacked regional standing marks for a species. Order is deliberate: the rarest
- * standing sits topmost so a legend reads first.
+ * The stacked regional standing marks for a species. Order is deliberate: the rarer
+ * standing sits topmost so an Icon reads first.
  */
 @Composable
 fun RegionalStandingColumn(
-    legend: Boolean,
     icon: Boolean,
     essential: Boolean,
     modifier: Modifier = Modifier,
 ) {
-    if (!legend && !icon && !essential) return
+    if (!icon && !essential) return
     val colors = WildlifeTheme.colors
     Column(modifier, verticalArrangement = Arrangement.spacedBy(5.dp)) {
-        if (legend) RegionalStandingChip("regional_legend", colors.legend)
         if (icon) RegionalStandingChip("regional_icon", colors.icon)
         if (essential) RegionalStandingChip("regional_essential", colors.essential)
     }

@@ -12,7 +12,7 @@ enum class XpEventType(val key: String) {
     RESEARCH_GRADE("research_grade"),
     REGIONAL_DISCOVERY("regional_discovery"),
     REGIONAL_RARITY("regional_rarity"),
-    REGIONAL_LEGEND("regional_legend"),
+    REGIONAL_ICON_DISCOVERY("regional_icon_discovery"),
     REGIONAL_ESSENTIALS("regional_essentials"),
     REGIONAL_ICONS("regional_icons"),
     IDENTIFICATION_GIVEN("identification_given"),
@@ -55,7 +55,7 @@ object ProgressionRules {
     val RESEARCH_GRADE_XP get() = GeneratedProgressionConfig.researchGradeXp
     val RESEARCH_GRADE_ENABLED get() = GeneratedProgressionConfig.researchGradeEnabled
     val REGIONAL_DISCOVERY_XP get() = GeneratedProgressionConfig.regionalDiscoveryXp
-    val REGIONAL_LEGEND_XP get() = GeneratedProgressionConfig.regionalLegendXp
+    val REGIONAL_ICON_DISCOVERY_XP get() = GeneratedProgressionConfig.regionalIconDiscoveryXp
     val REGIONAL_ESSENTIALS_XP get() = GeneratedProgressionConfig.regionalEssentialsXp
     val REGIONAL_ICONS_XP get() = GeneratedProgressionConfig.regionalIconsXp
     fun regionalRarityXp(rarity: EncounterRarity): Int = GeneratedProgressionConfig.rarityXp[rarity] ?: 0

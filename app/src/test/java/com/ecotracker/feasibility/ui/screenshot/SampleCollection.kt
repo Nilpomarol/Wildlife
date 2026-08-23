@@ -3,7 +3,6 @@ package com.wildlife.feasibility.ui.screenshot
 import com.wildlife.feasibility.CollectionSpecies
 import com.wildlife.feasibility.EncounterRarity
 import com.wildlife.feasibility.InstalledRegionalCatalogue
-import com.wildlife.feasibility.RegionalPrestige
 import com.wildlife.feasibility.ui.screens.collection.CollectionUiState
 
 /**
@@ -19,7 +18,6 @@ object SampleCollection {
         observations: Int = 1,
         awaiting: Boolean = false,
         rarity: EncounterRarity? = null,
-        legendary: Boolean = false,
         essential: Boolean = false,
         icon: Boolean = false,
         group: String? = null,
@@ -35,15 +33,20 @@ object SampleCollection {
         awaitingSpeciesIdentification = awaiting,
         photoUrl = null,
         encounterRarity = rarity,
-        regionalPrestige = if (legendary) RegionalPrestige.LEGENDARY else RegionalPrestige.STANDARD,
         regionalEssential = essential,
         regionalIcon = icon,
         taxonGroup = group,
     )
 
+    /**
+     * Species the frozen Direction A–D studies drew as Legends, back when Legend was a
+     * tier above Icon. Kept only so those studies still render as they were reviewed.
+     */
+    val legendaryStudyKeys = setOf("lynx")
+
     val entries = listOf(
         species("European robin", "robin", rarity = EncounterRarity.COMMON, essential = true, group = "birds"),
-        species("Iberian lynx", "lynx", rarity = EncounterRarity.VERY_RARE, legendary = true, icon = true, group = "mammals"),
+        species("Iberian lynx", "lynx", rarity = EncounterRarity.VERY_RARE, icon = true, group = "mammals"),
         species("Eurasian otter", "otter", "needs_id", rarity = EncounterRarity.UNCOMMON, group = "mammals"),
         species("Golden eagle", "eagle", "needs_id", rarity = EncounterRarity.RARE, icon = true, group = "birds"),
         species("Fire salamander", "salamander", rarity = EncounterRarity.RARE, group = "amphibians"),

@@ -50,18 +50,14 @@ def main() -> None:
         rarity = row.get("encounter_rarity", "").strip()
         if rarity not in VALID_RARITIES:
             fail(f"taxon {taxon_id} has an invalid encounter rarity")
-        prestige = row.get("prestige", "").strip()
-        if prestige != ("legendary" if list_name == "icon" else "standard"):
-            fail(f"taxon {taxon_id} has a prestige incompatible with its checklist")
         seen.add(taxon_id)
         by_list[list_name].append((position, {
             "taxon_id": taxon_id,
             "encounter_rarity": rarity,
-            "prestige": prestige,
             "seasonality": {"en": row.get("seasonality", "").strip()},
             "inclusion_provenance": (
                 f"Owner-managed {args.region} {list_name} checklist; imported from {args.csv.name}. "
-                "Encounter rarity and prestige are curated game metadata."
+                "Encounter rarity is curated game metadata."
             ),
         }))
     for list_name, expected_count in REQUIRED.items():

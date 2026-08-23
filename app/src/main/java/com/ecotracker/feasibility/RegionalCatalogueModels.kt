@@ -2,8 +2,6 @@ package com.wildlife.feasibility
 
 enum class EncounterRarity { UNKNOWN, COMMON, UNCOMMON, RARE, VERY_RARE }
 
-enum class RegionalPrestige { STANDARD, LEGENDARY }
-
 enum class ObservationRegionAssignment {
     LAND_POLYGON,
     OFFSHORE_BUFFER,
@@ -31,7 +29,6 @@ data class RegionalTaxon(
     val catalogueVersion: String,
     val taxonId: Long,
     val encounterRarity: EncounterRarity,
-    val prestige: RegionalPrestige,
     val inclusionProvenance: String,
 )
 
@@ -61,7 +58,6 @@ data class RegionalRewardContext(
     val catalogueVersion: String,
     val taxonId: Long,
     val rarity: EncounterRarity,
-    val prestige: RegionalPrestige,
     val essentials: Set<Long>,
     val icons: Set<Long>,
 )

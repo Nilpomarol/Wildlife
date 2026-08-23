@@ -1,16 +1,16 @@
-list,position,taxon_id,common_name,scientific_name,encounter_rarity,prestige,seasonality
-essential,1,13094,European Robin,Erithacus rubecula,common,standard,year-round
-essential,2,20969,Common Hoopoe,Upupa epops,common,standard,spring to summer
-essential,3,2191,European Bee-eater,Merops apiaster,uncommon,standard,spring to summer
-essential,4,2599,Common Kingfisher,Alcedo atthis,uncommon,standard,year-round
-essential,5,5366,Eurasian Griffon,Gyps fulvus,uncommon,standard,year-round
-essential,6,42350,Iberian Ibex,Capra pyrenaica,uncommon,standard,year-round
-essential,7,41482,Common Bottlenose Dolphin,Tursiops truncatus,uncommon,standard,year-round
-essential,8,71212,Hermann's Tortoise,Testudo hermanni,rare,standard,year-round
-essential,9,73972,Ocellated Lizard,Timon lepidus,uncommon,standard,spring to autumn
-essential,10,73222,Greater Flamingo,Phoenicopterus roseus,uncommon,standard,year-round
-icon,1,41975,Iberian Lynx,Lynx pardinus,very_rare,legendary,year-round
-icon,2,144467,Bonelli's Eagle,Aquila fasciata,rare,legendary,year-round
-icon,3,41850,Eurasian Otter,Lutra lutra,rare,legendary,year-round
-icon,4,41716,Mediterranean Monk Seal,Monachus monachus,very_rare,legendary,year-round
-icon,5,5081,Spanish Eagle,Aquila adalberti,very_rare,legendary,year-round
+list,position,taxon_id,common_name,scientific_name,encounter_rarity,seasonality
+essential,1,13094,European Robin,Erithacus rubecula,common,year-round
+essential,2,20969,Common Hoopoe,Upupa epops,common,spring to summer
+essential,3,2191,European Bee-eater,Merops apiaster,uncommon,spring to summer
+essential,4,2599,Common Kingfisher,Alcedo atthis,uncommon,year-round
+essential,5,5366,Eurasian Griffon,Gyps fulvus,uncommon,year-round
+essential,6,42350,Iberian Ibex,Capra pyrenaica,uncommon,year-round
+essential,7,41482,Common Bottlenose Dolphin,Tursiops truncatus,uncommon,year-round
+essential,8,71212,Hermann's Tortoise,Testudo hermanni,rare,year-round
+essential,9,73972,Ocellated Lizard,Timon lepidus,uncommon,spring to autumn
+essential,10,73222,Greater Flamingo,Phoenicopterus roseus,uncommon,year-round
+icon,1,41975,Iberian Lynx,Lynx pardinus,very_rare,year-round
+icon,2,144467,Bonelli's Eagle,Aquila fasciata,rare,year-round
+icon,3,41850,Eurasian Otter,Lutra lutra,rare,year-round
+icon,4,41716,Mediterranean Monk Seal,Monachus monachus,very_rare,year-round
+icon,5,5081,Spanish Eagle,Aquila adalberti,very_rare,year-round

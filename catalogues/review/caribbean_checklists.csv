@@ -1,16 +1,16 @@
-list,position,taxon_id,common_name,scientific_name,encounter_rarity,prestige,seasonality
-essential,1,2117,Cuban Tody,Todus multicolor,uncommon,standard,year-round
-essential,2,4257,American Flamingo,Phoenicopterus ruber,uncommon,standard,year-round
-essential,3,47299,Caribbean Spiny Lobster,Panulirus argus,uncommon,standard,year-round
-essential,4,35342,Green Iguana,Iguana iguana,common,standard,year-round
-essential,5,4328,Brown Pelican,Pelecanus occidentalis,common,standard,year-round
-essential,6,22454,Common Coqui,Eleutherodactylus coqui,common,standard,year-round
-essential,7,6377,Antillean Crested Hummingbird,Orthorhyncus cristatus,uncommon,standard,year-round
-essential,8,188767,Caribbean Reef Shark,Carcharhinus perezii,rare,standard,year-round
-essential,9,4631,Magnificent Frigatebird,Fregata magnificens,common,standard,year-round
-essential,10,6892,West Indian Whistling-Duck,Dendrocygna arborea,rare,standard,year-round
-icon,1,46316,West Indian Manatee,Trichechus manatus,rare,legendary,year-round
-icon,2,39672,Hawksbill Sea Turtle,Eretmochelys imbricata,rare,legendary,year-round
-icon,3,26061,Cuban Crocodile,Crocodylus rhombifer,very_rare,legendary,year-round
-icon,4,35298,Jamaica Ground Iguana,Cyclura collei,very_rare,legendary,year-round
-icon,5,19006,Puerto Rican Amazon,Amazona vittata,very_rare,legendary,year-round
+list,position,taxon_id,common_name,scientific_name,encounter_rarity,seasonality
+essential,1,2117,Cuban Tody,Todus multicolor,uncommon,year-round
+essential,2,4257,American Flamingo,Phoenicopterus ruber,uncommon,year-round
+essential,3,47299,Caribbean Spiny Lobster,Panulirus argus,uncommon,year-round
+essential,4,35342,Green Iguana,Iguana iguana,common,year-round
+essential,5,4328,Brown Pelican,Pelecanus occidentalis,common,year-round
+essential,6,22454,Common Coqui,Eleutherodactylus coqui,common,year-round
+essential,7,6377,Antillean Crested Hummingbird,Orthorhyncus cristatus,uncommon,year-round
+essential,8,188767,Caribbean Reef Shark,Carcharhinus perezii,rare,year-round
+essential,9,4631,Magnificent Frigatebird,Fregata magnificens,common,year-round
+essential,10,6892,West Indian Whistling-Duck,Dendrocygna arborea,rare,year-round
+icon,1,46316,West Indian Manatee,Trichechus manatus,rare,year-round
+icon,2,39672,Hawksbill Sea Turtle,Eretmochelys imbricata,rare,year-round
+icon,3,26061,Cuban Crocodile,Crocodylus rhombifer,very_rare,year-round
+icon,4,35298,Jamaica Ground Iguana,Cyclura collei,very_rare,year-round
+icon,5,19006,Puerto Rican Amazon,Amazona vittata,very_rare,year-round

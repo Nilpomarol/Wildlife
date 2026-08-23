@@ -282,11 +282,11 @@ fun PlateSheen(tint: Color, strength: Float, modifier: Modifier = Modifier) {
 
 /**
  * The Regional Icon effect: a halo behind the specimen and a rim of light around the
- * plate, in the standing's bone tone.
+ * plate, in the standing's gold.
  *
- * Deliberately a different *kind* of effect from [drawGilding] rather than a weaker
- * version of it. Icon and Legend are two standings, not two grades of one, so scaling the
- * gold down would have made a Legend read as merely a brighter Icon.
+ * Pairs with [drawGilding] on a recorded Icon: the halo lights the specimen, the gilding
+ * dresses the plate around it. The halo is the part that survives on an Icon you have not
+ * found yet, so an unrecorded plate is lit as a target without being dressed as a trophy.
  */
 fun DrawScope.drawIconHalo(tint: Color, strength: Float = 1f) {
     // Centred a little above the middle, where a specimen's head tends to sit.
@@ -441,8 +441,9 @@ fun IconHalo(tint: Color, modifier: Modifier = Modifier, strength: Float = 1f) {
 }
 
 /**
- * Legendary gilding: a warm corner glow and a scatter of gold motes. The natural home
- * for a slow shimmer later — the sheen is a gradient whose offsets can be animated.
+ * The gilding of an earned Icon: a warm corner glow and a scatter of gold motes. The
+ * natural home for a slow shimmer later — the sheen is a gradient whose offsets can be
+ * animated.
  */
 fun DrawScope.drawGilding(tint: Color, seed: Int = 19, motes: Int = 7) {
     drawRect(

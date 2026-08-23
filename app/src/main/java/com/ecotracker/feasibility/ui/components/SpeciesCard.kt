@@ -82,15 +82,13 @@ data class SpeciesCardModel(
     val fallbackSilhouetteGroup: String? = null,
     val regionalEssential: Boolean = false,
     val regionalIcon: Boolean = false,
-    /** Curated regional prestige. This is independent from encounter rarity and achievements. */
-    val regionalLegend: Boolean = false,
     /** Offline fallback glyph (e.g. a taxonomic-group silhouette) shown when no photo or
      *  remote silhouette is available, in place of the bare first-letter placeholder. */
     val placeholderIcon: ImageVector? = null,
     val supportingTextItalic: Boolean = false,
     /**
      * Whether the viewer has actually recorded this species. Gates the regional-standing
-     * effects: gilding a legend you have never found would claim you had earned it.
+     * effects: gilding an Icon you have never found would claim you had earned it.
      */
     val collected: Boolean = false,
     val status: SpeciesCardStatus = SpeciesCardStatus.NONE,
@@ -202,7 +200,6 @@ fun SpeciesCard(
     // The frame carries regional standing, not rarity: rarity is already stated by the
     // pill under the plate, so the border is free to mean something else.
     val standingBorder = when {
-        species.regionalLegend -> colors.legend
         species.regionalIcon -> colors.icon
         species.regionalEssential -> colors.essential
         else -> null
@@ -212,7 +209,6 @@ fun SpeciesCard(
         append(", ")
         append(species.supportingText)
         rarity?.let { append(", ${it.label} tier") }
-        if (species.regionalLegend) append(", Regional Legend")
         if (species.regionalIcon) append(", Regional Icon")
         else if (species.regionalEssential) append(", Regional Essential")
         when (species.status) {
@@ -230,7 +226,7 @@ fun SpeciesCard(
         colors = CardDefaults.cardColors(containerColor = colors.plate),
         border = BorderStroke(
             width = when {
-                species.regionalLegend -> 2.dp
+                species.regionalIcon -> 2.dp
                 standingBorder != null -> 1.5.dp
                 else -> 1.dp
             },
@@ -275,25 +271,14 @@ fun SpeciesCard(
                     }
                 }
 
-                // Species of regional standing catch the light; legends are gilded on top.
-                // Only once recorded — the effect marks an earned specimen, not a target.
-                // Two standings, two different effects — not one effect at two strengths.
+                // An Icon's standing says "this is one of the five notable species here",
+                // which is useful precisely *before* you find it, so the travelling light
+                // runs on every Icon as a beacon whether or not it has been recorded.
                 //
-                // Legend gilding is strictly earned: a warm glow and gold motes on a
-                // species you have never seen reads as a trophy you own, which it is not.
-                //
-                // An Icon is different. Its standing says "this is one of the notable
-                // species here", which is useful precisely *before* you find it, so the
-                // travelling light runs on every Icon as a beacon. Recording one adds the
-                // halo, so a specimen you hold is lit rather than merely flagged.
-                if (species.collected && species.regionalLegend) {
-                    PlateSheen(
-                        tint = colors.legend,
-                        strength = 0.20f,
-                        modifier = Modifier.matchParentSize(),
-                    )
-                    Gilding(colors.legend, Modifier.matchParentSize())
-                } else if (species.regionalIcon) {
+                // The gilding is strictly earned, and is the one effect gated on having
+                // the specimen: a warm glow and gold motes on a species you have never
+                // seen would read as a trophy you own, which it is not.
+                if (species.regionalIcon) {
                     if (species.collected) {
                         IconHalo(colors.icon, Modifier.matchParentSize())
                         PlateSheen(
@@ -301,6 +286,7 @@ fun SpeciesCard(
                             strength = 0.22f,
                             modifier = Modifier.matchParentSize(),
                         )
+                        Gilding(colors.icon, Modifier.matchParentSize())
                     }
                     EdgeLight(
                         tint = colors.icon,
@@ -319,7 +305,6 @@ fun SpeciesCard(
                 // it takes the corner the eye reaches last and rests on when scanning a
                 // row left to right.
                 RegionalStandingColumn(
-                    legend = species.regionalLegend,
                     icon = species.regionalIcon,
                     essential = species.regionalEssential,
                     modifier = Modifier.align(Alignment.TopEnd).padding(WildlifeSpacing.Micro),
@@ -414,8 +399,6 @@ fun RegionalCollectionStamp(
     mark: RegionalCollectionMark,
     modifier: Modifier = Modifier,
 ) {
-    // Icon and Legend were both gold, which left the two standings hard to tell apart.
-    // They now take their own tokens: parchment for Icon, brass for Legend.
     val tint = if (mark == RegionalCollectionMark.ICON) {
         WildlifeTheme.colors.icon
     } else {
@@ -477,21 +460,6 @@ fun EncounterTrace(
         contentAlignment = Alignment.Center,
     ) {
         FieldMarkAsset(assetName, tint, Modifier.padding(6.dp))
-    }
-}
-
-/** Owner-supplied prestige artwork, distinct from rarity and Icon membership. */
-@Composable
-fun RegionalLegendMark(modifier: Modifier = Modifier) {
-    val tint = WildlifeTheme.colors.legendary
-    Box(
-        modifier = modifier
-            .size(30.dp)
-            .background(Color(0xB3080B09), CircleShape)
-            .border(BorderStroke(1.dp, tint.copy(alpha = 0.85f)), CircleShape),
-        contentAlignment = Alignment.Center,
-    ) {
-        FieldMarkAsset("regional_legend.svg", tint, Modifier.padding(6.dp))
     }
 }
 

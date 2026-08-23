@@ -43,7 +43,6 @@ def main() -> None:
             entries.append(existing.get(taxon_id, {
                 "taxon_id": taxon_id,
                 "encounter_rarity": "unknown",
-                "prestige": "standard",
                 "seasonality": {"en": "year-round"},
                 "inclusion_provenance": (
                     "Broad regional field-guide candidate curated from public iNaturalist data; "

@@ -18,7 +18,6 @@ data class InstalledRegionalTaxon(
     val commonName: String,
     val scientificName: String,
     val rarity: EncounterRarity,
-    val prestige: RegionalPrestige,
     /** Linnaean class from the frozen taxonomy, e.g. "Mammalia", "Aves". Blank if unknown. */
     val taxonClass: String,
 )
@@ -118,7 +117,7 @@ class RegionalCatalogueAssetStore(private val context: Context) {
 
     fun taxa(regionKey: String): List<InstalledRegionalTaxon> = database().use { database ->
         database.rawQuery(
-            """SELECT rt.taxon_id, t.scientific_name, t.common_names_json, rt.encounter_rarity, rt.prestige, t.taxonomy_json
+            """SELECT rt.taxon_id, t.scientific_name, t.common_names_json, rt.encounter_rarity, t.taxonomy_json
                 FROM regional_taxon rt JOIN taxon t ON t.taxon_id = rt.taxon_id
                 WHERE rt.region_key = ? ORDER BY rt.sort_order""".trimIndent(),
             arrayOf(regionKey),
@@ -127,7 +126,7 @@ class RegionalCatalogueAssetStore(private val context: Context) {
                 while (cursor.moveToNext()) {
                     val names = org.json.JSONObject(cursor.getString(2))
                     val taxonClass = runCatching {
-                        org.json.JSONObject(cursor.getString(5)).optString("class", "")
+                        org.json.JSONObject(cursor.getString(4)).optString("class", "")
                     }.getOrDefault("")
                     add(
                         InstalledRegionalTaxon(
@@ -135,7 +134,6 @@ class RegionalCatalogueAssetStore(private val context: Context) {
                             commonName = names.optString("en", cursor.getString(1)),
                             scientificName = cursor.getString(1),
                             rarity = EncounterRarity.valueOf(cursor.getString(3).uppercase()),
-                            prestige = RegionalPrestige.valueOf(cursor.getString(4).uppercase()),
                             taxonClass = taxonClass,
                         ),
                     )

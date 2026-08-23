@@ -6,7 +6,7 @@
 
 **Catalan review copy:** [`progression_rules_ca.md`](progression_rules_ca.md)
 
-**Implementation:** `ProgressionRules.kt` implements `progression-0.2-regional-experimental`. It adds regional events without rewriting existing ledger entries. The regional catalogue, rarity, prestige and achievement contracts are defined in [`regional_catalogues.md`](regional_catalogues.md).
+**Implementation:** `ProgressionRules.kt` implements `progression-0.2-regional-experimental`. It adds regional events without rewriting existing ledger entries. The regional catalogue, rarity and achievement contracts are defined in [`regional_catalogues.md`](regional_catalogues.md).
 
 ## 1. How to revise this proposal
 
@@ -23,7 +23,7 @@ Rules use stable keys such as `confirmed_observation` and `field_ranger`; UI cop
 - Collection projections may change, but ledgered XP remains historical fact.
 - Levels and rewards are cosmetic. They never change observation visibility, scientific status, matching confidence or access to biological information.
 - Rarity, verification and observed state remain separate concepts.
-- Encounter rarity, regional Legendary prestige, conservation status and verification are four separate concepts.
+- Encounter rarity, regional standing, conservation status and verification are four separate concepts.
 - A species may unlock only the regional catalogue containing the observation. A taxon seen elsewhere never counts toward that region.
 - An uncertain regional assignment awards no regional XP until it can be resolved safely.
 - Historical observations imported during initial account sync unlock the collection but do not earn retroactive XP in this placeholder version.
@@ -40,7 +40,7 @@ These keys and values are the editable source for the current internal implement
 | `research_grade` | A previously known public observation first reaches Research Grade | 50 | Yes | Enabled after durable quality-transition detection and idempotency were implemented in lifecycle schema v5 |
 | `regional_discovery` | First confirmed unlock of a taxon in the region containing the observation | 100 | Yes | Keyed by region, frozen catalogue version and taxon |
 | `regional_rarity_bonus` | Additive encounter-rarity bonus on the first regional discovery | 0–300 | Yes | Never a multiplier; fixed by the catalogue version at award time |
-| `regional_legend` | First regional discovery of a manually curated Legendary species | 1,000 | Yes | Prestige reward; independent from encounter rarity |
+| `regional_icon_discovery` | First regional discovery of one of the region's five Icons | 1,000 | Yes | Standing reward; independent from encounter rarity |
 | `regional_essentials_complete` | Complete the region's 10-species Essentials checklist | 1,500 | Yes | One award per frozen checklist version |
 | `regional_icons_complete` | Complete the region's 5-species Icons checklist | 3,000 | Yes | One award per frozen checklist version |
 | `identification_given` | A qualifying identification given to another iNaturalist user | 25 | No | v1.2; requires validated source fields, self-exclusion and daily cap |
@@ -72,20 +72,20 @@ Encounter rarity bonuses are enabled for the bundled pilot catalogues. They are 
 
 Raw observation frequency must not be presented as biological rarity. The generator should prefer distinct observation days and spatial coverage over raw totals, exclude accidental/vagrant records from the normal catalogue, and allow reviewed overrides with reasons. Bonuses are frozen with the catalogue version used by the award.
 
-### 3.3 Regional Legendary prestige
+### 3.3 Regional Icon discovery
 
-`legendary` is a manually curated regional prestige flag, not a fifth encounter-rarity tier. It allows a species to be both easy to encounter and exceptionally valuable to the collection fantasy. For example, an African elephant may truthfully be presented as **Common · Regional Legend** while a common warthog remains **Common · Standard**.
+Recording one of a region's five Icons carries a bonus of its own, independent of encounter rarity. It allows a species to be both easy to encounter and exceptionally valuable to the collection fantasy. For example, an African elephant may truthfully be presented as **Common · Regional Icon** while a common warthog remains simply **Common**.
 
-Regional Icons and Legendary prestige are independent: an Icon may be Standard, and any catalogue species may be Legendary. The `regional_legend` reward is awarded once per region, catalogue version and taxon. A species may be Legendary in more than one region, but an observation counts only in the region where it was made.
+This reward was previously a separate `legendary` prestige tier. That tier named exactly the region's five Icons in every pilot catalogue — the checklist importer enforced it — so it was removed and its bonus attached directly to Icon membership. The reward is awarded once per region, catalogue version and taxon. A species may be an Icon in more than one region, but an observation counts only in the region where it was made.
 
 Illustrative first-discovery totals, before Research Grade:
 
-| Example | Base observation | Global first species | Regional discovery | Rarity | Legendary | Total |
+| Example | Base observation | Global first species | Regional discovery | Rarity | Icon | Total |
 |---|---:|---:|---:|---:|---:|---:|
-| Common standard species, first ever sighting | 10 | 500 | 100 | 0 | 0 | 610 |
-| Common Regional Legend, first ever sighting | 10 | 500 | 100 | 0 | 1,000 | 1,610 |
-| Common Regional Legend already seen in another region | 10 | 0 | 100 | 0 | 1,000 | 1,110 |
-| Very Rare standard species, first ever sighting | 10 | 500 | 100 | 300 | 0 | 910 |
+| Common ordinary species, first ever sighting | 10 | 500 | 100 | 0 | 0 | 610 |
+| Common Regional Icon, first ever sighting | 10 | 500 | 100 | 0 | 1,000 | 1,610 |
+| Common Regional Icon already seen in another region | 10 | 0 | 100 | 0 | 1,000 | 1,110 |
+| Very Rare ordinary species, first ever sighting | 10 | 500 | 100 | 300 | 0 | 910 |
 
 These values express game significance without falsely labelling an iconic animal as biologically rare. They remain subject to account simulation before closed beta.
 
@@ -123,17 +123,17 @@ Illustrative runtime events, before any later Research Grade reward:
 |---|---:|---|
 | First Common regional species | 610 | Explorer |
 | First Very Rare regional species | 910 | Explorer |
-| First Common Regional Legend | 1,610 | Explorer |
+| First Common Regional Icon | 1,610 | Explorer |
 | Complete Essentials after their final first-regional discovery | +1,500 | Depends on prior discoveries |
 | Complete Icons after their final first-regional discovery | +3,000 | Depends on prior discoveries |
 
-These examples no longer predict runtime pacing because regional discoveries, rarity, Legendary prestige and versioned checklist completion are active. Before any release, simulate realistic regional field histories and revise thresholds if users progress too slowly or too quickly. Existing ledger events remain unchanged when values or thresholds are revised.
+These examples no longer predict runtime pacing because regional discoveries, rarity, Icon discovery and versioned checklist completion are active. Before any release, simulate realistic regional field histories and revise thresholds if users progress too slowly or too quickly. Existing ledger events remain unchanged when values or thresholds are revised.
 
 ### 4.3 Preliminary pilot-pack simulation — 22 August 2026
 
 The first deterministic simulation reads the current three generated pilot catalogue sources. It
 assumes one explicitly confirmed observation for each distinct regional taxon, no Research Grade
-transition, one global first-species award, all regional first-discovery/rarity/Legendary awards,
+transition, one global first-species award, all regional first-discovery/rarity/Icon awards,
 and both checklist completion awards. It does not treat the catalogue order as a likely field
 history.
 
@@ -146,9 +146,9 @@ history.
 | Complete East Africa (931 taxa) | 148,960 | Legendary Ranger |
 | Complete Caribbean (813 taxa) | 131,830 | Legendary Ranger |
 
-The complete-pack totals include the current generated rarity and Legendary distributions and the
+The complete-pack totals include the current generated rarity distribution and the
 10-Essentials/5-Icons awards. These results are a useful boundary check, not a beta freeze:
-the pilot rarity/prestige fields remain editorially provisional, and realistic user histories must
+the pilot rarity field and checklists remain editorially provisional, and realistic user histories must
 still be sampled before the product owner approves a release rules version.
 
 ## 5. Rewards and unlocks
@@ -195,7 +195,7 @@ first_species:<collection taxon ID>
 research_grade:<observation UUID>
 regional_discovery:<region key>:<catalogue version>:<collection taxon ID>
 regional_rarity:<region key>:<catalogue version>:<collection taxon ID>
-regional_legend:<region key>:<catalogue version>:<collection taxon ID>
+regional_icon_discovery:<region key>:<catalogue version>:<collection taxon ID>
 regional_essentials:<region key>:<catalogue version>
 regional_icons:<region key>:<catalogue version>
 identification_given:<identification ID>
@@ -245,3 +245,4 @@ Implementation should centralize enabled events, XP values and thresholds in one
 | 13 August 2026 | `progression-0.1-placeholder` | Codex proposal | Initial editable placeholder; awaiting product review |
 | 21 August 2026 | `progression-0.2-regional` | Product owner direction | Keep Legendary as regional prestige, separate from encounter rarity; add region-bound discovery and checklist rewards without rewriting existing XP |
 | 21 August 2026 | `progression-0.2-regional-experimental` | Internal implementation | Enabled regional discovery, rarity, Legendary and checklist rewards with higher internal-test values; values remain adjustable before release |
+| 23 August 2026 | `progression-0.2-regional-experimental` | Product owner direction | Remove the Legendary prestige tier: it named exactly the region's five Icons, so its 1,000 XP reward moved onto Icon discovery as `regional_icon_discovery`. Existing `regional_legend:` ledger keys are rewritten in place by lifecycle schema v8, so earned XP and its history survive and no species is rewarded twice |

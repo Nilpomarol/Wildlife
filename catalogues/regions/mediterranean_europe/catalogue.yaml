@@ -8,7 +8,6 @@
     {
       "taxon_id": 42184,
       "encounter_rarity": "common",
-      "prestige": "standard",
       "seasonality": {
         "en": "year-round"
       },
@@ -17,7 +16,6 @@
     {
       "taxon_id": 42069,
       "encounter_rarity": "common",
-      "prestige": "standard",
       "seasonality": {
         "en": "year-round"
       },
@@ -26,7 +24,6 @@
     {
       "taxon_id": 42134,
       "encounter_rarity": "common",
-      "prestige": "standard",
       "seasonality": {
         "en": "year-round"
       },
@@ -35,7 +32,6 @@
     {
       "taxon_id": 43151,
       "encounter_rarity": "common",
-      "prestige": "standard",
       "seasonality": {
         "en": "year-round"
       },
@@ -44,7 +40,6 @@
     {
       "taxon_id": 46001,
       "encounter_rarity": "common",
-      "prestige": "standard",
       "seasonality": {
         "en": "year-round"
       },
@@ -53,7 +48,6 @@
     {
       "taxon_id": 204113,
       "encounter_rarity": "common",
-      "prestige": "standard",
       "seasonality": {
         "en": "year-round"
       },
@@ -62,7 +56,6 @@
     {
       "taxon_id": 43042,
       "encounter_rarity": "common",
-      "prestige": "standard",
       "seasonality": {
         "en": "year-round"
       },
@@ -71,7 +64,6 @@
     {
       "taxon_id": 855297,
       "encounter_rarity": "common",
-      "prestige": "standard",
       "seasonality": {
         "en": "year-round"
       },
@@ -80,7 +72,6 @@
     {
       "taxon_id": 43997,
       "encounter_rarity": "common",
-      "prestige": "standard",
       "seasonality": {
         "en": "year-round"
       },
@@ -89,7 +80,6 @@
     {
       "taxon_id": 46082,
       "encounter_rarity": "common",
-      "prestige": "standard",
       "seasonality": {
         "en": "year-round"
       },
@@ -98,7 +88,6 @@
     {
       "taxon_id": 42347,
       "encounter_rarity": "common",
-      "prestige": "standard",
       "seasonality": {
         "en": "year-round"
       },
@@ -107,16 +96,14 @@
     {
       "taxon_id": 41482,
       "encounter_rarity": "common",
-      "prestige": "standard",
       "seasonality": {
         "en": "year-round"
       },
-      "inclusion_provenance": "Owner-managed mediterranean_europe essential checklist; imported from mediterranean_europe_checklists.csv. Encounter rarity and prestige are curated game metadata. Automated rarity: inaturalist-regional-frequency-v1."
+      "inclusion_provenance": "Owner-managed mediterranean_europe essential checklist; imported from mediterranean_europe_checklists.csv. Encounter rarity is curated game metadata. Automated rarity: inaturalist-regional-frequency-v1."
     },
     {
       "taxon_id": 42161,
       "encounter_rarity": "common",
-      "prestige": "standard",
       "seasonality": {
         "en": "year-round"
       },
@@ -125,16 +112,14 @@
     {
       "taxon_id": 41850,
       "encounter_rarity": "common",
-      "prestige": "legendary",
       "seasonality": {
         "en": "year-round"
       },
-      "inclusion_provenance": "Owner-managed mediterranean_europe icon checklist; imported from mediterranean_europe_checklists.csv. Encounter rarity and prestige are curated game metadata. Automated rarity: inaturalist-regional-frequency-v1."
+      "inclusion_provenance": "Owner-managed mediterranean_europe icon checklist; imported from mediterranean_europe_checklists.csv. Encounter rarity is curated game metadata. Automated rarity: inaturalist-regional-frequency-v1."
     },
     {
       "taxon_id": 41800,
       "encounter_rarity": "common",
-      "prestige": "standard",
       "seasonality": {
         "en": "year-round"
       },
@@ -143,7 +128,6 @@
     {
       "taxon_id": 42357,
       "encounter_rarity": "common",
-      "prestige": "standard",
       "seasonality": {
         "en": "year-round"
       },
@@ -152,7 +136,6 @@
     {
       "taxon_id": 43111,
       "encounter_rarity": "common",
-      "prestige": "standard",
       "seasonality": {
         "en": "year-round"
       },
@@ -161,7 +144,6 @@
     {
       "taxon_id": 42048,
       "encounter_rarity": "common",
-      "prestige": "standard",
       "seasonality": {
         "en": "year-round"
       },
@@ -170,7 +152,6 @@
     {
       "taxon_id": 43128,
       "encounter_rarity": "common",
-      "prestige": "standard",
       "seasonality": {
         "en": "year-round"
       },
@@ -179,7 +160,6 @@
     {
       "taxon_id": 44576,
       "encounter_rarity": "common",
-      "prestige": "standard",
       "seasonality": {
         "en": "year-round"
       },
@@ -188,16 +168,14 @@
     {
       "taxon_id": 42350,
       "encounter_rarity": "common",
-      "prestige": "standard",
       "seasonality": {
         "en": "year-round"
       },
-      "inclusion_provenance": "Owner-managed mediterranean_europe essential checklist; imported from mediterranean_europe_checklists.csv. Encounter rarity and prestige are curated game metadata. Automated rarity: inaturalist-regional-frequency-v1."
+      "inclusion_provenance": "Owner-managed mediterranean_europe essential checklist; imported from mediterranean_europe_checklists.csv. Encounter rarity is curated game metadata. Automated rarity: inaturalist-regional-frequency-v1."
     },
     {
       "taxon_id": 46017,
       "encounter_rarity": "common",
-      "prestige": "standard",
       "seasonality": {
         "en": "year-round"
       },
@@ -206,7 +184,6 @@
     {
       "taxon_id": 44171,
       "encounter_rarity": "common",
-      "prestige": "standard",
       "seasonality": {
         "en": "year-round"
       },
@@ -215,7 +192,6 @@
     {
       "taxon_id": 44575,
       "encounter_rarity": "common",
-      "prestige": "standard",
       "seasonality": {
         "en": "year-round"
       },
@@ -224,7 +200,6 @@
     {
       "taxon_id": 45562,
       "encounter_rarity": "common",
-      "prestige": "standard",
       "seasonality": {
         "en": "year-round"
       },
@@ -233,7 +208,6 @@
     {
       "taxon_id": 46640,
       "encounter_rarity": "common",
-      "prestige": "standard",
       "seasonality": {
         "en": "year-round"
       },
@@ -242,7 +216,6 @@
     {
       "taxon_id": 46970,
       "encounter_rarity": "common",
-      "prestige": "standard",
       "seasonality": {
         "en": "year-round"
       },
@@ -251,7 +224,6 @@
     {
       "taxon_id": 40695,
       "encounter_rarity": "common",
-      "prestige": "standard",
       "seasonality": {
         "en": "year-round"
       },
@@ -260,7 +232,6 @@
     {
       "taxon_id": 74383,
       "encounter_rarity": "common",
-      "prestige": "standard",
       "seasonality": {
         "en": "year-round"
       },
@@ -269,7 +240,6 @@
     {
       "taxon_id": 43048,
       "encounter_rarity": "common",
-      "prestige": "standard",
       "seasonality": {
         "en": "year-round"
       },
@@ -278,7 +248,6 @@
     {
       "taxon_id": 46969,
       "encounter_rarity": "common",
-      "prestige": "standard",
       "seasonality": {
         "en": "year-round"
       },
@@ -287,7 +256,6 @@
     {
       "taxon_id": 925661,
       "encounter_rarity": "common",
-      "prestige": "standard",
       "seasonality": {
         "en": "year-round"
       },
@@ -296,7 +264,6 @@
     {
       "taxon_id": 41796,
       "encounter_rarity": "common",
-      "prestige": "standard",
       "seasonality": {
         "en": "year-round"
       },
@@ -305,7 +272,6 @@
     {
       "taxon_id": 44705,
       "encounter_rarity": "common",
-      "prestige": "standard",
       "seasonality": {
         "en": "year-round"
       },
@@ -314,7 +280,6 @@
     {
       "taxon_id": 41526,
       "encounter_rarity": "common",
-      "prestige": "standard",
       "seasonality": {
         "en": "year-round"
       },
@@ -323,7 +288,6 @@
     {
       "taxon_id": 40645,
       "encounter_rarity": "common",
-      "prestige": "standard",
       "seasonality": {
         "en": "year-round"
       },
@@ -332,7 +296,6 @@
     {
       "taxon_id": 43119,
       "encounter_rarity": "common",
-      "prestige": "standard",
       "seasonality": {
         "en": "year-round"
       },
@@ -341,7 +304,6 @@
     {
       "taxon_id": 46241,
       "encounter_rarity": "common",
-      "prestige": "standard",
       "seasonality": {
         "en": "year-round"
       },
@@ -350,16 +312,14 @@
     {
       "taxon_id": 41975,
       "encounter_rarity": "common",
-      "prestige": "legendary",
       "seasonality": {
         "en": "year-round"
       },
-      "inclusion_provenance": "Owner-managed mediterranean_europe icon checklist; imported from mediterranean_europe_checklists.csv. Encounter rarity and prestige are curated game metadata. Automated rarity: inaturalist-regional-frequency-v1."
+      "inclusion_provenance": "Owner-managed mediterranean_europe icon checklist; imported from mediterranean_europe_checklists.csv. Encounter rarity is curated game metadata. Automated rarity: inaturalist-regional-frequency-v1."
     },
     {
       "taxon_id": 43793,
       "encounter_rarity": "common",
-      "prestige": "standard",
       "seasonality": {
         "en": "year-round"
       },
@@ -368,7 +328,6 @@
     {
       "taxon_id": 569428,
       "encounter_rarity": "common",
-      "prestige": "standard",
       "seasonality": {
         "en": "year-round"
       },
@@ -377,7 +336,6 @@
     {
       "taxon_id": 41503,
       "encounter_rarity": "common",
-      "prestige": "standard",
       "seasonality": {
         "en": "year-round"
       },
@@ -386,7 +344,6 @@
     {
       "taxon_id": 40364,
       "encounter_rarity": "common",
-      "prestige": "standard",
       "seasonality": {
         "en": "year-round"
       },
@@ -395,7 +352,6 @@
     {
       "taxon_id": 41900,
       "encounter_rarity": "common",
-      "prestige": "standard",
       "seasonality": {
         "en": "year-round"
       },
@@ -404,7 +360,6 @@
     {
       "taxon_id": 41532,
       "encounter_rarity": "common",
-      "prestige": "standard",
       "seasonality": {
         "en": "year-round"
       },
@@ -413,7 +368,6 @@
     {
       "taxon_id": 765528,
       "encounter_rarity": "common",
-      "prestige": "standard",
       "seasonality": {
         "en": "year-round"
       },
@@ -422,7 +376,6 @@
     {
       "taxon_id": 43059,
       "encounter_rarity": "common",
-      "prestige": "standard",
       "seasonality": {
         "en": "year-round"
       },
@@ -431,7 +384,6 @@
     {
       "taxon_id": 852333,
       "encounter_rarity": "common",
-      "prestige": "standard",
       "seasonality": {
         "en": "year-round"
       },
@@ -440,7 +392,6 @@
     {
       "taxon_id": 1264432,
       "encounter_rarity": "common",
-      "prestige": "standard",
       "seasonality": {
         "en": "year-round"
       },
@@ -449,7 +400,6 @@
     {
       "taxon_id": 45863,
       "encounter_rarity": "common",
-      "prestige": "standard",
       "seasonality": {
         "en": "year-round"
       },
@@ -458,7 +408,6 @@
     {
       "taxon_id": 922459,
       "encounter_rarity": "common",
-      "prestige": "standard",
       "seasonality": {
         "en": "year-round"
       },
@@ -467,7 +416,6 @@
     {
       "taxon_id": 40383,
       "encounter_rarity": "common",
-      "prestige": "standard",
       "seasonality": {
         "en": "year-round"
       },
@@ -476,7 +424,6 @@
     {
       "taxon_id": 41812,
       "encounter_rarity": "common",
-      "prestige": "standard",
       "seasonality": {
         "en": "year-round"
       },
@@ -485,7 +432,6 @@
     {
       "taxon_id": 45856,
       "encounter_rarity": "common",
-      "prestige": "standard",
       "seasonality": {
         "en": "year-round"
       },
@@ -494,7 +440,6 @@
     {
       "taxon_id": 41641,
       "encounter_rarity": "common",
-      "prestige": "standard",
       "seasonality": {
         "en": "year-round"
       },
@@ -503,7 +448,6 @@
     {
       "taxon_id": 74890,
       "encounter_rarity": "common",
-      "prestige": "standard",
       "seasonality": {
         "en": "year-round"
       },
@@ -512,7 +456,6 @@
     {
       "taxon_id": 57534,
       "encounter_rarity": "common",
-      "prestige": "standard",
       "seasonality": {
         "en": "year-round"
       },
@@ -521,7 +464,6 @@
     {
       "taxon_id": 1431273,
       "encounter_rarity": "common",
-      "prestige": "standard",
       "seasonality": {
         "en": "year-round"
       },
@@ -530,7 +472,6 @@
     {
       "taxon_id": 40281,
       "encounter_rarity": "common",
-      "prestige": "standard",
       "seasonality": {
         "en": "year-round"
       },
@@ -539,7 +480,6 @@
     {
       "taxon_id": 41298,
       "encounter_rarity": "common",
-      "prestige": "standard",
       "seasonality": {
         "en": "year-round"
       },
@@ -548,7 +488,6 @@
     {
       "taxon_id": 55908,
       "encounter_rarity": "common",
-      "prestige": "standard",
       "seasonality": {
         "en": "year-round"
       },
@@ -557,7 +496,6 @@
     {
       "taxon_id": 40574,
       "encounter_rarity": "common",
-      "prestige": "standard",
       "seasonality": {
         "en": "year-round"
       },
@@ -566,7 +504,6 @@
     {
       "taxon_id": 424254,
       "encounter_rarity": "common",
-      "prestige": "standard",
       "seasonality": {
         "en": "year-round"
       },
@@ -575,16 +512,14 @@
     {
       "taxon_id": 41716,
       "encounter_rarity": "common",
-      "prestige": "legendary",
       "seasonality": {
         "en": "year-round"
       },
-      "inclusion_provenance": "Owner-managed mediterranean_europe icon checklist; imported from mediterranean_europe_checklists.csv. Encounter rarity and prestige are curated game metadata. Automated rarity: inaturalist-regional-frequency-v1."
+      "inclusion_provenance": "Owner-managed mediterranean_europe icon checklist; imported from mediterranean_europe_checklists.csv. Encounter rarity is curated game metadata. Automated rarity: inaturalist-regional-frequency-v1."
     },
     {
       "taxon_id": 40415,
       "encounter_rarity": "common",
-      "prestige": "standard",
       "seasonality": {
         "en": "year-round"
       },
@@ -593,7 +528,6 @@
     {
       "taxon_id": 45748,
       "encounter_rarity": "common",
-      "prestige": "standard",
       "seasonality": {
         "en": "year-round"
       },
@@ -602,7 +536,6 @@
     {
       "taxon_id": 46471,
       "encounter_rarity": "common",
-      "prestige": "standard",
       "seasonality": {
         "en": "year-round"
       },
@@ -611,7 +544,6 @@
     {
       "taxon_id": 41494,
       "encounter_rarity": "common",
-      "prestige": "standard",
       "seasonality": {
         "en": "year-round"
       },
@@ -620,7 +552,6 @@
     {
       "taxon_id": 44280,
       "encounter_rarity": "common",
-      "prestige": "standard",
       "seasonality": {
         "en": "year-round"
       },
@@ -629,7 +560,6 @@
     {
       "taxon_id": 41541,
       "encounter_rarity": "common",
-      "prestige": "standard",
       "seasonality": {
         "en": "year-round"
       },
@@ -638,7 +568,6 @@
     {
       "taxon_id": 41808,
       "encounter_rarity": "common",
-      "prestige": "standard",
       "seasonality": {
         "en": "year-round"
       },
@@ -647,7 +576,6 @@
     {
       "taxon_id": 1655578,
       "encounter_rarity": "common",
-      "prestige": "standard",
       "seasonality": {
         "en": "year-round"
       },
@@ -656,7 +584,6 @@
     {
       "taxon_id": 42346,
       "encounter_rarity": "uncommon",
-      "prestige": "standard",
       "seasonality": {
         "en": "year-round"
       },
@@ -665,7 +592,6 @@
     {
       "taxon_id": 40573,
       "encounter_rarity": "uncommon",
-      "prestige": "standard",
       "seasonality": {
         "en": "year-round"
       },
@@ -674,7 +600,6 @@
     {
       "taxon_id": 1596127,
       "encounter_rarity": "uncommon",
-      "prestige": "standard",
       "seasonality": {
         "en": "year-round"
       },
@@ -683,7 +608,6 @@
     {
       "taxon_id": 46663,
       "encounter_rarity": "uncommon",
-      "prestige": "standard",
       "seasonality": {
         "en": "year-round"
       },
@@ -692,7 +616,6 @@
     {
       "taxon_id": 533979,
       "encounter_rarity": "uncommon",
-      "prestige": "standard",
       "seasonality": {
         "en": "year-round"
       },
@@ -701,7 +624,6 @@
     {
       "taxon_id": 74908,
       "encounter_rarity": "uncommon",
-      "prestige": "standard",
       "seasonality": {
         "en": "year-round"
       },
@@ -710,7 +632,6 @@
     {
       "taxon_id": 851014,
       "encounter_rarity": "uncommon",
-      "prestige": "standard",
       "seasonality": {
         "en": "year-round"
       },
@@ -719,7 +640,6 @@
     {
       "taxon_id": 44688,
       "encounter_rarity": "uncommon",
-      "prestige": "standard",
       "seasonality": {
         "en": "year-round"
       },
@@ -728,7 +648,6 @@
     {
       "taxon_id": 40677,
       "encounter_rarity": "uncommon",
-      "prestige": "standard",
       "seasonality": {
         "en": "year-round"
       },
@@ -737,7 +656,6 @@
     {
       "taxon_id": 46412,
       "encounter_rarity": "uncommon",
-      "prestige": "standard",
       "seasonality": {
         "en": "year-round"
       },
@@ -746,7 +664,6 @@
     {
       "taxon_id": 40416,
       "encounter_rarity": "uncommon",
-      "prestige": "standard",
       "seasonality": {
         "en": "year-round"
       },
@@ -755,7 +672,6 @@
     {
       "taxon_id": 42422,
       "encounter_rarity": "uncommon",
-      "prestige": "standard",
       "seasonality": {
         "en": "year-round"
       },
@@ -764,7 +680,6 @@
     {
       "taxon_id": 40581,
       "encounter_rarity": "uncommon",
-      "prestige": "standard",
       "seasonality": {
         "en": "year-round"
       },
@@ -773,7 +688,6 @@
     {
       "taxon_id": 43024,
       "encounter_rarity": "uncommon",
-      "prestige": "standard",
       "seasonality": {
         "en": "year-round"
       },
@@ -782,7 +696,6 @@
     {
       "taxon_id": 41562,
       "encounter_rarity": "uncommon",
-      "prestige": "standard",
       "seasonality": {
         "en": "year-round"
       },
@@ -791,7 +704,6 @@
     {
       "taxon_id": 46367,
       "encounter_rarity": "uncommon",
-      "prestige": "standard",
       "seasonality": {
         "en": "year-round"
       },
@@ -800,7 +712,6 @@
     {
       "taxon_id": 44276,
       "encounter_rarity": "uncommon",
-      "prestige": "standard",
       "seasonality": {
         "en": "year-round"
       },
@@ -809,7 +720,6 @@
     {
       "taxon_id": 44282,
       "encounter_rarity": "uncommon",
-      "prestige": "standard",
       "seasonality": {
         "en": "year-round"
       },
@@ -818,7 +728,6 @@
     {
       "taxon_id": 41440,
       "encounter_rarity": "uncommon",
-      "prestige": "standard",
       "seasonality": {
         "en": "year-round"
       },
@@ -827,7 +736,6 @@
     {
       "taxon_id": 1453916,
       "encounter_rarity": "uncommon",
-      "prestige": "standard",
       "seasonality": {
         "en": "year-round"
       },
@@ -836,7 +744,6 @@
     {
       "taxon_id": 46414,
       "encounter_rarity": "uncommon",
-      "prestige": "standard",
       "seasonality": {
         "en": "year-round"
       },
@@ -845,7 +752,6 @@
     {
       "taxon_id": 40291,
       "encounter_rarity": "uncommon",
-      "prestige": "standard",
       "seasonality": {
         "en": "year-round"
       },
@@ -854,7 +760,6 @@
     {
       "taxon_id": 44302,
       "encounter_rarity": "uncommon",
-      "prestige": "standard",
       "seasonality": {
         "en": "year-round"
       },
@@ -863,7 +768,6 @@
     {
       "taxon_id": 45550,
       "encounter_rarity": "uncommon",
-      "prestige": "standard",
       "seasonality": {
         "en": "year-round"
       },
@@ -872,7 +776,6 @@
     {
       "taxon_id": 45949,
       "encounter_rarity": "uncommon",
-      "prestige": "standard",
       "seasonality": {
         "en": "year-round"
       },
@@ -881,7 +784,6 @@
     {
       "taxon_id": 1370753,
       "encounter_rarity": "uncommon",
-      "prestige": "standard",
       "seasonality": {
         "en": "year-round"
       },
@@ -890,7 +792,6 @@
     {
       "taxon_id": 40391,
       "encounter_rarity": "uncommon",
-      "prestige": "standard",
       "seasonality": {
         "en": "year-round"
       },
@@ -899,7 +800,6 @@
     {
       "taxon_id": 46015,
       "encounter_rarity": "uncommon",
-      "prestige": "standard",
       "seasonality": {
         "en": "year-round"
       },
@@ -908,7 +808,6 @@
     {
       "taxon_id": 45568,
       "encounter_rarity": "uncommon",
-      "prestige": "standard",
       "seasonality": {
         "en": "year-round"
       },
@@ -917,7 +816,6 @@
     {
       "taxon_id": 45459,
       "encounter_rarity": "uncommon",
-      "prestige": "standard",
       "seasonality": {
         "en": "year-round"
       },
@@ -926,7 +824,6 @@
     {
       "taxon_id": 41529,
       "encounter_rarity": "rare",
-      "prestige": "standard",
       "seasonality": {
         "en": "year-round"
       },
@@ -935,7 +832,6 @@
     {
       "taxon_id": 41559,
       "encounter_rarity": "rare",
-      "prestige": "standard",
       "seasonality": {
         "en": "year-round"
       },
@@ -944,7 +840,6 @@
     {
       "taxon_id": 43118,
       "encounter_rarity": "rare",
-      "prestige": "standard",
       "seasonality": {
         "en": "year-round"
       },
@@ -953,7 +848,6 @@
     {
       "taxon_id": 1177489,
       "encounter_rarity": "rare",
-      "prestige": "standard",
       "seasonality": {
         "en": "year-round"
       },
@@ -962,7 +856,6 @@
     {
       "taxon_id": 40317,
       "encounter_rarity": "rare",
-      "prestige": "standard",
       "seasonality": {
         "en": "year-round"
       },
@@ -971,7 +864,6 @@
     {
       "taxon_id": 46859,
       "encounter_rarity": "rare",
-      "prestige": "standard",
       "seasonality": {
         "en": "year-round"
       },
@@ -980,7 +872,6 @@
     {
       "taxon_id": 40572,
       "encounter_rarity": "rare",
-      "prestige": "standard",
       "seasonality": {
         "en": "year-round"
       },
@@ -989,7 +880,6 @@
     {
       "taxon_id": 1698425,
       "encounter_rarity": "rare",
-      "prestige": "standard",
       "seasonality": {
         "en": "year-round"
       },
@@ -998,7 +888,6 @@
     {
       "taxon_id": 45316,
       "encounter_rarity": "rare",
-      "prestige": "standard",
       "seasonality": {
         "en": "year-round"
       },
@@ -1007,7 +896,6 @@
     {
       "taxon_id": 40446,
       "encounter_rarity": "rare",
-      "prestige": "standard",
       "seasonality": {
         "en": "year-round"
       },
@@ -1016,7 +904,6 @@
     {
       "taxon_id": 43143,
       "encounter_rarity": "rare",
-      "prestige": "standard",
       "seasonality": {
         "en": "year-round"
       },
@@ -1025,7 +912,6 @@
     {
       "taxon_id": 46037,
       "encounter_rarity": "rare",
-      "prestige": "standard",
       "seasonality": {
         "en": "year-round"
       },
@@ -1034,7 +920,6 @@
     {
       "taxon_id": 1596135,
       "encounter_rarity": "rare",
-      "prestige": "standard",
       "seasonality": {
         "en": "year-round"
       },
@@ -1043,7 +928,6 @@
     {
       "taxon_id": 41566,
       "encounter_rarity": "rare",
-      "prestige": "standard",
       "seasonality": {
         "en": "year-round"
       },
@@ -1052,7 +936,6 @@
     {
       "taxon_id": 81925,
       "encounter_rarity": "very_rare",
-      "prestige": "standard",
       "seasonality": {
         "en": "year-round"
       },
@@ -1061,7 +944,6 @@
     {
       "taxon_id": 43043,
       "encounter_rarity": "rare",
-      "prestige": "standard",
       "seasonality": {
         "en": "year-round"
       },
@@ -1070,7 +952,6 @@
     {
       "taxon_id": 41663,
       "encounter_rarity": "very_rare",
-      "prestige": "standard",
       "seasonality": {
         "en": "year-round"
       },
@@ -1079,7 +960,6 @@
     {
       "taxon_id": 41550,
       "encounter_rarity": "very_rare",
-      "prestige": "standard",
       "seasonality": {
         "en": "year-round"
       },
@@ -1088,7 +968,6 @@
     {
       "taxon_id": 59202,
       "encounter_rarity": "common",
-      "prestige": "standard",
       "seasonality": {
         "en": "year-round"
       },
@@ -1097,7 +976,6 @@
     {
       "taxon_id": 12716,
       "encounter_rarity": "common",
-      "prestige": "standard",
       "seasonality": {
         "en": "year-round"
       },
@@ -1106,7 +984,6 @@
     {
       "taxon_id": 6930,
       "encounter_rarity": "common",
-      "prestige": "standard",
       "seasonality": {
         "en": "year-round"
       },
@@ -1115,7 +992,6 @@
     {
       "taxon_id": 13858,
       "encounter_rarity": "common",
-      "prestige": "standard",
       "seasonality": {
         "en": "year-round"
       },
@@ -1124,7 +1000,6 @@
     {
       "taxon_id": 4954,
       "encounter_rarity": "common",
-      "prestige": "standard",
       "seasonality": {
         "en": "year-round"
       },
@@ -1133,7 +1008,6 @@
     {
       "taxon_id": 13000,
       "encounter_rarity": "common",
-      "prestige": "standard",
       "seasonality": {
         "en": "year-round"
       },
@@ -1142,16 +1016,14 @@
     {
       "taxon_id": 13094,
       "encounter_rarity": "common",
-      "prestige": "standard",
       "seasonality": {
         "en": "year-round"
       },
-      "inclusion_provenance": "Owner-managed mediterranean_europe essential checklist; imported from mediterranean_europe_checklists.csv. Encounter rarity and prestige are curated game metadata. Automated rarity: inaturalist-regional-frequency-v1."
+      "inclusion_provenance": "Owner-managed mediterranean_europe essential checklist; imported from mediterranean_europe_checklists.csv. Encounter rarity is curated game metadata. Automated rarity: inaturalist-regional-frequency-v1."
     },
     {
       "taxon_id": 4943,
       "encounter_rarity": "common",
-      "prestige": "standard",
       "seasonality": {
         "en": "year-round"
       },
@@ -1160,7 +1032,6 @@
     {
       "taxon_id": 891696,
       "encounter_rarity": "common",
-      "prestige": "standard",
       "seasonality": {
         "en": "year-round"
       },
@@ -1169,7 +1040,6 @@
     {
       "taxon_id": 204472,
       "encounter_rarity": "common",
-      "prestige": "standard",
       "seasonality": {
         "en": "year-round"
       },
@@ -1178,7 +1048,6 @@
     {
       "taxon_id": 10070,
       "encounter_rarity": "common",
-      "prestige": "standard",
       "seasonality": {
         "en": "year-round"
       },
@@ -1187,7 +1056,6 @@
     {
       "taxon_id": 472766,
       "encounter_rarity": "common",
-      "prestige": "standard",
       "seasonality": {
         "en": "year-round"
       },
@@ -1196,7 +1064,6 @@
     {
       "taxon_id": 2969,
       "encounter_rarity": "common",
-      "prestige": "standard",
       "seasonality": {
         "en": "year-round"
       },
@@ -1205,7 +1072,6 @@
     {
       "taxon_id": 201192,
       "encounter_rarity": "common",
-      "prestige": "standard",
       "seasonality": {
         "en": "year-round"
       },
@@ -1214,7 +1080,6 @@
     {
       "taxon_id": 4270,
       "encounter_rarity": "common",
-      "prestige": "standard",
       "seasonality": {
         "en": "year-round"
       },
@@ -1223,7 +1088,6 @@
     {
       "taxon_id": 13695,
       "encounter_rarity": "common",
-      "prestige": "standard",
       "seasonality": {
         "en": "year-round"
       },
@@ -1232,7 +1096,6 @@
     {
       "taxon_id": 203153,
       "encounter_rarity": "common",
-      "prestige": "standard",
       "seasonality": {
         "en": "year-round"
       },
@@ -1241,7 +1104,6 @@
     {
       "taxon_id": 3048,
       "encounter_rarity": "common",
-      "prestige": "standard",
       "seasonality": {
         "en": "year-round"
       },
@@ -1250,7 +1112,6 @@
     {
       "taxon_id": 9236,
       "encounter_rarity": "common",
-      "prestige": "standard",
       "seasonality": {
         "en": "year-round"
       },
@@ -1259,7 +1120,6 @@
     {
       "taxon_id": 144510,
       "encounter_rarity": "common",
-      "prestige": "standard",
       "seasonality": {
         "en": "year-round"
       },
@@ -1268,16 +1128,14 @@
     {
       "taxon_id": 5366,
       "encounter_rarity": "common",
-      "prestige": "standard",
       "seasonality": {
         "en": "year-round"
       },
-      "inclusion_provenance": "Owner-managed mediterranean_europe essential checklist; imported from mediterranean_europe_checklists.csv. Encounter rarity and prestige are curated game metadata. Automated rarity: inaturalist-regional-frequency-v1."
+      "inclusion_provenance": "Owner-managed mediterranean_europe essential checklist; imported from mediterranean_europe_checklists.csv. Encounter rarity is curated game metadata. Automated rarity: inaturalist-regional-frequency-v1."
     },
     {
       "taxon_id": 11901,
       "encounter_rarity": "common",
-      "prestige": "standard",
       "seasonality": {
         "en": "year-round"
       },
@@ -1286,7 +1144,6 @@
     {
       "taxon_id": 482,
       "encounter_rarity": "common",
-      "prestige": "standard",
       "seasonality": {
         "en": "year-round"
       },
@@ -1295,16 +1152,14 @@
     {
       "taxon_id": 73222,
       "encounter_rarity": "common",
-      "prestige": "standard",
       "seasonality": {
         "en": "year-round"
       },
-      "inclusion_provenance": "Owner-managed mediterranean_europe essential checklist; imported from mediterranean_europe_checklists.csv. Encounter rarity and prestige are curated game metadata. Automated rarity: inaturalist-regional-frequency-v1."
+      "inclusion_provenance": "Owner-managed mediterranean_europe essential checklist; imported from mediterranean_europe_checklists.csv. Encounter rarity is curated game metadata. Automated rarity: inaturalist-regional-frequency-v1."
     },
     {
       "taxon_id": 9398,
       "encounter_rarity": "common",
-      "prestige": "standard",
       "seasonality": {
         "en": "year-round"
       },
@@ -1313,7 +1168,6 @@
     {
       "taxon_id": 201282,
       "encounter_rarity": "common",
-      "prestige": "standard",
       "seasonality": {
         "en": "year-round"
       },
@@ -1322,7 +1176,6 @@
     {
       "taxon_id": 117016,
       "encounter_rarity": "common",
-      "prestige": "standard",
       "seasonality": {
         "en": "year-round"
       },
@@ -1331,7 +1184,6 @@
     {
       "taxon_id": 4835,
       "encounter_rarity": "common",
-      "prestige": "standard",
       "seasonality": {
         "en": "year-round"
       },
@@ -1340,7 +1192,6 @@
     {
       "taxon_id": 144757,
       "encounter_rarity": "common",
-      "prestige": "standard",
       "seasonality": {
         "en": "year-round"
       },
@@ -1349,7 +1200,6 @@
     {
       "taxon_id": 4733,
       "encounter_rarity": "common",
-      "prestige": "standard",
       "seasonality": {
         "en": "year-round"
       },
@@ -1358,7 +1208,6 @@
     {
       "taxon_id": 144849,
       "encounter_rarity": "common",
-      "prestige": "standard",
       "seasonality": {
         "en": "year-round"
       },
@@ -1367,7 +1216,6 @@
     {
       "taxon_id": 15282,
       "encounter_rarity": "common",
-      "prestige": "standard",
       "seasonality": {
         "en": "year-round"
       },
@@ -1376,16 +1224,14 @@
     {
       "taxon_id": 20969,
       "encounter_rarity": "common",
-      "prestige": "standard",
       "seasonality": {
         "en": "spring to summer"
       },
-      "inclusion_provenance": "Owner-managed mediterranean_europe essential checklist; imported from mediterranean_europe_checklists.csv. Encounter rarity and prestige are curated game metadata. Automated rarity: inaturalist-regional-frequency-v1."
+      "inclusion_provenance": "Owner-managed mediterranean_europe essential checklist; imported from mediterranean_europe_checklists.csv. Encounter rarity is curated game metadata. Automated rarity: inaturalist-regional-frequency-v1."
     },
     {
       "taxon_id": 411086,
       "encounter_rarity": "common",
-      "prestige": "standard",
       "seasonality": {
         "en": "year-round"
       },
@@ -1394,7 +1240,6 @@
     {
       "taxon_id": 145360,
       "encounter_rarity": "common",
-      "prestige": "standard",
       "seasonality": {
         "en": "year-round"
       },
@@ -1403,7 +1248,6 @@
     {
       "taxon_id": 19349,
       "encounter_rarity": "common",
-      "prestige": "standard",
       "seasonality": {
         "en": "year-round"
       },
@@ -1412,7 +1256,6 @@
     {
       "taxon_id": 14849,
       "encounter_rarity": "common",
-      "prestige": "standard",
       "seasonality": {
         "en": "year-round"
       },
@@ -1421,7 +1264,6 @@
     {
       "taxon_id": 5267,
       "encounter_rarity": "common",
-      "prestige": "standard",
       "seasonality": {
         "en": "year-round"
       },
@@ -1430,7 +1272,6 @@
     {
       "taxon_id": 8088,
       "encounter_rarity": "common",
-      "prestige": "standard",
       "seasonality": {
         "en": "year-round"
       },
@@ -1439,7 +1280,6 @@
     {
       "taxon_id": 5268,
       "encounter_rarity": "common",
-      "prestige": "standard",
       "seasonality": {
         "en": "year-round"
       },
@@ -1448,7 +1288,6 @@
     {
       "taxon_id": 1289472,
       "encounter_rarity": "common",
-      "prestige": "standard",
       "seasonality": {
         "en": "year-round"
       },
@@ -1457,7 +1296,6 @@
     {
       "taxon_id": 4208,
       "encounter_rarity": "common",
-      "prestige": "standard",
       "seasonality": {
         "en": "year-round"
       },
@@ -1466,7 +1304,6 @@
     {
       "taxon_id": 201233,
       "encounter_rarity": "common",
-      "prestige": "standard",
       "seasonality": {
         "en": "year-round"
       },
@@ -1475,16 +1312,14 @@
     {
       "taxon_id": 2191,
       "encounter_rarity": "common",
-      "prestige": "standard",
       "seasonality": {
         "en": "spring to summer"
       },
-      "inclusion_provenance": "Owner-managed mediterranean_europe essential checklist; imported from mediterranean_europe_checklists.csv. Encounter rarity and prestige are curated game metadata. Automated rarity: inaturalist-regional-frequency-v1."
+      "inclusion_provenance": "Owner-managed mediterranean_europe essential checklist; imported from mediterranean_europe_checklists.csv. Encounter rarity is curated game metadata. Automated rarity: inaturalist-regional-frequency-v1."
     },
     {
       "taxon_id": 3978,
       "encounter_rarity": "common",
-      "prestige": "standard",
       "seasonality": {
         "en": "year-round"
       },
@@ -1493,7 +1328,6 @@
     {
       "taxon_id": 4381,
       "encounter_rarity": "common",
-      "prestige": "standard",
       "seasonality": {
         "en": "year-round"
       },
@@ -1502,7 +1336,6 @@
     {
       "taxon_id": 64705,
       "encounter_rarity": "common",
-      "prestige": "standard",
       "seasonality": {
         "en": "year-round"
       },
@@ -1511,7 +1344,6 @@
     {
       "taxon_id": 5173,
       "encounter_rarity": "common",
-      "prestige": "standard",
       "seasonality": {
         "en": "year-round"
       },
@@ -1520,7 +1352,6 @@
     {
       "taxon_id": 7278,
       "encounter_rarity": "common",
-      "prestige": "standard",
       "seasonality": {
         "en": "year-round"
       },
@@ -1529,7 +1360,6 @@
     {
       "taxon_id": 145291,
       "encounter_rarity": "common",
-      "prestige": "standard",
       "seasonality": {
         "en": "year-round"
       },
@@ -1538,7 +1368,6 @@
     {
       "taxon_id": 4237,
       "encounter_rarity": "common",
-      "prestige": "standard",
       "seasonality": {
         "en": "year-round"
       },
@@ -1547,7 +1376,6 @@
     {
       "taxon_id": 12971,
       "encounter_rarity": "common",
-      "prestige": "standard",
       "seasonality": {
         "en": "year-round"
       },
@@ -1556,7 +1384,6 @@
     {
       "taxon_id": 14850,
       "encounter_rarity": "common",
-      "prestige": "standard",
       "seasonality": {
         "en": "year-round"
       },
@@ -1565,7 +1392,6 @@
     {
       "taxon_id": 17871,
       "encounter_rarity": "common",
-      "prestige": "standard",
       "seasonality": {
         "en": "year-round"
       },
@@ -1574,7 +1400,6 @@
     {
       "taxon_id": 558634,
       "encounter_rarity": "common",
-      "prestige": "standard",
       "seasonality": {
         "en": "year-round"
       },
@@ -1583,7 +1408,6 @@
     {
       "taxon_id": 12822,
       "encounter_rarity": "common",
-      "prestige": "standard",
       "seasonality": {
         "en": "year-round"
       },
@@ -1592,7 +1416,6 @@
     {
       "taxon_id": 144455,
       "encounter_rarity": "common",
-      "prestige": "standard",
       "seasonality": {
         "en": "year-round"
       },
@@ -1601,7 +1424,6 @@
     {
       "taxon_id": 8010,
       "encounter_rarity": "common",
-      "prestige": "standard",
       "seasonality": {
         "en": "year-round"
       },
@@ -1610,7 +1432,6 @@
     {
       "taxon_id": 5154,
       "encounter_rarity": "common",
-      "prestige": "standard",
       "seasonality": {
         "en": "year-round"
       },
@@ -1619,7 +1440,6 @@
     {
       "taxon_id": 3938,
       "encounter_rarity": "common",
-      "prestige": "standard",
       "seasonality": {
         "en": "year-round"
       },
@@ -1628,16 +1448,14 @@
     {
       "taxon_id": 2599,
       "encounter_rarity": "common",
-      "prestige": "standard",
       "seasonality": {
         "en": "year-round"
       },
-      "inclusion_provenance": "Owner-managed mediterranean_europe essential checklist; imported from mediterranean_europe_checklists.csv. Encounter rarity and prestige are curated game metadata. Automated rarity: inaturalist-regional-frequency-v1."
+      "inclusion_provenance": "Owner-managed mediterranean_europe essential checklist; imported from mediterranean_europe_checklists.csv. Encounter rarity is curated game metadata. Automated rarity: inaturalist-regional-frequency-v1."
     },
     {
       "taxon_id": 6921,
       "encounter_rarity": "common",
-      "prestige": "standard",
       "seasonality": {
         "en": "year-round"
       },
@@ -1646,7 +1464,6 @@
     {
       "taxon_id": 13688,
       "encounter_rarity": "common",
-      "prestige": "standard",
       "seasonality": {
         "en": "year-round"
       },
@@ -1655,7 +1472,6 @@
     {
       "taxon_id": 3756,
       "encounter_rarity": "common",
-      "prestige": "standard",
       "seasonality": {
         "en": "year-round"
       },
@@ -1664,7 +1480,6 @@
     {
       "taxon_id": 578607,
       "encounter_rarity": "common",
-      "prestige": "standard",
       "seasonality": {
         "en": "year-round"
       },
@@ -1673,7 +1488,6 @@
     {
       "taxon_id": 12748,
       "encounter_rarity": "common",
-      "prestige": "standard",
       "seasonality": {
         "en": "year-round"
       },
@@ -1682,7 +1496,6 @@
     {
       "taxon_id": 3731,
       "encounter_rarity": "common",
-      "prestige": "standard",
       "seasonality": {
         "en": "year-round"
       },
@@ -1691,7 +1504,6 @@
     {
       "taxon_id": 144823,
       "encounter_rarity": "common",
-      "prestige": "standard",
       "seasonality": {
         "en": "year-round"
       },
@@ -1700,7 +1512,6 @@
     {
       "taxon_id": 19998,
       "encounter_rarity": "common",
-      "prestige": "standard",
       "seasonality": {
         "en": "year-round"
       },
@@ -1709,7 +1520,6 @@
     {
       "taxon_id": 204512,
       "encounter_rarity": "common",
-      "prestige": "standard",
       "seasonality": {
         "en": "year-round"
       },
@@ -1718,7 +1528,6 @@
     {
       "taxon_id": 12039,
       "encounter_rarity": "common",
-      "prestige": "standard",
       "seasonality": {
         "en": "year-round"
       },
@@ -1727,7 +1536,6 @@
     {
       "taxon_id": 558438,
       "encounter_rarity": "common",
-      "prestige": "standard",
       "seasonality": {
         "en": "year-round"
       },
@@ -1736,7 +1544,6 @@
     {
       "taxon_id": 18911,
       "encounter_rarity": "common",
-      "prestige": "standard",
       "seasonality": {
         "en": "year-round"
       },
@@ -1745,7 +1552,6 @@
     {
       "taxon_id": 336399,
       "encounter_rarity": "common",
-      "prestige": "standard",
       "seasonality": {
         "en": "year-round"
       },
@@ -1754,7 +1560,6 @@
     {
       "taxon_id": 204496,
       "encounter_rarity": "common",
-      "prestige": "standard",
       "seasonality": {
         "en": "year-round"
       },
@@ -1763,7 +1568,6 @@
     {
       "taxon_id": 7697,
       "encounter_rarity": "common",
-      "prestige": "standard",
       "seasonality": {
         "en": "year-round"
       },
@@ -1772,7 +1576,6 @@
     {
       "taxon_id": 13851,
       "encounter_rarity": "common",
-      "prestige": "standard",
       "seasonality": {
         "en": "year-round"
       },
@@ -1781,7 +1584,6 @@
     {
       "taxon_id": 6638,
       "encounter_rarity": "common",
-      "prestige": "standard",
       "seasonality": {
         "en": "year-round"
       },
@@ -1790,7 +1592,6 @@
     {
       "taxon_id": 3849,
       "encounter_rarity": "common",
-      "prestige": "standard",
       "seasonality": {
         "en": "year-round"
       },
@@ -1799,7 +1600,6 @@
     {
       "taxon_id": 5382,
       "encounter_rarity": "common",
-      "prestige": "standard",
       "seasonality": {
         "en": "year-round"
       },
@@ -1808,7 +1608,6 @@
     {
       "taxon_id": 7067,
       "encounter_rarity": "common",
-      "prestige": "standard",
       "seasonality": {
         "en": "year-round"
       },
@@ -1817,7 +1616,6 @@
     {
       "taxon_id": 4801,
       "encounter_rarity": "common",
-      "prestige": "standard",
       "seasonality": {
         "en": "year-round"
       },
@@ -1826,7 +1624,6 @@
     {
       "taxon_id": 5242,
       "encounter_rarity": "common",
-      "prestige": "standard",
       "seasonality": {
         "en": "year-round"
       },
@@ -1835,7 +1632,6 @@
     {
       "taxon_id": 3857,
       "encounter_rarity": "common",
-      "prestige": "standard",
       "seasonality": {
         "en": "year-round"
       },
@@ -1844,7 +1640,6 @@
     {
       "taxon_id": 6937,
       "encounter_rarity": "common",
-      "prestige": "standard",
       "seasonality": {
         "en": "year-round"
       },
@@ -1853,7 +1648,6 @@
     {
       "taxon_id": 339684,
       "encounter_rarity": "common",
-      "prestige": "standard",
       "seasonality": {
         "en": "year-round"
       },
@@ -1862,7 +1656,6 @@
     {
       "taxon_id": 144788,
       "encounter_rarity": "common",
-      "prestige": "standard",
       "seasonality": {
         "en": "year-round"
       },
@@ -1871,7 +1664,6 @@
     {
       "taxon_id": 13729,
       "encounter_rarity": "common",
-      "prestige": "standard",
       "seasonality": {
         "en": "year-round"
       },
@@ -1880,7 +1672,6 @@
     {
       "taxon_id": 72486,
       "encounter_rarity": "common",
-      "prestige": "standard",
       "seasonality": {
         "en": "year-round"
       },
@@ -1889,7 +1680,6 @@
     {
       "taxon_id": 3878,
       "encounter_rarity": "common",
-      "prestige": "standard",
       "seasonality": {
         "en": "year-round"
       },
@@ -1898,7 +1688,6 @@
     {
       "taxon_id": 867,
       "encounter_rarity": "common",
-      "prestige": "standard",
       "seasonality": {
         "en": "year-round"
       },
@@ -1907,7 +1696,6 @@
     {
       "taxon_id": 9192,
       "encounter_rarity": "common",
-      "prestige": "standard",
       "seasonality": {
         "en": "year-round"
       },
@@ -1916,7 +1704,6 @@
     {
       "taxon_id": 12038,
       "encounter_rarity": "common",
-      "prestige": "standard",
       "seasonality": {
         "en": "year-round"
       },
@@ -1925,7 +1712,6 @@
     {
       "taxon_id": 3879,
       "encounter_rarity": "common",
-      "prestige": "standard",
       "seasonality": {
         "en": "year-round"
       },
@@ -1934,7 +1720,6 @@
     {
       "taxon_id": 558439,
       "encounter_rarity": "common",
-      "prestige": "standard",
       "seasonality": {
         "en": "year-round"
       },
@@ -1943,7 +1728,6 @@
     {
       "taxon_id": 145363,
       "encounter_rarity": "common",
-      "prestige": "standard",
       "seasonality": {
         "en": "year-round"
       },
@@ -1952,7 +1736,6 @@
     {
       "taxon_id": 14824,
       "encounter_rarity": "common",
-      "prestige": "standard",
       "seasonality": {
         "en": "year-round"
       },
@@ -1961,7 +1744,6 @@
     {
       "taxon_id": 4981,
       "encounter_rarity": "common",
-      "prestige": "standard",
       "seasonality": {
         "en": "year-round"
       },
@@ -1970,7 +1752,6 @@
     {
       "taxon_id": 4857,
       "encounter_rarity": "common",
-      "prestige": "standard",
       "seasonality": {
         "en": "year-round"
       },
@@ -1979,7 +1760,6 @@
     {
       "taxon_id": 7045,
       "encounter_rarity": "common",
-      "prestige": "standard",
       "seasonality": {
         "en": "year-round"
       },
@@ -1988,7 +1768,6 @@
     {
       "taxon_id": 1505620,
       "encounter_rarity": "common",
-      "prestige": "standard",
       "seasonality": {
         "en": "year-round"
       },
@@ -1997,7 +1776,6 @@
     {
       "taxon_id": 13079,
       "encounter_rarity": "common",
-      "prestige": "standard",
       "seasonality": {
         "en": "year-round"
       },
@@ -2006,7 +1784,6 @@
     {
       "taxon_id": 979813,
       "encounter_rarity": "common",
-      "prestige": "standard",
       "seasonality": {
         "en": "year-round"
       },
@@ -2015,7 +1792,6 @@
     {
       "taxon_id": 4883,
       "encounter_rarity": "common",
-      "prestige": "standard",
       "seasonality": {
         "en": "year-round"
       },
@@ -2024,7 +1800,6 @@
     {
       "taxon_id": 1580336,
       "encounter_rarity": "common",
-      "prestige": "standard",
       "seasonality": {
         "en": "year-round"
       },
@@ -2033,7 +1808,6 @@
     {
       "taxon_id": 41,
       "encounter_rarity": "common",
-      "prestige": "standard",
       "seasonality": {
         "en": "year-round"
       },
@@ -2042,7 +1816,6 @@
     {
       "taxon_id": 7462,
       "encounter_rarity": "common",
-      "prestige": "standard",
       "seasonality": {
         "en": "year-round"
       },
@@ -2051,7 +1824,6 @@
     {
       "taxon_id": 1289604,
       "encounter_rarity": "common",
-      "prestige": "standard",
       "seasonality": {
         "en": "year-round"
       },
@@ -2060,7 +1832,6 @@
     {
       "taxon_id": 144517,
       "encounter_rarity": "common",
-      "prestige": "standard",
       "seasonality": {
         "en": "year-round"
       },
@@ -2069,7 +1840,6 @@
     {
       "taxon_id": 5106,
       "encounter_rarity": "common",
-      "prestige": "standard",
       "seasonality": {
         "en": "year-round"
       },
@@ -2078,7 +1848,6 @@
     {
       "taxon_id": 12992,
       "encounter_rarity": "common",
-      "prestige": "standard",
       "seasonality": {
         "en": "year-round"
       },
@@ -2087,7 +1856,6 @@
     {
       "taxon_id": 2938,
       "encounter_rarity": "common",
-      "prestige": "standard",
       "seasonality": {
         "en": "year-round"
       },
@@ -2096,7 +1864,6 @@
     {
       "taxon_id": 117097,
       "encounter_rarity": "common",
-      "prestige": "standard",
       "seasonality": {
         "en": "year-round"
       },
@@ -2105,7 +1872,6 @@
     {
       "taxon_id": 3901,
       "encounter_rarity": "common",
-      "prestige": "standard",
       "seasonality": {
         "en": "year-round"
       },
@@ -2114,7 +1880,6 @@
     {
       "taxon_id": 4951,
       "encounter_rarity": "common",
-      "prestige": "standard",
       "seasonality": {
         "en": "year-round"
       },
@@ -2123,7 +1888,6 @@
     {
       "taxon_id": 204545,
       "encounter_rarity": "common",
-      "prestige": "standard",
       "seasonality": {
         "en": "year-round"
       },
@@ -2132,7 +1896,6 @@
     {
       "taxon_id": 13854,
       "encounter_rarity": "common",
-      "prestige": "standard",
       "seasonality": {
         "en": "year-round"
       },
@@ -2141,7 +1904,6 @@
     {
       "taxon_id": 144522,
       "encounter_rarity": "common",
-      "prestige": "standard",
       "seasonality": {
         "en": "year-round"
       },
@@ -2150,7 +1912,6 @@
     {
       "taxon_id": 981,
       "encounter_rarity": "common",
-      "prestige": "standard",
       "seasonality": {
         "en": "year-round"
       },
@@ -2159,7 +1920,6 @@
     {
       "taxon_id": 7122,
       "encounter_rarity": "common",
-      "prestige": "standard",
       "seasonality": {
         "en": "year-round"
       },
@@ -2168,7 +1928,6 @@
     {
       "taxon_id": 4450,
       "encounter_rarity": "common",
-      "prestige": "standard",
       "seasonality": {
         "en": "year-round"
       },
@@ -2177,7 +1936,6 @@
     {
       "taxon_id": 5325,
       "encounter_rarity": "common",
-      "prestige": "standard",
       "seasonality": {
         "en": "year-round"
       },
@@ -2186,7 +1944,6 @@
     {
       "taxon_id": 4892,
       "encounter_rarity": "common",
-      "prestige": "standard",
       "seasonality": {
         "en": "year-round"
       },
@@ -2195,7 +1952,6 @@
     {
       "taxon_id": 7359,
       "encounter_rarity": "common",
-      "prestige": "standard",
       "seasonality": {
         "en": "year-round"
       },
@@ -2204,7 +1960,6 @@
     {
       "taxon_id": 7018,
       "encounter_rarity": "common",
-      "prestige": "standard",
       "seasonality": {
         "en": "year-round"
       },
@@ -2213,7 +1968,6 @@
     {
       "taxon_id": 144541,
       "encounter_rarity": "common",
-      "prestige": "standard",
       "seasonality": {
         "en": "year-round"
       },
@@ -2222,7 +1976,6 @@
     {
       "taxon_id": 4994,
       "encounter_rarity": "common",
-      "prestige": "standard",
       "seasonality": {
         "en": "year-round"
       },
@@ -2231,7 +1984,6 @@
     {
       "taxon_id": 144830,
       "encounter_rarity": "common",
-      "prestige": "standard",
       "seasonality": {
         "en": "year-round"
       },
@@ -2240,7 +1992,6 @@
     {
       "taxon_id": 1584768,
       "encounter_rarity": "common",
-      "prestige": "standard",
       "seasonality": {
         "en": "year-round"
       },
@@ -2249,7 +2000,6 @@
     {
       "taxon_id": 9193,
       "encounter_rarity": "common",
-      "prestige": "standard",
       "seasonality": {
         "en": "year-round"
       },
@@ -2258,7 +2008,6 @@
     {
       "taxon_id": 145303,
       "encounter_rarity": "common",
-      "prestige": "standard",
       "seasonality": {
         "en": "year-round"
       },
@@ -2267,7 +2016,6 @@
     {
       "taxon_id": 13988,
       "encounter_rarity": "common",
-      "prestige": "standard",
       "seasonality": {
         "en": "year-round"
       },
@@ -2276,7 +2024,6 @@
     {
       "taxon_id": 13141,
       "encounter_rarity": "common",
-      "prestige": "standard",
       "seasonality": {
         "en": "year-round"
       },
@@ -2285,7 +2032,6 @@
     {
       "taxon_id": 12735,
       "encounter_rarity": "common",
-      "prestige": "standard",
       "seasonality": {
         "en": "year-round"
       },
@@ -2294,7 +2040,6 @@
     {
       "taxon_id": 3739,
       "encounter_rarity": "common",
-      "prestige": "standard",
       "seasonality": {
         "en": "year-round"
       },
@@ -2303,7 +2048,6 @@
     {
       "taxon_id": 13770,
       "encounter_rarity": "common",
-      "prestige": "standard",
       "seasonality": {
         "en": "year-round"
       },
@@ -2312,7 +2056,6 @@
     {
       "taxon_id": 3885,
       "encounter_rarity": "common",
-      "prestige": "standard",
       "seasonality": {
         "en": "year-round"
       },
@@ -2321,7 +2064,6 @@
     {
       "taxon_id": 144242,
       "encounter_rarity": "common",
-      "prestige": "standard",
       "seasonality": {
         "en": "year-round"
       },
@@ -2330,7 +2072,6 @@
     {
       "taxon_id": 3947,
       "encounter_rarity": "common",
-      "prestige": "standard",
       "seasonality": {
         "en": "year-round"
       },
@@ -2339,7 +2080,6 @@
     {
       "taxon_id": 318836,
       "encounter_rarity": "common",
-      "prestige": "standard",
       "seasonality": {
         "en": "year-round"
       },
@@ -2348,7 +2088,6 @@
     {
       "taxon_id": 12908,
       "encounter_rarity": "common",
-      "prestige": "standard",
       "seasonality": {
         "en": "year-round"
       },
@@ -2357,7 +2096,6 @@
     {
       "taxon_id": 117055,
       "encounter_rarity": "common",
-      "prestige": "standard",
       "seasonality": {
         "en": "year-round"
       },
@@ -2366,7 +2104,6 @@
     {
       "taxon_id": 3888,
       "encounter_rarity": "common",
-      "prestige": "standard",
       "seasonality": {
         "en": "year-round"
       },
@@ -2375,7 +2112,6 @@
     {
       "taxon_id": 19898,
       "encounter_rarity": "common",
-      "prestige": "standard",
       "seasonality": {
         "en": "year-round"
       },
@@ -2384,7 +2120,6 @@
     {
       "taxon_id": 5074,
       "encounter_rarity": "common",
-      "prestige": "standard",
       "seasonality": {
         "en": "year-round"
       },
@@ -2393,7 +2128,6 @@
     {
       "taxon_id": 4647,
       "encounter_rarity": "common",
-      "prestige": "standard",
       "seasonality": {
         "en": "year-round"
       },
@@ -2402,7 +2136,6 @@
     {
       "taxon_id": 9246,
       "encounter_rarity": "common",
-      "prestige": "standard",
       "seasonality": {
         "en": "year-round"
       },
@@ -2411,7 +2144,6 @@
     {
       "taxon_id": 906982,
       "encounter_rarity": "common",
-      "prestige": "standard",
       "seasonality": {
         "en": "year-round"
       },
@@ -2420,7 +2152,6 @@
     {
       "taxon_id": 116999,
       "encounter_rarity": "common",
-      "prestige": "standard",
       "seasonality": {
         "en": "year-round"
       },
@@ -2429,7 +2160,6 @@
     {
       "taxon_id": 4205,
       "encounter_rarity": "common",
-      "prestige": "standard",
       "seasonality": {
         "en": "year-round"
       },
@@ -2438,7 +2168,6 @@
     {
       "taxon_id": 59845,
       "encounter_rarity": "common",
-      "prestige": "standard",
       "seasonality": {
         "en": "year-round"
       },
@@ -2447,7 +2176,6 @@
     {
       "taxon_id": 339593,
       "encounter_rarity": "common",
-      "prestige": "standard",
       "seasonality": {
         "en": "year-round"
       },
@@ -2456,7 +2184,6 @@
     {
       "taxon_id": 72516,
       "encounter_rarity": "common",
-      "prestige": "standard",
       "seasonality": {
         "en": "year-round"
       },
@@ -2465,7 +2192,6 @@
     {
       "taxon_id": 1907,
       "encounter_rarity": "common",
-      "prestige": "standard",
       "seasonality": {
         "en": "year-round"
       },
@@ -2474,7 +2200,6 @@
     {
       "taxon_id": 7363,
       "encounter_rarity": "common",
-      "prestige": "standard",
       "seasonality": {
         "en": "year-round"
       },
@@ -2483,7 +2208,6 @@
     {
       "taxon_id": 20244,
       "encounter_rarity": "common",
-      "prestige": "standard",
       "seasonality": {
         "en": "year-round"
       },
@@ -2492,7 +2216,6 @@
     {
       "taxon_id": 7046,
       "encounter_rarity": "common",
-      "prestige": "standard",
       "seasonality": {
         "en": "year-round"
       },
@@ -2501,7 +2224,6 @@
     {
       "taxon_id": 7647,
       "encounter_rarity": "common",
-      "prestige": "standard",
       "seasonality": {
         "en": "year-round"
       },
@@ -2510,7 +2232,6 @@
     {
       "taxon_id": 8350,
       "encounter_rarity": "common",
-      "prestige": "standard",
       "seasonality": {
         "en": "year-round"
       },
@@ -2519,7 +2240,6 @@
     {
       "taxon_id": 8349,
       "encounter_rarity": "common",
-      "prestige": "standard",
       "seasonality": {
         "en": "year-round"
       },
@@ -2528,7 +2248,6 @@
     {
       "taxon_id": 144243,
       "encounter_rarity": "common",
-      "prestige": "standard",
       "seasonality": {
         "en": "year-round"
       },
@@ -2537,7 +2256,6 @@
     {
       "taxon_id": 204556,
       "encounter_rarity": "common",
-      "prestige": "standard",
       "seasonality": {
         "en": "year-round"
       },
@@ -2546,7 +2264,6 @@
     {
       "taxon_id": 13713,
       "encounter_rarity": "common",
-      "prestige": "standard",
       "seasonality": {
         "en": "year-round"
       },
@@ -2555,7 +2272,6 @@
     {
       "taxon_id": 4736,
       "encounter_rarity": "common",
-      "prestige": "standard",
       "seasonality": {
         "en": "year-round"
       },
@@ -2564,7 +2280,6 @@
     {
       "taxon_id": 6643,
       "encounter_rarity": "common",
-      "prestige": "standard",
       "seasonality": {
         "en": "year-round"
       },
@@ -2573,7 +2288,6 @@
     {
       "taxon_id": 7004,
       "encounter_rarity": "common",
-      "prestige": "standard",
       "seasonality": {
         "en": "year-round"
       },
@@ -2582,7 +2296,6 @@
     {
       "taxon_id": 4843,
       "encounter_rarity": "common",
-      "prestige": "standard",
       "seasonality": {
         "en": "year-round"
       },
@@ -2591,7 +2304,6 @@
     {
       "taxon_id": 7068,
       "encounter_rarity": "common",
-      "prestige": "standard",
       "seasonality": {
         "en": "year-round"
       },
@@ -2600,7 +2312,6 @@
     {
       "taxon_id": 116923,
       "encounter_rarity": "common",
-      "prestige": "standard",
       "seasonality": {
         "en": "year-round"
       },
@@ -2609,7 +2320,6 @@
     {
       "taxon_id": 3896,
       "encounter_rarity": "common",
-      "prestige": "standard",
       "seasonality": {
         "en": "year-round"
       },
@@ -2618,7 +2328,6 @@
     {
       "taxon_id": 793469,
       "encounter_rarity": "common",
-      "prestige": "standard",
       "seasonality": {
         "en": "year-round"
       },
@@ -2627,7 +2336,6 @@
     {
       "taxon_id": 116858,
       "encounter_rarity": "common",
-      "prestige": "standard",
       "seasonality": {
         "en": "year-round"
       },
@@ -2636,7 +2344,6 @@
     {
       "taxon_id": 204455,
       "encounter_rarity": "common",
-      "prestige": "standard",
       "seasonality": {
         "en": "year-round"
       },
@@ -2645,7 +2352,6 @@
     {
       "taxon_id": 475028,
       "encounter_rarity": "common",
-      "prestige": "standard",
       "seasonality": {
         "en": "year-round"
       },
@@ -2654,16 +2360,14 @@
     {
       "taxon_id": 5081,
       "encounter_rarity": "common",
-      "prestige": "legendary",
       "seasonality": {
         "en": "year-round"
       },
-      "inclusion_provenance": "Owner-managed mediterranean_europe icon checklist; imported from mediterranean_europe_checklists.csv. Encounter rarity and prestige are curated game metadata. Automated rarity: inaturalist-regional-frequency-v1."
+      "inclusion_provenance": "Owner-managed mediterranean_europe icon checklist; imported from mediterranean_europe_checklists.csv. Encounter rarity is curated game metadata. Automated rarity: inaturalist-regional-frequency-v1."
     },
     {
       "taxon_id": 5361,
       "encounter_rarity": "common",
-      "prestige": "standard",
       "seasonality": {
         "en": "year-round"
       },
@@ -2672,7 +2376,6 @@
     {
       "taxon_id": 3017,
       "encounter_rarity": "common",
-      "prestige": "standard",
       "seasonality": {
         "en": "year-round"
       },
@@ -2681,7 +2384,6 @@
     {
       "taxon_id": 10411,
       "encounter_rarity": "common",
-      "prestige": "standard",
       "seasonality": {
         "en": "year-round"
       },
@@ -2690,7 +2392,6 @@
     {
       "taxon_id": 9201,
       "encounter_rarity": "common",
-      "prestige": "standard",
       "seasonality": {
         "en": "year-round"
       },
@@ -2699,7 +2400,6 @@
     {
       "taxon_id": 13738,
       "encounter_rarity": "common",
-      "prestige": "standard",
       "seasonality": {
         "en": "year-round"
       },
@@ -2708,7 +2408,6 @@
     {
       "taxon_id": 3802,
       "encounter_rarity": "common",
-      "prestige": "standard",
       "seasonality": {
         "en": "year-round"
       },
@@ -2717,7 +2416,6 @@
     {
       "taxon_id": 5167,
       "encounter_rarity": "common",
-      "prestige": "standard",
       "seasonality": {
         "en": "year-round"
       },
@@ -2726,7 +2424,6 @@
     {
       "taxon_id": 144501,
       "encounter_rarity": "common",
-      "prestige": "standard",
       "seasonality": {
         "en": "year-round"
       },
@@ -2735,7 +2432,6 @@
     {
       "taxon_id": 20307,
       "encounter_rarity": "common",
-      "prestige": "standard",
       "seasonality": {
         "en": "year-round"
       },
@@ -2744,7 +2440,6 @@
     {
       "taxon_id": 9801,
       "encounter_rarity": "common",
-      "prestige": "standard",
       "seasonality": {
         "en": "year-round"
       },
@@ -2753,7 +2448,6 @@
     {
       "taxon_id": 13711,
       "encounter_rarity": "common",
-      "prestige": "standard",
       "seasonality": {
         "en": "year-round"
       },
@@ -2762,7 +2456,6 @@
     {
       "taxon_id": 144529,
       "encounter_rarity": "common",
-      "prestige": "standard",
       "seasonality": {
         "en": "year-round"
       },
@@ -2771,7 +2464,6 @@
     {
       "taxon_id": 1504818,
       "encounter_rarity": "common",
-      "prestige": "standard",
       "seasonality": {
         "en": "year-round"
       },
@@ -2780,7 +2472,6 @@
     {
       "taxon_id": 3838,
       "encounter_rarity": "common",
-      "prestige": "standard",
       "seasonality": {
         "en": "year-round"
       },
@@ -2789,7 +2480,6 @@
     {
       "taxon_id": 558441,
       "encounter_rarity": "common",
-      "prestige": "standard",
       "seasonality": {
         "en": "year-round"
       },
@@ -2798,7 +2488,6 @@
     {
       "taxon_id": 1289470,
       "encounter_rarity": "common",
-      "prestige": "standard",
       "seasonality": {
         "en": "year-round"
       },
@@ -2807,7 +2496,6 @@
     {
       "taxon_id": 144809,
       "encounter_rarity": "common",
-      "prestige": "standard",
       "seasonality": {
         "en": "year-round"
       },
@@ -2816,7 +2504,6 @@
     {
       "taxon_id": 1578961,
       "encounter_rarity": "common",
-      "prestige": "standard",
       "seasonality": {
         "en": "year-round"
       },
@@ -2825,7 +2512,6 @@
     {
       "taxon_id": 2266,
       "encounter_rarity": "common",
-      "prestige": "standard",
       "seasonality": {
         "en": "year-round"
       },
@@ -2834,7 +2520,6 @@
     {
       "taxon_id": 14076,
       "encounter_rarity": "common",
-      "prestige": "standard",
       "seasonality": {
         "en": "year-round"
       },
@@ -2843,7 +2528,6 @@
     {
       "taxon_id": 7055,
       "encounter_rarity": "common",
-      "prestige": "standard",
       "seasonality": {
         "en": "year-round"
       },
@@ -2852,7 +2536,6 @@
     {
       "taxon_id": 7081,
       "encounter_rarity": "common",
-      "prestige": "standard",
       "seasonality": {
         "en": "year-round"
       },
@@ -2861,7 +2544,6 @@
     {
       "taxon_id": 1289471,
       "encounter_rarity": "common",
-      "prestige": "standard",
       "seasonality": {
         "en": "year-round"
       },
@@ -2870,7 +2552,6 @@
     {
       "taxon_id": 3882,
       "encounter_rarity": "common",
-      "prestige": "standard",
       "seasonality": {
         "en": "year-round"
       },
@@ -2879,7 +2560,6 @@
     {
       "taxon_id": 320711,
       "encounter_rarity": "common",
-      "prestige": "standard",
       "seasonality": {
         "en": "year-round"
       },
@@ -2888,7 +2568,6 @@
     {
       "taxon_id": 4643,
       "encounter_rarity": "common",
-      "prestige": "standard",
       "seasonality": {
         "en": "year-round"
       },
@@ -2897,7 +2576,6 @@
     {
       "taxon_id": 1504817,
       "encounter_rarity": "common",
-      "prestige": "standard",
       "seasonality": {
         "en": "year-round"
       },
@@ -2906,7 +2584,6 @@
     {
       "taxon_id": 6933,
       "encounter_rarity": "common",
-      "prestige": "standard",
       "seasonality": {
         "en": "year-round"
       },
@@ -2915,7 +2592,6 @@
     {
       "taxon_id": 7347,
       "encounter_rarity": "common",
-      "prestige": "standard",
       "seasonality": {
         "en": "year-round"
       },
@@ -2924,7 +2600,6 @@
     {
       "taxon_id": 13996,
       "encounter_rarity": "common",
-      "prestige": "standard",
       "seasonality": {
         "en": "year-round"
       },
@@ -2933,7 +2608,6 @@
     {
       "taxon_id": 4333,
       "encounter_rarity": "common",
-      "prestige": "standard",
       "seasonality": {
         "en": "year-round"
       },
@@ -2942,7 +2616,6 @@
     {
       "taxon_id": 62148,
       "encounter_rarity": "common",
-      "prestige": "standard",
       "seasonality": {
         "en": "year-round"
       },
@@ -2951,7 +2624,6 @@
     {
       "taxon_id": 513926,
       "encounter_rarity": "common",
-      "prestige": "standard",
       "seasonality": {
         "en": "year-round"
       },
@@ -2960,7 +2632,6 @@
     {
       "taxon_id": 4923,
       "encounter_rarity": "common",
-      "prestige": "standard",
       "seasonality": {
         "en": "year-round"
       },
@@ -2969,7 +2640,6 @@
     {
       "taxon_id": 3863,
       "encounter_rarity": "common",
-      "prestige": "standard",
       "seasonality": {
         "en": "year-round"
       },
@@ -2978,7 +2648,6 @@
     {
       "taxon_id": 7106,
       "encounter_rarity": "common",
-      "prestige": "standard",
       "seasonality": {
         "en": "year-round"
       },
@@ -2987,7 +2656,6 @@
     {
       "taxon_id": 1787,
       "encounter_rarity": "common",
-      "prestige": "standard",
       "seasonality": {
         "en": "year-round"
       },
@@ -2996,7 +2664,6 @@
     {
       "taxon_id": 204456,
       "encounter_rarity": "common",
-      "prestige": "standard",
       "seasonality": {
         "en": "year-round"
       },
@@ -3005,7 +2672,6 @@
     {
       "taxon_id": 17835,
       "encounter_rarity": "common",
-      "prestige": "standard",
       "seasonality": {
         "en": "year-round"
       },
@@ -3014,7 +2680,6 @@
     {
       "taxon_id": 77,
       "encounter_rarity": "common",
-      "prestige": "standard",
       "seasonality": {
         "en": "year-round"
       },
@@ -3023,7 +2688,6 @@
     {
       "taxon_id": 1579015,
       "encounter_rarity": "common",
-      "prestige": "standard",
       "seasonality": {
         "en": "year-round"
       },
@@ -3032,7 +2696,6 @@
     {
       "taxon_id": 10069,
       "encounter_rarity": "uncommon",
-      "prestige": "standard",
       "seasonality": {
         "en": "year-round"
       },
@@ -3041,7 +2704,6 @@
     {
       "taxon_id": 558429,
       "encounter_rarity": "uncommon",
-      "prestige": "standard",
       "seasonality": {
         "en": "year-round"
       },
@@ -3050,7 +2712,6 @@
     {
       "taxon_id": 1289467,
       "encounter_rarity": "uncommon",
-      "prestige": "standard",
       "seasonality": {
         "en": "year-round"
       },
@@ -3059,7 +2720,6 @@
     {
       "taxon_id": 117007,
       "encounter_rarity": "uncommon",
-      "prestige": "standard",
       "seasonality": {
         "en": "year-round"
       },
@@ -3068,7 +2728,6 @@
     {
       "taxon_id": 4504,
       "encounter_rarity": "uncommon",
-      "prestige": "standard",
       "seasonality": {
         "en": "year-round"
       },
@@ -3077,7 +2736,6 @@
     {
       "taxon_id": 9462,
       "encounter_rarity": "uncommon",
-      "prestige": "standard",
       "seasonality": {
         "en": "year-round"
       },
@@ -3086,7 +2744,6 @@
     {
       "taxon_id": 18448,
       "encounter_rarity": "uncommon",
-      "prestige": "standard",
       "seasonality": {
         "en": "year-round"
       },
@@ -3095,7 +2752,6 @@
     {
       "taxon_id": 11941,
       "encounter_rarity": "uncommon",
-      "prestige": "standard",
       "seasonality": {
         "en": "year-round"
       },
@@ -3104,7 +2760,6 @@
     {
       "taxon_id": 117011,
       "encounter_rarity": "uncommon",
-      "prestige": "standard",
       "seasonality": {
         "en": "year-round"
       },
@@ -3113,7 +2768,6 @@
     {
       "taxon_id": 1204,
       "encounter_rarity": "uncommon",
-      "prestige": "standard",
       "seasonality": {
         "en": "year-round"
       },
@@ -3122,7 +2776,6 @@
     {
       "taxon_id": 12707,
       "encounter_rarity": "uncommon",
-      "prestige": "standard",
       "seasonality": {
         "en": "year-round"
       },
@@ -3131,7 +2784,6 @@
     {
       "taxon_id": 4356,
       "encounter_rarity": "uncommon",
-      "prestige": "standard",
       "seasonality": {
         "en": "year-round"
       },
@@ -3140,7 +2792,6 @@
     {
       "taxon_id": 4889,
       "encounter_rarity": "uncommon",
-      "prestige": "standard",
       "seasonality": {
         "en": "year-round"
       },
@@ -3149,7 +2800,6 @@
     {
       "taxon_id": 7139,
       "encounter_rarity": "uncommon",
-      "prestige": "standard",
       "seasonality": {
         "en": "year-round"
       },
@@ -3158,7 +2808,6 @@
     {
       "taxon_id": 3951,
       "encounter_rarity": "uncommon",
-      "prestige": "standard",
       "seasonality": {
         "en": "year-round"
       },
@@ -3167,7 +2816,6 @@
     {
       "taxon_id": 20445,
       "encounter_rarity": "uncommon",
-      "prestige": "standard",
       "seasonality": {
         "en": "year-round"
       },
@@ -3176,7 +2824,6 @@
     {
       "taxon_id": 12838,
       "encounter_rarity": "uncommon",
-      "prestige": "standard",
       "seasonality": {
         "en": "year-round"
       },
@@ -3185,7 +2832,6 @@
     {
       "taxon_id": 20059,
       "encounter_rarity": "uncommon",
-      "prestige": "standard",
       "seasonality": {
         "en": "year-round"
       },
@@ -3194,7 +2840,6 @@
     {
       "taxon_id": 13712,
       "encounter_rarity": "uncommon",
-      "prestige": "standard",
       "seasonality": {
         "en": "year-round"
       },
@@ -3203,7 +2848,6 @@
     {
       "taxon_id": 559064,
       "encounter_rarity": "uncommon",
-      "prestige": "standard",
       "seasonality": {
         "en": "year-round"
       },
@@ -3212,7 +2856,6 @@
     {
       "taxon_id": 13676,
       "encounter_rarity": "uncommon",
-      "prestige": "standard",
       "seasonality": {
         "en": "year-round"
       },
@@ -3221,7 +2864,6 @@
     {
       "taxon_id": 9195,
       "encounter_rarity": "uncommon",
-      "prestige": "standard",
       "seasonality": {
         "en": "year-round"
       },
@@ -3230,7 +2872,6 @@
     {
       "taxon_id": 13071,
       "encounter_rarity": "uncommon",
-      "prestige": "standard",
       "seasonality": {
         "en": "year-round"
       },
@@ -3239,7 +2880,6 @@
     {
       "taxon_id": 19410,
       "encounter_rarity": "uncommon",
-      "prestige": "standard",
       "seasonality": {
         "en": "year-round"
       },
@@ -3248,7 +2888,6 @@
     {
       "taxon_id": 792977,
       "encounter_rarity": "uncommon",
-      "prestige": "standard",
       "seasonality": {
         "en": "year-round"
       },
@@ -3257,7 +2896,6 @@
     {
       "taxon_id": 4604,
       "encounter_rarity": "uncommon",
-      "prestige": "standard",
       "seasonality": {
         "en": "year-round"
       },
@@ -3266,7 +2904,6 @@
     {
       "taxon_id": 144536,
       "encounter_rarity": "uncommon",
-      "prestige": "standard",
       "seasonality": {
         "en": "year-round"
       },
@@ -3275,7 +2912,6 @@
     {
       "taxon_id": 12825,
       "encounter_rarity": "uncommon",
-      "prestige": "standard",
       "seasonality": {
         "en": "year-round"
       },
@@ -3284,7 +2920,6 @@
     {
       "taxon_id": 132,
       "encounter_rarity": "uncommon",
-      "prestige": "standard",
       "seasonality": {
         "en": "year-round"
       },
@@ -3293,7 +2928,6 @@
     {
       "taxon_id": 5275,
       "encounter_rarity": "uncommon",
-      "prestige": "standard",
       "seasonality": {
         "en": "year-round"
       },
@@ -3302,7 +2936,6 @@
     {
       "taxon_id": 5379,
       "encounter_rarity": "uncommon",
-      "prestige": "standard",
       "seasonality": {
         "en": "year-round"
       },
@@ -3311,7 +2944,6 @@
     {
       "taxon_id": 204552,
       "encounter_rarity": "uncommon",
-      "prestige": "standard",
       "seasonality": {
         "en": "year-round"
       },
@@ -3320,7 +2952,6 @@
     {
       "taxon_id": 1286971,
       "encounter_rarity": "uncommon",
-      "prestige": "standard",
       "seasonality": {
         "en": "year-round"
       },
@@ -3329,7 +2960,6 @@
     {
       "taxon_id": 487,
       "encounter_rarity": "uncommon",
-      "prestige": "standard",
       "seasonality": {
         "en": "year-round"
       },
@@ -3338,7 +2968,6 @@
     {
       "taxon_id": 144537,
       "encounter_rarity": "uncommon",
-      "prestige": "standard",
       "seasonality": {
         "en": "year-round"
       },
@@ -3347,7 +2976,6 @@
     {
       "taxon_id": 559070,
       "encounter_rarity": "uncommon",
-      "prestige": "standard",
       "seasonality": {
         "en": "year-round"
       },
@@ -3356,7 +2984,6 @@
     {
       "taxon_id": 3753,
       "encounter_rarity": "uncommon",
-      "prestige": "standard",
       "seasonality": {
         "en": "year-round"
       },
@@ -3365,7 +2992,6 @@
     {
       "taxon_id": 204544,
       "encounter_rarity": "uncommon",
-      "prestige": "standard",
       "seasonality": {
         "en": "year-round"
       },
@@ -3374,7 +3000,6 @@
     {
       "taxon_id": 7367,
       "encounter_rarity": "uncommon",
-      "prestige": "standard",
       "seasonality": {
         "en": "year-round"
       },
@@ -3383,7 +3008,6 @@
     {
       "taxon_id": 4671,
       "encounter_rarity": "uncommon",
-      "prestige": "standard",
       "seasonality": {
         "en": "year-round"
       },
@@ -3392,7 +3016,6 @@
     {
       "taxon_id": 117027,
       "encounter_rarity": "uncommon",
-      "prestige": "standard",
       "seasonality": {
         "en": "year-round"
       },
@@ -3401,7 +3024,6 @@
     {
       "taxon_id": 15302,
       "encounter_rarity": "uncommon",
-      "prestige": "standard",
       "seasonality": {
         "en": "year-round"
       },
@@ -3410,7 +3032,6 @@
     {
       "taxon_id": 4368,
       "encounter_rarity": "uncommon",
-      "prestige": "standard",
       "seasonality": {
         "en": "year-round"
       },
@@ -3419,7 +3040,6 @@
     {
       "taxon_id": 578093,
       "encounter_rarity": "uncommon",
-      "prestige": "standard",
       "seasonality": {
         "en": "year-round"
       },
@@ -3428,7 +3048,6 @@
     {
       "taxon_id": 12749,
       "encounter_rarity": "uncommon",
-      "prestige": "standard",
       "seasonality": {
         "en": "year-round"
       },
@@ -3437,7 +3056,6 @@
     {
       "taxon_id": 117048,
       "encounter_rarity": "uncommon",
-      "prestige": "standard",
       "seasonality": {
         "en": "year-round"
       },
@@ -3446,16 +3064,14 @@
     {
       "taxon_id": 144467,
       "encounter_rarity": "uncommon",
-      "prestige": "legendary",
       "seasonality": {
         "en": "year-round"
       },
-      "inclusion_provenance": "Owner-managed mediterranean_europe icon checklist; imported from mediterranean_europe_checklists.csv. Encounter rarity and prestige are curated game metadata. Automated rarity: inaturalist-regional-frequency-v1."
+      "inclusion_provenance": "Owner-managed mediterranean_europe icon checklist; imported from mediterranean_europe_checklists.csv. Encounter rarity is curated game metadata. Automated rarity: inaturalist-regional-frequency-v1."
     },
     {
       "taxon_id": 1289697,
       "encounter_rarity": "uncommon",
-      "prestige": "standard",
       "seasonality": {
         "en": "year-round"
       },
@@ -3464,7 +3080,6 @@
     {
       "taxon_id": 117078,
       "encounter_rarity": "uncommon",
-      "prestige": "standard",
       "seasonality": {
         "en": "year-round"
       },
@@ -3473,7 +3088,6 @@
     {
       "taxon_id": 1289200,
       "encounter_rarity": "uncommon",
-      "prestige": "standard",
       "seasonality": {
         "en": "year-round"
       },
@@ -3482,7 +3096,6 @@
     {
       "taxon_id": 6914,
       "encounter_rarity": "uncommon",
-      "prestige": "standard",
       "seasonality": {
         "en": "year-round"
       },
@@ -3491,7 +3104,6 @@
     {
       "taxon_id": 846,
       "encounter_rarity": "uncommon",
-      "prestige": "standard",
       "seasonality": {
         "en": "year-round"
       },
@@ -3500,7 +3112,6 @@
     {
       "taxon_id": 4641,
       "encounter_rarity": "uncommon",
-      "prestige": "standard",
       "seasonality": {
         "en": "year-round"
       },
@@ -3509,7 +3120,6 @@
     {
       "taxon_id": 12740,
       "encounter_rarity": "uncommon",
-      "prestige": "standard",
       "seasonality": {
         "en": "year-round"
       },
@@ -3518,7 +3128,6 @@
     {
       "taxon_id": 14872,
       "encounter_rarity": "uncommon",
-      "prestige": "standard",
       "seasonality": {
         "en": "year-round"
       },
@@ -3527,7 +3136,6 @@
     {
       "taxon_id": 3033,
       "encounter_rarity": "uncommon",
-      "prestige": "standard",
       "seasonality": {
         "en": "year-round"
       },
@@ -3536,7 +3144,6 @@
     {
       "taxon_id": 13140,
       "encounter_rarity": "uncommon",
-      "prestige": "standard",
       "seasonality": {
         "en": "year-round"
       },
@@ -3545,7 +3152,6 @@
     {
       "taxon_id": 979721,
       "encounter_rarity": "uncommon",
-      "prestige": "standard",
       "seasonality": {
         "en": "year-round"
       },
@@ -3554,7 +3160,6 @@
     {
       "taxon_id": 13974,
       "encounter_rarity": "uncommon",
-      "prestige": "standard",
       "seasonality": {
         "en": "year-round"
       },
@@ -3563,7 +3168,6 @@
     {
       "taxon_id": 509656,
       "encounter_rarity": "uncommon",
-      "prestige": "standard",
       "seasonality": {
         "en": "year-round"
       },
@@ -3572,7 +3176,6 @@
     {
       "taxon_id": 19482,
       "encounter_rarity": "uncommon",
-      "prestige": "standard",
       "seasonality": {
         "en": "year-round"
       },
@@ -3581,7 +3184,6 @@
     {
       "taxon_id": 116804,
       "encounter_rarity": "uncommon",
-      "prestige": "standard",
       "seasonality": {
         "en": "year-round"
       },
@@ -3590,7 +3192,6 @@
     {
       "taxon_id": 4501,
       "encounter_rarity": "uncommon",
-      "prestige": "standard",
       "seasonality": {
         "en": "year-round"
       },
@@ -3599,7 +3200,6 @@
     {
       "taxon_id": 4512,
       "encounter_rarity": "uncommon",
-      "prestige": "standard",
       "seasonality": {
         "en": "year-round"
       },
@@ -3608,7 +3208,6 @@
     {
       "taxon_id": 1455922,
       "encounter_rarity": "uncommon",
-      "prestige": "standard",
       "seasonality": {
         "en": "year-round"
       },
@@ -3617,7 +3216,6 @@
     {
       "taxon_id": 144512,
       "encounter_rarity": "uncommon",
-      "prestige": "standard",
       "seasonality": {
         "en": "year-round"
       },
@@ -3626,7 +3224,6 @@
     {
       "taxon_id": 1504816,
       "encounter_rarity": "uncommon",
-      "prestige": "standard",
       "seasonality": {
         "en": "year-round"
       },
@@ -3635,7 +3232,6 @@
     {
       "taxon_id": 13793,
       "encounter_rarity": "uncommon",
-      "prestige": "standard",
       "seasonality": {
         "en": "year-round"
       },
@@ -3644,7 +3240,6 @@
     {
       "taxon_id": 804,
       "encounter_rarity": "uncommon",
-      "prestige": "standard",
       "seasonality": {
         "en": "year-round"
       },
@@ -3653,7 +3248,6 @@
     {
       "taxon_id": 7450,
       "encounter_rarity": "uncommon",
-      "prestige": "standard",
       "seasonality": {
         "en": "year-round"
       },
@@ -3662,7 +3256,6 @@
     {
       "taxon_id": 6996,
       "encounter_rarity": "uncommon",
-      "prestige": "standard",
       "seasonality": {
         "en": "year-round"
       },
@@ -3671,7 +3264,6 @@
     {
       "taxon_id": 6642,
       "encounter_rarity": "uncommon",
-      "prestige": "standard",
       "seasonality": {
         "en": "year-round"
       },
@@ -3680,7 +3272,6 @@
     {
       "taxon_id": 3845,
       "encounter_rarity": "uncommon",
-      "prestige": "standard",
       "seasonality": {
         "en": "year-round"
       },
@@ -3689,7 +3280,6 @@
     {
       "taxon_id": 367564,
       "encounter_rarity": "uncommon",
-      "prestige": "standard",
       "seasonality": {
         "en": "year-round"
       },
@@ -3698,7 +3288,6 @@
     {
       "taxon_id": 4389,
       "encounter_rarity": "uncommon",
-      "prestige": "standard",
       "seasonality": {
         "en": "year-round"
       },
@@ -3707,7 +3296,6 @@
     {
       "taxon_id": 1289480,
       "encounter_rarity": "uncommon",
-      "prestige": "standard",
       "seasonality": {
         "en": "year-round"
       },
@@ -3716,7 +3304,6 @@
     {
       "taxon_id": 144812,
       "encounter_rarity": "uncommon",
-      "prestige": "standard",
       "seasonality": {
         "en": "year-round"
       },
@@ -3725,7 +3312,6 @@
     {
       "taxon_id": 8029,
       "encounter_rarity": "uncommon",
-      "prestige": "standard",
       "seasonality": {
         "en": "year-round"
       },
@@ -3734,7 +3320,6 @@
     {
       "taxon_id": 1289469,
       "encounter_rarity": "uncommon",
-      "prestige": "standard",
       "seasonality": {
         "en": "year-round"
       },
@@ -3743,7 +3328,6 @@
     {
       "taxon_id": 9196,
       "encounter_rarity": "uncommon",
-      "prestige": "standard",
       "seasonality": {
         "en": "year-round"
       },
@@ -3752,7 +3336,6 @@
     {
       "taxon_id": 4327,
       "encounter_rarity": "uncommon",
-      "prestige": "standard",
       "seasonality": {
         "en": "year-round"
       },
@@ -3761,7 +3344,6 @@
     {
       "taxon_id": 1289484,
       "encounter_rarity": "uncommon",
-      "prestige": "standard",
       "seasonality": {
         "en": "year-round"
       },
@@ -3770,7 +3352,6 @@
     {
       "taxon_id": 204533,
       "encounter_rarity": "uncommon",
-      "prestige": "standard",
       "seasonality": {
         "en": "year-round"
       },
@@ -3779,7 +3360,6 @@
     {
       "taxon_id": 871,
       "encounter_rarity": "uncommon",
-      "prestige": "standard",
       "seasonality": {
         "en": "year-round"
       },
@@ -3788,7 +3368,6 @@
     {
       "taxon_id": 546379,
       "encounter_rarity": "uncommon",
-      "prestige": "standard",
       "seasonality": {
         "en": "year-round"
       },
@@ -3797,7 +3376,6 @@
     {
       "taxon_id": 117088,
       "encounter_rarity": "uncommon",
-      "prestige": "standard",
       "seasonality": {
         "en": "year-round"
       },
@@ -3806,7 +3384,6 @@
     {
       "taxon_id": 863,
       "encounter_rarity": "uncommon",
-      "prestige": "standard",
       "seasonality": {
         "en": "year-round"
       },
@@ -3815,7 +3392,6 @@
     {
       "taxon_id": 7107,
       "encounter_rarity": "uncommon",
-      "prestige": "standard",
       "seasonality": {
         "en": "year-round"
       },
@@ -3824,7 +3400,6 @@
     {
       "taxon_id": 14811,
       "encounter_rarity": "uncommon",
-      "prestige": "standard",
       "seasonality": {
         "en": "year-round"
       },
@@ -3833,7 +3408,6 @@
     {
       "taxon_id": 14840,
       "encounter_rarity": "uncommon",
-      "prestige": "standard",
       "seasonality": {
         "en": "year-round"
       },
@@ -3842,7 +3416,6 @@
     {
       "taxon_id": 20315,
       "encounter_rarity": "rare",
-      "prestige": "standard",
       "seasonality": {
         "en": "year-round"
       },
@@ -3851,7 +3424,6 @@
     {
       "taxon_id": 5033,
       "encounter_rarity": "rare",
-      "prestige": "standard",
       "seasonality": {
         "en": "year-round"
       },
@@ -3860,7 +3432,6 @@
     {
       "taxon_id": 116802,
       "encounter_rarity": "rare",
-      "prestige": "standard",
       "seasonality": {
         "en": "year-round"
       },
@@ -3869,7 +3440,6 @@
     {
       "taxon_id": 3931,
       "encounter_rarity": "rare",
-      "prestige": "standard",
       "seasonality": {
         "en": "year-round"
       },
@@ -3878,7 +3448,6 @@
     {
       "taxon_id": 827402,
       "encounter_rarity": "rare",
-      "prestige": "standard",
       "seasonality": {
         "en": "year-round"
       },
@@ -3887,7 +3456,6 @@
     {
       "taxon_id": 144850,
       "encounter_rarity": "rare",
-      "prestige": "standard",
       "seasonality": {
         "en": "year-round"
       },
@@ -3896,7 +3464,6 @@
     {
       "taxon_id": 13133,
       "encounter_rarity": "rare",
-      "prestige": "standard",
       "seasonality": {
         "en": "year-round"
       },
@@ -3905,7 +3472,6 @@
     {
       "taxon_id": 5309,
       "encounter_rarity": "rare",
-      "prestige": "standard",
       "seasonality": {
         "en": "year-round"
       },
@@ -3914,7 +3480,6 @@
     {
       "taxon_id": 7019,
       "encounter_rarity": "rare",
-      "prestige": "standard",
       "seasonality": {
         "en": "year-round"
       },
@@ -3923,7 +3488,6 @@
     {
       "taxon_id": 949,
       "encounter_rarity": "rare",
-      "prestige": "standard",
       "seasonality": {
         "en": "year-round"
       },
@@ -3932,7 +3496,6 @@
     {
       "taxon_id": 4672,
       "encounter_rarity": "rare",
-      "prestige": "standard",
       "seasonality": {
         "en": "year-round"
       },
@@ -3941,7 +3504,6 @@
     {
       "taxon_id": 178,
       "encounter_rarity": "rare",
-      "prestige": "standard",
       "seasonality": {
         "en": "year-round"
       },
@@ -3950,7 +3512,6 @@
     {
       "taxon_id": 4866,
       "encounter_rarity": "rare",
-      "prestige": "standard",
       "seasonality": {
         "en": "year-round"
       },
@@ -3959,7 +3520,6 @@
     {
       "taxon_id": 15560,
       "encounter_rarity": "rare",
-      "prestige": "standard",
       "seasonality": {
         "en": "year-round"
       },
@@ -3968,7 +3528,6 @@
     {
       "taxon_id": 3837,
       "encounter_rarity": "rare",
-      "prestige": "standard",
       "seasonality": {
         "en": "year-round"
       },
@@ -3977,7 +3536,6 @@
     {
       "taxon_id": 9237,
       "encounter_rarity": "rare",
-      "prestige": "standard",
       "seasonality": {
         "en": "year-round"
       },
@@ -3986,7 +3544,6 @@
     {
       "taxon_id": 73315,
       "encounter_rarity": "rare",
-      "prestige": "standard",
       "seasonality": {
         "en": "year-round"
       },
@@ -3995,7 +3552,6 @@
     {
       "taxon_id": 4626,
       "encounter_rarity": "rare",
-      "prestige": "standard",
       "seasonality": {
         "en": "year-round"
       },
@@ -4004,7 +3560,6 @@
     {
       "taxon_id": 4623,
       "encounter_rarity": "rare",
-      "prestige": "standard",
       "seasonality": {
         "en": "year-round"
       },
@@ -4013,7 +3568,6 @@
     {
       "taxon_id": 367571,
       "encounter_rarity": "rare",
-      "prestige": "standard",
       "seasonality": {
         "en": "year-round"
       },
@@ -4022,7 +3576,6 @@
     {
       "taxon_id": 7089,
       "encounter_rarity": "rare",
-      "prestige": "standard",
       "seasonality": {
         "en": "year-round"
       },
@@ -4031,7 +3584,6 @@
     {
       "taxon_id": 12054,
       "encounter_rarity": "rare",
-      "prestige": "standard",
       "seasonality": {
         "en": "year-round"
       },
@@ -4040,7 +3592,6 @@
     {
       "taxon_id": 9203,
       "encounter_rarity": "rare",
-      "prestige": "standard",
       "seasonality": {
         "en": "year-round"
       },
@@ -4049,7 +3600,6 @@
     {
       "taxon_id": 144221,
       "encounter_rarity": "rare",
-      "prestige": "standard",
       "seasonality": {
         "en": "year-round"
       },
@@ -4058,7 +3608,6 @@
     {
       "taxon_id": 6612,
       "encounter_rarity": "rare",
-      "prestige": "standard",
       "seasonality": {
         "en": "year-round"
       },
@@ -4067,7 +3616,6 @@
     {
       "taxon_id": 5192,
       "encounter_rarity": "rare",
-      "prestige": "standard",
       "seasonality": {
         "en": "year-round"
       },
@@ -4076,7 +3624,6 @@
     {
       "taxon_id": 72572,
       "encounter_rarity": "rare",
-      "prestige": "standard",
       "seasonality": {
         "en": "year-round"
       },
@@ -4085,7 +3632,6 @@
     {
       "taxon_id": 831,
       "encounter_rarity": "rare",
-      "prestige": "standard",
       "seasonality": {
         "en": "year-round"
       },
@@ -4094,7 +3640,6 @@
     {
       "taxon_id": 792985,
       "encounter_rarity": "rare",
-      "prestige": "standard",
       "seasonality": {
         "en": "year-round"
       },
@@ -4103,7 +3648,6 @@
     {
       "taxon_id": 4788,
       "encounter_rarity": "rare",
-      "prestige": "standard",
       "seasonality": {
         "en": "year-round"
       },
@@ -4112,7 +3656,6 @@
     {
       "taxon_id": 4109,
       "encounter_rarity": "rare",
-      "prestige": "standard",
       "seasonality": {
         "en": "year-round"
       },
@@ -4121,7 +3664,6 @@
     {
       "taxon_id": 7117,
       "encounter_rarity": "rare",
-      "prestige": "standard",
       "seasonality": {
         "en": "year-round"
       },
@@ -4130,7 +3672,6 @@
     {
       "taxon_id": 3856,
       "encounter_rarity": "rare",
-      "prestige": "standard",
       "seasonality": {
         "en": "year-round"
       },
@@ -4139,7 +3680,6 @@
     {
       "taxon_id": 508919,
       "encounter_rarity": "rare",
-      "prestige": "standard",
       "seasonality": {
         "en": "year-round"
       },
@@ -4148,7 +3688,6 @@
     {
       "taxon_id": 201180,
       "encounter_rarity": "rare",
-      "prestige": "standard",
       "seasonality": {
         "en": "year-round"
       },
@@ -4157,7 +3696,6 @@
     {
       "taxon_id": 7101,
       "encounter_rarity": "rare",
-      "prestige": "standard",
       "seasonality": {
         "en": "year-round"
       },
@@ -4166,7 +3704,6 @@
     {
       "taxon_id": 7024,
       "encounter_rarity": "rare",
-      "prestige": "standard",
       "seasonality": {
         "en": "year-round"
       },
@@ -4175,7 +3712,6 @@
     {
       "taxon_id": 12913,
       "encounter_rarity": "rare",
-      "prestige": "standard",
       "seasonality": {
         "en": "year-round"
       },
@@ -4184,7 +3720,6 @@
     {
       "taxon_id": 4494,
       "encounter_rarity": "rare",
-      "prestige": "standard",
       "seasonality": {
         "en": "year-round"
       },
@@ -4193,7 +3728,6 @@
     {
       "taxon_id": 3881,
       "encounter_rarity": "rare",
-      "prestige": "standard",
       "seasonality": {
         "en": "year-round"
       },
@@ -4202,7 +3736,6 @@
     {
       "taxon_id": 7044,
       "encounter_rarity": "rare",
-      "prestige": "standard",
       "seasonality": {
         "en": "year-round"
       },
@@ -4211,7 +3744,6 @@
     {
       "taxon_id": 7047,
       "encounter_rarity": "rare",
-      "prestige": "standard",
       "seasonality": {
         "en": "year-round"
       },
@@ -4220,7 +3752,6 @@
     {
       "taxon_id": 12834,
       "encounter_rarity": "rare",
-      "prestige": "standard",
       "seasonality": {
         "en": "year-round"
       },
@@ -4229,7 +3760,6 @@
     {
       "taxon_id": 4627,
       "encounter_rarity": "rare",
-      "prestige": "standard",
       "seasonality": {
         "en": "year-round"
       },
@@ -4238,7 +3768,6 @@
     {
       "taxon_id": 13721,
       "encounter_rarity": "very_rare",
-      "prestige": "standard",
       "seasonality": {
         "en": "year-round"
       },
@@ -4247,7 +3776,6 @@
     {
       "taxon_id": 6990,
       "encounter_rarity": "very_rare",
-      "prestige": "standard",
       "seasonality": {
         "en": "year-round"
       },
@@ -4256,7 +3784,6 @@
     {
       "taxon_id": 3055,
       "encounter_rarity": "very_rare",
-      "prestige": "standard",
       "seasonality": {
         "en": "year-round"
       },
@@ -4265,7 +3792,6 @@
     {
       "taxon_id": 17867,
       "encounter_rarity": "very_rare",
-      "prestige": "standard",
       "seasonality": {
         "en": "year-round"
       },
@@ -4274,7 +3800,6 @@
     {
       "taxon_id": 116799,
       "encounter_rarity": "very_rare",
-      "prestige": "standard",
       "seasonality": {
         "en": "year-round"
       },
@@ -4283,7 +3808,6 @@
     {
       "taxon_id": 7008,
       "encounter_rarity": "very_rare",
-      "prestige": "standard",
       "seasonality": {
         "en": "year-round"
       },
@@ -4292,7 +3816,6 @@
     {
       "taxon_id": 201035,
       "encounter_rarity": "very_rare",
-      "prestige": "standard",
       "seasonality": {
         "en": "year-round"
       },
@@ -4301,7 +3824,6 @@
     {
       "taxon_id": 3054,
       "encounter_rarity": "very_rare",
-      "prestige": "standard",
       "seasonality": {
         "en": "year-round"
       },
@@ -4310,7 +3832,6 @@
     {
       "taxon_id": 12023,
       "encounter_rarity": "very_rare",
-      "prestige": "standard",
       "seasonality": {
         "en": "year-round"
       },
@@ -4319,7 +3840,6 @@
     {
       "taxon_id": 4514,
       "encounter_rarity": "very_rare",
-      "prestige": "standard",
       "seasonality": {
         "en": "year-round"
       },
@@ -4328,7 +3848,6 @@
     {
       "taxon_id": 55990,
       "encounter_rarity": "common",
-      "prestige": "standard",
       "seasonality": {
         "en": "year-round"
       },
@@ -4337,7 +3856,6 @@
     {
       "taxon_id": 33602,
       "encounter_rarity": "common",
-      "prestige": "standard",
       "seasonality": {
         "en": "year-round"
       },
@@ -4346,7 +3864,6 @@
     {
       "taxon_id": 337045,
       "encounter_rarity": "common",
-      "prestige": "standard",
       "seasonality": {
         "en": "year-round"
       },
@@ -4355,7 +3872,6 @@
     {
       "taxon_id": 35519,
       "encounter_rarity": "common",
-      "prestige": "standard",
       "seasonality": {
         "en": "year-round"
       },
@@ -4364,7 +3880,6 @@
     {
       "taxon_id": 35900,
       "encounter_rarity": "common",
-      "prestige": "standard",
       "seasonality": {
         "en": "year-round"
       },
@@ -4373,7 +3888,6 @@
     {
       "taxon_id": 34435,
       "encounter_rarity": "common",
-      "prestige": "standard",
       "seasonality": {
         "en": "year-round"
       },
@@ -4382,7 +3896,6 @@
     {
       "taxon_id": 73823,
       "encounter_rarity": "common",
-      "prestige": "standard",
       "seasonality": {
         "en": "year-round"
       },
@@ -4391,25 +3904,22 @@
     {
       "taxon_id": 71212,
       "encounter_rarity": "common",
-      "prestige": "standard",
       "seasonality": {
         "en": "year-round"
       },
-      "inclusion_provenance": "Owner-managed mediterranean_europe essential checklist; imported from mediterranean_europe_checklists.csv. Encounter rarity and prestige are curated game metadata. Automated rarity: inaturalist-regional-frequency-v1."
+      "inclusion_provenance": "Owner-managed mediterranean_europe essential checklist; imported from mediterranean_europe_checklists.csv. Encounter rarity is curated game metadata. Automated rarity: inaturalist-regional-frequency-v1."
     },
     {
       "taxon_id": 73972,
       "encounter_rarity": "common",
-      "prestige": "standard",
       "seasonality": {
         "en": "spring to autumn"
       },
-      "inclusion_provenance": "Owner-managed mediterranean_europe essential checklist; imported from mediterranean_europe_checklists.csv. Encounter rarity and prestige are curated game metadata. Automated rarity: inaturalist-regional-frequency-v1."
+      "inclusion_provenance": "Owner-managed mediterranean_europe essential checklist; imported from mediterranean_europe_checklists.csv. Encounter rarity is curated game metadata. Automated rarity: inaturalist-regional-frequency-v1."
     },
     {
       "taxon_id": 29351,
       "encounter_rarity": "common",
-      "prestige": "standard",
       "seasonality": {
         "en": "year-round"
       },
@@ -4418,7 +3928,6 @@
     {
       "taxon_id": 424860,
       "encounter_rarity": "common",
-      "prestige": "standard",
       "seasonality": {
         "en": "year-round"
       },
@@ -4427,7 +3936,6 @@
     {
       "taxon_id": 35706,
       "encounter_rarity": "common",
-      "prestige": "standard",
       "seasonality": {
         "en": "year-round"
       },
@@ -4436,7 +3944,6 @@
     {
       "taxon_id": 35995,
       "encounter_rarity": "common",
-      "prestige": "standard",
       "seasonality": {
         "en": "year-round"
       },
@@ -4445,7 +3952,6 @@
     {
       "taxon_id": 343020,
       "encounter_rarity": "common",
-      "prestige": "standard",
       "seasonality": {
         "en": "year-round"
       },
@@ -4454,7 +3960,6 @@
     {
       "taxon_id": 35666,
       "encounter_rarity": "common",
-      "prestige": "standard",
       "seasonality": {
         "en": "year-round"
       },
@@ -4463,7 +3968,6 @@
     {
       "taxon_id": 540328,
       "encounter_rarity": "common",
-      "prestige": "standard",
       "seasonality": {
         "en": "year-round"
       },
@@ -4472,7 +3976,6 @@
     {
       "taxon_id": 29449,
       "encounter_rarity": "common",
-      "prestige": "standard",
       "seasonality": {
         "en": "year-round"
       },
@@ -4481,7 +3984,6 @@
     {
       "taxon_id": 343021,
       "encounter_rarity": "common",
-      "prestige": "standard",
       "seasonality": {
         "en": "year-round"
       },
@@ -4490,7 +3992,6 @@
     {
       "taxon_id": 851211,
       "encounter_rarity": "common",
-      "prestige": "standard",
       "seasonality": {
         "en": "year-round"
       },
@@ -4499,7 +4000,6 @@
     {
       "taxon_id": 39976,
       "encounter_rarity": "common",
-      "prestige": "standard",
       "seasonality": {
         "en": "year-round"
       },
@@ -4508,7 +4008,6 @@
     {
       "taxon_id": 74009,
       "encounter_rarity": "common",
-      "prestige": "standard",
       "seasonality": {
         "en": "year-round"
       },
@@ -4517,7 +4016,6 @@
     {
       "taxon_id": 1473498,
       "encounter_rarity": "common",
-      "prestige": "standard",
       "seasonality": {
         "en": "year-round"
       },
@@ -4526,7 +4024,6 @@
     {
       "taxon_id": 35474,
       "encounter_rarity": "common",
-      "prestige": "standard",
       "seasonality": {
         "en": "year-round"
       },
@@ -4535,7 +4032,6 @@
     {
       "taxon_id": 64346,
       "encounter_rarity": "common",
-      "prestige": "standard",
       "seasonality": {
         "en": "year-round"
       },
@@ -4544,7 +4040,6 @@
     {
       "taxon_id": 40038,
       "encounter_rarity": "common",
-      "prestige": "standard",
       "seasonality": {
         "en": "year-round"
       },
@@ -4553,7 +4048,6 @@
     {
       "taxon_id": 35868,
       "encounter_rarity": "common",
-      "prestige": "standard",
       "seasonality": {
         "en": "year-round"
       },
@@ -4562,7 +4056,6 @@
     {
       "taxon_id": 73821,
       "encounter_rarity": "common",
-      "prestige": "standard",
       "seasonality": {
         "en": "year-round"
       },
@@ -4571,7 +4064,6 @@
     {
       "taxon_id": 39665,
       "encounter_rarity": "common",
-      "prestige": "standard",
       "seasonality": {
         "en": "year-round"
       },
@@ -4580,7 +4072,6 @@
     {
       "taxon_id": 39867,
       "encounter_rarity": "common",
-      "prestige": "standard",
       "seasonality": {
         "en": "year-round"
       },
@@ -4589,7 +4080,6 @@
     {
       "taxon_id": 26904,
       "encounter_rarity": "common",
-      "prestige": "standard",
       "seasonality": {
         "en": "year-round"
       },
@@ -4598,7 +4088,6 @@
     {
       "taxon_id": 424861,
       "encounter_rarity": "common",
-      "prestige": "standard",
       "seasonality": {
         "en": "year-round"
       },
@@ -4607,7 +4096,6 @@
     {
       "taxon_id": 73921,
       "encounter_rarity": "common",
-      "prestige": "standard",
       "seasonality": {
         "en": "year-round"
       },
@@ -4616,7 +4104,6 @@
     {
       "taxon_id": 966781,
       "encounter_rarity": "common",
-      "prestige": "standard",
       "seasonality": {
         "en": "year-round"
       },
@@ -4625,7 +4112,6 @@
     {
       "taxon_id": 26888,
       "encounter_rarity": "common",
-      "prestige": "standard",
       "seasonality": {
         "en": "year-round"
       },
@@ -4634,7 +4120,6 @@
     {
       "taxon_id": 36052,
       "encounter_rarity": "common",
-      "prestige": "standard",
       "seasonality": {
         "en": "year-round"
       },
@@ -4643,7 +4128,6 @@
     {
       "taxon_id": 35710,
       "encounter_rarity": "common",
-      "prestige": "standard",
       "seasonality": {
         "en": "year-round"
       },
@@ -4652,7 +4136,6 @@
     {
       "taxon_id": 30929,
       "encounter_rarity": "common",
-      "prestige": "standard",
       "seasonality": {
         "en": "year-round"
       },
@@ -4661,7 +4144,6 @@
     {
       "taxon_id": 35871,
       "encounter_rarity": "common",
-      "prestige": "standard",
       "seasonality": {
         "en": "year-round"
       },
@@ -4670,7 +4152,6 @@
     {
       "taxon_id": 966787,
       "encounter_rarity": "common",
-      "prestige": "standard",
       "seasonality": {
         "en": "year-round"
       },
@@ -4679,7 +4160,6 @@
     {
       "taxon_id": 35854,
       "encounter_rarity": "common",
-      "prestige": "standard",
       "seasonality": {
         "en": "year-round"
       },
@@ -4688,7 +4168,6 @@
     {
       "taxon_id": 146280,
       "encounter_rarity": "common",
-      "prestige": "standard",
       "seasonality": {
         "en": "year-round"
       },
@@ -4697,7 +4176,6 @@
     {
       "taxon_id": 31975,
       "encounter_rarity": "common",
-      "prestige": "standard",
       "seasonality": {
         "en": "year-round"
       },
@@ -4706,7 +4184,6 @@
     {
       "taxon_id": 1424710,
       "encounter_rarity": "common",
-      "prestige": "standard",
       "seasonality": {
         "en": "year-round"
       },
@@ -4715,7 +4192,6 @@
     {
       "taxon_id": 1424711,
       "encounter_rarity": "common",
-      "prestige": "standard",
       "seasonality": {
         "en": "year-round"
       },
@@ -4724,7 +4200,6 @@
     {
       "taxon_id": 35430,
       "encounter_rarity": "common",
-      "prestige": "standard",
       "seasonality": {
         "en": "year-round"
       },
@@ -4733,7 +4208,6 @@
     {
       "taxon_id": 35964,
       "encounter_rarity": "common",
-      "prestige": "standard",
       "seasonality": {
         "en": "year-round"
       },
@@ -4742,7 +4216,6 @@
     {
       "taxon_id": 35990,
       "encounter_rarity": "common",
-      "prestige": "standard",
       "seasonality": {
         "en": "year-round"
       },
@@ -4751,7 +4224,6 @@
     {
       "taxon_id": 35530,
       "encounter_rarity": "common",
-      "prestige": "standard",
       "seasonality": {
         "en": "year-round"
       },
@@ -4760,7 +4232,6 @@
     {
       "taxon_id": 35677,
       "encounter_rarity": "common",
-      "prestige": "standard",
       "seasonality": {
         "en": "year-round"
       },
@@ -4769,7 +4240,6 @@
     {
       "taxon_id": 30237,
       "encounter_rarity": "common",
-      "prestige": "standard",
       "seasonality": {
         "en": "year-round"
       },
@@ -4778,7 +4248,6 @@
     {
       "taxon_id": 966698,
       "encounter_rarity": "common",
-      "prestige": "standard",
       "seasonality": {
         "en": "year-round"
       },
@@ -4787,7 +4256,6 @@
     {
       "taxon_id": 105329,
       "encounter_rarity": "common",
-      "prestige": "standard",
       "seasonality": {
         "en": "year-round"
       },
@@ -4796,7 +4264,6 @@
     {
       "taxon_id": 32864,
       "encounter_rarity": "common",
-      "prestige": "standard",
       "seasonality": {
         "en": "year-round"
       },
@@ -4805,7 +4272,6 @@
     {
       "taxon_id": 73966,
       "encounter_rarity": "common",
-      "prestige": "standard",
       "seasonality": {
         "en": "year-round"
       },
@@ -4814,7 +4280,6 @@
     {
       "taxon_id": 37213,
       "encounter_rarity": "common",
-      "prestige": "standard",
       "seasonality": {
         "en": "year-round"
       },
@@ -4823,7 +4288,6 @@
     {
       "taxon_id": 29917,
       "encounter_rarity": "common",
-      "prestige": "standard",
       "seasonality": {
         "en": "year-round"
       },
@@ -4832,7 +4296,6 @@
     {
       "taxon_id": 53645,
       "encounter_rarity": "common",
-      "prestige": "standard",
       "seasonality": {
         "en": "year-round"
       },
@@ -4841,7 +4304,6 @@
     {
       "taxon_id": 30917,
       "encounter_rarity": "common",
-      "prestige": "standard",
       "seasonality": {
         "en": "year-round"
       },
@@ -4850,7 +4312,6 @@
     {
       "taxon_id": 40023,
       "encounter_rarity": "common",
-      "prestige": "standard",
       "seasonality": {
         "en": "year-round"
       },
@@ -4859,7 +4320,6 @@
     {
       "taxon_id": 73747,
       "encounter_rarity": "common",
-      "prestige": "standard",
       "seasonality": {
         "en": "year-round"
       },
@@ -4868,7 +4328,6 @@
     {
       "taxon_id": 35760,
       "encounter_rarity": "common",
-      "prestige": "standard",
       "seasonality": {
         "en": "year-round"
       },
@@ -4877,7 +4336,6 @@
     {
       "taxon_id": 35671,
       "encounter_rarity": "common",
-      "prestige": "standard",
       "seasonality": {
         "en": "year-round"
       },
@@ -4886,7 +4344,6 @@
     {
       "taxon_id": 73918,
       "encounter_rarity": "common",
-      "prestige": "standard",
       "seasonality": {
         "en": "year-round"
       },
@@ -4895,7 +4352,6 @@
     {
       "taxon_id": 1670480,
       "encounter_rarity": "common",
-      "prestige": "standard",
       "seasonality": {
         "en": "year-round"
       },
@@ -4904,7 +4360,6 @@
     {
       "taxon_id": 73702,
       "encounter_rarity": "common",
-      "prestige": "standard",
       "seasonality": {
         "en": "year-round"
       },
@@ -4913,7 +4368,6 @@
     {
       "taxon_id": 1701177,
       "encounter_rarity": "common",
-      "prestige": "standard",
       "seasonality": {
         "en": "year-round"
       },
@@ -4922,7 +4376,6 @@
     {
       "taxon_id": 29450,
       "encounter_rarity": "uncommon",
-      "prestige": "standard",
       "seasonality": {
         "en": "year-round"
       },
@@ -4931,7 +4384,6 @@
     {
       "taxon_id": 35597,
       "encounter_rarity": "uncommon",
-      "prestige": "standard",
       "seasonality": {
         "en": "year-round"
       },
@@ -4940,7 +4392,6 @@
     {
       "taxon_id": 1127992,
       "encounter_rarity": "uncommon",
-      "prestige": "standard",
       "seasonality": {
         "en": "year-round"
       },
@@ -4949,7 +4400,6 @@
     {
       "taxon_id": 37239,
       "encounter_rarity": "uncommon",
-      "prestige": "standard",
       "seasonality": {
         "en": "year-round"
       },
@@ -4958,7 +4408,6 @@
     {
       "taxon_id": 35700,
       "encounter_rarity": "uncommon",
-      "prestige": "standard",
       "seasonality": {
         "en": "year-round"
       },
@@ -4967,7 +4416,6 @@
     {
       "taxon_id": 73858,
       "encounter_rarity": "uncommon",
-      "prestige": "standard",
       "seasonality": {
         "en": "year-round"
       },
@@ -4976,7 +4424,6 @@
     {
       "taxon_id": 53646,
       "encounter_rarity": "uncommon",
-      "prestige": "standard",
       "seasonality": {
         "en": "year-round"
       },
@@ -4985,7 +4432,6 @@
     {
       "taxon_id": 64078,
       "encounter_rarity": "uncommon",
-      "prestige": "standard",
       "seasonality": {
         "en": "year-round"
       },
@@ -4994,7 +4440,6 @@
     {
       "taxon_id": 73585,
       "encounter_rarity": "uncommon",
-      "prestige": "standard",
       "seasonality": {
         "en": "year-round"
       },
@@ -5003,7 +4448,6 @@
     {
       "taxon_id": 73903,
       "encounter_rarity": "uncommon",
-      "prestige": "standard",
       "seasonality": {
         "en": "year-round"
       },
@@ -5012,7 +4456,6 @@
     {
       "taxon_id": 540247,
       "encounter_rarity": "uncommon",
-      "prestige": "standard",
       "seasonality": {
         "en": "year-round"
       },
@@ -5021,7 +4464,6 @@
     {
       "taxon_id": 1701178,
       "encounter_rarity": "uncommon",
-      "prestige": "standard",
       "seasonality": {
         "en": "year-round"
       },
@@ -5030,7 +4472,6 @@
     {
       "taxon_id": 74011,
       "encounter_rarity": "uncommon",
-      "prestige": "standard",
       "seasonality": {
         "en": "year-round"
       },
@@ -5039,7 +4480,6 @@
     {
       "taxon_id": 35413,
       "encounter_rarity": "uncommon",
-      "prestige": "standard",
       "seasonality": {
         "en": "year-round"
       },
@@ -5048,7 +4488,6 @@
     {
       "taxon_id": 35453,
       "encounter_rarity": "uncommon",
-      "prestige": "standard",
       "seasonality": {
         "en": "year-round"
       },
@@ -5057,7 +4496,6 @@
     {
       "taxon_id": 73829,
       "encounter_rarity": "uncommon",
-      "prestige": "standard",
       "seasonality": {
         "en": "year-round"
       },
@@ -5066,7 +4504,6 @@
     {
       "taxon_id": 36055,
       "encounter_rarity": "uncommon",
-      "prestige": "standard",
       "seasonality": {
         "en": "year-round"
       },
@@ -5075,7 +4512,6 @@
     {
       "taxon_id": 33622,
       "encounter_rarity": "uncommon",
-      "prestige": "standard",
       "seasonality": {
         "en": "year-round"
       },
@@ -5084,7 +4520,6 @@
     {
       "taxon_id": 738119,
       "encounter_rarity": "uncommon",
-      "prestige": "standard",
       "seasonality": {
         "en": "year-round"
       },
@@ -5093,7 +4528,6 @@
     {
       "taxon_id": 144085,
       "encounter_rarity": "uncommon",
-      "prestige": "standard",
       "seasonality": {
         "en": "year-round"
       },
@@ -5102,7 +4536,6 @@
     {
       "taxon_id": 73910,
       "encounter_rarity": "uncommon",
-      "prestige": "standard",
       "seasonality": {
         "en": "year-round"
       },
@@ -5111,7 +4544,6 @@
     {
       "taxon_id": 539260,
       "encounter_rarity": "uncommon",
-      "prestige": "standard",
       "seasonality": {
         "en": "year-round"
       },
@@ -5120,7 +4552,6 @@
     {
       "taxon_id": 99496,
       "encounter_rarity": "uncommon",
-      "prestige": "standard",
       "seasonality": {
         "en": "year-round"
       },
@@ -5129,7 +4560,6 @@
     {
       "taxon_id": 30924,
       "encounter_rarity": "uncommon",
-      "prestige": "standard",
       "seasonality": {
         "en": "year-round"
       },
@@ -5138,7 +4568,6 @@
     {
       "taxon_id": 36001,
       "encounter_rarity": "uncommon",
-      "prestige": "standard",
       "seasonality": {
         "en": "year-round"
       },
@@ -5147,7 +4576,6 @@
     {
       "taxon_id": 37210,
       "encounter_rarity": "uncommon",
-      "prestige": "standard",
       "seasonality": {
         "en": "year-round"
       },
@@ -5156,7 +4584,6 @@
     {
       "taxon_id": 514727,
       "encounter_rarity": "uncommon",
-      "prestige": "standard",
       "seasonality": {
         "en": "year-round"
       },
@@ -5165,7 +4592,6 @@
     {
       "taxon_id": 539261,
       "encounter_rarity": "rare",
-      "prestige": "standard",
       "seasonality": {
         "en": "year-round"
       },
@@ -5174,7 +4600,6 @@
     {
       "taxon_id": 73817,
       "encounter_rarity": "uncommon",
-      "prestige": "standard",
       "seasonality": {
         "en": "year-round"
       },
@@ -5183,7 +4608,6 @@
     {
       "taxon_id": 73922,
       "encounter_rarity": "rare",
-      "prestige": "standard",
       "seasonality": {
         "en": "year-round"
       },
@@ -5192,7 +4616,6 @@
     {
       "taxon_id": 35707,
       "encounter_rarity": "rare",
-      "prestige": "standard",
       "seasonality": {
         "en": "year-round"
       },
@@ -5201,7 +4624,6 @@
     {
       "taxon_id": 1424723,
       "encounter_rarity": "rare",
-      "prestige": "standard",
       "seasonality": {
         "en": "year-round"
       },
@@ -5210,7 +4632,6 @@
     {
       "taxon_id": 424864,
       "encounter_rarity": "rare",
-      "prestige": "standard",
       "seasonality": {
         "en": "year-round"
       },
@@ -5219,7 +4640,6 @@
     {
       "taxon_id": 39659,
       "encounter_rarity": "rare",
-      "prestige": "standard",
       "seasonality": {
         "en": "year-round"
       },
@@ -5228,7 +4648,6 @@
     {
       "taxon_id": 35988,
       "encounter_rarity": "rare",
-      "prestige": "standard",
       "seasonality": {
         "en": "year-round"
       },
@@ -5237,7 +4656,6 @@
     {
       "taxon_id": 493904,
       "encounter_rarity": "rare",
-      "prestige": "standard",
       "seasonality": {
         "en": "year-round"
       },
@@ -5246,7 +4664,6 @@
     {
       "taxon_id": 100411,
       "encounter_rarity": "rare",
-      "prestige": "standard",
       "seasonality": {
         "en": "year-round"
       },
@@ -5255,7 +4672,6 @@
     {
       "taxon_id": 33619,
       "encounter_rarity": "rare",
-      "prestige": "standard",
       "seasonality": {
         "en": "year-round"
       },
@@ -5264,7 +4680,6 @@
     {
       "taxon_id": 1629340,
       "encounter_rarity": "rare",
-      "prestige": "standard",
       "seasonality": {
         "en": "year-round"
       },
@@ -5273,7 +4688,6 @@
     {
       "taxon_id": 35637,
       "encounter_rarity": "rare",
-      "prestige": "standard",
       "seasonality": {
         "en": "year-round"
       },
@@ -5282,7 +4696,6 @@
     {
       "taxon_id": 35912,
       "encounter_rarity": "rare",
-      "prestige": "standard",
       "seasonality": {
         "en": "year-round"
       },
@@ -5291,7 +4704,6 @@
     {
       "taxon_id": 35516,
       "encounter_rarity": "very_rare",
-      "prestige": "standard",
       "seasonality": {
         "en": "year-round"
       },
@@ -5300,7 +4712,6 @@
     {
       "taxon_id": 73917,
       "encounter_rarity": "very_rare",
-      "prestige": "standard",
       "seasonality": {
         "en": "year-round"
       },
@@ -5309,7 +4720,6 @@
     {
       "taxon_id": 74008,
       "encounter_rarity": "very_rare",
-      "prestige": "standard",
       "seasonality": {
         "en": "year-round"
       },
@@ -5318,7 +4728,6 @@
     {
       "taxon_id": 50972,
       "encounter_rarity": "common",
-      "prestige": "standard",
       "seasonality": {
         "en": "year-round"
       },
@@ -5327,7 +4736,6 @@
     {
       "taxon_id": 118663,
       "encounter_rarity": "common",
-      "prestige": "standard",
       "seasonality": {
         "en": "year-round"
       },
@@ -5336,7 +4744,6 @@
     {
       "taxon_id": 118667,
       "encounter_rarity": "common",
-      "prestige": "standard",
       "seasonality": {
         "en": "year-round"
       },
@@ -5345,7 +4752,6 @@
     {
       "taxon_id": 118669,
       "encounter_rarity": "common",
-      "prestige": "standard",
       "seasonality": {
         "en": "year-round"
       },
@@ -5354,7 +4760,6 @@
     {
       "taxon_id": 50968,
       "encounter_rarity": "common",
-      "prestige": "standard",
       "seasonality": {
         "en": "year-round"
       },
@@ -5363,7 +4768,6 @@
     {
       "taxon_id": 118674,
       "encounter_rarity": "common",
-      "prestige": "standard",
       "seasonality": {
         "en": "year-round"
       },
@@ -5372,7 +4776,6 @@
     {
       "taxon_id": 118682,
       "encounter_rarity": "common",
-      "prestige": "standard",
       "seasonality": {
         "en": "year-round"
       },
@@ -5381,7 +4784,6 @@
     {
       "taxon_id": 118662,
       "encounter_rarity": "common",
-      "prestige": "standard",
       "seasonality": {
         "en": "year-round"
       },
@@ -5390,7 +4792,6 @@
     {
       "taxon_id": 52554,
       "encounter_rarity": "common",
-      "prestige": "standard",
       "seasonality": {
         "en": "year-round"
       },
@@ -5399,7 +4800,6 @@
     {
       "taxon_id": 112860,
       "encounter_rarity": "common",
-      "prestige": "standard",
       "seasonality": {
         "en": "year-round"
       },
@@ -5408,7 +4808,6 @@
     {
       "taxon_id": 100119,
       "encounter_rarity": "common",
-      "prestige": "standard",
       "seasonality": {
         "en": "year-round"
       },
@@ -5417,7 +4816,6 @@
     {
       "taxon_id": 118619,
       "encounter_rarity": "common",
-      "prestige": "standard",
       "seasonality": {
         "en": "year-round"
       },
@@ -5426,7 +4824,6 @@
     {
       "taxon_id": 53911,
       "encounter_rarity": "common",
-      "prestige": "standard",
       "seasonality": {
         "en": "year-round"
       },
@@ -5435,7 +4832,6 @@
     {
       "taxon_id": 338049,
       "encounter_rarity": "common",
-      "prestige": "standard",
       "seasonality": {
         "en": "year-round"
       },
@@ -5444,7 +4840,6 @@
     {
       "taxon_id": 118590,
       "encounter_rarity": "common",
-      "prestige": "standard",
       "seasonality": {
         "en": "year-round"
       },
@@ -5453,7 +4848,6 @@
     {
       "taxon_id": 342288,
       "encounter_rarity": "common",
-      "prestige": "standard",
       "seasonality": {
         "en": "year-round"
       },
@@ -5462,7 +4856,6 @@
     {
       "taxon_id": 118686,
       "encounter_rarity": "common",
-      "prestige": "standard",
       "seasonality": {
         "en": "year-round"
       },
@@ -5471,7 +4864,6 @@
     {
       "taxon_id": 118660,
       "encounter_rarity": "common",
-      "prestige": "standard",
       "seasonality": {
         "en": "year-round"
       },
@@ -5480,7 +4872,6 @@
     {
       "taxon_id": 505877,
       "encounter_rarity": "common",
-      "prestige": "standard",
       "seasonality": {
         "en": "year-round"
       },
@@ -5489,7 +4880,6 @@
     {
       "taxon_id": 188591,
       "encounter_rarity": "common",
-      "prestige": "standard",
       "seasonality": {
         "en": "year-round"
       },
@@ -5498,7 +4888,6 @@
     {
       "taxon_id": 1494783,
       "encounter_rarity": "common",
-      "prestige": "standard",
       "seasonality": {
         "en": "year-round"
       },
@@ -5507,7 +4896,6 @@
     {
       "taxon_id": 118631,
       "encounter_rarity": "common",
-      "prestige": "standard",
       "seasonality": {
         "en": "year-round"
       },
@@ -5516,7 +4904,6 @@
     {
       "taxon_id": 53696,
       "encounter_rarity": "common",
-      "prestige": "standard",
       "seasonality": {
         "en": "year-round"
       },
@@ -5525,7 +4912,6 @@
     {
       "taxon_id": 118685,
       "encounter_rarity": "common",
-      "prestige": "standard",
       "seasonality": {
         "en": "year-round"
       },
@@ -5534,7 +4920,6 @@
     {
       "taxon_id": 118640,
       "encounter_rarity": "common",
-      "prestige": "standard",
       "seasonality": {
         "en": "year-round"
       },
@@ -5543,7 +4928,6 @@
     {
       "taxon_id": 624069,
       "encounter_rarity": "common",
-      "prestige": "standard",
       "seasonality": {
         "en": "year-round"
       },
@@ -5552,7 +4936,6 @@
     {
       "taxon_id": 118514,
       "encounter_rarity": "common",
-      "prestige": "standard",
       "seasonality": {
         "en": "year-round"
       },
@@ -5561,7 +4944,6 @@
     {
       "taxon_id": 118675,
       "encounter_rarity": "common",
-      "prestige": "standard",
       "seasonality": {
         "en": "year-round"
       },
@@ -5570,7 +4952,6 @@
     {
       "taxon_id": 118703,
       "encounter_rarity": "common",
-      "prestige": "standard",
       "seasonality": {
         "en": "year-round"
       },
@@ -5579,7 +4960,6 @@
     {
       "taxon_id": 97345,
       "encounter_rarity": "common",
-      "prestige": "standard",
       "seasonality": {
         "en": "year-round"
       },
@@ -5588,7 +4968,6 @@
     {
       "taxon_id": 49614,
       "encounter_rarity": "common",
-      "prestige": "standard",
       "seasonality": {
         "en": "year-round"
       },
@@ -5597,7 +4976,6 @@
     {
       "taxon_id": 118664,
       "encounter_rarity": "common",
-      "prestige": "standard",
       "seasonality": {
         "en": "year-round"
       },
@@ -5606,7 +4984,6 @@
     {
       "taxon_id": 118665,
       "encounter_rarity": "common",
-      "prestige": "standard",
       "seasonality": {
         "en": "year-round"
       },
@@ -5615,7 +4992,6 @@
     {
       "taxon_id": 99269,
       "encounter_rarity": "common",
-      "prestige": "standard",
       "seasonality": {
         "en": "year-round"
       },
@@ -5624,7 +5000,6 @@
     {
       "taxon_id": 84969,
       "encounter_rarity": "common",
-      "prestige": "standard",
       "seasonality": {
         "en": "year-round"
       },
@@ -5633,7 +5008,6 @@
     {
       "taxon_id": 120634,
       "encounter_rarity": "common",
-      "prestige": "standard",
       "seasonality": {
         "en": "year-round"
       },
@@ -5642,7 +5016,6 @@
     {
       "taxon_id": 113535,
       "encounter_rarity": "common",
-      "prestige": "standard",
       "seasonality": {
         "en": "year-round"
       },
@@ -5651,7 +5024,6 @@
     {
       "taxon_id": 113019,
       "encounter_rarity": "common",
-      "prestige": "standard",
       "seasonality": {
         "en": "year-round"
       },
@@ -5660,7 +5032,6 @@
     {
       "taxon_id": 47260,
       "encounter_rarity": "common",
-      "prestige": "standard",
       "seasonality": {
         "en": "year-round"
       },
@@ -5669,7 +5040,6 @@
     {
       "taxon_id": 47518,
       "encounter_rarity": "common",
-      "prestige": "standard",
       "seasonality": {
         "en": "year-round"
       },
@@ -5678,7 +5048,6 @@
     {
       "taxon_id": 112568,
       "encounter_rarity": "common",
-      "prestige": "standard",
       "seasonality": {
         "en": "year-round"
       },
@@ -5687,7 +5056,6 @@
     {
       "taxon_id": 118706,
       "encounter_rarity": "common",
-      "prestige": "standard",
       "seasonality": {
         "en": "year-round"
       },
@@ -5696,7 +5064,6 @@
     {
       "taxon_id": 118617,
       "encounter_rarity": "common",
-      "prestige": "standard",
       "seasonality": {
         "en": "year-round"
       },
@@ -5705,7 +5072,6 @@
     {
       "taxon_id": 118642,
       "encounter_rarity": "common",
-      "prestige": "standard",
       "seasonality": {
         "en": "year-round"
       },
@@ -5714,7 +5080,6 @@
     {
       "taxon_id": 118704,
       "encounter_rarity": "common",
-      "prestige": "standard",
       "seasonality": {
         "en": "year-round"
       },
@@ -5723,7 +5088,6 @@
     {
       "taxon_id": 49984,
       "encounter_rarity": "common",
-      "prestige": "standard",
       "seasonality": {
         "en": "year-round"
       },
@@ -5732,7 +5096,6 @@
     {
       "taxon_id": 118688,
       "encounter_rarity": "common",
-      "prestige": "standard",
       "seasonality": {
         "en": "year-round"
       },
@@ -5741,7 +5104,6 @@
     {
       "taxon_id": 1256672,
       "encounter_rarity": "common",
-      "prestige": "standard",
       "seasonality": {
         "en": "year-round"
       },
@@ -5750,7 +5112,6 @@
     {
       "taxon_id": 118693,
       "encounter_rarity": "common",
-      "prestige": "standard",
       "seasonality": {
         "en": "year-round"
       },
@@ -5759,7 +5120,6 @@
     {
       "taxon_id": 51401,
       "encounter_rarity": "common",
-      "prestige": "standard",
       "seasonality": {
         "en": "year-round"
       },
@@ -5768,7 +5128,6 @@
     {
       "taxon_id": 120637,
       "encounter_rarity": "common",
-      "prestige": "standard",
       "seasonality": {
         "en": "year-round"
       },
@@ -5777,7 +5136,6 @@
     {
       "taxon_id": 115188,
       "encounter_rarity": "common",
-      "prestige": "standard",
       "seasonality": {
         "en": "year-round"
       },
@@ -5786,7 +5144,6 @@
     {
       "taxon_id": 108409,
       "encounter_rarity": "common",
-      "prestige": "standard",
       "seasonality": {
         "en": "year-round"
       },
@@ -5795,7 +5152,6 @@
     {
       "taxon_id": 113701,
       "encounter_rarity": "common",
-      "prestige": "standard",
       "seasonality": {
         "en": "year-round"
       },
@@ -5804,7 +5160,6 @@
     {
       "taxon_id": 118630,
       "encounter_rarity": "common",
-      "prestige": "standard",
       "seasonality": {
         "en": "year-round"
       },
@@ -5813,7 +5168,6 @@
     {
       "taxon_id": 118707,
       "encounter_rarity": "common",
-      "prestige": "standard",
       "seasonality": {
         "en": "year-round"
       },
@@ -5822,7 +5176,6 @@
     {
       "taxon_id": 128858,
       "encounter_rarity": "common",
-      "prestige": "standard",
       "seasonality": {
         "en": "year-round"
       },
@@ -5831,7 +5184,6 @@
     {
       "taxon_id": 100091,
       "encounter_rarity": "common",
-      "prestige": "standard",
       "seasonality": {
         "en": "year-round"
       },
@@ -5840,7 +5192,6 @@
     {
       "taxon_id": 210294,
       "encounter_rarity": "common",
-      "prestige": "standard",
       "seasonality": {
         "en": "year-round"
       },
@@ -5849,7 +5200,6 @@
     {
       "taxon_id": 1439808,
       "encounter_rarity": "common",
-      "prestige": "standard",
       "seasonality": {
         "en": "year-round"
       },
@@ -5858,7 +5208,6 @@
     {
       "taxon_id": 94786,
       "encounter_rarity": "common",
-      "prestige": "standard",
       "seasonality": {
         "en": "year-round"
       },
@@ -5867,7 +5216,6 @@
     {
       "taxon_id": 103912,
       "encounter_rarity": "common",
-      "prestige": "standard",
       "seasonality": {
         "en": "year-round"
       },
@@ -5876,7 +5224,6 @@
     {
       "taxon_id": 118692,
       "encounter_rarity": "common",
-      "prestige": "standard",
       "seasonality": {
         "en": "year-round"
       },
@@ -5885,7 +5232,6 @@
     {
       "taxon_id": 94105,
       "encounter_rarity": "common",
-      "prestige": "standard",
       "seasonality": {
         "en": "year-round"
       },
@@ -5894,7 +5240,6 @@
     {
       "taxon_id": 106306,
       "encounter_rarity": "common",
-      "prestige": "standard",
       "seasonality": {
         "en": "year-round"
       },
@@ -5903,7 +5248,6 @@
     {
       "taxon_id": 108412,
       "encounter_rarity": "common",
-      "prestige": "standard",
       "seasonality": {
         "en": "year-round"
       },
@@ -5912,7 +5256,6 @@
     {
       "taxon_id": 118652,
       "encounter_rarity": "common",
-      "prestige": "standard",
       "seasonality": {
         "en": "year-round"
       },
@@ -5921,7 +5264,6 @@
     {
       "taxon_id": 118655,
       "encounter_rarity": "common",
-      "prestige": "standard",
       "seasonality": {
         "en": "year-round"
       },
@@ -5930,7 +5272,6 @@
     {
       "taxon_id": 118589,
       "encounter_rarity": "common",
-      "prestige": "standard",
       "seasonality": {
         "en": "year-round"
       },
@@ -5939,7 +5280,6 @@
     {
       "taxon_id": 113531,
       "encounter_rarity": "common",
-      "prestige": "standard",
       "seasonality": {
         "en": "year-round"
       },
@@ -5948,7 +5288,6 @@
     {
       "taxon_id": 118702,
       "encounter_rarity": "common",
-      "prestige": "standard",
       "seasonality": {
         "en": "year-round"
       },
@@ -5957,7 +5296,6 @@
     {
       "taxon_id": 63412,
       "encounter_rarity": "common",
-      "prestige": "standard",
       "seasonality": {
         "en": "year-round"
       },
@@ -5966,7 +5304,6 @@
     {
       "taxon_id": 131428,
       "encounter_rarity": "common",
-      "prestige": "standard",
       "seasonality": {
         "en": "year-round"
       },
@@ -5975,7 +5312,6 @@
     {
       "taxon_id": 114453,
       "encounter_rarity": "common",
-      "prestige": "standard",
       "seasonality": {
         "en": "year-round"
       },
@@ -5984,7 +5320,6 @@
     {
       "taxon_id": 123459,
       "encounter_rarity": "common",
-      "prestige": "standard",
       "seasonality": {
         "en": "year-round"
       },
@@ -5993,7 +5328,6 @@
     {
       "taxon_id": 84861,
       "encounter_rarity": "common",
-      "prestige": "standard",
       "seasonality": {
         "en": "year-round"
       },
@@ -6002,7 +5336,6 @@
     {
       "taxon_id": 51549,
       "encounter_rarity": "common",
-      "prestige": "standard",
       "seasonality": {
         "en": "year-round"
       },
@@ -6011,7 +5344,6 @@
     {
       "taxon_id": 342289,
       "encounter_rarity": "common",
-      "prestige": "standard",
       "seasonality": {
         "en": "year-round"
       },
@@ -6020,7 +5352,6 @@
     {
       "taxon_id": 101621,
       "encounter_rarity": "common",
-      "prestige": "standard",
       "seasonality": {
         "en": "year-round"
       },
@@ -6029,7 +5360,6 @@
     {
       "taxon_id": 1360107,
       "encounter_rarity": "common",
-      "prestige": "standard",
       "seasonality": {
         "en": "year-round"
       },
@@ -6038,7 +5368,6 @@
     {
       "taxon_id": 47241,
       "encounter_rarity": "common",
-      "prestige": "standard",
       "seasonality": {
         "en": "year-round"
       },
@@ -6047,7 +5376,6 @@
     {
       "taxon_id": 112497,
       "encounter_rarity": "common",
-      "prestige": "standard",
       "seasonality": {
         "en": "year-round"
       },
@@ -6056,7 +5384,6 @@
     {
       "taxon_id": 49606,
       "encounter_rarity": "common",
-      "prestige": "standard",
       "seasonality": {
         "en": "year-round"
       },
@@ -6065,7 +5392,6 @@
     {
       "taxon_id": 113003,
       "encounter_rarity": "common",
-      "prestige": "standard",
       "seasonality": {
         "en": "year-round"
       },
@@ -6074,7 +5400,6 @@
     {
       "taxon_id": 102821,
       "encounter_rarity": "common",
-      "prestige": "standard",
       "seasonality": {
         "en": "year-round"
       },
@@ -6083,7 +5408,6 @@
     {
       "taxon_id": 120708,
       "encounter_rarity": "common",
-      "prestige": "standard",
       "seasonality": {
         "en": "year-round"
       },
@@ -6092,7 +5416,6 @@
     {
       "taxon_id": 342041,
       "encounter_rarity": "common",
-      "prestige": "standard",
       "seasonality": {
         "en": "year-round"
       },
@@ -6101,7 +5424,6 @@
     {
       "taxon_id": 118683,
       "encounter_rarity": "common",
-      "prestige": "standard",
       "seasonality": {
         "en": "year-round"
       },
@@ -6110,7 +5432,6 @@
     {
       "taxon_id": 113862,
       "encounter_rarity": "common",
-      "prestige": "standard",
       "seasonality": {
         "en": "year-round"
       },
@@ -6119,7 +5440,6 @@
     {
       "taxon_id": 113534,
       "encounter_rarity": "common",
-      "prestige": "standard",
       "seasonality": {
         "en": "year-round"
       },
@@ -6128,7 +5448,6 @@
     {
       "taxon_id": 204776,
       "encounter_rarity": "uncommon",
-      "prestige": "standard",
       "seasonality": {
         "en": "year-round"
       },
@@ -6137,7 +5456,6 @@
     {
       "taxon_id": 47516,
       "encounter_rarity": "uncommon",
-      "prestige": "standard",
       "seasonality": {
         "en": "year-round"
       },
@@ -6146,7 +5464,6 @@
     {
       "taxon_id": 446216,
       "encounter_rarity": "uncommon",
-      "prestige": "standard",
       "seasonality": {
         "en": "year-round"
       },
@@ -6155,7 +5472,6 @@
     {
       "taxon_id": 342285,
       "encounter_rarity": "uncommon",
-      "prestige": "standard",
       "seasonality": {
         "en": "year-round"
       },
@@ -6164,7 +5480,6 @@
     {
       "taxon_id": 118708,
       "encounter_rarity": "uncommon",
-      "prestige": "standard",
       "seasonality": {
         "en": "year-round"
       },
@@ -6173,7 +5488,6 @@
     {
       "taxon_id": 113533,
       "encounter_rarity": "uncommon",
-      "prestige": "standard",
       "seasonality": {
         "en": "year-round"
       },
@@ -6182,7 +5496,6 @@
     {
       "taxon_id": 108196,
       "encounter_rarity": "uncommon",
-      "prestige": "standard",
       "seasonality": {
         "en": "year-round"
       },
@@ -6191,7 +5504,6 @@
     {
       "taxon_id": 106222,
       "encounter_rarity": "uncommon",
-      "prestige": "standard",
       "seasonality": {
         "en": "year-round"
       },
@@ -6200,7 +5512,6 @@
     {
       "taxon_id": 118654,
       "encounter_rarity": "uncommon",
-      "prestige": "standard",
       "seasonality": {
         "en": "year-round"
       },
@@ -6209,7 +5520,6 @@
     {
       "taxon_id": 55016,
       "encounter_rarity": "uncommon",
-      "prestige": "standard",
       "seasonality": {
         "en": "year-round"
       },
@@ -6218,7 +5528,6 @@
     {
       "taxon_id": 132526,
       "encounter_rarity": "uncommon",
-      "prestige": "standard",
       "seasonality": {
         "en": "year-round"
       },
@@ -6227,7 +5536,6 @@
     {
       "taxon_id": 113536,
       "encounter_rarity": "uncommon",
-      "prestige": "standard",
       "seasonality": {
         "en": "year-round"
       },
@@ -6236,7 +5544,6 @@
     {
       "taxon_id": 113529,
       "encounter_rarity": "uncommon",
-      "prestige": "standard",
       "seasonality": {
         "en": "year-round"
       },
@@ -6245,7 +5552,6 @@
     {
       "taxon_id": 104834,
       "encounter_rarity": "uncommon",
-      "prestige": "standard",
       "seasonality": {
         "en": "year-round"
       },
@@ -6254,7 +5560,6 @@
     {
       "taxon_id": 108410,
       "encounter_rarity": "uncommon",
-      "prestige": "standard",
       "seasonality": {
         "en": "year-round"
       },
@@ -6263,7 +5568,6 @@
     {
       "taxon_id": 446572,
       "encounter_rarity": "uncommon",
-      "prestige": "standard",
       "seasonality": {
         "en": "year-round"
       },
@@ -6272,7 +5576,6 @@
     {
       "taxon_id": 1316085,
       "encounter_rarity": "uncommon",
-      "prestige": "standard",
       "seasonality": {
         "en": "year-round"
       },
@@ -6281,7 +5584,6 @@
     {
       "taxon_id": 108184,
       "encounter_rarity": "uncommon",
-      "prestige": "standard",
       "seasonality": {
         "en": "year-round"
       },
@@ -6290,7 +5592,6 @@
     {
       "taxon_id": 118656,
       "encounter_rarity": "uncommon",
-      "prestige": "standard",
       "seasonality": {
         "en": "year-round"
       },
@@ -6299,7 +5600,6 @@
     {
       "taxon_id": 118672,
       "encounter_rarity": "uncommon",
-      "prestige": "standard",
       "seasonality": {
         "en": "year-round"
       },
@@ -6308,7 +5608,6 @@
     {
       "taxon_id": 1315687,
       "encounter_rarity": "uncommon",
-      "prestige": "standard",
       "seasonality": {
         "en": "year-round"
       },
@@ -6317,7 +5616,6 @@
     {
       "taxon_id": 103911,
       "encounter_rarity": "uncommon",
-      "prestige": "standard",
       "seasonality": {
         "en": "year-round"
       },
@@ -6326,7 +5624,6 @@
     {
       "taxon_id": 82278,
       "encounter_rarity": "uncommon",
-      "prestige": "standard",
       "seasonality": {
         "en": "year-round"
       },
@@ -6335,7 +5632,6 @@
     {
       "taxon_id": 57399,
       "encounter_rarity": "uncommon",
-      "prestige": "standard",
       "seasonality": {
         "en": "year-round"
       },
@@ -6344,7 +5640,6 @@
     {
       "taxon_id": 118673,
       "encounter_rarity": "uncommon",
-      "prestige": "standard",
       "seasonality": {
         "en": "year-round"
       },
@@ -6353,7 +5648,6 @@
     {
       "taxon_id": 359362,
       "encounter_rarity": "uncommon",
-      "prestige": "standard",
       "seasonality": {
         "en": "year-round"
       },
@@ -6362,7 +5656,6 @@
     {
       "taxon_id": 55387,
       "encounter_rarity": "uncommon",
-      "prestige": "standard",
       "seasonality": {
         "en": "year-round"
       },
@@ -6371,7 +5664,6 @@
     {
       "taxon_id": 342089,
       "encounter_rarity": "uncommon",
-      "prestige": "standard",
       "seasonality": {
         "en": "year-round"
       },
@@ -6380,7 +5672,6 @@
     {
       "taxon_id": 347725,
       "encounter_rarity": "uncommon",
-      "prestige": "standard",
       "seasonality": {
         "en": "year-round"
       },
@@ -6389,7 +5680,6 @@
     {
       "taxon_id": 118659,
       "encounter_rarity": "uncommon",
-      "prestige": "standard",
       "seasonality": {
         "en": "year-round"
       },
@@ -6398,7 +5688,6 @@
     {
       "taxon_id": 118641,
       "encounter_rarity": "uncommon",
-      "prestige": "standard",
       "seasonality": {
         "en": "year-round"
       },
@@ -6407,7 +5696,6 @@
     {
       "taxon_id": 118618,
       "encounter_rarity": "uncommon",
-      "prestige": "standard",
       "seasonality": {
         "en": "year-round"
       },
@@ -6416,7 +5704,6 @@
     {
       "taxon_id": 110029,
       "encounter_rarity": "uncommon",
-      "prestige": "standard",
       "seasonality": {
         "en": "year-round"
       },
@@ -6425,7 +5712,6 @@
     {
       "taxon_id": 118595,
       "encounter_rarity": "uncommon",
-      "prestige": "standard",
       "seasonality": {
         "en": "year-round"
       },
@@ -6434,7 +5720,6 @@
     {
       "taxon_id": 93611,
       "encounter_rarity": "uncommon",
-      "prestige": "standard",
       "seasonality": {
         "en": "year-round"
       },
@@ -6443,7 +5728,6 @@
     {
       "taxon_id": 120641,
       "encounter_rarity": "uncommon",
-      "prestige": "standard",
       "seasonality": {
         "en": "year-round"
       },
@@ -6452,7 +5736,6 @@
     {
       "taxon_id": 118614,
       "encounter_rarity": "uncommon",
-      "prestige": "standard",
       "seasonality": {
         "en": "year-round"
       },
@@ -6461,7 +5744,6 @@
     {
       "taxon_id": 96740,
       "encounter_rarity": "uncommon",
-      "prestige": "standard",
       "seasonality": {
         "en": "year-round"
       },
@@ -6470,7 +5752,6 @@
     {
       "taxon_id": 1649739,
       "encounter_rarity": "rare",
-      "prestige": "standard",
       "seasonality": {
         "en": "year-round"
       },
@@ -6479,7 +5760,6 @@
     {
       "taxon_id": 101620,
       "encounter_rarity": "rare",
-      "prestige": "standard",
       "seasonality": {
         "en": "year-round"
       },
@@ -6488,7 +5768,6 @@
     {
       "taxon_id": 109062,
       "encounter_rarity": "rare",
-      "prestige": "standard",
       "seasonality": {
         "en": "year-round"
       },
@@ -6497,7 +5776,6 @@
     {
       "taxon_id": 338050,
       "encounter_rarity": "rare",
-      "prestige": "standard",
       "seasonality": {
         "en": "year-round"
       },
@@ -6506,7 +5784,6 @@
     {
       "taxon_id": 424997,
       "encounter_rarity": "rare",
-      "prestige": "standard",
       "seasonality": {
         "en": "year-round"
       },
@@ -6515,7 +5792,6 @@
     {
       "taxon_id": 446242,
       "encounter_rarity": "rare",
-      "prestige": "standard",
       "seasonality": {
         "en": "year-round"
       },
@@ -6524,7 +5800,6 @@
     {
       "taxon_id": 112581,
       "encounter_rarity": "rare",
-      "prestige": "standard",
       "seasonality": {
         "en": "year-round"
       },
@@ -6533,7 +5808,6 @@
     {
       "taxon_id": 118597,
       "encounter_rarity": "rare",
-      "prestige": "standard",
       "seasonality": {
         "en": "year-round"
       },
@@ -6542,7 +5816,6 @@
     {
       "taxon_id": 118606,
       "encounter_rarity": "rare",
-      "prestige": "standard",
       "seasonality": {
         "en": "year-round"
       },
@@ -6551,7 +5824,6 @@
     {
       "taxon_id": 131500,
       "encounter_rarity": "rare",
-      "prestige": "standard",
       "seasonality": {
         "en": "year-round"
       },
@@ -6560,7 +5832,6 @@
     {
       "taxon_id": 102809,
       "encounter_rarity": "rare",
-      "prestige": "standard",
       "seasonality": {
         "en": "year-round"
       },
@@ -6569,7 +5840,6 @@
     {
       "taxon_id": 118591,
       "encounter_rarity": "rare",
-      "prestige": "standard",
       "seasonality": {
         "en": "year-round"
       },
@@ -6578,7 +5848,6 @@
     {
       "taxon_id": 101591,
       "encounter_rarity": "rare",
-      "prestige": "standard",
       "seasonality": {
         "en": "year-round"
       },
@@ -6587,7 +5856,6 @@
     {
       "taxon_id": 93140,
       "encounter_rarity": "rare",
-      "prestige": "standard",
       "seasonality": {
         "en": "year-round"
       },
@@ -6596,7 +5864,6 @@
     {
       "taxon_id": 446588,
       "encounter_rarity": "rare",
-      "prestige": "standard",
       "seasonality": {
         "en": "year-round"
       },
@@ -6605,7 +5872,6 @@
     {
       "taxon_id": 118711,
       "encounter_rarity": "rare",
-      "prestige": "standard",
       "seasonality": {
         "en": "year-round"
       },
@@ -6614,7 +5880,6 @@
     {
       "taxon_id": 118625,
       "encounter_rarity": "rare",
-      "prestige": "standard",
       "seasonality": {
         "en": "year-round"
       },
@@ -6623,7 +5888,6 @@
     {
       "taxon_id": 359902,
       "encounter_rarity": "rare",
-      "prestige": "standard",
       "seasonality": {
         "en": "year-round"
       },
@@ -6632,7 +5896,6 @@
     {
       "taxon_id": 187316,
       "encounter_rarity": "very_rare",
-      "prestige": "standard",
       "seasonality": {
         "en": "year-round"
       },
@@ -6641,7 +5904,6 @@
     {
       "taxon_id": 118880,
       "encounter_rarity": "very_rare",
-      "prestige": "standard",
       "seasonality": {
         "en": "year-round"
       },
@@ -6650,7 +5912,6 @@
     {
       "taxon_id": 472138,
       "encounter_rarity": "very_rare",
-      "prestige": "standard",
       "seasonality": {
         "en": "year-round"
       },
@@ -6659,7 +5920,6 @@
     {
       "taxon_id": 187675,
       "encounter_rarity": "very_rare",
-      "prestige": "standard",
       "seasonality": {
         "en": "year-round"
       },
@@ -6668,7 +5928,6 @@
     {
       "taxon_id": 66331,
       "encounter_rarity": "common",
-      "prestige": "standard",
       "seasonality": {
         "en": "year-round"
       },
@@ -6677,7 +5936,6 @@
     {
       "taxon_id": 27726,
       "encounter_rarity": "common",
-      "prestige": "standard",
       "seasonality": {
         "en": "year-round"
       },
@@ -6686,7 +5944,6 @@
     {
       "taxon_id": 326296,
       "encounter_rarity": "common",
-      "prestige": "standard",
       "seasonality": {
         "en": "year-round"
       },
@@ -6695,7 +5952,6 @@
     {
       "taxon_id": 134693,
       "encounter_rarity": "common",
-      "prestige": "standard",
       "seasonality": {
         "en": "year-round"
       },
@@ -6704,7 +5960,6 @@
     {
       "taxon_id": 25591,
       "encounter_rarity": "common",
-      "prestige": "standard",
       "seasonality": {
         "en": "year-round"
       },
@@ -6713,7 +5968,6 @@
     {
       "taxon_id": 65450,
       "encounter_rarity": "common",
-      "prestige": "standard",
       "seasonality": {
         "en": "year-round"
       },
@@ -6722,7 +5976,6 @@
     {
       "taxon_id": 25669,
       "encounter_rarity": "common",
-      "prestige": "standard",
       "seasonality": {
         "en": "year-round"
       },
@@ -6731,7 +5984,6 @@
     {
       "taxon_id": 25665,
       "encounter_rarity": "common",
-      "prestige": "standard",
       "seasonality": {
         "en": "year-round"
       },
@@ -6740,7 +5992,6 @@
     {
       "taxon_id": 27712,
       "encounter_rarity": "common",
-      "prestige": "standard",
       "seasonality": {
         "en": "year-round"
       },
@@ -6749,7 +6000,6 @@
     {
       "taxon_id": 64378,
       "encounter_rarity": "common",
-      "prestige": "standard",
       "seasonality": {
         "en": "year-round"
       },
@@ -6758,7 +6008,6 @@
     {
       "taxon_id": 27732,
       "encounter_rarity": "common",
-      "prestige": "standard",
       "seasonality": {
         "en": "year-round"
       },
@@ -6767,7 +6016,6 @@
     {
       "taxon_id": 25616,
       "encounter_rarity": "common",
-      "prestige": "standard",
       "seasonality": {
         "en": "year-round"
       },
@@ -6776,7 +6024,6 @@
     {
       "taxon_id": 1453013,
       "encounter_rarity": "common",
-      "prestige": "standard",
       "seasonality": {
         "en": "year-round"
       },
@@ -6785,7 +6032,6 @@
     {
       "taxon_id": 1319807,
       "encounter_rarity": "common",
-      "prestige": "standard",
       "seasonality": {
         "en": "year-round"
       },
@@ -6794,7 +6040,6 @@
     {
       "taxon_id": 27717,
       "encounter_rarity": "common",
-      "prestige": "standard",
       "seasonality": {
         "en": "year-round"
       },
@@ -6803,7 +6048,6 @@
     {
       "taxon_id": 24480,
       "encounter_rarity": "common",
-      "prestige": "standard",
       "seasonality": {
         "en": "year-round"
       },
@@ -6812,7 +6056,6 @@
     {
       "taxon_id": 24473,
       "encounter_rarity": "common",
-      "prestige": "standard",
       "seasonality": {
         "en": "year-round"
       },
@@ -6821,7 +6064,6 @@
     {
       "taxon_id": 25311,
       "encounter_rarity": "common",
-      "prestige": "standard",
       "seasonality": {
         "en": "year-round"
       },
@@ -6830,7 +6072,6 @@
     {
       "taxon_id": 24045,
       "encounter_rarity": "common",
-      "prestige": "standard",
       "seasonality": {
         "en": "year-round"
       },
@@ -6839,7 +6080,6 @@
     {
       "taxon_id": 64377,
       "encounter_rarity": "common",
-      "prestige": "standard",
       "seasonality": {
         "en": "year-round"
       },
@@ -6848,7 +6088,6 @@
     {
       "taxon_id": 27832,
       "encounter_rarity": "common",
-      "prestige": "standard",
       "seasonality": {
         "en": "year-round"
       },
@@ -6857,7 +6096,6 @@
     {
       "taxon_id": 556621,
       "encounter_rarity": "common",
-      "prestige": "standard",
       "seasonality": {
         "en": "year-round"
       },
@@ -6866,7 +6104,6 @@
     {
       "taxon_id": 23922,
       "encounter_rarity": "common",
-      "prestige": "standard",
       "seasonality": {
         "en": "year-round"
       },
@@ -6875,7 +6112,6 @@
     {
       "taxon_id": 27519,
       "encounter_rarity": "common",
-      "prestige": "standard",
       "seasonality": {
         "en": "year-round"
       },
@@ -6884,7 +6120,6 @@
     {
       "taxon_id": 64384,
       "encounter_rarity": "common",
-      "prestige": "standard",
       "seasonality": {
         "en": "year-round"
       },
@@ -6893,7 +6128,6 @@
     {
       "taxon_id": 1633756,
       "encounter_rarity": "common",
-      "prestige": "standard",
       "seasonality": {
         "en": "year-round"
       },
@@ -6902,7 +6136,6 @@
     {
       "taxon_id": 25664,
       "encounter_rarity": "common",
-      "prestige": "standard",
       "seasonality": {
         "en": "year-round"
       },
@@ -6911,7 +6144,6 @@
     {
       "taxon_id": 70646,
       "encounter_rarity": "common",
-      "prestige": "standard",
       "seasonality": {
         "en": "year-round"
       },
@@ -6920,7 +6152,6 @@
     {
       "taxon_id": 27844,
       "encounter_rarity": "common",
-      "prestige": "standard",
       "seasonality": {
         "en": "year-round"
       },
@@ -6929,7 +6160,6 @@
     {
       "taxon_id": 27719,
       "encounter_rarity": "common",
-      "prestige": "standard",
       "seasonality": {
         "en": "year-round"
       },
@@ -6938,7 +6168,6 @@
     {
       "taxon_id": 1688750,
       "encounter_rarity": "common",
-      "prestige": "standard",
       "seasonality": {
         "en": "year-round"
       },
@@ -6947,7 +6176,6 @@
     {
       "taxon_id": 24479,
       "encounter_rarity": "common",
-      "prestige": "standard",
       "seasonality": {
         "en": "year-round"
       },
@@ -6956,7 +6184,6 @@
     {
       "taxon_id": 25697,
       "encounter_rarity": "common",
-      "prestige": "standard",
       "seasonality": {
         "en": "year-round"
       },
@@ -6965,7 +6192,6 @@
     {
       "taxon_id": 424147,
       "encounter_rarity": "common",
-      "prestige": "standard",
       "seasonality": {
         "en": "year-round"
       },
@@ -6974,7 +6200,6 @@
     {
       "taxon_id": 556656,
       "encounter_rarity": "common",
-      "prestige": "standard",
       "seasonality": {
         "en": "year-round"
       },
@@ -6983,7 +6208,6 @@
     {
       "taxon_id": 548416,
       "encounter_rarity": "common",
-      "prestige": "standard",
       "seasonality": {
         "en": "year-round"
       },
@@ -6992,7 +6216,6 @@
     {
       "taxon_id": 1629047,
       "encounter_rarity": "uncommon",
-      "prestige": "standard",
       "seasonality": {
         "en": "year-round"
       },
@@ -7001,7 +6224,6 @@
     {
       "taxon_id": 24475,
       "encounter_rarity": "uncommon",
-      "prestige": "standard",
       "seasonality": {
         "en": "year-round"
       },
@@ -7010,7 +6232,6 @@
     {
       "taxon_id": 64373,
       "encounter_rarity": "uncommon",
-      "prestige": "standard",
       "seasonality": {
         "en": "year-round"
       },
@@ -7019,7 +6240,6 @@
     {
       "taxon_id": 27517,
       "encounter_rarity": "uncommon",
-      "prestige": "standard",
       "seasonality": {
         "en": "year-round"
       },
@@ -7028,7 +6248,6 @@
     {
       "taxon_id": 64380,
       "encounter_rarity": "uncommon",
-      "prestige": "standard",
       "seasonality": {
         "en": "year-round"
       },
@@ -7037,7 +6256,6 @@
     {
       "taxon_id": 23998,
       "encounter_rarity": "uncommon",
-      "prestige": "standard",
       "seasonality": {
         "en": "year-round"
       },
@@ -7046,7 +6264,6 @@
     {
       "taxon_id": 1591819,
       "encounter_rarity": "uncommon",
-      "prestige": "standard",
       "seasonality": {
         "en": "year-round"
       },
@@ -7055,7 +6272,6 @@
     {
       "taxon_id": 548418,
       "encounter_rarity": "uncommon",
-      "prestige": "standard",
       "seasonality": {
         "en": "year-round"
       },
@@ -7064,7 +6280,6 @@
     {
       "taxon_id": 120741,
       "encounter_rarity": "uncommon",
-      "prestige": "standard",
       "seasonality": {
         "en": "year-round"
       },
@@ -7073,7 +6288,6 @@
     {
       "taxon_id": 27735,
       "encounter_rarity": "uncommon",
-      "prestige": "standard",
       "seasonality": {
         "en": "year-round"
       },
@@ -7082,7 +6296,6 @@
     {
       "taxon_id": 120738,
       "encounter_rarity": "uncommon",
-      "prestige": "standard",
       "seasonality": {
         "en": "year-round"
       },
@@ -7091,7 +6304,6 @@
     {
       "taxon_id": 27514,
       "encounter_rarity": "uncommon",
-      "prestige": "standard",
       "seasonality": {
         "en": "year-round"
       },
@@ -7100,7 +6312,6 @@
     {
       "taxon_id": 25316,
       "encounter_rarity": "uncommon",
-      "prestige": "standard",
       "seasonality": {
         "en": "year-round"
       },
@@ -7109,7 +6320,6 @@
     {
       "taxon_id": 24484,
       "encounter_rarity": "uncommon",
-      "prestige": "standard",
       "seasonality": {
         "en": "year-round"
       },
@@ -7118,7 +6328,6 @@
     {
       "taxon_id": 66321,
       "encounter_rarity": "uncommon",
-      "prestige": "standard",
       "seasonality": {
         "en": "year-round"
       },
@@ -7127,7 +6336,6 @@
     {
       "taxon_id": 25312,
       "encounter_rarity": "rare",
-      "prestige": "standard",
       "seasonality": {
         "en": "year-round"
       },
@@ -7136,7 +6344,6 @@
     {
       "taxon_id": 25660,
       "encounter_rarity": "rare",
-      "prestige": "standard",
       "seasonality": {
         "en": "year-round"
       },
@@ -7145,7 +6352,6 @@
     {
       "taxon_id": 991929,
       "encounter_rarity": "rare",
-      "prestige": "standard",
       "seasonality": {
         "en": "year-round"
       },
@@ -7154,7 +6360,6 @@
     {
       "taxon_id": 27840,
       "encounter_rarity": "rare",
-      "prestige": "standard",
       "seasonality": {
         "en": "year-round"
       },
@@ -7163,7 +6368,6 @@
     {
       "taxon_id": 24474,
       "encounter_rarity": "rare",
-      "prestige": "standard",
       "seasonality": {
         "en": "year-round"
       },
@@ -7172,7 +6376,6 @@
     {
       "taxon_id": 66319,
       "encounter_rarity": "rare",
-      "prestige": "standard",
       "seasonality": {
         "en": "year-round"
       },
@@ -7181,7 +6384,6 @@
     {
       "taxon_id": 70647,
       "encounter_rarity": "rare",
-      "prestige": "standard",
       "seasonality": {
         "en": "year-round"
       },
@@ -7190,7 +6392,6 @@
     {
       "taxon_id": 476257,
       "encounter_rarity": "rare",
-      "prestige": "standard",
       "seasonality": {
         "en": "year-round"
       },
@@ -7199,7 +6400,6 @@
     {
       "taxon_id": 23798,
       "encounter_rarity": "very_rare",
-      "prestige": "standard",
       "seasonality": {
         "en": "year-round"
       },

@@ -62,7 +62,7 @@ class OnDeviceWildlifeRepository(context: Context) : Closeable {
                 val regionalTaxon = content.taxa(regionKey).firstOrNull { it.taxonId == taxonId } ?: return@let null
                 val achievements = content.achievements(regionKey)
                 RegionalRewardContext(
-                    regionKey, catalogue.version, taxonId, regionalTaxon.rarity, regionalTaxon.prestige,
+                    regionKey, catalogue.version, taxonId, regionalTaxon.rarity,
                     achievements.firstOrNull { it.label == "essentials" }?.taxonIds.orEmpty(),
                     achievements.firstOrNull { it.label == "icons" }?.taxonIds.orEmpty(),
                 )

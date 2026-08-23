@@ -39,8 +39,7 @@ class FieldMarkTest {
             "rarity_rare" to Color(0xFFA484DC),
             "rarity_very_rare" to Color(0xFFCFA53E),
             "regional_essential" to Color(0xFF8FB059),
-            "regional_icon" to Color(0xFFEFE7D2),
-            "regional_legend" to Color(0xFFCFA53E),
+            "regional_icon" to Color(0xFFCFA53E),
         )
         composeRule.setContent {
             Column(

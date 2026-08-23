@@ -31,7 +31,6 @@ val WildlifeOliveStrong = Color(0xFF8FB059)
 val WildlifeOliveDark = Color(0xFF3E5A2C)
 val WildlifeParchment = Color(0xFFEFE7D2)
 val WildlifeGold = Color(0xFFCFA53E)
-val WildlifeGoldStrong = Color(0xFFE8BC52)
 // Progression level accents, one per level in `GeneratedProgressionConfig.levels`.
 //
 // Read as an ascending ramp — humble stone, through living green and verdigris, into
@@ -98,12 +97,11 @@ val WildlifeAxisGroup = Color(0xFFC0763C)    // copper
 // Regional standing. These carry the *card frame*, deliberately a different axis from
 // rarity so a plate never says the same thing twice.
 val WildlifeEssential = Color(0xFF8FB059)
-// Bone, not parchment. This was originally the same value as body text, which meant an
-// icon frame or a completed icons quest carried no signal at all — a filled bar in it read
-// as blown-out white rather than as a material. Kept warm-neutral so it stays distinct from
-// both the gold of Legend and the cool silver of Master Ranger.
-val WildlifeIcon = Color(0xFFCBC5AC)
-val WildlifeLegend = Color(0xFFCFA53E)
+// Gold, and the only gold on a plate. An Icon is the rarest standing a species can hold,
+// so it takes the strongest material in the palette; Essential keeps the quieter olive.
+// This was once a bone tone, held back because a separate Legend tier owned the gold — the
+// two were always the same five species, so the tier went and the Icon inherited its metal.
+val WildlifeIcon = WildlifeGold
 
 @Immutable
 data class WildlifeColors(
@@ -114,8 +112,6 @@ data class WildlifeColors(
     val oliveStrong: Color,
     val oliveDark: Color,
     val gold: Color,
-    /** Brighter gold reserved for the distinct Regional Legend prestige mark. */
-    val legendary: Color,
     val silhouette: Color,
     val contour: Color,
     val plate: Color,
@@ -129,7 +125,6 @@ data class WildlifeColors(
     val rarityVeryRare: Color,
     val essential: Color,
     val icon: Color,
-    val legend: Color,
     val axisStatus: Color,
     val axisStanding: Color,
     val axisRarity: Color,
@@ -145,7 +140,6 @@ fun wildlifeColors() = WildlifeColors(
     oliveStrong = WildlifeOliveStrong,
     oliveDark = WildlifeOliveDark,
     gold = WildlifeGold,
-    legendary = WildlifeGoldStrong,
     silhouette = WildlifeSilhouette,
     contour = WildlifeContour,
     plate = WildlifePlate,
@@ -159,7 +153,6 @@ fun wildlifeColors() = WildlifeColors(
     rarityVeryRare = WildlifeRarityVeryRare,
     essential = WildlifeEssential,
     icon = WildlifeIcon,
-    legend = WildlifeLegend,
     axisStatus = WildlifeAxisStatus,
     axisStanding = WildlifeAxisStanding,
     axisRarity = WildlifeAxisRarity,

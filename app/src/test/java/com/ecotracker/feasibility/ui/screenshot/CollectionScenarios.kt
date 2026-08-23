@@ -5,7 +5,6 @@ import com.wildlife.feasibility.EncounterRarity
 import com.wildlife.feasibility.InstalledRegionalAchievement
 import com.wildlife.feasibility.InstalledRegionalCatalogue
 import com.wildlife.feasibility.ProgressionProjection
-import com.wildlife.feasibility.RegionalPrestige
 import com.wildlife.feasibility.ui.screens.collection.CollectionUiState
 
 /**
@@ -31,7 +30,6 @@ object CollectionScenarios {
         val group: String,
         val essential: Boolean = false,
         val icon: Boolean = false,
-        val legend: Boolean = false,
     )
 
     private val mediterranean = listOf(
@@ -45,8 +43,8 @@ object CollectionScenarios {
         Seed("Golden eagle", EncounterRarity.RARE, "birds", icon = true),
         Seed("Griffon vulture", EncounterRarity.RARE, "birds", icon = true),
         Seed("Ocellated lizard", EncounterRarity.RARE, "reptiles"),
-        Seed("Iberian lynx", EncounterRarity.VERY_RARE, "mammals", icon = true, legend = true),
-        Seed("Bearded vulture", EncounterRarity.VERY_RARE, "birds", legend = true),
+        Seed("Iberian lynx", EncounterRarity.VERY_RARE, "mammals", icon = true),
+        Seed("Bearded vulture", EncounterRarity.VERY_RARE, "birds"),
     )
 
     private val catalogue =
@@ -81,11 +79,6 @@ object CollectionScenarios {
                 regionalIcon = seed.icon,
                 scientificName = null,
                 encounterRarity = seed.rarity,
-                regionalPrestige = if (seed.legend) {
-                    RegionalPrestige.LEGENDARY
-                } else {
-                    RegionalPrestige.STANDARD
-                },
                 taxonGroup = seed.group,
             )
         }
@@ -138,15 +131,15 @@ object CollectionScenarios {
             state = state(collected = 7, totalXp = 9_400, confirmedOf = 5),
         ),
         Scenario(
-            // The last icon is the Iberian lynx, which is also the first legend, so icons
-            // cannot complete before scenario 06. Named for what this state actually shows.
+            // The last icon is the Iberian lynx, the twelfth seed, so icons cannot
+            // complete before scenario 06. Named for what this state actually shows.
             key = "05-field-ranger-rares",
             title = "Field Ranger · rares recorded, one icon short",
             state = state(collected = 10, totalXp = 24_000, confirmedOf = 8),
         ),
         Scenario(
-            key = "06-master-ranger-first-legend",
-            title = "Master Ranger · first legend recorded, icons complete",
+            key = "06-master-ranger-icons-complete",
+            title = "Master Ranger · last icon recorded, icons complete",
             state = state(collected = 11, totalXp = 62_000, confirmedOf = 10),
         ),
         Scenario(

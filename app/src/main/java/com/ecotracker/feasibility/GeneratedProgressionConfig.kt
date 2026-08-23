@@ -8,7 +8,7 @@ internal object GeneratedProgressionConfig {
     val researchGradeXp = 50
     val researchGradeEnabled = true
     val regionalDiscoveryXp = 100
-    val regionalLegendXp = 1000
+    val regionalIconDiscoveryXp = 1000
     val regionalEssentialsXp = 1500
     val regionalIconsXp = 3000
     val identificationGivenXp = 25

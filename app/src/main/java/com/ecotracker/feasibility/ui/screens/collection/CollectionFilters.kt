@@ -2,13 +2,12 @@ package com.wildlife.feasibility.ui.screens.collection
 
 import com.wildlife.feasibility.CollectionSpecies
 import com.wildlife.feasibility.EncounterRarity
-import com.wildlife.feasibility.RegionalPrestige
 
 /**
  * The collection's filters, as independent axes.
  *
  * These were once a single nine-option enum, which made the most useful questions on the
- * screen unaskable: "which Essentials am I still missing?" and "which Legends do I not
+ * screen unaskable: "which Essentials am I still missing?" and "which Icons do I not
  * have yet?" both need two axes at once. Each axis now defaults to `ANY` and they combine
  * with AND.
  *
@@ -80,14 +79,12 @@ enum class StandingFilter(val label: String) {
     ANY("Any standing"),
     ESSENTIALS("Essentials"),
     ICONS("Icons"),
-    LEGENDS("Legends"),
     ;
 
     fun matches(entry: CollectionSpecies): Boolean = when (this) {
         ANY -> true
         ESSENTIALS -> entry.regionalEssential
         ICONS -> entry.regionalIcon
-        LEGENDS -> entry.regionalPrestige == RegionalPrestige.LEGENDARY
     }
 }
 

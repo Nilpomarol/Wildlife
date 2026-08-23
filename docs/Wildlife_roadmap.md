@@ -13,7 +13,7 @@ This is a go decision, not a statistical reliability claim. Closed beta still me
 The project has also changed scope:
 
 - from a Catalonia-only MVP to an engine for 24 owner-defined world regions;
-- from rarity-only value to separate encounter rarity and regional Legendary prestige;
+- from rarity-only value to separate encounter rarity and regional standing;
 - from a global species unlock projection to region-bound catalogue completion;
 - from generic later badges to two core curated achievements per region: 10 Regional Essentials and 5 Regional Icons;
 - from live catalogue construction toward deterministic, precomputed local content.
@@ -57,7 +57,7 @@ The adopted region definitions and content/data contract are in [`regional_catal
 
 - The remaining 21 regional catalogues, their reviewed evidence snapshots and final media curation are not yet available.
 - The supplied region groupings do not yet assign every country/territory or marine area unambiguously.
-- Rarity/prestige and Essentials/Icons are draft pilot curation; their values need continuing editorial review before release.
+- Rarity and Essentials/Icons are draft pilot curation; their values need continuing editorial review before release.
 - Structured export, localisation and broad accessibility/device validation remain before beta.
 
 ## 3. Critical path
@@ -91,7 +91,7 @@ The work below is ordered by dependency, not calendar dates. At the current part
 | 1. Finish map logic | Complete the local Field Atlas integration: regional completion projection, independent privacy-safe personal layer, local assets, state handling and focused automated/device checks. | The map projects real regional state correctly, does not depend on personal coordinates, and remains useful offline. | Remaining 2–5 focused days |
 | 2. Core beta integrity | Implement conservative due-observation background batching, retry/backoff and idempotency; add structured local-data export; simulate and freeze beta progression thresholds. | Sync never creates duplicate rewards or unsafe request bursts; exported data is complete for Wildlife-owned data; progression rules are frozen for beta. | 8–15 focused days |
 | 3. Content-pack resilience | Build pack version/install/remove/storage/migration behavior; test catalogue, taxonomy and boundary-version migrations plus offline recovery. | A content update or pack removal never loses observation history or earned progression. | 8–15 focused days |
-| 4. Pilot release logic and editorial freeze | Finish pilot catalogue, rarity/prestige, achievement and media-provenance reviews; add beta instrumentation and exercise operational failure paths. | All three pilot packs are reproducible, attributable and measurable against Gate 2 metrics. | 8–12 engineering days + curation |
+| 4. Pilot release logic and editorial freeze | Finish pilot catalogue, rarity, achievement and media-provenance reviews; add beta instrumentation and exercise operational failure paths. | All three pilot packs are reproducible, attributable and measurable against Gate 2 metrics. | 8–12 engineering days + curation |
 | 5. Shared UI consolidation | Apply the final reusable Field Guide components and perform localisation, accessibility and representative-device validation. | The tested beta logic is exposed consistently, accessibly and without duplicate screen implementations. | 10–18 focused days |
 | 6. Closed beta, then scale | Run Gate 2, correct evidence-backed issues, then curate and release the remaining 21 regions through the same pipeline. | Beta gates are met before each additional region is published. | Ongoing; scale-up is 5–10 engineering days + curation |
 
@@ -121,7 +121,7 @@ Pilot editorial review can proceed alongside Slices 2 and 3, but it must not byp
 5. Freeze the catalogue inclusion rules: photographable vertebrates plus restrained conspicuous fish/invertebrates.
 6. Freeze the semantic separation:
    - encounter rarity: Common / Uncommon / Rare / Very Rare;
-   - prestige: Standard / Legendary;
+   - standing: none / Regional Essential / Regional Icon;
    - verification: observed / Research Grade;
    - conservation: sourced status only.
 
@@ -154,7 +154,6 @@ The toolchain must:
 
 - add/remove a regional species without an app-code edit;
 - set encounter rarity and a documented manual override;
-- mark Regional Legends;
 - curate exactly 10 Essentials and 5 Icons;
 - validate that achievement taxa belong to the catalogue;
 - deduplicate global taxon identity and reusable media;
@@ -190,13 +189,13 @@ Implement [`progression_rules.md`](progression_rules.md) v0.2:
 - keep global first-species reward at +500;
 - add first regional discovery (+100);
 - add additive rarity bonuses: +0 / +50 / +150 / +300;
-- add Regional Legend (+1,000) independently from rarity;
+- add Regional Icon discovery (+1,000) independently from rarity;
 - add Essentials completion (+1,500) and Icons completion (+3,000);
 - key every regional event by region, frozen catalogue version and taxon/checklist;
 - never revoke earned XP/achievements after catalogue or taxonomy changes;
 - resimulate levels against small, medium and highly active collections before freezing beta thresholds.
 
-**Exit criteria:** a Common Legendary elephant is worth more than a Common Standard warthog without being labelled rare; retries never duplicate awards; an observation made in another region earns no progress here.
+**Exit criteria:** a Common Regional Icon elephant is worth more than a common warthog without being labelled rare; retries never duplicate awards; an observation made in another region earns no progress here.
 
 ## 9. Phase F — Regional map and personal observations — In progress
 
@@ -221,7 +220,7 @@ Build shared foundations first:
 - one reusable responsive `SpeciesGrid` for Collection, Explore and achievement lists;
 - `RegionSelector`;
 - `RegionalProgress` and map legend;
-- independent encounter-rarity and Legendary indicators;
+- independent encounter-rarity and standing indicators;
 - observation row/tile and achievement card;
 - shared section headers, loading/empty/offline/error treatments.
 
@@ -230,7 +229,7 @@ Then improve vertical slices in this order:
 1. Collection — real selected region, completion and achievements.
 2. Home — current-region progress, Near Me, recent/pending observations, achievement progress and map summary.
 3. Observations — focused management experience.
-4. Species Detail — family/current facts, regional rarity/prestige, achievement membership, personal history and optional cached public distribution panel.
+4. Species Detail — family/current facts, regional rarity, achievement membership, personal history and optional cached public distribution panel.
 5. Explore/Near Me — selected-region catalogue and missing-nearby filter.
 6. Map — region and observation layers.
 7. Profile/settings — progression, installed content, privacy/export and diagnostics.
@@ -241,7 +240,7 @@ The bottom destinations remain Home, Collection, Capture, Explore and Profile. O
 
 **Effort: 5–10 focused days**
 
-- Bundle the global taxon core, all region definitions, boundaries, membership, rarity, prestige, achievements, localisation and compact thumbnails locally where size permits.
+- Bundle the global taxon core, all region definitions, boundaries, membership, rarity, achievements, localisation and compact thumbnails locally where size permits.
 - Deduplicate species/media shared by regions.
 - Keep user observation/cache/progression data local.
 - Package larger regional image sets as install-time, fast-follow or user-selected local packs rather than rebuilding catalogues from live APIs.
@@ -255,7 +254,7 @@ The bottom destinations remain Home, Collection, Capture, Explore and Profile. O
 Recommended pilots:
 
 1. Mediterranean Europe — migration/current-user path.
-2. East Africa — validates easy-to-see Legendary fauna.
+2. East Africa — validates easy-to-see iconic fauna.
 3. Insular Southeast Asia or Caribbean — validates island/territory boundaries and endemism.
 
 Before beta:
@@ -288,7 +287,7 @@ Before beta:
 
 - Complete the remaining country/territory/marine assignments.
 - Curate the remaining 21 regional catalogues and checklists.
-- Validate rarity/prestige and licence manifests.
+- Validate rarity and licence manifests.
 - Generate/install/update packs through the same deterministic pipeline.
 - Run catalogue diffs and regression checks before every release.
 - Publish only regions that meet the same content/attribution quality floor as the pilots.
@@ -329,7 +328,7 @@ Catalogue, achievement, localisation and media curation add approximately **15�
 2. Implement and test conservative batched background sync, retry/backoff and idempotent reward handling.
 3. Deliver structured export of Wildlife-owned local data and freeze beta progression thresholds through collection simulations.
 4. Build and test the regional content-pack lifecycle: versioning, storage accounting, install/remove and safe catalogue/taxonomy/boundary migrations.
-5. Continue pilot catalogue, rarity/prestige, achievement and media-provenance review in parallel with the logic slices.
+5. Continue pilot catalogue, rarity, achievement and media-provenance review in parallel with the logic slices.
 6. Add beta instrumentation and operational checks, then begin the shared-component UI, localisation and broad accessibility/device pass.
 
 Do not begin broad UI polish or manual curation of all 24 catalogues until the pilot pipeline, sync, pack migrations, assignment and map projections remain reviewable, reproducible and testable.

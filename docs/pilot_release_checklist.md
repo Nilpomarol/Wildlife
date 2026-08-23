@@ -6,7 +6,7 @@ approve biological or balance decisions automatically; it makes their outstandin
 ## Before a pilot pack is frozen
 
 1. Refresh iNaturalist evidence and review its proposals in the content workbook.
-2. Confirm the catalogue, encounter rarity, Legendary prestige, 10 Essentials and 5 Icons for the
+2. Confirm the catalogue, encounter rarity, 10 Essentials and 5 Icons for the
    target regional version.
 3. Confirm each Essential/Icon has licence-compatible media provenance.
 4. Change the approved catalogue status to `frozen` and preserve its versioned review evidence.

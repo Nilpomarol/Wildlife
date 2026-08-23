@@ -1,6 +1,6 @@
 # Catalogue source report
 
-Source digest: `76466663789d7e0d50909d7e72b915ff6c9c5fba6bc473ddf78fafeec8d21c6f`
+Source digest: `68d0518c0f9fbe5ab7829573c6eac0e44be68576abffd58ca67f2e87b4403d27`
 
 | Region | Version | Taxa | Essentials | Icons |
 |---|---|---:|---:|---:|

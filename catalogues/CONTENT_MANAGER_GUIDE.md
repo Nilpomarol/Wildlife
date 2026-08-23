@@ -8,10 +8,11 @@ Essentials, 5 Icons, XP values and level thresholds.
 
 1. Open the workbook and read **Start here**.
 2. Edit the green-input sheets:
-   - **Catalogue** — add, remove or reorder a regional species; edit encounter rarity, prestige,
+   - **Catalogue** — add, remove or reorder a regional species; edit encounter rarity,
      seasonality and inclusion provenance. A taxon ID must already exist in `taxa.yaml`.
-   - **Checklists** — set exactly 10 `essential` and 5 `icon` rows per region. Icons are imported
-     as Legendary; Essentials as Standard.
+     The sheet's **Prestige** column is no longer read: the Legendary tier it fed always
+     named exactly the region's Icons, so Icon membership now carries that meaning alone.
+   - **Checklists** — set exactly 10 `essential` and 5 `icon` rows per region.
    - **XP and levels** — change rewards, enabled events, repeat-observation rewards or level
      thresholds. The pacing rows update as you change values.
 3. Save the workbook.
@@ -57,7 +58,7 @@ those regions):
 
 This keeps the raw candidate list and writes `review/<region>_inaturalist_evidence.csv`. The
 evidence file puts candidate identity, observation count and its frequency-relative rarity
-proposal beside the current editorial catalogue rarity and prestige. Increase `--pages` to sample
+proposal beside the current editorial catalogue rarity. Increase `--pages` to sample
 more than the top 200 species per animal group. To regenerate those comparison files from already
 stored candidate data without network access, add `--offline`.
 
@@ -82,7 +83,7 @@ reviewed version bump.
 
 - iNaturalist is the biological source of truth; the workbook controls Wildlife’s collection and
   game projection only.
-- The importer refuses unknown taxon IDs, duplicate entries, invalid rarity/prestige, incomplete
+- The importer refuses unknown taxon IDs, duplicate entries, invalid rarity, incomplete
   checklists and non-increasing level thresholds.
 - Add media provenance separately. A strict release needs licence-verified media for all
   achievement taxa.

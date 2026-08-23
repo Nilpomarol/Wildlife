@@ -24,7 +24,7 @@ Les regles utilitzen claus estables com ara `confirmed_observation` i `field_ran
 - Les projeccions de la col·lecció poden canviar, però l’XP registrada continua sent un fet històric.
 - Els nivells i les recompenses són cosmètics. No poden modificar la visibilitat d’una observació, l’estat científic, la confiança d’una coincidència ni l’accés a informació biològica.
 - La raresa, la verificació i l’estat d’observació continuen sent conceptes separats.
-- La raresa d’encontre, el prestigi regional Llegendari, l’estat de conservació i la verificació són quatre conceptes separats.
+- La raresa d’encontre, la distinció regional, l’estat de conservació i la verificació són quatre conceptes separats.
 - Una espècie només pot desbloquejar el catàleg de la regió on s’ha fet l’observació.
 - Una assignació regional incerta no concedeix XP regional.
 - Les observacions històriques importades durant la sincronització inicial desbloquegen la col·lecció, però en aquesta versió provisional no concedeixen XP retroactiva.
@@ -41,7 +41,7 @@ Aquestes claus i aquests valors són la font editable de la implementació inter
 | `research_grade` | Una observació pública ja coneguda arriba per primera vegada a Grau de recerca | 50 | Sí | Activat després d’implementar la detecció duradora i idempotent de transicions de qualitat a l’esquema de cicle de vida v5 |
 | `regional_discovery` | Primer desbloqueig confirmat d’un tàxon a la regió de l’observació | 100 | Sí | Clau per regió, versió congelada i tàxon |
 | `regional_rarity_bonus` | Bonificació additiva de raresa d’encontre en el primer desbloqueig regional | 0–300 | Sí | Mai és un multiplicador |
-| `regional_legend` | Primer desbloqueig regional d’una espècie Llegendària curada manualment | 1.000 | Sí | Prestigi independent de la raresa d’encontre |
+| `regional_icon_discovery` | Primer desbloqueig regional d’una de les cinc Icons de la regió | 1.000 | Sí | Distinció independent de la raresa d’encontre |
 | `regional_essentials_complete` | Completar les 10 espècies Essentials de la regió | 1.500 | Sí | Una recompensa per versió congelada |
 | `regional_icons_complete` | Completar les 5 espècies Icons de la regió | 3.000 | Sí | Una recompensa per versió congelada |
 | `identification_given` | Una identificació vàlida aportada a un altre usuari d’iNaturalist | 25 | No | v1.2; requereix camps d’origen validats, excloure les autoidentificacions i un límit diari |
@@ -73,18 +73,18 @@ Les bonificacions de raresa estan activades per als catàlegs pilot inclosos. S�
 
 La freqüència bruta d’observacions no es pot presentar com a raresa biològica. El generador ha de prioritzar dies d’observació diferents i cobertura espacial, excloure registres accidentals del catàleg normal i permetre excepcions revisades amb una justificació.
 
-### 3.3 Prestigi regional Llegendari
+### 3.3 Descoberta d’una Icon regional
 
-`legendary` és un indicador de prestigi regional curat manualment, no una cinquena categoria de raresa d’encontre. Permet que una espècie sigui fàcil de veure i alhora tingui un gran valor dins del joc. Per exemple, un elefant africà es pot mostrar com **Comú · Llegenda regional**, mentre que un facoquer comú continua sent **Comú · Estàndard**.
+Registrar una de les cinc Icons d’una regió té una bonificació pròpia, independent de la raresa d’encontre. Permet que una espècie sigui fàcil de veure i alhora tingui un gran valor dins del joc. Per exemple, un elefant africà es pot mostrar com **Comú · Icon regional**, mentre que un facoquer comú continua sent només **Comú**.
 
-Les Regional Icons i el prestigi Llegendari són independents: una Icon pot ser Estàndard, i qualsevol espècie del catàleg pot ser Llegendària. La recompensa es concedeix una vegada per regió, versió de catàleg i tàxon. Una espècie pot ser Llegendària en més d’una regió, però una observació només compta a la regió on s’ha fet.
+Abans aquesta recompensa era una categoria de prestigi `legendary` separada. Aquella categoria designava exactament les cinc Icons de cada regió pilot — l’importador de llistes ho exigia —, així que s’ha eliminat i la bonificació s’ha lligat directament a la pertinença a les Icons. La recompensa es concedeix una vegada per regió, versió de catàleg i tàxon. Una espècie pot ser Icon en més d’una regió, però una observació només compta a la regió on s’ha fet.
 
-| Exemple | Observació | Primera espècie global | Descoberta regional | Raresa | Llegendària | Total |
+| Exemple | Observació | Primera espècie global | Descoberta regional | Raresa | Icon | Total |
 |---|---:|---:|---:|---:|---:|---:|
-| Espècie comuna estàndard, primera observació | 10 | 500 | 100 | 0 | 0 | 610 |
-| Llegenda regional comuna, primera observació | 10 | 500 | 100 | 0 | 1.000 | 1.610 |
-| Llegenda regional comuna ja vista en una altra regió | 10 | 0 | 100 | 0 | 1.000 | 1.110 |
-| Espècie molt rara estàndard, primera observació | 10 | 500 | 100 | 300 | 0 | 910 |
+| Espècie comuna ordinària, primera observació | 10 | 500 | 100 | 0 | 0 | 610 |
+| Icon regional comuna, primera observació | 10 | 500 | 100 | 0 | 1.000 | 1.610 |
+| Icon regional comuna ja vista en una altra regió | 10 | 0 | 100 | 0 | 1.000 | 1.110 |
+| Espècie molt rara ordinària, primera observació | 10 | 500 | 100 | 300 | 0 | 910 |
 
 ## 4. Configuració dels nivells
 
@@ -120,11 +120,11 @@ Exemples d’esdeveniments de l’execució actual, abans d’una possible recom
 |---|---:|---|
 | Primera espècie regional comuna | 610 | Explorador/a |
 | Primera espècie regional molt rara | 910 | Explorador/a |
-| Primera Llegenda regional comuna | 1.610 | Explorador/a |
+| Primera Icon regional comuna | 1.610 | Explorador/a |
 | Completar Essentials després de l’últim primer desbloqueig regional | +1.500 | Depèn de les descobertes anteriors |
 | Completar Icons després de l’últim primer desbloqueig regional | +3.000 | Depèn de les descobertes anteriors |
 
-Aquests exemples no prediuen el ritme real perquè les descobertes regionals, la raresa, el prestigi Llegendari i els assoliments versionats estan actius. Abans del llançament cal simular històries de camp regionals realistes i revisar els llindars si el progrés és massa lent o massa ràpid. Els esdeveniments ja registrats no canvien quan es revisen valors o llindars.
+Aquests exemples no prediuen el ritme real perquè les descobertes regionals, la raresa, la descoberta d’Icons i els assoliments versionats estan actius. Abans del llançament cal simular històries de camp regionals realistes i revisar els llindars si el progrés és massa lent o massa ràpid. Els esdeveniments ja registrats no canvien quan es revisen valors o llindars.
 
 ## 5. Recompenses i desbloquejos
 
@@ -166,7 +166,7 @@ first_species:<ID del tàxon de col·lecció>
 research_grade:<UUID de l’observació>
 regional_discovery:<clau de regió>:<versió de catàleg>:<ID del tàxon>
 regional_rarity:<clau de regió>:<versió de catàleg>:<ID del tàxon>
-regional_legend:<clau de regió>:<versió de catàleg>:<ID del tàxon>
+regional_icon_discovery:<clau de regió>:<versió de catàleg>:<ID del tàxon>
 regional_essentials:<clau de regió>:<versió de catàleg>
 regional_icons:<clau de regió>:<versió de catàleg>
 identification_given:<ID de la identificació>
@@ -216,3 +216,4 @@ La implementació ha de centralitzar els esdeveniments actius, els valors d’XP
 | 13 d’agost de 2026 | `progression-0.1-placeholder` | Proposta de Codex | Proposta provisional editable inicial; pendent de revisió de producte |
 | 21 d’agost de 2026 | `progression-0.2-regional` | Direcció de la persona responsable del producte | Mantenir Llegendari com a prestigi regional separat de la raresa d’encontre i afegir descobertes i assoliments regionals sense reescriure XP existent |
 | 21 d’agost de 2026 | `progression-0.2-regional-experimental` | Implementació interna | Activades les recompenses de descoberta regional, raresa, Llegendari i llistes amb valors elevats per a proves internes; es poden ajustar abans del llançament |
+| 23 d’agost de 2026 | `progression-0.2-regional-experimental` | Direcció de la persona responsable del producte | Eliminada la categoria de prestigi Llegendari: designava exactament les cinc Icons de cada regió, així que els seus 1.000 punts d’XP passen a la descoberta d’Icons com a `regional_icon_discovery`. Les claus `regional_legend:` ja registrades es reescriuen a l’esquema v8 del cicle de vida, de manera que l’XP guanyada i el seu historial es conserven i cap espècie es recompensa dues vegades |

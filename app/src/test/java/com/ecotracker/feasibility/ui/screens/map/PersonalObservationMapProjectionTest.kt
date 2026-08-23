@@ -146,7 +146,6 @@ class PersonalObservationMapProjectionTest {
         commonName = "Test species $id",
         scientificName = "Testus species$id",
         rarity = com.wildlife.feasibility.EncounterRarity.COMMON,
-        prestige = com.wildlife.feasibility.RegionalPrestige.STANDARD,
         taxonClass = "Aves",
     )
 

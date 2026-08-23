@@ -154,7 +154,7 @@ Do not make gold the default interactive color. It should retain meaning.
 
 ---
 
-## 4. Encounter rarity and Legendary prestige
+## 4. Encounter rarity and regional standing
 
 Encounter rarity should be communicated through a **small icon, border, or label**, never by recoloring an entire screen.
 
@@ -167,9 +167,17 @@ Very Rare    #C57B3A
 
 Always pair color with text or an icon.
 
-**Regional Legend / Legendary** is a separate curated prestige tier, normally reserved for a region's five Icons. Use warm gold (`#F0AA2A`) and the owner-supplied **Legendary glyph**. A species can be both `Common` encounter rarity and `Legendary` regional prestige. Accessibility text and Species Detail must expose both values rather than replacing one with the other.
+**Regional standing** is separate from encounter rarity and has two levels: the region's
+10 **Essentials** and its 5 **Icons**. Icon is the higher of the two: use gold (`#CFA53E`)
+and the owner-supplied **Icon glyph**. A species can be both `Common` encounter rarity and
+a `Regional Icon`. Accessibility text and Species Detail must expose both values rather
+than replacing one with the other.
 
-Legendary never implies threat, scarcity, Research Grade or biological rarity.
+Standing never implies threat, scarcity, Research Grade or biological rarity.
+
+There was formerly a third designation, a `Legendary` prestige tier drawn in the same gold.
+It named exactly the region's five Icons and nothing else, so it was removed rather than
+kept as a second name for one thing; the Icon standing inherited its glyph and its gold.
 
 ---
 
@@ -356,7 +364,7 @@ Each card contains:
 ```text
 Image or silhouette
 State / encounter-rarity marker
-Optional Legendary prestige glyph
+Optional regional standing glyph
 Common name
 Scientific name
 ```
@@ -405,7 +413,7 @@ If clarification is needed, surface the verification label on the detail page ra
 - silhouette centered in upper area
 - low-contrast species text
 - no fake image
-- encounter-rarity marker and Legendary prestige may remain visible if known
+- encounter-rarity marker and regional standing may remain visible if known
 
 The missing state should feel mysterious, not disabled.
 
@@ -636,7 +644,7 @@ Examples:
 
 Use olive for normal progression.
 
-Gold is reserved for exceptional progression and Legendary regional prestige.
+Gold is reserved for exceptional progression and the Regional Icon standing.
 
 Avoid large circular progress widgets unless the percentage itself is the focus of the screen.
 
@@ -747,7 +755,7 @@ ObservationTile
 SpeciesFactsGrid
 CollectionProgress
 EncounterRarityIndicator
-LegendaryPrestigeIndicator
+RegionalStandingIndicator
 ObservationStateBadge
 CaptureButton
 WildlifeBottomBar
@@ -905,9 +913,9 @@ adjusts, but does not discard, §2.5 and §25.
 - **Eczar display type** for titles, species identity and collection/level headers.
 - **Encounter-rarity markers** on species cards, tier-coloured per §4, paired with an
   accessible label. Rare and Very Rare may also tint the card border.
-- **Legendary prestige glyphs** on regional Icons. The visible label may use “Legendary”
-  as the collectible tier, while screen-reader/detail copy also states the independent
-  encounter rarity (for example “Common encounter rarity; Regional Legend”).
+- **Standing glyphs** on Regional Essentials and Icons. The visible label names the
+  standing, while screen-reader/detail copy also states the independent encounter rarity
+  (for example “Common encounter rarity; Regional Icon”).
 - **A collector header** on Collection: region selector, a completion meter, a collector
   rank and an XP figure — the "HUD" the baseline avoided is now welcome, kept compact.
 - **Stronger image scrims and taller cards** (width ≈ 1, height ≈ 1.35) so photography and
@@ -922,9 +930,9 @@ game icons:
 - **Encounter rarity:** owner-supplied Uncommon, Rare and Very Rare glyphs; Common intentionally
   has no glyph. Every glyph is paired with a rarity label in TalkBack and on Species Detail.
 - **Regional Essential:** owner-supplied Essential artwork, tinted olive.
-- **Regional Icon:** owner-supplied Icon artwork, tinted gold.
-- **Regional Legend:** owner-supplied Legendary artwork, tinted bright gold and distinct from encounter
-  rarity and Icon membership.
+- **Regional Icon:** owner-supplied artwork, tinted gold. This is the mark originally
+  supplied for the Legend tier; when that tier was removed the Icon standing took it over,
+  along with the gold, since the tier had only ever named the same five species.
 
 ### Still prohibited
 
@@ -937,9 +945,10 @@ see §30 for what is now permitted and the constraints on it.
 
 ### Placeholder rarity and completion (v1)
 
-Regional cards read independent, frozen `encounterRarity` and `prestige` fields. Unknown
-rarity stays unmarked and is labelled “under editorial review” on Species Detail; it must
-never be presented as Common. Legendary remains visually prominent but is never encoded as
+Regional cards read the frozen `encounterRarity` field and achievement membership, which
+are independent of each other. Unknown rarity stays unmarked and is labelled “under
+editorial review” on Species Detail; it must never be presented as Common. Icon standing
+remains visually prominent but is never encoded as
 biological rarity.
 
 ## 29. Regional map and achievement character
@@ -1057,7 +1066,7 @@ emblems do, and a missing file must never render an empty circle.
 Collection filters split into four independent axes — **Status**, **Standing**, **Rarity**
 and **Group** — each defaulting to "Any" and combining with AND. They were once a single
 nine-option exclusive enum, which made the screen's most useful questions unaskable:
-"which Essentials am I still missing?" and "which Legends do I not have yet?" each need two
+"which Essentials am I still missing?" and "which Icons do I not have yet?" each need two
 axes at once.
 
 Rules that follow from the split:
@@ -1205,7 +1214,7 @@ What this costs, and what pays for it:
 - **Standing marks sit top-right, record status top-left.** Standing is the card's
   headline — the frame colour and the gilding carry it too — so it takes the corner the eye
   rests on when sweeping a row. Photo credit follows status to the left, since the right
-  column can stack three marks.
+  column can stack both standing marks.
 
 ### Rarity and standing say different things
 
@@ -1213,20 +1222,19 @@ This is the rule that keeps a plate from repeating itself:
 
 - **Rarity** is carried by the **pill** under the plate — mark plus word, so the mark is
   teachable. Common deliberately has no mark.
-- **Regional standing** is carried by the **card frame**: moss for Essential, **bone** for
-  Icon, brass for Legend. Icons additionally catch a **sheen**; Legends are **gilded**.
+- **Regional standing** is carried by the **card frame**: moss for Essential, **gold** for
+  Icon. A recorded Icon is both lit and gilded.
 
-  Icon is bone (`WildlifeIcon`), *not* parchment. It was originally the same value as body
-  text, which meant a completed Icons quest — border, tally and filled bar all in that
-  colour — read as blown-out white and carried no signal of completion at all. A standing
-  accent has to be a material distinct from the text it sits beside.
+  Icon is gold (`WildlifeIcon`, the same value as `WildlifeGold`). It was briefly a bone
+  tone, because a separate Legend tier held the gold and two standings could not share one
+  material. With that tier gone the gold returned to the top standing, where it belongs —
+  and it must stay distinct from parchment body text, which is what bone failed at.
 
-- **Icons are lit, Legends are gilded** — two different effects, not one effect at two
-  strengths. `IconHalo` puts a bone halo behind the specimen, and `EdgeLight` runs a bead
-  of light around the frame; `Gilding` lays a warm corner glow and gold motes. Scaling the
-  gold down for Icons would have made a Legend read as merely a brighter Icon, when they
-  are two standings rather than two grades of one. A species that is both takes the
-  gilding only.
+- **An Icon is lit and, once earned, gilded.** `IconHalo` puts a gold halo behind the
+  specimen and `EdgeLight` runs a bead of light around the frame; `Gilding` lays a warm
+  corner glow and gold motes over a plate you have actually recorded. These stack on one
+  standing rather than separating two: the difference they draw is between a target and a
+  specimen you hold, not between two ranks.
 - **The Icon effect moves.** A static halo is easy to miss among nine still plates; the
   travelling bead is what makes the card catch the eye. `EdgeLight` takes its phase as a
   parameter and an `animated` flag rather than owning an infinite transition outright —
@@ -1250,7 +1258,7 @@ This is the rule that keeps a plate from repeating itself:
   has been earned. Recording one adds the halo, so a specimen you hold is **lit** rather
   than merely **flagged**.
 
-Do not colour a card border by rarity. That was the old behaviour and it made prestige and
+Do not colour a card border by rarity. That was the old behaviour and it made standing and
 difficulty indistinguishable.
 
 ### Separating the header from the page
@@ -1269,7 +1277,7 @@ superseded, and the five sky/ridge/moonlight tokens that existed only to colour 
 ### Now permitted, with constraints
 
 - **Glow** — only as atmosphere in the page painting (the moon) or as gilding on a
-  Regional Legend. Never on ordinary controls, never as a focus or press state.
+  recorded Regional Icon. Never on ordinary controls, never as a focus or press state.
 - **Gradients** — for scrims, header grounds and progress fills. Not as surface
   decoration.
 - **Paper grain** — see the ground, above.

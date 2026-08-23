@@ -103,7 +103,7 @@ CatalogueVersion
 
 RegionalTaxon
   region_key, catalogue_version, taxon_id, encounter_rarity,
-  prestige, seasonality, sort order, inclusion/override provenance
+  seasonality, sort order, inclusion/override provenance
 
 RegionalAchievement
   region_key, catalogue_version, achievement_key, type, ordered taxon IDs
@@ -127,36 +127,41 @@ Routine vagrants, accidental records, taxa normally impossible to identify photo
 
 Each catalogue is frozen and versioned. Catalogue updates may change projected completion, but never remove historical XP or an already-earned achievement.
 
-## 6. Encounter rarity and regional prestige
+## 6. Encounter rarity and regional standing
 
 Wildlife uses two independent dimensions:
 
 1. **Encounter rarity:** `common`, `uncommon`, `rare`, `very_rare`. This estimates how difficult the species is to encounter and photograph in that region, using a versioned regional evidence snapshot plus review.
-2. **Regional prestige:** `standard` or `legendary`. Legendary is a manually curated game designation for the animals that define the region. It is not a claim of scarcity, threat or verification quality.
+2. **Regional standing:** membership of the region's Essentials or Icons checklist (§7). Standing is a manually curated game designation for the animals that introduce or define the region. It is not a claim of scarcity, threat or verification quality.
 
 This permits truthful combinations such as:
 
 ```text
-African elephant — Common · Regional Legend
-Common warthog — Common · Standard
+African elephant — Common · Regional Icon
+Common warthog — Common
 ```
+
+A separate `prestige` field once carried a `legendary` value alongside these. It marked
+exactly the five species already on each region's Icons checklist — the checklist importer
+required it — so the field was removed rather than kept as a second spelling of Icon
+membership. Nothing that read it lost information.
 
 ### Broad draft catalogue entries
 
 Broad pilot catalogues may contain an `unknown` encounter-rarity state while editorial
 review is pending. This means only that Wildlife has not curated an encounter tier; it must
 not be displayed as Common or used for a rarity reward. Regional Essentials and Icons retain
-their reviewed rarity and prestige fields. A later frozen catalogue version replaces the
-draft state without changing historical progression.
+their reviewed rarity. A later frozen catalogue version replaces the draft state without
+changing historical progression.
 
-Regional Icons and Legendary prestige are deliberately independent authoring decisions. An Icon may carry `standard` or `legendary` prestige, and any regional catalogue species may be marked `legendary` without becoming an Icon. Icons remain the fixed five-species achievement checklist; Legendary remains a regional collectible-prestige designation. Legendary prestige is regional: the same taxon may be Legendary in one catalogue and Standard in another.
+Standing is regional: the same taxon may be an Icon in one catalogue and carry no standing in another.
 
 ## 7. Regional achievements
 
 Every frozen regional catalogue defines:
 
 - **Regional Essentials:** 10 manually curated, reasonably attainable species that introduce the region.
-- **Regional Icons:** 5 manually curated, high-prestige species that express the region's wildlife identity and may be substantially harder to complete.
+- **Regional Icons:** 5 manually curated species that express the region's wildlife identity and may be substantially harder to complete. This is the app's highest standing, and carries a per-species discovery bonus as well as a completion award.
 
 The two sets are curated independently from raw frequency. A taxon should not appear in both sets for the same catalogue unless a reviewed exception explains why.
 
@@ -192,17 +197,15 @@ The generator produces a deterministic SQLite catalogue, boundary assets, locali
 - an Essentials or Icons list has the wrong size;
 - a listed achievement taxon is not in the regional catalogue;
 - an unexplained taxon appears in both regional checklists;
-- rarity, prestige or override provenance is missing;
+- rarity or override provenance is missing;
 - reusable media lacks creator, source and compatible licence metadata.
-
-The generator deliberately does **not** require an Icon to be Legendary, nor a Legendary species to appear in the Icons list. Editors set `prestige: legendary` directly on the relevant `RegionalTaxon` entry and record its curation reason in `inclusion_provenance`.
 
 ## 10. Pilot strategy
 
 The engine targets all 24 regions, but the pipeline is proven with three contrasting pilots before bulk curation:
 
 1. Mediterranean Europe — migration path from the current Catalonia prototype.
-2. East Africa — validates common-but-Legendary species and large iconic fauna.
+2. East Africa — validates common-but-iconic species and large iconic fauna.
 3. Caribbean — validates island/territory boundaries and media packaging with a more manageable
    first curation scope than Insular Southeast Asia.
 
@@ -212,6 +215,6 @@ Pilot choice may change without changing the architecture. Scaling the remaining
 
 Mediterranean Europe, East Africa and the Caribbean each contain 15 owner-directed,
 photographable species: ten distinct Regional Essentials and five distinct Regional Icons.
-Their encounter rarity and Legendary values are curated game metadata, not conservation
+Their encounter rarity and checklist membership are curated game metadata, not conservation
 claims. All three v1 catalogues are frozen with licence-verified reusable media, source and
 creator provenance, and pass deterministic release validation.

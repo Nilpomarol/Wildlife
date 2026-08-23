@@ -1,16 +1,16 @@
-list,position,taxon_id,common_name,scientific_name,encounter_rarity,prestige,seasonality
-essential,1,1510574,Maasai Giraffe,Giraffa tippelskirchi,common,standard,year-round
-essential,2,43335,Plains Zebra,Equus quagga,common,standard,year-round
-essential,3,42122,Common Warthog,Phacochoerus africanus,common,standard,year-round
-essential,4,42149,Common Hippopotamus,Hippopotamus amphibius,common,standard,year-round
-essential,5,42405,African Buffalo,Syncerus caffer,common,standard,year-round
-essential,6,41886,Spotted Hyena,Crocuta crocuta,uncommon,standard,year-round
-essential,7,341972,Nile Crocodile,Crocodylus niloticus,uncommon,standard,year-round
-essential,8,1505670,African Fish-Eagle,Icthyophaga vocifer,uncommon,standard,year-round
-essential,9,2269,Lilac-breasted Roller,Coracias caudatus,common,standard,year-round
-essential,10,53,Gray Crowned-Crane,Balearica regulorum,uncommon,standard,year-round
-icon,1,43694,African Savanna Elephant,Loxodonta africana,common,legendary,year-round
-icon,2,41964,Lion,Panthera leo,uncommon,legendary,year-round
-icon,3,41955,Cheetah,Acinonyx jubatus,rare,legendary,year-round
-icon,4,43350,Black Rhinoceros,Diceros bicornis,very_rare,legendary,year-round
-icon,5,147661,Mountain Gorilla,Gorilla beringei beringei,very_rare,legendary,year-round
+list,position,taxon_id,common_name,scientific_name,encounter_rarity,seasonality
+essential,1,1510574,Maasai Giraffe,Giraffa tippelskirchi,common,year-round
+essential,2,43335,Plains Zebra,Equus quagga,common,year-round
+essential,3,42122,Common Warthog,Phacochoerus africanus,common,year-round
+essential,4,42149,Common Hippopotamus,Hippopotamus amphibius,common,year-round
+essential,5,42405,African Buffalo,Syncerus caffer,common,year-round
+essential,6,41886,Spotted Hyena,Crocuta crocuta,uncommon,year-round
+essential,7,341972,Nile Crocodile,Crocodylus niloticus,uncommon,year-round
+essential,8,1505670,African Fish-Eagle,Icthyophaga vocifer,uncommon,year-round
+essential,9,2269,Lilac-breasted Roller,Coracias caudatus,common,year-round
+essential,10,53,Gray Crowned-Crane,Balearica regulorum,uncommon,year-round
+icon,1,43694,African Savanna Elephant,Loxodonta africana,common,year-round
+icon,2,41964,Lion,Panthera leo,uncommon,year-round
+icon,3,41955,Cheetah,Acinonyx jubatus,rare,year-round
+icon,4,43350,Black Rhinoceros,Diceros bicornis,very_rare,year-round
+icon,5,147661,Mountain Gorilla,Gorilla beringei beringei,very_rare,year-round

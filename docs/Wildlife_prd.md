@@ -20,7 +20,7 @@
 | Geographic scope | 24 owner-defined world regions with staged catalogue rollout; architecture must support later additions/splits |
 | Initial catalogue rollout | Three contrasting pilot regions, beginning with Mediterranean Europe as the migration path from Catalonia |
 | Taxonomic scope | Photographable mammals, birds, reptiles, amphibians, conspicuous fish and a restrained selection of distinctive invertebrates |
-| Regional game layer | Frozen catalogue completion, 10 Regional Essentials, 5 Regional Icons and regional Legendary prestige |
+| Regional game layer | Frozen catalogue completion, 10 Regional Essentials and 5 Regional Icons |
 
 ---
 
@@ -39,10 +39,10 @@ Turn nature observation into a collection game, using iNaturalist as the biologi
 1. **iNaturalist is the source of truth.** Wildlife's database holds only the game layer plus a read cache keyed by `inat_uuid`.
 2. **Read-only API posture.** Every endpoint used is public and unauthenticated. No iNaturalist tokens are stored. Wildlife still processes personal data and must provide normal privacy, retention and deletion controls.
 3. **Core traffic is direct from the device.** The on-device adapter uses a custom User-Agent, conservative request pacing and durable caches. It never writes to iNaturalist.
-4. **Regional data is built and versioned before release.** Catalogue membership, boundaries, rarity, prestige, achievement definitions, names and thumbnails are local and refreshed only through explicit versioned content updates.
+4. **Regional data is built and versioned before release.** Catalogue membership, boundaries, rarity, achievement definitions, names and thumbnails are local and refreshed only through explicit versioned content updates.
 5. **Derived state is recomputed, rewards are ledgered.** Collection state, badges and percentages recalculate on sync. XP is recorded once in an idempotent event ledger and is never duplicated or removed.
 6. **Offline browsing, online sync.** Capture no longer needs offline support — the iNaturalist app owns that — but the catalogue and collection must be fully browsable without coverage.
-7. **Global taxa, regional membership.** Taxon identity/media are deduplicated globally; catalogue membership, encounter rarity, Legendary prestige and completion are regional.
+7. **Global taxa, regional membership.** Taxon identity/media are deduplicated globally; catalogue membership, encounter rarity, standing and completion are regional.
 
 ---
 
@@ -184,7 +184,7 @@ Bird songs require **Xeno-canto** (open API, CC-licensed). Birds only.
 | First species globally | +500 |
 | First valid unlock in the containing regional catalogue | +100 |
 | Regional encounter rarity on first unlock | Common +0; Uncommon +50; Rare +150; Very Rare +300 |
-| Regional Legend on first regional unlock | +1,000 |
+| Regional Icon on first regional unlock | +1,000 |
 | Complete 10 Regional Essentials | +1,500 |
 | Complete 5 Regional Icons | +3,000 |
 | Reaching research grade | +50 |
@@ -193,7 +193,10 @@ Bird songs require **Xeno-canto** (open API, CC-licensed). Birds only.
 
 **Encounter rarity** is regional and versioned: Common, Uncommon, Rare and Very Rare. It estimates encounter/photograph difficulty from reviewed evidence; raw observation count, conservation status and verification are not rarity.
 
-**Legendary prestige** is orthogonal to rarity and Regional Icon status. It is a manually curated regional game designation that may apply to any catalogue species; Regional Icons remain a separate fixed five-species achievement list. A species may be `Common · Regional Legend`: for example, an elephant can be locally attainable but still carry more game value than a common warthog because it defines the regional collection fantasy. Legendary is not a claim that the species is scarce or threatened.
+**Regional standing** is orthogonal to rarity. A region's fixed five-species Icons list is the highest standing a species can hold, and it carries game value independently of how hard the animal is to find. A species may be `Common · Regional Icon`: an elephant can be locally attainable but still carry more game value than a common warthog because it defines the regional collection fantasy. Standing is not a claim that the species is scarce or threatened.
+
+A separate `Legendary` prestige tier was specified alongside this and shipped in the pilot catalogues. In practice it named exactly the five Icons of each region and nothing else, so it was removed on 23 August 2026; its +1,000 reward moved onto Icon discovery.
+
 
 **Out-of-range rewards.** Define the signal explicitly using validated public API fields or a versioned range dataset. Research Grade alone is not fraud-proof. Award only after a delay, exclude the bonus from competitive ranking until confirmed, and flag ambiguous cases for review.
 
@@ -262,7 +265,7 @@ Resolve required iNaturalist place IDs during catalogue authoring and store them
 - **Battery** — GPS sampled at capture and at "what can I see here" only, never continuously.
 - **Visual system** — product-facing UI follows the dark-first **Field Guide Classic** contract in `style.md` and `ui_architecture.md`: wildlife imagery first, serif identity typography, compact information density, restrained olive/parchment/gold semantics and progressive Compose migration.
 - **Dark mode** — native and the primary visual mode, essential for dusk and night observation. A future light theme must preserve semantic tokens rather than introduce a second screen-specific style.
-- **Precomputed local content** — region definitions, boundaries, catalogue membership, names, taxonomy, rarity, prestige, achievements, attribution and thumbnails are generated before release and available locally. Taxon/media records shared across regions are deduplicated. Optional regional media packs may be downloaded and then remain local.
+- **Precomputed local content** — region definitions, boundaries, catalogue membership, names, taxonomy, rarity, achievements, attribution and thumbnails are generated before release and available locally. Taxon/media records shared across regions are deduplicated. Optional regional media packs may be downloaded and then remain local.
 - **Localisation** — Catalan first; Spanish and English at launch.
 - **Custom User-Agent** on every direct upstream request, identifying the app.
 - **Privacy controls** — clear consent and disclosure, data minimisation, retention limits, export, unlink and deletion.
@@ -312,7 +315,7 @@ Resolve required iNaturalist place IDs during catalogue authoring and store them
 
 **Regional foundation** — Observation management, multi-photo clarity, catalogue generator, local boundaries, global taxon/regional membership model and three pilot catalogues.
 
-**Expanded MVP** — On-device linking/sync, handoff capture, region-bound collection, encounter rarity, Legendary prestige, Regional Essentials/Icons, near-me discovery and regional/personal map layers.
+**Expanded MVP** — On-device linking/sync, handoff capture, region-bound collection, encounter rarity, Regional Essentials/Icons, near-me discovery and regional/personal map layers.
 
 **Closed beta** — Three pilot regions, progression simulation, localisation/accessibility, structured export and Gate 2 metrics.
 
