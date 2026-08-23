@@ -23,10 +23,10 @@ The user asked for a **more gamified, visual, "collectible"** feel — bolder th
 ## 2. Implemented so far
 
 ### Theme
-- **New display font: Fraunces** (OFL variable serif) for large titles, species identity and collection/level headers. Lora remains the secondary serif; sans stays for body/UI.
-  - Files: `app/src/main/res/font/fraunces_variable.ttf`, `fraunces_italic_variable.ttf`.
-  - License: `docs/licenses/Fraunces-OFL.txt`. Provenance: Google Fonts `ofl/fraunces` (SIL OFL 1.1).
-  - Wiring: `Type.kt` — `displayLarge`/`headlineLarge`/`headlineMedium` → Fraunces; `DisplayFontFamily` exposed. Screen titles (top bar `headlineLarge`) now render in Fraunces.
+- **Display font: Eczar** (OFL wedge serif) for large titles, species identity and collection/level headers. Barlow is the sans for body/UI. Superseded Newsreader, which superseded Fraunces, which superseded Lora.
+  - Files: `app/src/main/res/font/eczar_{regular,medium,semibold,bold}.ttf` — one static instance per weight, subset to Latin (~36KB each, down from 264KB).
+  - License: `docs/licenses/Eczar-OFL.txt`. Provenance: Google Fonts `ofl/eczar` (SIL OFL 1.1).
+  - Wiring: `Type.kt` — `displayLarge`/`headlineLarge`/`headlineMedium`/`titleLarge` → Eczar; `DisplayFontFamily` exposed.
 - **Rarity tokens** added to `WildlifeColors` (`Color.kt`, provided in `WildlifeTheme.kt`): common/uncommon/rare/very-rare/legendary per style §4.
 
 ### Home (`ui/screens/shell/HomeScreen.kt`)
@@ -45,7 +45,7 @@ Rebuilt from a button-menu into an **image-led dashboard**:
 - New optional field `SpeciesCardModel.rarity` (defaults null → backward compatible).
 
 ### Collection (`ui/screens/collection/CollectionScreen.kt`) — ground-up
-- **CollectorHeader**: region pill ("Catalonia ▾", visual selector), collector **rank** chip, **Collected / Confirmed / XP** stat HUD in Fraunces numerals, **completion meter** (%) with the provisional/sample disclosure.
+- **CollectorHeader**: region pill ("Catalonia ▾", visual selector), collector **rank** chip, **Collected / Confirmed / XP** stat HUD in display-serif numerals, **completion meter** (%) with the provisional/sample disclosure.
 - **Taller cards** (aspect 0.94 → 0.72) to match reference proportions.
 - Rarity wired via `sampleRarityFor(key)`.
 

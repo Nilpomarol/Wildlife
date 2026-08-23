@@ -1,6 +1,7 @@
 apply plugin: 'com.android.application'
 apply plugin: 'org.jetbrains.kotlin.android'
 apply plugin: 'org.jetbrains.kotlin.plugin.compose'
+apply plugin: 'io.github.takahirom.roborazzi'
 
 android {
     namespace 'com.wildlife.feasibility'
@@ -28,6 +29,18 @@ android {
         compose true
         buildConfig true
     }
+
+    // Roborazzi renders Compose screens to PNG on the JVM so the redesign can be
+    // reviewed without a device or emulator.
+    testOptions {
+        unitTests {
+            includeAndroidResources = true
+            all {
+                it.systemProperty 'robolectric.graphicsMode', 'NATIVE'
+                it.systemProperty 'robolectric.pixelCopyRenderMode', 'hardware'
+            }
+        }
+    }
 }
 
 dependencies {
@@ -54,4 +67,10 @@ dependencies {
     implementation 'io.coil-kt:coil-svg:2.7.0'
     implementation 'org.maplibre.gl:android-sdk:13.0.2'
     testImplementation 'junit:junit:4.13.2'
+    testImplementation 'org.robolectric:robolectric:4.14.1'
+    testImplementation 'androidx.test.ext:junit:1.2.1'
+    testImplementation 'androidx.compose.ui:ui-test-junit4'
+    debugImplementation 'androidx.compose.ui:ui-test-manifest'
+    testImplementation 'io.github.takahirom.roborazzi:roborazzi:1.32.2'
+    testImplementation 'io.github.takahirom.roborazzi:roborazzi-compose:1.32.2'
 }

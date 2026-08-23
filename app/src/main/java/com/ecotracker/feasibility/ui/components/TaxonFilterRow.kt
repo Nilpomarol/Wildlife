@@ -15,7 +15,6 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.vector.ImageVector
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.dp
-import com.wildlife.feasibility.ui.theme.GameFontFamily
 import com.wildlife.feasibility.ui.theme.WildlifeSpacing
 import com.wildlife.feasibility.ui.theme.WildlifeTheme
 
@@ -46,7 +45,6 @@ fun <T> TaxonFilterRow(
                 label = {
                     Text(
                         text = label(option),
-                        fontFamily = GameFontFamily,
                         fontWeight = FontWeight.Medium,
                     )
                 },

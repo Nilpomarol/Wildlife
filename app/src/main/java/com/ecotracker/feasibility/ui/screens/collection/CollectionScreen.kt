@@ -5,8 +5,8 @@ import androidx.compose.animation.core.tween
 import androidx.compose.foundation.BorderStroke
 import androidx.compose.foundation.Canvas
 import androidx.compose.foundation.background
-import androidx.compose.foundation.horizontalScroll
-import androidx.compose.foundation.rememberScrollState
+import androidx.compose.foundation.border
+import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
@@ -15,19 +15,16 @@ import androidx.compose.foundation.layout.fillMaxHeight
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
+import androidx.compose.foundation.layout.heightIn
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.shape.CircleShape
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material.icons.Icons
-import androidx.compose.material.icons.automirrored.filled.HelpOutline
 import androidx.compose.material.icons.filled.Category
-import androidx.compose.material.icons.filled.CheckCircle
 import androidx.compose.material.icons.filled.Egg
 import androidx.compose.material.icons.filled.FlutterDash
 import androidx.compose.material.icons.filled.Forest
-import androidx.compose.material.icons.filled.GridView
-import androidx.compose.material.icons.filled.HourglassEmpty
 import androidx.compose.material.icons.filled.Landscape
 import androidx.compose.material.icons.filled.MilitaryTech
 import androidx.compose.material.icons.filled.Park
@@ -37,7 +34,7 @@ import androidx.compose.material.icons.filled.Schedule
 import androidx.compose.material.icons.filled.SetMeal
 import androidx.compose.material.icons.filled.SortByAlpha
 import androidx.compose.material.icons.filled.Spa
-import androidx.compose.material.icons.filled.Verified
+import androidx.compose.material.icons.filled.Tune
 import androidx.compose.material.icons.filled.Visibility
 import androidx.compose.material.icons.filled.Water
 import androidx.compose.material.icons.filled.Waves
@@ -64,6 +61,8 @@ import androidx.compose.ui.graphics.StrokeCap
 import androidx.compose.ui.graphics.drawscope.Stroke
 import androidx.compose.ui.graphics.vector.ImageVector
 import androidx.compose.ui.text.font.FontWeight
+import androidx.compose.ui.semantics.contentDescription
+import androidx.compose.ui.semantics.semantics
 import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.text.style.TextOverflow
 import androidx.compose.ui.tooling.preview.Preview
@@ -72,42 +71,40 @@ import com.wildlife.feasibility.CollectionSpecies
 import com.wildlife.feasibility.EncounterRarity
 import com.wildlife.feasibility.InstalledRegionalAchievement
 import com.wildlife.feasibility.InstalledRegionalCatalogue
+import com.wildlife.feasibility.ProgressionLevel
+import com.wildlife.feasibility.ProgressionProjection
+import com.wildlife.feasibility.ProgressionState
 import com.wildlife.feasibility.RegionalPrestige
 import com.wildlife.feasibility.ui.components.CollectionSearchBar
 import com.wildlife.feasibility.ui.components.RegionPill
 import com.wildlife.feasibility.ui.components.regionVisual
-import com.wildlife.feasibility.ui.components.EncounterTrace
-import com.wildlife.feasibility.ui.components.RegionalCollectionMark
-import com.wildlife.feasibility.ui.components.RegionalCollectionStamp
-import com.wildlife.feasibility.ui.components.RegionalLegendMark
 import com.wildlife.feasibility.ui.components.SpeciesCardModel
 import com.wildlife.feasibility.ui.components.SpeciesCardPhotoKind
 import com.wildlife.feasibility.ui.components.SpeciesCardRarity
 import com.wildlife.feasibility.ui.components.SpeciesCardStatus
 import com.wildlife.feasibility.ui.components.SpeciesGrid
-import com.wildlife.feasibility.ui.components.TaxonGroupGlyph
 import com.wildlife.feasibility.ui.components.WildlifeDropdown
 import com.wildlife.feasibility.ui.components.WildlifeScaffold
-import com.wildlife.feasibility.ui.theme.GameFontFamily
+import com.wildlife.feasibility.ui.components.RangerHeader
+import com.wildlife.feasibility.ui.components.RangerStat
+import com.wildlife.feasibility.ui.components.SectionRule
+import com.wildlife.feasibility.ui.components.FieldGuidePage
+import com.wildlife.feasibility.ui.components.bleedHorizontally
+import com.wildlife.feasibility.ui.art.ClearGlyph
+import com.wildlife.feasibility.ui.art.FieldMark
+import com.wildlife.feasibility.ui.art.StatMark
 import com.wildlife.feasibility.ui.theme.WildlifeGold
-import com.wildlife.feasibility.ui.theme.CaribbeanTeal
 import com.wildlife.feasibility.ui.theme.WildlifeOliveStrong
 import com.wildlife.feasibility.ui.theme.WildlifeSpacing
+import com.wildlife.feasibility.ui.theme.DisplayFontFamily
+import androidx.compose.foundation.layout.Spacer
+import androidx.compose.ui.unit.sp
+import com.wildlife.feasibility.ui.components.RegionalStandingChip
+import com.wildlife.feasibility.ui.components.JournalProgressBar
+import com.wildlife.feasibility.ui.theme.FieldLabelStyle
 import com.wildlife.feasibility.ui.theme.WildlifeTheme
 
 /** A playful teal reserved for the island catalogue; adds a splash of game colour to the dark base. */
-
-enum class CollectionFilter(val label: String, val icon: ImageVector) {
-    ALL("All", Icons.Filled.GridView),
-    COLLECTED("Collected", Icons.Filled.CheckCircle),
-    MISSING("Missing", Icons.AutoMirrored.Filled.HelpOutline),
-    CONFIRMED("Confirmed", Icons.Filled.Verified),
-    RARE("Rare finds", Icons.Filled.Category),
-    ESSENTIALS("Essentials", Icons.Filled.Category),
-    ICONS("Icons", Icons.Filled.Category),
-    LEGENDS("Legends", Icons.Filled.Category),
-    AWAITING("Awaiting ID", Icons.Filled.HourglassEmpty),
-}
 
 enum class CollectionSort(val label: String, val icon: ImageVector) {
     NAME("A–Z", Icons.Filled.SortByAlpha),
@@ -127,10 +124,6 @@ enum class SpeciesGroup(val key: String, val label: String, val icon: ImageVecto
 private fun groupFor(key: String?): SpeciesGroup? =
     SpeciesGroup.entries.firstOrNull { it.key == key }
 
-private fun CollectionSpecies.isRare(): Boolean =
-    encounterRarity == EncounterRarity.RARE ||
-        encounterRarity == EncounterRarity.VERY_RARE
-
 @Composable
 fun CollectionScreen(
     state: CollectionUiState,
@@ -140,32 +133,32 @@ fun CollectionScreen(
     onRetry: () -> Unit,
     bottomBar: @Composable () -> Unit = {},
 ) {
-    var selectedFilter by rememberSaveable { mutableStateOf(CollectionFilter.ALL) }
+    // The axes are stored separately rather than as one saveable object, so each survives
+    // process death without a custom Saver for the aggregate.
+    var status by rememberSaveable { mutableStateOf(StatusFilter.ANY) }
+    var standing by rememberSaveable { mutableStateOf(StandingFilter.ANY) }
+    var rarity by rememberSaveable { mutableStateOf(RarityFilter.ANY) }
     var selectedGroup by rememberSaveable { mutableStateOf<SpeciesGroup?>(null) }
     var sort by rememberSaveable { mutableStateOf(CollectionSort.NAME) }
     var query by rememberSaveable { mutableStateOf("") }
+    var filtersOpen by rememberSaveable { mutableStateOf(false) }
 
     val presentGroups = remember(state.entries) {
         SpeciesGroup.entries.filter { group -> state.entries.any { it.taxonGroup == group.key } }
     }
-    // A region switch can leave a group selected that the new region lacks; fall back to All.
+    // A region switch can leave a group selected that the new region lacks; fall back to Any.
     if (selectedGroup != null && selectedGroup !in presentGroups) selectedGroup = null
 
+    val filters = CollectionFilters(status, standing, rarity, selectedGroup)
+    val onFilters: (CollectionFilters) -> Unit = {
+        status = it.status
+        standing = it.standing
+        rarity = it.rarity
+        selectedGroup = it.group
+    }
+
     val filtered = state.entries
-        .filter { entry ->
-            when (selectedFilter) {
-                CollectionFilter.ALL -> true
-                CollectionFilter.COLLECTED -> entry.observationCount > 0
-                CollectionFilter.MISSING -> entry.observationCount == 0
-                CollectionFilter.CONFIRMED -> entry.bestQualityGrade == "research"
-                CollectionFilter.RARE -> entry.isRare()
-                CollectionFilter.ESSENTIALS -> entry.regionalEssential
-                CollectionFilter.ICONS -> entry.regionalIcon
-                CollectionFilter.LEGENDS -> entry.regionalPrestige == RegionalPrestige.LEGENDARY
-                CollectionFilter.AWAITING -> entry.awaitingSpeciesIdentification
-            }
-        }
-        .filter { entry -> selectedGroup == null || entry.taxonGroup == selectedGroup!!.key }
+        .filter(filters::matches)
         .filter { entry -> query.isBlank() || entry.label.contains(query, ignoreCase = true) }
         .sortedWith(
             when (sort) {
@@ -176,7 +169,13 @@ fun CollectionScreen(
             },
         )
 
-    WildlifeScaffold(title = "Collection", onBack = onBack, bottomBar = bottomBar) { innerPadding ->
+    WildlifeScaffold(
+        title = "Collection",
+        onBack = onBack,
+        bottomBar = bottomBar,
+        showTopBar = onBack != null,
+    ) { innerPadding ->
+      FieldGuidePage {
         when {
             state.errorMessage != null -> CollectionMessage(
                 message = state.errorMessage,
@@ -200,9 +199,20 @@ fun CollectionScreen(
                         CollectorHeader(
                             collected = state.entries.count { it.observationCount > 0 },
                             total = state.entries.size,
-                            researchGrade = state.entries.count { it.bestQualityGrade == "research" },
-                            rareCount = state.entries.count { it.observationCount > 0 && it.isRare() },
+                            commonCount = state.entries.count {
+                                it.observationCount > 0 && it.encounterRarity == EncounterRarity.COMMON
+                            },
+                            uncommonCount = state.entries.count {
+                                it.observationCount > 0 && it.encounterRarity == EncounterRarity.UNCOMMON
+                            },
+                            rareCount = state.entries.count {
+                                it.observationCount > 0 && it.encounterRarity == EncounterRarity.RARE
+                            },
+                            veryRareCount = state.entries.count {
+                                it.observationCount > 0 && it.encounterRarity == EncounterRarity.VERY_RARE
+                            },
                             xp = state.totalXp,
+                            progression = state.progression,
                             selectedCatalogue = state.selectedCatalogue,
                             achievements = state.achievements,
                             observedTaxa = state.observedRegionalTaxa,
@@ -210,24 +220,38 @@ fun CollectionScreen(
                         if (!state.linked) {
                             UnlinkedCollectionBanner(onLinkAccount = onLinkAccount)
                         }
-                        CollectionSearchBar(query = query, onQueryChange = { query = it })
+                        SearchRow(
+                            query = query,
+                            onQueryChange = { query = it },
+                            activeCount = filters.activeCount,
+                            onOpenFilters = { filtersOpen = true },
+                            onClearFilters = { onFilters(CollectionFilters.None) },
+                        )
                         FilterBar(
-                            selectedFilter = selectedFilter,
-                            onFilter = { selectedFilter = it },
-                            presentGroups = presentGroups,
-                            selectedGroup = selectedGroup,
-                            onGroup = { selectedGroup = it },
+                            filters = filters,
+                            onFilters = onFilters,
                             sort = sort,
                             onSort = { sort = it },
                             count = filtered.size,
                         )
+                        SectionRule("The guide")
                         if (filtered.isEmpty()) {
-                            EmptyFilterNote()
+                            EmptyFilterNote(filters.activeLabels())
                         }
                     }
                 },
             )
         }
+        if (filtersOpen) {
+            CollectionFilterSheet(
+                filters = filters,
+                onFilters = onFilters,
+                presentGroups = presentGroups,
+                matchCount = filtered.size,
+                onDismiss = { filtersOpen = false },
+            )
+        }
+      }
     }
 }
 
@@ -237,252 +261,87 @@ fun CollectionScreen(
 private fun CollectorHeader(
     collected: Int,
     total: Int,
-    researchGrade: Int,
+    commonCount: Int,
+    uncommonCount: Int,
     rareCount: Int,
+    veryRareCount: Int,
     xp: Int,
+    progression: ProgressionState?,
     selectedCatalogue: InstalledRegionalCatalogue?,
     achievements: List<InstalledRegionalAchievement>,
     observedTaxa: Set<Long>,
     modifier: Modifier = Modifier,
 ) {
-    val accent = selectedCatalogue?.let { regionVisual(it.regionKey).accent } ?: WildlifeOliveStrong
-    val tier = rankTierFor(collected)
-    val next = nextRankTier(collected)
-    val rankFraction = if (next == null) 1f else {
-        ((collected - tier.floor).toFloat() / (next.floor - tier.floor)).coerceIn(0f, 1f)
-    }
+    // Unlinked users have no XP account yet, so fall back to the entry level.
+    val levels = progression ?: ProgressionProjection.project(xp)
+    val title = levels.selectedTitle
+    val completion = if (total == 0) 0f else (collected.toFloat() / total).coerceIn(0f, 1f)
 
-    Surface(
-        modifier = modifier.fillMaxWidth(),
-        shape = MaterialTheme.shapes.large,
-        color = MaterialTheme.colorScheme.surface,
-        border = BorderStroke(1.5.dp, accent.copy(alpha = 0.45f)),
-    ) {
-        Column(
-            modifier = Modifier
-                .background(
-                    Brush.verticalGradient(
-                        0f to accent.copy(alpha = 0.20f),
-                        0.55f to accent.copy(alpha = 0.05f),
-                        1f to Color.Transparent,
-                    ),
-                )
-                .padding(WildlifeSpacing.Card),
-            verticalArrangement = Arrangement.spacedBy(WildlifeSpacing.Small),
-        ) {
-            Row(
-                modifier = Modifier.fillMaxWidth(),
-                horizontalArrangement = Arrangement.SpaceBetween,
-                verticalAlignment = Alignment.CenterVertically,
-            ) {
-                if (selectedCatalogue != null) {
-                    RegionPill(selected = selectedCatalogue)
-                }
-                RankBadge(tier = tier, accent = accent)
-            }
-
-            Row(
-                modifier = Modifier.fillMaxWidth(),
-                horizontalArrangement = Arrangement.spacedBy(WildlifeSpacing.Card),
-                verticalAlignment = Alignment.CenterVertically,
-            ) {
-                CompletionRing(collected = collected, total = total, accent = accent)
-                Column(
-                    modifier = Modifier.weight(1f),
-                    verticalArrangement = Arrangement.spacedBy(WildlifeSpacing.Micro),
-                ) {
-                    Text(
-                        text = tier.title,
-                        style = MaterialTheme.typography.headlineMedium,
-                        fontFamily = GameFontFamily,
-                        fontWeight = FontWeight.Bold,
-                        color = WildlifeTheme.colors.parchment,
-                        maxLines = 1,
-                        overflow = TextOverflow.Ellipsis,
-                    )
-                    Text(
-                        text = if (next != null) {
-                            "${next.floor - collected} more to ${next.title}"
-                        } else {
-                            "Top rank reached — legend of the field"
-                        },
-                        style = MaterialTheme.typography.labelMedium,
-                        color = MaterialTheme.colorScheme.onSurfaceVariant,
-                        maxLines = 1,
-                        overflow = TextOverflow.Ellipsis,
-                    )
-                    GameProgressBar(fraction = rankFraction, accent = accent)
-                }
-            }
-
-            Row(
-                modifier = Modifier.fillMaxWidth(),
-                horizontalArrangement = Arrangement.spacedBy(WildlifeSpacing.Small),
-            ) {
-                StatChip(
-                    icon = Icons.Filled.Verified,
-                    value = researchGrade.toString(),
-                    label = "Confirmed",
-                    accent = WildlifeTheme.colors.confirmed,
-                    modifier = Modifier.weight(1f),
-                )
-                StatChip(
+    Column(modifier.fillMaxWidth()) {
+        RangerHeader(
+            regionName = selectedCatalogue?.displayName ?: "Your collection",
+            regionKey = selectedCatalogue?.regionKey,
+            levelKey = title.key,
+            levelName = title.displayName,
+            // The bar measures this region; the level measures lifetime XP. Labelling the
+            // bar explicitly keeps the two from reading as one number.
+            progressLabel = "$collected OF $total IN THIS REGION",
+            progressTrailing = "${(completion * 100).toInt()}%",
+            progressFraction = completion,
+            // Regional tallies only. XP is lifetime and account-wide, so it never
+            // belonged in a block measuring one region.
+            stats = listOf(
+                RangerStat(
+                    value = commonCount.toString(),
+                    label = "COMMON",
+                    tint = WildlifeTheme.colors.rarityCommon,
+                    mark = StatMark.DOT,
+                ),
+                RangerStat(
+                    value = uncommonCount.toString(),
+                    label = "UNCOMMON",
+                    tint = WildlifeTheme.colors.rarityUncommon,
+                    fieldMark = "rarity_uncommon",
+                ),
+                RangerStat(
                     value = rareCount.toString(),
-                    label = "Rare finds",
-                    accent = WildlifeTheme.colors.rarityRare,
-                    marker = { EncounterTrace(SpeciesCardRarity.RARE) },
-                    modifier = Modifier.weight(1f),
-                )
-                StatChip(
-                    icon = Icons.Filled.WorkspacePremium,
-                    value = xp.toString(),
-                    label = "XP",
-                    accent = WildlifeTheme.colors.gold,
-                    modifier = Modifier.weight(1f),
-                )
-            }
-
-            if (achievements.isNotEmpty()) {
-                Row(horizontalArrangement = Arrangement.spacedBy(WildlifeSpacing.Small)) {
-                    achievements.forEach { achievement ->
-                        QuestBadge(
-                            achievement = achievement,
-                            observedTaxa = observedTaxa,
-                            modifier = Modifier.weight(1f),
-                        )
+                    label = "RARE",
+                    tint = WildlifeTheme.colors.rarityRare,
+                    fieldMark = "rarity_rare",
+                ),
+                RangerStat(
+                    value = veryRareCount.toString(),
+                    label = "VERY RARE",
+                    tint = WildlifeTheme.colors.rarityVeryRare,
+                    fieldMark = "rarity_very_rare",
+                ),
+            ),
+            // The header is a plate mounted on the page, not the top of it. Its own
+            // ground settles to near-solid while leaving the moon and canopy open at the
+            // top, and the torn edge gives the boundary a hard line to stop at.
+            showBackgroundScrim = true,
+            showBottomEdge = true,
+            modifier = Modifier.bleedHorizontally(WildlifeSpacing.Screen),
+            belowStats = if (achievements.isEmpty()) {
+                null
+            } else {
+                {
+                    Row(
+                        modifier = Modifier.fillMaxWidth(),
+                        horizontalArrangement = Arrangement.spacedBy(WildlifeSpacing.Small),
+                    ) {
+                        achievements.forEach { achievement ->
+                            QuestBadge(
+                                achievement = achievement,
+                                observedTaxa = observedTaxa,
+                                modifier = Modifier.weight(1f),
+                            )
+                        }
                     }
                 }
-            }
-
-            Text(
-                text = "Frozen ${selectedCatalogue?.version ?: "catalogue"} · sightings count only in this region.",
-                style = MaterialTheme.typography.labelSmall,
-                color = WildlifeTheme.colors.mutedText,
-            )
-        }
-    }
-}
-
-@Composable
-private fun CompletionRing(collected: Int, total: Int, accent: Color) {
-    val fraction = if (total == 0) 0f else (collected.toFloat() / total).coerceIn(0f, 1f)
-    val animated by animateFloatAsState(fraction, tween(700), label = "ring")
-    val track = MaterialTheme.colorScheme.surfaceVariant
-    Box(modifier = Modifier.size(84.dp), contentAlignment = Alignment.Center) {
-        Canvas(modifier = Modifier.fillMaxSize()) {
-            val strokeWidth = 9.dp.toPx()
-            val inset = strokeWidth / 2f
-            val arcSize = androidx.compose.ui.geometry.Size(size.width - strokeWidth, size.height - strokeWidth)
-            val topLeft = androidx.compose.ui.geometry.Offset(inset, inset)
-            drawArc(
-                color = track,
-                startAngle = -90f,
-                sweepAngle = 360f,
-                useCenter = false,
-                topLeft = topLeft,
-                size = arcSize,
-                style = Stroke(width = strokeWidth, cap = StrokeCap.Round),
-            )
-            drawArc(
-                color = accent,
-                startAngle = -90f,
-                sweepAngle = 360f * animated,
-                useCenter = false,
-                topLeft = topLeft,
-                size = arcSize,
-                style = Stroke(width = strokeWidth, cap = StrokeCap.Round),
-            )
-        }
-        Column(horizontalAlignment = Alignment.CenterHorizontally) {
-            Text(
-                text = collected.toString(),
-                style = MaterialTheme.typography.titleLarge,
-                fontFamily = GameFontFamily,
-                fontWeight = FontWeight.ExtraBold,
-                color = WildlifeTheme.colors.parchment,
-            )
-            Text(
-                text = "of $total",
-                style = MaterialTheme.typography.labelSmall,
-                fontFamily = GameFontFamily,
-                color = MaterialTheme.colorScheme.onSurfaceVariant,
-            )
-        }
-    }
-}
-
-@Composable
-private fun GameProgressBar(fraction: Float, accent: Color) {
-    val animated by animateFloatAsState(fraction.coerceIn(0f, 1f), tween(700), label = "xp-bar")
-    val pill = RoundedCornerShape(50)
-    Box(
-        modifier = Modifier
-            .fillMaxWidth()
-            .height(12.dp)
-            .clip(pill)
-            .background(MaterialTheme.colorScheme.surfaceVariant),
-    ) {
-        Box(
-            modifier = Modifier
-                .fillMaxHeight()
-                .fillMaxWidth(animated)
-                .clip(pill)
-                .background(
-                    Brush.horizontalGradient(
-                        listOf(accent.copy(alpha = 0.75f), accent),
-                    ),
-                ),
+            },
         )
-    }
-}
 
-@Composable
-private fun StatChip(
-    icon: ImageVector? = null,
-    value: String,
-    label: String,
-    accent: Color,
-    marker: (@Composable () -> Unit)? = null,
-    modifier: Modifier = Modifier,
-) {
-    Surface(
-        modifier = modifier,
-        shape = MaterialTheme.shapes.medium,
-        color = MaterialTheme.colorScheme.surfaceVariant,
-        border = BorderStroke(1.dp, accent.copy(alpha = 0.35f)),
-    ) {
-        Row(
-            modifier = Modifier.padding(horizontal = WildlifeSpacing.Small, vertical = 6.dp),
-            verticalAlignment = Alignment.CenterVertically,
-            horizontalArrangement = Arrangement.spacedBy(6.dp),
-        ) {
-            Box(
-                modifier = Modifier.size(26.dp).background(accent.copy(alpha = 0.18f), CircleShape),
-                contentAlignment = Alignment.Center,
-            ) {
-                when {
-                    marker != null -> marker()
-                    icon != null -> Icon(icon, contentDescription = null, tint = accent, modifier = Modifier.size(16.dp))
-                }
-            }
-            Column {
-                Text(
-                    text = value,
-                    style = MaterialTheme.typography.titleMedium,
-                    fontFamily = GameFontFamily,
-                    fontWeight = FontWeight.ExtraBold,
-                    color = WildlifeTheme.colors.parchment,
-                    maxLines = 1,
-                    overflow = TextOverflow.Ellipsis,
-                )
-                Text(
-                    text = label,
-                    style = MaterialTheme.typography.labelSmall,
-                    color = MaterialTheme.colorScheme.onSurfaceVariant,
-                    maxLines = 1,
-                )
-            }
-        }
     }
 }
 
@@ -492,150 +351,247 @@ private fun QuestBadge(
     observedTaxa: Set<Long>,
     modifier: Modifier = Modifier,
 ) {
+    val colors = WildlifeTheme.colors
     val isIcons = achievement.label == "icons"
-    val title = if (isIcons) "Regional Icons" else "Regional Essentials"
-    val accent = if (isIcons) WildlifeTheme.colors.gold else WildlifeTheme.colors.oliveStrong
+    // "Regional" is dropped: these sit inside a header already titled with the region, so
+    // the word did no work and pushed the longer label onto a second line.
+    val title = if (isIcons) "Icons" else "Essentials"
+    // Takes the regional-standing tokens, so a quest is coloured the same as the marks it
+    // asks you to collect rather than by an unrelated gold/olive pair.
+    val accent = if (isIcons) colors.icon else colors.essential
+    val markName = if (isIcons) "regional_icon" else "regional_essential"
     val done = achievement.taxonIds.count { it in observedTaxa }
     val goal = achievement.taxonIds.size
     val complete = goal > 0 && done >= goal
-    Surface(
-        modifier = modifier,
-        shape = MaterialTheme.shapes.medium,
-        color = accent.copy(alpha = 0.10f),
-        border = BorderStroke(1.dp, accent.copy(alpha = if (complete) 0.9f else 0.4f)),
+    val fraction = if (goal == 0) 0f else done.toFloat() / goal
+
+    Column(
+        modifier = modifier
+            .clip(RoundedCornerShape(12.dp))
+            .background(MaterialTheme.colorScheme.surface)
+            .border(
+                width = if (complete) 1.5.dp else 1.dp,
+                color = if (complete) accent else MaterialTheme.colorScheme.outlineVariant,
+                shape = RoundedCornerShape(12.dp),
+            )
+            .padding(11.dp),
     ) {
+        // Two rows: mark, title and tally on one line; the measure beneath it.
         Row(
-            modifier = Modifier.padding(WildlifeSpacing.Small),
             verticalAlignment = Alignment.CenterVertically,
-            horizontalArrangement = Arrangement.spacedBy(WildlifeSpacing.Small),
+            horizontalArrangement = Arrangement.spacedBy(8.dp),
         ) {
-            if (isIcons) {
-                RegionalCollectionStamp(RegionalCollectionMark.ICON)
-            } else {
-                RegionalCollectionStamp(RegionalCollectionMark.ESSENTIAL)
-            }
-            Column {
+            // Drawn bare, not matted: nothing sits behind it here, so the disc that keeps
+            // the mark readable over photography would just be a circle around a circle.
+            FieldMark(markName, accent, Modifier.size(21.dp))
+            Text(
+                text = title.uppercase(),
+                style = FieldLabelStyle,
+                color = colors.parchmentDim,
+                maxLines = 2,
+                overflow = TextOverflow.Ellipsis,
+                modifier = Modifier.weight(1f),
+            )
+            Row(verticalAlignment = Alignment.Bottom) {
                 Text(
-                    text = title,
-                    style = MaterialTheme.typography.labelMedium,
-                    fontFamily = GameFontFamily,
+                    text = done.toString(),
+                    fontFamily = DisplayFontFamily,
                     fontWeight = FontWeight.SemiBold,
-                    color = WildlifeTheme.colors.parchment,
-                    maxLines = 1,
-                    overflow = TextOverflow.Ellipsis,
+                    fontSize = 19.sp,
+                    color = if (complete) accent else colors.parchment,
                 )
                 Text(
-                    text = "$done / $goal",
-                    style = MaterialTheme.typography.titleMedium,
-                    fontFamily = GameFontFamily,
-                    fontWeight = FontWeight.Bold,
-                    color = accent,
+                    text = "/$goal",
+                    fontFamily = DisplayFontFamily,
+                    fontWeight = FontWeight.Medium,
+                    fontSize = 13.sp,
+                    color = colors.parchmentFaint,
+                    modifier = Modifier.padding(bottom = 1.dp),
                 )
             }
         }
+        Spacer(Modifier.height(8.dp))
+        JournalProgressBar(fraction = fraction, height = 4.dp, accent = accent)
     }
 }
 
+/**
+ * The search field with the filter sheet's entry point beside it.
+ *
+ * Filters sits here rather than in the selector row below because the two together are
+ * "narrow what you are looking at": typing a name and setting an axis are the same
+ * intent, and the pairing leaves the selector row to carry only the axes it shows.
+ */
 @Composable
-private fun RankBadge(tier: RankTier, accent: Color) {
-    Surface(
-        shape = CircleShape,
-        color = accent.copy(alpha = 0.16f),
-        border = BorderStroke(1.5.dp, accent.copy(alpha = 0.55f)),
+private fun SearchRow(
+    query: String,
+    onQueryChange: (String) -> Unit,
+    activeCount: Int,
+    onOpenFilters: () -> Unit,
+    onClearFilters: () -> Unit,
+) {
+    Row(
+        modifier = Modifier.fillMaxWidth(),
+        horizontalArrangement = Arrangement.spacedBy(WildlifeSpacing.Small),
+        verticalAlignment = Alignment.CenterVertically,
     ) {
-        Row(
-            modifier = Modifier.padding(start = 6.dp, end = WildlifeSpacing.Card, top = 5.dp, bottom = 5.dp),
-            verticalAlignment = Alignment.CenterVertically,
-            horizontalArrangement = Arrangement.spacedBy(6.dp),
-        ) {
-            Box(
-                modifier = Modifier.size(26.dp).background(accent.copy(alpha = 0.9f), CircleShape),
-                contentAlignment = Alignment.Center,
-            ) {
-                Icon(
-                    tier.icon,
-                    contentDescription = null,
-                    tint = MaterialTheme.colorScheme.onPrimary,
-                    modifier = Modifier.size(16.dp),
-                )
-            }
-            Text(
-                text = tier.title,
-                style = MaterialTheme.typography.labelLarge,
-                fontFamily = GameFontFamily,
-                fontWeight = FontWeight.SemiBold,
-                color = WildlifeTheme.colors.parchment,
-            )
+        CollectionSearchBar(
+            query = query,
+            onQueryChange = onQueryChange,
+            modifier = Modifier.weight(1f),
+        )
+        FiltersButton(activeCount = activeCount, onClick = onOpenFilters)
+        if (activeCount > 0) {
+            ClearFiltersButton(onClear = onClearFilters)
         }
     }
 }
 
 /**
- * All collection controls on a single horizontally-scrolling row of dropdowns: status filter,
- * taxonomic group (when the region has any), and sort order. A compact count sits underneath.
+ * The axis selectors and sort.
+ *
+ * Status and Standing are inline because they are the pair the axis split exists to
+ * combine — "which Essentials am I still missing?" is answerable here without the sheet.
+ * Rarity and Group stay behind the Filters button above.
+ *
+ * The row does not scroll. A control the user has to drag sideways to find is a control
+ * most people never find, so everything here is sized to fit a phone at default text size.
+ *
+ * Each axis carries its own accent; sort is deliberately achromatic, which is what
+ * separates the things that narrow the grid from the things that do not.
  */
 @Composable
 private fun FilterBar(
-    selectedFilter: CollectionFilter,
-    onFilter: (CollectionFilter) -> Unit,
-    presentGroups: List<SpeciesGroup>,
-    selectedGroup: SpeciesGroup?,
-    onGroup: (SpeciesGroup?) -> Unit,
+    filters: CollectionFilters,
+    onFilters: (CollectionFilters) -> Unit,
     sort: CollectionSort,
     onSort: (CollectionSort) -> Unit,
     count: Int,
 ) {
-    val filterAccent = WildlifeTheme.colors.oliveStrong
-    val groupAccent = CaribbeanTeal
-    val sortAccent = WildlifeTheme.colors.gold
+    val colors = WildlifeTheme.colors
     Column(verticalArrangement = Arrangement.spacedBy(WildlifeSpacing.Micro)) {
         Row(
-            modifier = Modifier
-                .fillMaxWidth()
-                .horizontalScroll(rememberScrollState()),
+            modifier = Modifier.fillMaxWidth(),
             horizontalArrangement = Arrangement.spacedBy(WildlifeSpacing.Small),
+            verticalAlignment = Alignment.CenterVertically,
         ) {
             WildlifeDropdown(
-                selected = selectedFilter,
-                options = CollectionFilter.entries,
+                selected = filters.status,
+                options = StatusFilter.entries,
                 label = { it.label },
-                onSelected = onFilter,
-                accent = filterAccent,
-                leading = { FilterMark(it, filterAccent) },
+                onSelected = { onFilters(filters.copy(status = it)) },
+                accent = colors.axisStatus,
+                leading = { StatusMark(it, colors.axisStatus) },
+                pillLabel = { if (it == StatusFilter.ANY) "Status" else it.label },
             )
-            if (presentGroups.isNotEmpty()) {
-                val groupOptions = remember(presentGroups) {
-                    listOf<SpeciesGroup?>(null) + presentGroups
-                }
-                WildlifeDropdown(
-                    selected = selectedGroup,
-                    options = groupOptions,
-                    label = { it?.label ?: "All groups" },
-                    onSelected = onGroup,
-                    accent = groupAccent,
-                    leading = { group ->
-                        if (group == null) FilterGlyph(Icons.Filled.Category, groupAccent)
-                        else TaxonGroupGlyph(group.key, groupAccent, null, 20.dp)
-                    },
-                )
-            }
+            WildlifeDropdown(
+                selected = filters.standing,
+                options = StandingFilter.entries,
+                label = { it.label },
+                onSelected = { onFilters(filters.copy(standing = it)) },
+                accent = colors.axisStanding,
+                leading = { StandingMark(it, colors.axisStanding) },
+                pillLabel = { if (it == StandingFilter.ANY) "Standing" else it.label },
+            )
             WildlifeDropdown(
                 selected = sort,
                 options = CollectionSort.entries,
                 label = { it.label },
                 onSelected = onSort,
-                accent = sortAccent,
-                leading = { sort ->
-                    if (sort == CollectionSort.RARITY) EncounterTrace(SpeciesCardRarity.RARE)
-                    else FilterGlyph(sort.icon, sortAccent)
-                },
+                // Achromatic on purpose: sort never narrows the set, and giving it an axis
+                // colour would file it alongside the filters.
+                accent = colors.parchmentDim,
+                leading = { option -> SortMark(option, colors.parchmentDim) },
             )
         }
         Text(
             text = if (count == 1) "1 species" else "$count species",
             style = MaterialTheme.typography.labelMedium,
-            color = WildlifeTheme.colors.mutedText,
+            color = colors.mutedText,
         )
+    }
+}
+
+/**
+ * Undo every axis at once, immediately beside the Filters button.
+ *
+ * Clearing used to live only inside the sheet, which meant getting back to the full guide
+ * took opening a sheet to press a button and dismissing it again — three actions to undo
+ * one. It sits next to Filters rather than under the grid controls because it belongs to
+ * the same idea, and because a row of its own would push the grid down whenever a filter
+ * was set.
+ *
+ * It renders only when something is active: a clear control with nothing to clear
+ * advertises an action that does nothing.
+ */
+@Composable
+private fun ClearFiltersButton(onClear: () -> Unit) {
+    val colors = WildlifeTheme.colors
+    Box(
+        modifier = Modifier
+            .size(44.dp)
+            .clip(CircleShape)
+            .border(1.dp, colors.parchmentDim.copy(alpha = 0.40f), CircleShape)
+            .clickable(onClick = onClear)
+            .semantics { contentDescription = "Clear all filters" },
+        contentAlignment = Alignment.Center,
+    ) {
+        ClearGlyph(colors.parchmentDim, Modifier.size(14.dp))
+    }
+}
+
+/**
+ * The sheet entry point: glyph and count only.
+ *
+ * It carries no label so that the search field beside it keeps a usable width. The count
+ * is what carries the state — a filter set on a dismissed sheet is otherwise invisible —
+ * so the badge is the one part that must never be dropped for space.
+ */
+@Composable
+private fun FiltersButton(activeCount: Int, onClick: () -> Unit) {
+    val colors = WildlifeTheme.colors
+    val active = activeCount > 0
+    // parchmentDim rather than parchmentFaint when inactive: faint put the button close
+    // enough to the background that it read as disabled rather than as merely quiet.
+    val chrome = if (active) colors.parchment else colors.parchmentDim
+    Row(
+        modifier = Modifier
+            .heightIn(min = 44.dp)
+            .clip(CircleShape)
+            .background(if (active) chrome.copy(alpha = 0.12f) else Color.Transparent)
+            .border(
+                width = if (active) 1.5.dp else 1.dp,
+                color = chrome.copy(alpha = if (active) 0.75f else 0.50f),
+                shape = CircleShape,
+            )
+            .clickable(onClick = onClick)
+            .semantics {
+                contentDescription = if (active) "Filters, $activeCount active" else "Filters"
+            }
+            .padding(horizontal = WildlifeSpacing.Card),
+        verticalAlignment = Alignment.CenterVertically,
+        horizontalArrangement = Arrangement.spacedBy(6.dp),
+    ) {
+        FilterGlyph(Icons.Filled.Tune, chrome)
+        if (active) {
+            Text(
+                text = activeCount.toString(),
+                fontFamily = DisplayFontFamily,
+                fontWeight = FontWeight.Bold,
+                fontSize = 13.sp,
+                color = colors.parchment,
+            )
+        }
+    }
+}
+
+/** Sort's leading marks, all at glyph size so no option outweighs its peers. */
+@Composable
+private fun SortMark(option: CollectionSort, tint: Color) {
+    if (option == CollectionSort.RARITY) {
+        FieldMark("rarity_rare", tint, Modifier.size(18.dp))
+    } else {
+        FilterGlyph(option.icon, tint)
     }
 }
 
@@ -645,18 +601,7 @@ private fun FilterGlyph(icon: ImageVector, tint: Color) {
 }
 
 @Composable
-private fun FilterMark(filter: CollectionFilter, tint: Color) {
-    when (filter) {
-        CollectionFilter.RARE -> EncounterTrace(SpeciesCardRarity.RARE)
-        CollectionFilter.ESSENTIALS -> RegionalCollectionStamp(RegionalCollectionMark.ESSENTIAL)
-        CollectionFilter.ICONS -> RegionalCollectionStamp(RegionalCollectionMark.ICON)
-        CollectionFilter.LEGENDS -> RegionalLegendMark()
-        else -> FilterGlyph(filter.icon, tint)
-    }
-}
-
-@Composable
-private fun EmptyFilterNote() {
+private fun EmptyFilterNote(activeLabels: List<String>) {
     Column(
         modifier = Modifier
             .fillMaxWidth()
@@ -677,8 +622,15 @@ private fun EmptyFilterNote() {
                 modifier = Modifier.size(26.dp),
             )
         }
+        // Naming the active axes tells the user what to relax. With filters combining, an
+        // empty grid is usually the result of two axes meeting, and a bare "no matches"
+        // leaves them guessing which one to undo.
         Text(
-            text = "No species match this filter yet.",
+            text = if (activeLabels.isEmpty()) {
+                "No species match your search yet."
+            } else {
+                "Nothing matches " + activeLabels.joinToString(" · ") + " yet."
+            },
             style = MaterialTheme.typography.bodyMedium,
             color = MaterialTheme.colorScheme.onSurfaceVariant,
             textAlign = TextAlign.Center,
@@ -689,24 +641,6 @@ private fun EmptyFilterNote() {
 // endregion
 
 // region — Rank + region metadata
-
-private data class RankTier(val title: String, val icon: ImageVector, val floor: Int)
-
-// UI-only playful collector ranks tied to collected count. Distinct from Profile's real XP levels.
-private val RANK_TIERS = listOf(
-    RankTier("Novice", Icons.Filled.Spa, 0),
-    RankTier("Observer", Icons.Filled.Visibility, 10),
-    RankTier("Tracker", Icons.Filled.Pets, 40),
-    RankTier("Field Naturalist", Icons.Filled.Park, 100),
-    RankTier("Ranger", Icons.Filled.MilitaryTech, 200),
-)
-
-private fun rankTierFor(collected: Int): RankTier =
-    RANK_TIERS.last { collected >= it.floor }
-
-private fun nextRankTier(collected: Int): RankTier? =
-    RANK_TIERS.firstOrNull { collected < it.floor }
-
 
 // endregion
 
@@ -724,11 +658,11 @@ private fun CollectionSpecies.rarityWeight(): Int = when {
 private fun CollectionSpecies.toCardModel() = SpeciesCardModel(
     key = key,
     label = label,
+    // The caption states your relationship to the species, never its rarity or standing:
+    // the pill under the plate already says the rarity, and the frame says the standing.
+    // Repeating them here read as a stutter ("UNCOMMON" above the word "Uncommon").
     supportingText = when {
-        observationCount == 0 -> listOfNotNull(
-            encounterRarity?.label(),
-            regionalPrestige?.takeIf { it == RegionalPrestige.LEGENDARY }?.let { "Regional Legend" },
-        ).joinToString(" · ")
+        observationCount == 0 -> "Not yet recorded"
         awaitingSpeciesIdentification -> "Awaiting species ID"
         observationCount == 1 -> "1 observation"
         else -> "$observationCount observations"
@@ -744,6 +678,7 @@ private fun CollectionSpecies.toCardModel() = SpeciesCardModel(
     regionalLegend = regionalPrestige == RegionalPrestige.LEGENDARY,
     placeholderIcon = groupFor(taxonGroup)?.icon,
     supportingTextItalic = observationCount == 0 || awaitingSpeciesIdentification,
+    collected = observationCount > 0,
     status = if (bestQualityGrade == "research") {
         SpeciesCardStatus.RESEARCH_GRADE
     } else {
@@ -751,14 +686,6 @@ private fun CollectionSpecies.toCardModel() = SpeciesCardModel(
     },
     rarity = encounterRarity?.toCardRarity(),
 )
-
-private fun EncounterRarity.label() = when (this) {
-    EncounterRarity.UNKNOWN -> "Rarity under review"
-    EncounterRarity.COMMON -> "Common"
-    EncounterRarity.UNCOMMON -> "Uncommon"
-    EncounterRarity.RARE -> "Rare"
-    EncounterRarity.VERY_RARE -> "Very rare"
-}
 
 private fun EncounterRarity.toCardRarity() = when (this) {
     EncounterRarity.UNKNOWN -> null

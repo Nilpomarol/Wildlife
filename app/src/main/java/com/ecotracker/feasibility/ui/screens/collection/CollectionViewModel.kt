@@ -17,6 +17,9 @@ import com.wildlife.feasibility.RegionalCatalogueAssetStore
 import com.wildlife.feasibility.InstalledRegionalAchievement
 import com.wildlife.feasibility.CatalogueStore
 import com.wildlife.feasibility.OnDeviceWildlifeRepository
+import com.wildlife.feasibility.ProgressionProjection
+import com.wildlife.feasibility.ProgressionState
+import com.wildlife.feasibility.ProgressionStore
 import com.wildlife.feasibility.RegionalSilhouetteCandidate
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.launch
@@ -43,6 +46,11 @@ data class CollectionUiState(
     val installedCatalogues: List<InstalledRegionalCatalogue> = emptyList(),
     val achievements: List<InstalledRegionalAchievement> = emptyList(),
     val observedRegionalTaxa: Set<Long> = emptySet(),
+    /**
+     * The account's real XP progression. The header shows this rather than a
+     * collection-local rank ladder, so one vocabulary of titles exists app-wide.
+     */
+    val progression: ProgressionState? = null,
 ) {
     val awaitingIdentificationCount: Int
         get() = entries.count(CollectionSpecies::awaitingSpeciesIdentification)
@@ -137,6 +145,15 @@ class CollectionViewModel(application: Application) : AndroidViewModel(applicati
                 installedCatalogues = catalogues,
                 achievements = content.achievements(selectedKey),
                 observedRegionalTaxa = observations.mapNotNull { it.collectionTaxonId ?: it.taxonId }.toSet(),
+                // Read-only projection: the shell owns recording the highest level reached.
+                progression = account?.let {
+                    val store = ProgressionStore(context)
+                    ProgressionProjection.project(
+                        totalXp = summary?.totalXp ?: 0,
+                        selectedLevelKey = store.selectedLevelKey(it.userId),
+                        highestLevelKey = store.highestLevelKey(it.userId),
+                    )
+                },
             )
         }.getOrElse { error ->
             CollectionUiState(

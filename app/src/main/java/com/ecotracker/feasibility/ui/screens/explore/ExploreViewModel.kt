@@ -131,6 +131,7 @@ internal object ExploreProjection {
                 observed = collected != null,
                 card = SpeciesCardModel(
                     key = "taxon:${species.taxonId}",
+                    collected = collected != null,
                     label = label,
                     supportingText = if (species.commonName != null) {
                         species.scientificName
@@ -207,6 +208,7 @@ internal object ExploreProjection {
                 observed = collected != null,
                 card = SpeciesCardModel(
                     key = "taxon:${taxon.taxonId}",
+                    collected = collected != null,
                     label = taxon.commonName,
                     supportingText = taxon.scientificName,
                     photoUrl = displayedPhoto,

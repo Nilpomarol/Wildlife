@@ -28,13 +28,16 @@ fun <T> SpeciesGrid(
     model: (T) -> SpeciesCardModel,
     onClick: (T) -> Unit,
     modifier: Modifier = Modifier,
-    cardAspectRatio: Float = 0.72f,
+    /** Overrides the proportion derived from the column count. Lower ratio = taller card. */
+    cardAspectRatio: Float? = null,
     header: (@Composable () -> Unit)? = null,
 ) {
     val fontScale = LocalDensity.current.fontScale
     BoxWithConstraints(modifier) {
+        val columns = responsiveSpeciesGridColumns(maxWidth.value, fontScale)
+        val ratio = cardAspectRatio ?: speciesCardAspectRatio(columns)
         LazyVerticalGrid(
-            columns = GridCells.Fixed(responsiveSpeciesGridColumns(maxWidth.value, fontScale)),
+            columns = GridCells.Fixed(columns),
             modifier = Modifier.fillMaxSize(),
             contentPadding = PaddingValues(
                 start = WildlifeSpacing.Screen, end = WildlifeSpacing.Screen, bottom = WildlifeSpacing.Section,
@@ -50,7 +53,7 @@ fun <T> SpeciesGrid(
             items(entries, key = key) { entry ->
                 SpeciesCard(
                     species = model(entry), onClick = { onClick(entry) },
-                    modifier = Modifier.fillMaxWidth().aspectRatio(cardAspectRatio).animateItem(),
+                    modifier = Modifier.fillMaxWidth().aspectRatio(ratio).animateItem(),
                 )
             }
         }

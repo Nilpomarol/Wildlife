@@ -27,9 +27,10 @@ import androidx.compose.ui.semantics.contentDescription
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.dp
 import com.wildlife.feasibility.InstalledRegionalCatalogue
-import com.wildlife.feasibility.ui.theme.CaribbeanTeal
-import com.wildlife.feasibility.ui.theme.GameFontFamily
-import com.wildlife.feasibility.ui.theme.WildlifeGold
+import com.wildlife.feasibility.ui.art.RegionMark
+import com.wildlife.feasibility.ui.theme.CaribbeanTurquoise
+import com.wildlife.feasibility.ui.theme.EastAfricaOchre
+import com.wildlife.feasibility.ui.theme.MediterraneanTerracotta
 import com.wildlife.feasibility.ui.theme.WildlifeOliveStrong
 import com.wildlife.feasibility.ui.theme.WildlifeSpacing
 import com.wildlife.feasibility.ui.theme.WildlifeTheme
@@ -38,26 +39,38 @@ import com.wildlife.feasibility.ui.theme.WildlifeTheme
 data class RegionVisual(val icon: ImageVector, val accent: Color)
 
 fun regionVisual(regionKey: String): RegionVisual = when (regionKey) {
-    "mediterranean_europe" -> RegionVisual(Icons.Filled.Forest, WildlifeOliveStrong)
-    "east_africa" -> RegionVisual(Icons.Filled.Landscape, WildlifeGold)
-    "caribbean" -> RegionVisual(Icons.Filled.Waves, CaribbeanTeal)
+    "mediterranean_europe" -> RegionVisual(Icons.Filled.Forest, MediterraneanTerracotta)
+    "east_africa" -> RegionVisual(Icons.Filled.Landscape, EastAfricaOchre)
+    "caribbean" -> RegionVisual(Icons.Filled.Waves, CaribbeanTurquoise)
     else -> RegionVisual(Icons.Filled.Public, WildlifeOliveStrong)
 }
 
+/**
+ * A region's identity mark: its own emblem where one is bundled, otherwise the generic
+ * icon from [regionVisual]. New regions can ship before their artwork does.
+ */
 @Composable
-fun RegionGlyph(visual: RegionVisual, size: Int = 26) {
+fun RegionGlyph(visual: RegionVisual, size: Int = 26, regionKey: String? = null) {
     Box(
         modifier = Modifier
             .size(size.dp)
             .background(visual.accent.copy(alpha = 0.22f), CircleShape),
         contentAlignment = Alignment.Center,
     ) {
-        Icon(
-            imageVector = visual.icon,
-            contentDescription = null,
-            tint = visual.accent,
-            modifier = Modifier.size((size * 0.62f).dp),
+        val markSize = (size * 0.66f).dp
+        val hasMark = regionKey != null && RegionMark(
+            regionKey = regionKey,
+            color = visual.accent,
+            modifier = Modifier.size(markSize),
         )
+        if (!hasMark) {
+            Icon(
+                imageVector = visual.icon,
+                contentDescription = null,
+                tint = visual.accent,
+                modifier = Modifier.size((size * 0.62f).dp),
+            )
+        }
     }
 }
 
@@ -85,7 +98,7 @@ fun RegionSelector(
         label = InstalledRegionalCatalogue::displayName,
         onSelected = { onSelectRegion(it.regionKey) },
         accent = visual.accent,
-        leading = { RegionGlyph(regionVisual(it.regionKey)) },
+        leading = { RegionGlyph(regionVisual(it.regionKey), regionKey = it.regionKey) },
         modifier = modifier,
     )
 }
@@ -111,11 +124,10 @@ fun RegionPill(
             verticalAlignment = Alignment.CenterVertically,
             horizontalArrangement = Arrangement.spacedBy(WildlifeSpacing.Small),
         ) {
-            RegionGlyph(visual)
+            RegionGlyph(visual, regionKey = selected.regionKey)
             Text(
                 text = selected.displayName,
                 style = MaterialTheme.typography.labelLarge,
-                fontFamily = GameFontFamily,
                 fontWeight = FontWeight.SemiBold,
                 color = WildlifeTheme.colors.parchment,
             )

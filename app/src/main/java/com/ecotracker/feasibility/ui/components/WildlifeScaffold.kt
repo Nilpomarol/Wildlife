@@ -24,12 +24,18 @@ fun WildlifeScaffold(
     onBack: (() -> Unit)? = null,
     actions: @Composable RowScope.() -> Unit = {},
     bottomBar: @Composable () -> Unit = {},
+    /**
+     * Screens whose own header already carries the title (such as the full-bleed ranger
+     * header) drop the app bar rather than showing the name twice.
+     */
+    showTopBar: Boolean = true,
     content: @Composable (PaddingValues) -> Unit,
 ) {
     Scaffold(
         containerColor = MaterialTheme.colorScheme.background,
         contentWindowInsets = WindowInsets.safeDrawing,
         topBar = {
+            if (!showTopBar) return@Scaffold
             TopAppBar(
                 title = {
                     Text(

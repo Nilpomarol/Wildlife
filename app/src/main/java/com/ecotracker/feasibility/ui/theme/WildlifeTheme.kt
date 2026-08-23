@@ -37,20 +37,7 @@ object WildlifeTheme {
 @Composable
 fun WildlifeTheme(content: @Composable () -> Unit) {
     CompositionLocalProvider(
-        LocalWildlifeColors provides WildlifeColors(
-            parchment = WildlifeParchment,
-            olive = WildlifeOlive,
-            oliveStrong = WildlifeOliveStrong,
-            gold = WildlifeGold,
-            legendary = WildlifeGoldStrong,
-            silhouette = WildlifeSilhouette,
-            confirmed = WildlifeConfirmed,
-            mutedText = WildlifeTextMuted,
-            rarityCommon = WildlifeRarityCommon,
-            rarityUncommon = WildlifeRarityUncommon,
-            rarityRare = WildlifeRarityRare,
-            rarityVeryRare = WildlifeRarityVeryRare,
-        ),
+        LocalWildlifeColors provides wildlifeColors(),
     ) {
         MaterialTheme(
             colorScheme = WildlifeDarkColorScheme,

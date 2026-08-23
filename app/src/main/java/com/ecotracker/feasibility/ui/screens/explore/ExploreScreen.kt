@@ -483,6 +483,7 @@ private fun previewEntry(
         supportingText = scientificName,
         photoUrl = null,
         supportingTextItalic = true,
+        collected = observed,
         status = if (observed) SpeciesCardStatus.RESEARCH_GRADE else SpeciesCardStatus.NONE,
     ),
 )
