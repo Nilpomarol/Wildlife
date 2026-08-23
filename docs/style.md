@@ -1287,6 +1287,52 @@ superseded, and the five sky/ridge/moonlight tokens that existed only to colour 
 The test for all four: *is this depicting the natural world or the earned state of the
 collection?* If it is decorating a control, remove it.
 
+### The navigation strip
+
+The bar is **the guide's index strip**, not a Material bottom bar wearing the palette.
+There is no raised centre button and no tinted-icon selection: that arrangement *is* the
+stock Android bar, and repainting it does not stop it reading as one. An earlier attempt
+restyled the Material shape — a folder tab, a hairline arcing over a ringed lens — and was
+rejected for exactly that. **Restyling a Material shape is not a redesign of it.**
+
+What carries the strip instead:
+
+- **A printed double rule** across the top — one firm line, one hairline. That rule is the
+  separation. The strip needs no elevation, no shadow and no border, the same way the
+  header earns its edge with a value step rather than an ornament.
+- **The page's own ground**, not fully opaque at the top, so the painting bleeds through
+  the first few pixels and the strip sits *on* the page.
+- **Selection is an inversion.** The current destination is a block of cream stock carrying
+  dark ink — the printed tab of a thumb-indexed guide. It is the only light thing on the
+  screen, so it needs no accent, underline or outline to be found.
+- **Capture is the same block stamped in olive**, one material apart from its cream
+  neighbour: the row reads as one set while the action stays distinct from the four places.
+  It carries no word, because it is the only filled olive thing in the app; the word
+  survives as its `contentDescription`.
+
+The nav inset is **absorbed into the bar's height**, not padded around it, so the printed
+ground reaches the screen edge instead of stopping above the gesture pill.
+
+**Press feedback takes the block's shape.** The cell owns the gesture — the whole 72dp cell,
+not the 56dp block, because shrinking a touch target to match artwork trades ergonomics for
+looks — but its indication is switched off and the ripple is drawn on the block, clipped to
+the block's shape and bounds. An unselected cell presses in the shape it is about to become.
+A ripple filling the cell as a hard rectangle is not the shape of the thing being pressed,
+and is not a shape that appears anywhere else in the design.
+
+### Navigation marks
+
+The five marks are owner artwork in `assets/nav_marks/<route>.svg`, loaded by the same
+single-path loader as the field marks and rank badges, with hand-drawn fallbacks in
+`ui/art/NavMarks.kt` so a missing file never renders blank.
+
+Supplied artwork has whatever proportions it has — the camera is 2.18:1, the ranger 0.76:1
+— and fitting each into the same square box makes them cover very different amounts of it
+and read at different weights. `NavMark` scales each by the square root of its aspect
+deviation, holding the covered *area* roughly constant. **Do not fix this by baking padding
+into the artwork or by sizing each mark at its call site**: padding shrinks the mark, and
+per-call sizing breaks the drop-in contract that lets new art arrive without code.
+
 ### Grid geometry
 
 Superseded by §30: cards are square tiles with the caption laid over the plate, phones show
