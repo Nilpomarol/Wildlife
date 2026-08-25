@@ -31,6 +31,7 @@ class ObservationDensityStoreTest {
 
     @Test fun `raw observations are immediately reduced to coarse anonymous cells and cached`() {
         val requests = AtomicInteger()
+        var requestedUrl: URL? = null
         val response = page(
             total = 3,
             observations = listOf(
@@ -42,7 +43,11 @@ class ObservationDensityStoreTest {
         var now = 1_000L
         val store = ObservationDensityStore(
             context,
-            ReadOnlyHttpClient({ url -> requests.incrementAndGet(); JsonConnection(url, response) }),
+            ReadOnlyHttpClient({ url ->
+                requests.incrementAndGet()
+                requestedUrl = url
+                JsonConnection(url, response)
+            }),
             { now },
         )
         val first = store.load(42)
@@ -60,6 +65,7 @@ class ObservationDensityStoreTest {
         val cached = store.load(42)
         assertTrue(cached.fromCache)
         assertEquals(1, requests.get())
+        assertTrue(requestedUrl.toString().contains("per_page=50"))
         val persisted = java.io.File(context.filesDir, "observation_density_v1/taxon-42.json").readText()
         assertFalse(persisted.contains("observer"))
         assertFalse(persisted.contains("41.3874"))

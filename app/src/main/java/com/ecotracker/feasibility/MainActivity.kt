@@ -58,6 +58,7 @@ class MainActivity : ComponentActivity() {
     private var resumeRevision by mutableStateOf(0)
     private var activeRoute = WildlifeDestination.HOME.route
     private var observationSyncInFlight = false
+    private val resumeProjectionGate = ResumeProjectionRefreshGate()
     private val locationPermissionLauncher = registerForActivityResult(
         ActivityResultContracts.RequestMultiplePermissions(),
     ) { grants ->
@@ -108,7 +109,7 @@ class MainActivity : ComponentActivity() {
         lifecycleScope.launch(Dispatchers.IO) {
             ObservationSyncScheduler.schedule(this@MainActivity)
         }
-        resumeRevision++
+        if (resumeProjectionGate.consumeShouldRefresh()) resumeRevision++
         syncObservationsOnDevice()
         refreshLocationContext()
     }
@@ -213,7 +214,7 @@ class MainActivity : ComponentActivity() {
                     },
                     onObservations = { openObservations(navController) },
                     onOpenSpecies = { taxonId ->
-                        startActivity(
+                        openSpeciesDetail(
                             SpeciesDetailActivity.intent(
                                 this@MainActivity,
                                 taxonId,
@@ -239,7 +240,7 @@ class MainActivity : ComponentActivity() {
                     onBack = null,
                     onOpenSpecies = { species ->
                         species.taxonId?.let { taxonId ->
-                            startActivity(
+                            openSpeciesDetail(
                                 SpeciesDetailActivity.intent(
                                     this@MainActivity, taxonId, species.label,
                                     collectionViewModel.uiState.selectedCatalogue?.regionKey,
@@ -263,7 +264,7 @@ class MainActivity : ComponentActivity() {
                         val species = exploreViewModel.uiState.entries.firstOrNull {
                             it.taxonId == taxonId
                         }
-                        startActivity(
+                        openSpeciesDetail(
                             SpeciesDetailActivity.intent(
                                 this@MainActivity,
                                 taxonId,
@@ -346,6 +347,12 @@ class MainActivity : ComponentActivity() {
         )
     }
 
+    /** Species Detail cannot mutate catalogue, collection or account state. */
+    private fun openSpeciesDetail(intent: Intent) {
+        resumeProjectionGate.suppressNextRefresh()
+        startActivity(intent)
+    }
+
     private fun syncObservationsOnDevice(force: Boolean = false) {
         val account = AccountStore(this).verified() ?: return
         if (observationSyncInFlight) return
@@ -356,22 +363,31 @@ class MainActivity : ComponentActivity() {
                 withContext(Dispatchers.IO) {
                     OnDeviceWildlifeRepository(this@MainActivity).use { repository ->
                         val result = repository.syncObservations(account, force = force)
-                        MarkerStore(this@MainActivity).load()
+                        val confirmedMarkerUuids = MarkerStore(this@MainActivity).load()
                             .asSequence()
                             .filter { it.state == MarkerState.CONFIRMED }
                             .mapNotNull { it.matchedObservationUuid }
                             .distinct()
-                            .forEach { uuid -> repository.confirmObservation(account, uuid) }
-                        result
+                            .toSet()
+                        val shouldRefresh = ForegroundProjectionRefreshPolicy.shouldRefresh(
+                            result,
+                            confirmedMarkerUuids,
+                        )
+                        confirmedMarkerUuids.forEach { uuid ->
+                            repository.confirmObservation(account, uuid)
+                        }
+                        ForegroundSyncOutcome(shouldRefresh)
                     }
                 }
-            }.onSuccess {
+            }.onSuccess { outcome ->
                 shellViewModel.observationSyncSucceeded()
-                when (activeRoute) {
-                    WildlifeDestination.HOME.route -> exploreViewModel.refreshLocal()
-                    WildlifeDestination.COLLECTION.route -> collectionViewModel.refresh()
-                    WildlifeDestination.EXPLORE.route -> exploreViewModel.refreshLocal()
-                    OBSERVATIONS_ROUTE -> observationsViewModel.refresh()
+                if (outcome.shouldRefreshProjection) {
+                    when (activeRoute) {
+                        WildlifeDestination.HOME.route -> exploreViewModel.refreshLocal()
+                        WildlifeDestination.COLLECTION.route -> collectionViewModel.refresh()
+                        WildlifeDestination.EXPLORE.route -> exploreViewModel.refreshLocal()
+                        OBSERVATIONS_ROUTE -> observationsViewModel.refresh()
+                    }
                 }
             }.onFailure { error ->
                 shellViewModel.observationSyncFailed(
@@ -524,6 +540,8 @@ class MainActivity : ComponentActivity() {
     /** A pending request to open the observations route, optionally filtered to one species. */
     private data class ObservationsRequest(val taxonId: Long?)
 
+    private data class ForegroundSyncOutcome(val shouldRefreshProjection: Boolean)
+
     companion object {
         private const val EXTRA_DESTINATION = "wildlife_destination"
         private const val EXTRA_TAXON_ID = "wildlife_observations_taxon_id"
@@ -543,5 +561,28 @@ class MainActivity : ComponentActivity() {
                 taxonId?.let { putExtra(EXTRA_TAXON_ID, it) }
                 addFlags(Intent.FLAG_ACTIVITY_CLEAR_TOP or Intent.FLAG_ACTIVITY_SINGLE_TOP)
             }
+    }
+}
+
+internal class ResumeProjectionRefreshGate {
+    private var suppressNext = false
+
+    fun suppressNextRefresh() {
+        suppressNext = true
+    }
+
+    fun consumeShouldRefresh(): Boolean {
+        val shouldRefresh = !suppressNext
+        suppressNext = false
+        return shouldRefresh
+    }
+}
+
+internal object ForegroundProjectionRefreshPolicy {
+    fun shouldRefresh(
+        result: ObservationSyncResult,
+        confirmedMarkerUuids: Set<String>,
+    ): Boolean = !result.cached || result.observations.any { observation ->
+        !observation.confirmed && observation.uuid in confirmedMarkerUuids
     }
 }

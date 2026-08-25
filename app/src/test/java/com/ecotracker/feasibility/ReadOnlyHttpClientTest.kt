@@ -4,6 +4,7 @@ import java.io.ByteArrayInputStream
 import java.net.HttpURLConnection
 import java.net.URL
 import org.junit.Assert.assertEquals
+import org.junit.Assert.assertFalse
 import org.junit.Assert.assertTrue
 import org.junit.Test
 
@@ -75,6 +76,49 @@ class ReadOnlyHttpClientTest {
         assertEquals(listOf(1_000L), sleeps)
     }
 
+    @Test
+    fun `rejects a declared oversized response before opening its body`() {
+        var bodyOpened = false
+        val client = ReadOnlyHttpClient(
+            connectionFactory = {
+                FakeConnection(
+                    it,
+                    200,
+                    declaredLength = 1_024L,
+                    onBodyOpened = { bodyOpened = true },
+                )
+            },
+            sleeper = {},
+        )
+
+        val error = runCatching {
+            client.getJson(
+                URL("https://example.test/large"),
+                policy("declared-large").copy(maxResponseBytes = 32L),
+            )
+        }.exceptionOrNull()
+
+        assertTrue(error is RemoteDataException.ResponseTooLarge)
+        assertFalse(bodyOpened)
+    }
+
+    @Test
+    fun `stops an oversized streamed response with no declared length`() {
+        val client = ReadOnlyHttpClient(
+            connectionFactory = { FakeConnection(it, 200, body = "{\"value\":\"too large\"}") },
+            sleeper = {},
+        )
+
+        val error = runCatching {
+            client.getJson(
+                URL("https://example.test/chunked"),
+                policy("streamed-large").copy(maxResponseBytes = 8L),
+            )
+        }.exceptionOrNull()
+
+        assertTrue(error is RemoteDataException.ResponseTooLarge)
+    }
+
     private fun policy(key: String) = ReadOnlyRequestPolicy(
         serviceName = "Test",
         userAgent = "Wildlife-Test/1",
@@ -82,11 +126,21 @@ class ReadOnlyHttpClientTest {
         minimumIntervalMs = 0,
     )
 
-    private class FakeConnection(url: URL, private val status: Int) : HttpURLConnection(url) {
+    private class FakeConnection(
+        url: URL,
+        private val status: Int,
+        private val body: String = "{}",
+        private val declaredLength: Long = -1L,
+        private val onBodyOpened: () -> Unit = {},
+    ) : HttpURLConnection(url) {
         override fun connect() = Unit
         override fun disconnect() = Unit
         override fun usingProxy(): Boolean = false
         override fun getResponseCode(): Int = status
-        override fun getInputStream() = ByteArrayInputStream("{}".toByteArray())
+        override fun getContentLengthLong(): Long = declaredLength
+        override fun getInputStream(): ByteArrayInputStream {
+            onBodyOpened()
+            return ByteArrayInputStream(body.toByteArray())
+        }
     }
 }

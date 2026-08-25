@@ -178,7 +178,7 @@ class ObservationDensityStore internal constructor(
         const val API = "https://api.inaturalist.org/v1"
         const val DIRECTORY = "observation_density_v1"
         const val SCHEMA_VERSION = 1
-        const val PAGE_SIZE = 200
+        const val PAGE_SIZE = 50
         const val MAX_PAGES = 3
         const val MAX_SNAPSHOTS = 40
         const val MAX_AGE_MS = 30L * 24L * 60L * 60L * 1_000L
@@ -188,6 +188,7 @@ class ObservationDensityStore internal constructor(
             rateLimitKey = "api.inaturalist.org",
             minimumIntervalMs = 1_100L,
             readTimeoutMs = 15_000,
+            maxResponseBytes = 4L * 1024L * 1024L,
         )
     }
 }
