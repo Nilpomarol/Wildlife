@@ -44,7 +44,7 @@ object CataloguePhotoPolicy {
         attribution(url, attribution, licenceCode)
 
     /**
-     * The credit shortened to fit one narrow line, as "Jorg Hempel / CC BY-SA".
+     * The credit shortened to fit one narrow line, as "Jorg Hempel / CC-BY-SA".
      *
      * Necessary rather than cosmetic. iNaturalist credits read
      * "(c) Name, some rights reserved (CC BY-SA)", and letting a 132dp tile ellipsise that
@@ -53,7 +53,7 @@ object CataloguePhotoPolicy {
      * the boilerplate between them credits more completely in less space.
      */
     fun compactCredit(attribution: String?, licenceCode: String?): String? {
-        val licence = displayLicence(licenceCode) ?: return null
+        val licence = compactDisplayLicence(licenceCode) ?: return null
         val raw = attribution?.trim()?.takeIf(String::isNotBlank) ?: return null
         val author = raw
             .removePrefix("(c)").removePrefix("(C)").removePrefix("©")
@@ -94,6 +94,15 @@ object CataloguePhotoPolicy {
         "cc0" -> "CC0"
         "cc-by" -> "CC BY"
         "cc-by-sa" -> "CC BY-SA"
+        else -> null
+    }
+
+    /** Hyphenated Creative Commons labels preserve the licence name in narrow credits. */
+    private fun compactDisplayLicence(value: String?): String? = when (value?.trim()?.lowercase()) {
+        "pdm" -> "Public Domain"
+        "cc0" -> "CC0"
+        "cc-by" -> "CC-BY"
+        "cc-by-sa" -> "CC-BY-SA"
         else -> null
     }
 }

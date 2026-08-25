@@ -1,8 +1,9 @@
 # Navigation mark artwork
 
-The bottom bar's five marks, supplied by the Wildlife product owner on 23 August 2026 and
-tinted at runtime — parchment ink on the dark strip, background ink on the selected cream
-cell, and a larger olive camera for Capture.
+The bottom bar's five marks are supplied by the Wildlife product owner and tinted at
+runtime — parchment ink on the dark strip, background ink on the selected cream cell, and
+a larger olive camera for Capture. Home, Collection, Capture and Profile were refreshed
+with the owner's 25 August 2026 exports; Explore retains the 23 August artwork.
 
 | File             | Destination | Subject                          |
 | ---------------- | ----------- | -------------------------------- |
@@ -12,10 +13,11 @@ cell, and a larger olive camera for Capture.
 | `explore.svg`    | Explore     | binoculars on a folded map       |
 | `profile.svg`    | Profile     | ranger in a campaign hat         |
 
-Each is the single filled path lifted out of the owner's Inkscape export, rewritten with a
-tight `viewBox` and no editor metadata. `ui/art/NavMarks.kt` still holds hand-drawn
-fallbacks and `NavMark` still prefers this directory, so a destination whose file is missing
-renders a drawing rather than a blank.
+Each file contains a single filled path from the owner's Inkscape export. The runtime loader
+fits that path from its own bounds, so the export's page size, `viewBox`, group transform and
+editor metadata do not affect layout. `ui/art/NavMarks.kt` still holds hand-drawn fallbacks
+and `NavMark` still prefers this directory, so a destination whose file is missing renders a
+drawing rather than a blank.
 
 ## Replacing or adding one
 
