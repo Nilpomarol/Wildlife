@@ -2,6 +2,7 @@
 
 **Companion to:** PRD v5 (Permanent read-only, regional expansion)
 **Date:** 21 August 2026
+**Replanned:** 24 August 2026 — post-cutover content/media remediation complete; broad UI consolidation may resume
 **Planning basis:** Solo developer, part-time (~12–15 h/week). Effort days are more reliable than calendar dates.
 
 ## 1. Product decision and current position
@@ -20,6 +21,12 @@ The project has also changed scope:
 
 The adopted region definitions and content/data contract are in [`regional_catalogues.md`](regional_catalogues.md). The owner-supplied workbook's animal suggestions are not approved inputs and are ignored.
 
+**Current priority change — 24 August 2026:** a post-cutover audit reopened the content gate after
+device lag exposed runtime paths omitted by the original synthetic benchmark. The shared content
+repository, asynchronous projections, media storage/worker orchestration, schema/publication
+integrity and production-path 25-region gate are now corrected. Broad UI work may resume while
+pilot curation and representative-device release checks continue independently.
+
 ## 2. Current implementation snapshot
 
 ### Complete
@@ -31,19 +38,20 @@ The adopted region definitions and content/data contract are in [`regional_catal
 - Compose Collection, Explore/Near Me, Species Detail, Capture/reward and account flow.
 - One observation draft can contain multiple same-sighting photos.
 - EXIF inspection/repair, candidate matching, explicit confirmation and delayed retry.
-- Provisional 580-entry Catalonia catalogue and durable attributed media/silhouettes.
+- Immutable schema-v3 regional content generation with global taxon/media deduplication and monotonic sequence-based publication.
+- Validated direct thumbnail/detail URLs, a bounded 192 MiB media cache with transactional SQLite metadata, and due-time-driven persistent current-region prefetch.
 - Foreground observation lifecycle sync including Research Grade transition rewards.
 - Coarse personal observation map with local visibility overrides.
 - Retained-data inventory, privacy-safe test report and deletion of Wildlife-owned local data.
 - Unit tests and debug build green as of the Gate 1 review.
 - Generated and bundled pilot catalogues for Mediterranean Europe, East Africa and the Caribbean, each with 10 Essentials and 5 Icons.
-- Local regional boundary assignment, region-bound collection/XP/achievements and active-region selection.
+- Local regional boundary assignment, location-derived current-region progress and independent Explore browsing.
 - Regional Home progress, Explore guide/Near Me filtering and Species Detail context.
 - Focused Observations route with grouped multi-photo handoffs, candidate review, retry and iNaturalist recovery guidance.
 
 ### Implemented but provisional
 
-- The legacy Catalonia snapshot remains only a detail/media migration cache; product browsing uses the active bundled regional catalogue.
+- Off-catalogue taxa alone use an isolated stale-while-revalidate cache; published browsing cannot enter it.
 - Pilot encounter rarity is generated from iNaturalist occurrence evidence and is explicitly draft/editorially revisable before release.
 - Level thresholds and global first-species XP are placeholder v0.1 rules.
 - Field Atlas completion effects and broad device/accessibility validation remain provisional.
@@ -52,6 +60,9 @@ The adopted region definitions and content/data contract are in [`regional_catal
   installed locally; remote delivery and publisher signing are intentionally not implemented yet.
 - A non-mutating pilot release audit reports each content, evidence, media and generated-pack
   blocker before a pilot may be frozen; owner curation and Gate 2 device checks remain required.
+- The engineering cutover passes automated preservation/rollback tests and one connected-device
+  cold-start smoke check. Multi-device offline, storage-pressure, decode/memory and accessibility
+  checks remain release gates.
 
 ### Open product/engineering work
 
@@ -59,21 +70,21 @@ The adopted region definitions and content/data contract are in [`regional_catal
 - The supplied region groupings do not yet assign every country/territory or marine area unambiguously.
 - Rarity and Essentials/Icons are draft pilot curation; their values need continuing editorial review before release.
 - Structured export, localisation and broad accessibility/device validation remain before beta.
+- Promote revised pilot snapshots when approved, expand licensed photo/silhouette coverage and
+  complete the remaining representative-device acceptance matrix.
 
 ## 3. Critical path
 
 ```text
 Gate 1 GO
    ↓
-Finish the in-progress regional/personal map logic
+Scalable species content + media pipeline
    ↓
-Core beta logic and data integrity
+Alpha runtime cutover + three-pilot verification
    ↓
-Content-pack lifecycle and migration resilience
+Core beta logic + shared-component UI consolidation
    ↓
-Pilot editorial freeze and beta operations
-   ↓
-Shared-component UI consolidation
+Pilot editorial freeze, device checks and beta operations
    ↓
 Three-region closed beta
    ↓
@@ -84,18 +95,19 @@ Large-scale animal/media curation starts only after the generator produces deter
 
 ### Replanned delivery slices — logic first
 
-The work below is ordered by dependency, not calendar dates. At the current part-time pace, use each slice as a decision point: do not begin the next slice until its exit criteria hold. Only the minimum standard Material UI needed to exercise a new logic path belongs in Slices 1–4; the final shared-component redesign is deliberately deferred to Slice 5.
+The work below is ordered by dependency, not calendar dates. Use each slice as a decision point: do not begin the next slice until its exit criteria hold. The detailed tasks and verification matrix for Slices 1–2 are authoritative in [`species_content_pipeline_plan.md`](species_content_pipeline_plan.md). Re-estimate the remaining roadmap after its schema/tooling slice establishes real catalogue and media sizes.
 
 | Slice | Scope | Main exit criteria | Indicative effort |
 |---|---|---|---:|
-| 1. Finish map logic | Complete the local Field Atlas integration: regional completion projection, independent privacy-safe personal layer, local assets, state handling and focused automated/device checks. | The map projects real regional state correctly, does not depend on personal coordinates, and remains useful offline. | Remaining 2–5 focused days |
-| 2. Core beta integrity | Implement conservative due-observation background batching, retry/backoff and idempotency; add structured local-data export; simulate and freeze beta progression thresholds. | Sync never creates duplicate rewards or unsafe request bursts; exported data is complete for Wildlife-owned data; progression rules are frozen for beta. | 8–15 focused days |
-| 3. Content-pack resilience | Build pack version/install/remove/storage/migration behavior; test catalogue, taxonomy and boundary-version migrations plus offline recovery. | A content update or pack removal never loses observation history or earned progression. | 8–15 focused days |
-| 4. Pilot release logic and editorial freeze | Finish pilot catalogue, rarity, achievement and media-provenance reviews; add beta instrumentation and exercise operational failure paths. | All three pilot packs are reproducible, attributable and measurable against Gate 2 metrics. | 8–12 engineering days + curation |
-| 5. Shared UI consolidation | Apply the final reusable Field Guide components and perform localisation, accessibility and representative-device validation. | The tested beta logic is exposed consistently, accessibly and without duplicate screen implementations. | 10–18 focused days |
-| 6. Closed beta, then scale | Run Gate 2, correct evidence-backed issues, then curate and release the remaining 21 regions through the same pipeline. | Beta gates are met before each additional region is published. | Ongoing; scale-up is 5–10 engineering days + curation |
+| 1. Published species-content foundation — engineering complete 24 August 2026 | New global schema, frozen source refresh, deterministic offline generator, description/conservation review queues, direct media variants and production-path 25-region fixture. | Identical inputs produce identical content; published media is renderable/attributable; 25-region scale tests pass. Editorial queues remain before release. | Complete |
+| 2. Runtime/media replacement | Atomic read-only content store, alpha migration, bounded LRU media store, persistent WorkManager queue and direct downloads. | Clean install, upgrade, interruption, corruption, full storage and process restart recover without user/game data loss. | Re-estimate after Slice 1 |
+| 3. Product cutover and pilot validation | Collection/Explore repository cutover, local-first Species Detail, deletion of legacy paths and three-pilot device/performance validation. | Published details make zero discovery requests; current-region prefetch converges; release checks pass per promoted region. | Engineering complete; release checks open |
+| 4. Core beta integrity | Conservative due-observation batching, structured export and progression simulation/freeze. | Sync never duplicates rewards or bursts requests; export is complete; beta progression is frozen. | 8–15 focused days |
+| 5. Pilot editorial freeze | Finish pilot catalogue, rarity, achievement, descriptions and media review; exercise operational failure paths. | All three pilot generations are reproducible, attributable and measurable against Gate 2 metrics. | 8–12 engineering days + curation |
+| 6. Resume shared UI consolidation — unblocked 24 August 2026 | Resume Field Guide component/screen work now; localisation, accessibility and representative-device validation may proceed alongside pilot curation. | Tested content behavior is exposed consistently and accessibly without duplicate implementations. | 10–18 focused days |
+| 7. Closed beta, then scale | Run Gate 2, correct evidence-backed issues, then publish the remaining regions through the same pipeline. | Beta gates are met before each additional region is published. | Ongoing; re-estimate after pipeline cutover |
 
-Pilot editorial review can proceed alongside Slices 2 and 3, but it must not bypass their pack-validation and migration exit criteria. Do not begin broad UI polish or manual curation of all 24 catalogues ahead of those logic foundations.
+Pilot editorial review can proceed alongside the pipeline work, but it must use the new description/media schema and must not bypass pack-validation and migration exit criteria. Do not begin broad UI polish or bulk curation of all 24 catalogues ahead of those foundations.
 
 ## 4. Phase A — Observation UX separation — Complete (21 August 2026)
 
@@ -169,7 +181,7 @@ The toolchain must:
 **Effort: 10–18 focused days**
 
 1. Introduce `Region`, `CatalogueVersion`, `RegionalTaxon`, `RegionalAchievement` and `ObservationRegion` domain models.
-2. Migrate `CatalogueStore` from a default Catalonia load path to explicit region/version access.
+2. Replace the mutable `CatalogueStore` path with explicit immutable region/version content access.
 3. Keep global `TaxonDetails` and media deduplicated across catalogues.
 4. Add selected/active catalogue state with manual selection and optional explicit location suggestion.
 5. Implement local point-in-polygon observation assignment with boundary version and confidence.
@@ -197,7 +209,7 @@ Implement [`progression_rules.md`](progression_rules.md) v0.2:
 
 **Exit criteria:** a Common Regional Icon elephant is worth more than a common warthog without being labelled rare; retries never duplicate awards; an observation made in another region earns no progress here.
 
-## 9. Phase F — Regional map and personal observations — In progress
+## 9. Phase F — Regional map and personal observations — Functional work retained; UI consolidation resumed
 
 **Effort: 5–9 focused days**
 
@@ -211,7 +223,7 @@ Implement [`progression_rules.md`](progression_rules.md) v0.2:
 
 **Exit criteria:** the map remains useful without personal coordinates, remains privacy-safe with obscured data and exposes every state non-visually.
 
-## 10. Phase G — Shared-component UI and navigation improvement — Deferred until logic slices complete
+## 10. Phase G — Shared-component UI and navigation improvement — Paused until the species-pipeline completion gate
 
 **Effort: 10–18 focused days**
 
@@ -226,7 +238,7 @@ Build shared foundations first:
 
 Then improve vertical slices in this order:
 
-1. Collection — real selected region, completion and achievements.
+1. Collection — real location-derived current region, completion and achievements.
 2. Home — current-region progress, Near Me, recent/pending observations, achievement progress and map summary.
 3. Observations — focused management experience.
 4. Species Detail — family/current facts, regional rarity, achievement membership, personal history and optional cached public distribution panel.
@@ -235,6 +247,8 @@ Then improve vertical slices in this order:
 7. Profile/settings — progression, installed content, privacy/export and diagnostics.
 
 The bottom destinations remain Home, Collection, Capture, Explore and Profile. Observations, Species Detail and Map are focused secondary routes.
+
+Do not resume this phase until §12 of [`species_content_pipeline_plan.md`](species_content_pipeline_plan.md) passes. Pipeline integration may change screen state and repositories only as required to verify local-first content, direct downloads, repair and offline behavior.
 
 ## 11. Phase H — Offline/local packaging
 
@@ -246,6 +260,8 @@ The bottom destinations remain Home, Collection, Capture, Explore and Profile. O
 - Package larger regional image sets as install-time, fast-follow or user-selected local packs rather than rebuilding catalogues from live APIs.
 - Keep high-resolution public distribution data and replaceable basemap tiles as online/cached enhancements.
 - Add storage inventory, pack version and removal controls without deleting user progression.
+
+**Superseded implementation detail:** this phase is now expanded and made blocking by [`species_content_pipeline_plan.md`](species_content_pipeline_plan.md). Its former optional placement after UI work no longer applies.
 
 ## 12. Phase I — Three-region closed beta
 
@@ -306,6 +322,8 @@ These remain valuable, but none should interrupt the regional data/content criti
 
 ## 15. Effort summary
 
+The pre-24-August totals below are retained as historical planning context. Rebaseline engineering and curation effort after the new content schema/tooling spike measures global taxon counts, generated text size, media coverage and thumbnail/detail storage costs. Do not add the old Offline packaging estimate to the new pipeline as though they were independent tasks.
+
 | Work | Engineering effort |
 |---|---:|
 | Observation UX | 5–8 d |
@@ -324,11 +342,9 @@ Catalogue, achievement, localisation and media curation add approximately **15�
 
 ## 16. Immediate next actions
 
-1. Complete the regional/personal map logic and its focused state/device validation; keep map polish limited to what is needed to validate the behavior.
-2. Implement and test conservative batched background sync, retry/backoff and idempotent reward handling.
-3. Deliver structured export of Wildlife-owned local data and freeze beta progression thresholds through collection simulations.
-4. Build and test the regional content-pack lifecycle: versioning, storage accounting, install/remove and safe catalogue/taxonomy/boundary migrations.
-5. Continue pilot catalogue, rarity, achievement and media-provenance review in parallel with the logic slices.
-6. Add beta instrumentation and operational checks, then begin the shared-component UI, localisation and broad accessibility/device pass.
+1. Resume beta integrity work and shared UI redesign; the audited engineering remediation gate is closed.
+2. Revise the editable 10 Essentials/5 Icons and pilot membership region by region; promote each approved revision as a new frozen version.
+3. Run the remaining low/mid-range device, offline/network interruption, storage/decode and accessibility checks across all three pilots.
+4. Expand licensed reference-photo and specific-silhouette coverage where available; keep missing description/conservation as explicit non-blocking unavailable states.
 
-Do not begin broad UI polish or manual curation of all 24 catalogues until the pilot pipeline, sync, pack migrations, assignment and map projections remain reviewable, reproducible and testable.
+Add regions incrementally; do not require all 24 catalogues to be curated before a reviewed region can progress through its own release checks.

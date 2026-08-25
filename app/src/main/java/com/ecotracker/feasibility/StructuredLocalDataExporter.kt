@@ -48,6 +48,11 @@ class StructuredLocalDataExporter(context: Context) {
             put("quality_transitions", JSONArray().apply {
                 snapshot.qualityTransitions.forEach { put(it.toJson()) }
             })
+            put("reference_media_rejections", JSONArray().apply {
+                ReferenceMediaRejectionStore(appContext).use { store ->
+                    store.records().forEach { put(it.toJson()) }
+                }
+            })
             put("pending_handoffs", JSONArray().apply { MarkerStore(appContext).load().forEach { put(it.toJson()) } })
             put("progression", JSONObject().apply {
                 put("selected_level_key", account?.let { ProgressionStore(appContext).selectedLevelKey(it.userId) } ?: JSONObject.NULL)
@@ -125,6 +130,15 @@ class StructuredLocalDataExporter(context: Context) {
         putNullable("from_quality_grade", fromQualityGrade)
         put("to_quality_grade", toQualityGrade)
         put("detected_at_ms", detectedAtMs)
+    }
+
+    private fun ReferenceMediaRejection.toJson() = JSONObject().apply {
+        put("taxon_id", taxonId)
+        put("source_url", sourceUrl)
+        put("provider", provider)
+        putNullable("catalogue_generation_id", catalogueGenerationId)
+        put("reason", reason)
+        put("rejected_at_ms", rejectedAtMs)
     }
 
     private fun PendingMarker.toJson() = JSONObject().apply {

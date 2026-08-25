@@ -12,9 +12,12 @@ class WikimediaCommonsClient(
         wikipediaUrl: String?,
         scientificName: String? = null,
         iNaturalistTaxonId: Long? = null,
+        excludedSourceUrls: Set<String> = emptySet(),
     ): CuratedReferencePhoto? {
         val linkedArticle = wikipediaUrl?.let(::normalizedArticleUri)
-        val linkedResult = linkedArticle?.let(::curatedPhotoFromArticle)
+        val linkedResult = linkedArticle?.let {
+            curatedPhotoFromArticle(it, excludedSourceUrls)
+        }
         if (linkedResult != null) return linkedResult
 
         val verifiedFallback = scientificName?.takeIf(String::isNotBlank)?.let {
@@ -24,11 +27,14 @@ class WikimediaCommonsClient(
             verifiedFallback.fileName?.let(::add)
             verifiedFallback.article?.let { article -> addAll(articleImageNames(article)) }
         }.distinct()
-        return bestImage(candidates, verifiedFallback.article)
+        return bestImage(candidates, verifiedFallback.article, excludedSourceUrls)
     }
 
-    private fun curatedPhotoFromArticle(article: URI): CuratedReferencePhoto? =
-        bestImage(articleImageNames(article), article)
+    private fun curatedPhotoFromArticle(
+        article: URI,
+        excludedSourceUrls: Set<String>,
+    ): CuratedReferencePhoto? =
+        bestImage(articleImageNames(article), article, excludedSourceUrls)
 
     private fun articleImageNames(article: URI): List<String> {
         val host = article.host?.takeIf { it.endsWith(".wikipedia.org") } ?: return emptyList()
@@ -66,7 +72,11 @@ class WikimediaCommonsClient(
         return names.toList()
     }
 
-    private fun bestImage(fileNames: List<String>, article: URI?): CuratedReferencePhoto? {
+    private fun bestImage(
+        fileNames: List<String>,
+        article: URI?,
+        excludedSourceUrls: Set<String>,
+    ): CuratedReferencePhoto? {
         if (fileNames.isEmpty()) return null
         val commons = fileNames.chunked(20).flatMap { imageInfos(COMMONS_API, it) }
         val missing = fileNames.filterNot { name ->
@@ -75,7 +85,10 @@ class WikimediaCommonsClient(
         val local = article?.host?.let { host ->
             missing.chunked(20).flatMap { imageInfos("https://$host/w/api.php", it) }
         }.orEmpty()
-        return (commons + local).maxByOrNull { result ->
+        val excludedKeys = excludedSourceUrls.mapTo(hashSetOf()) { it.normalizedSourceKey() }
+        return (commons + local)
+            .filterNot { it.photo.sourceUrl.normalizedSourceKey() in excludedKeys }
+            .maxByOrNull { result ->
             when (result.photo.quality) {
                 CuratedPhotoQuality.FEATURED -> 2
                 CuratedPhotoQuality.QUALITY -> 1
@@ -256,6 +269,8 @@ class WikimediaCommonsClient(
 
     private fun fileKey(value: String): String = normalizedFile(value)
         .replace('_', ' ').lowercase()
+
+    private fun String.normalizedSourceKey(): String = trim().removeSuffix("/").lowercase()
 
     private data class ImageResult(val fileName: String, val photo: CuratedReferencePhoto)
     private data class WikidataFallback(val fileName: String?, val article: URI?)

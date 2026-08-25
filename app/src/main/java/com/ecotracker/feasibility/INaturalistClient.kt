@@ -64,35 +64,6 @@ class INaturalistClient(
         return observations
     }
 
-    fun regionalSpecies(
-        placeId: Long,
-        limit: Int,
-        parameters: Map<String, String>,
-    ): List<JSONObject> {
-        val results = mutableListOf<JSONObject>()
-        var page = 1
-        while (results.size < limit) {
-            val perPage = minOf(200, limit - results.size)
-            val query = linkedMapOf(
-                "place_id" to placeId.toString(),
-                "quality_grade" to "research",
-                "hrank" to "species",
-                "lrank" to "species",
-                "locale" to "ca",
-                "per_page" to perPage.toString(),
-                "page" to page.toString(),
-            ).apply { putAll(parameters) }
-            val array = getJson(url("https://api.inaturalist.org/v1/observations/species_counts", query))
-                .optJSONArray("results") ?: break
-            for (index in 0 until array.length()) {
-                array.optJSONObject(index)?.let(results::add)
-            }
-            if (array.length() < perPage) break
-            page++
-        }
-        return results.take(limit)
-    }
-
     fun nearbySpecies(
         latitude: Double,
         longitude: Double,
@@ -131,15 +102,32 @@ class INaturalistClient(
                 val taxonId = taxon.optLong("id", -1L)
                 val scientificName = taxon.optString("name").trim()
                 if (taxonId <= 0L || scientificName.isBlank()) continue
+                // The default photo rides along on this response, so a carousel tile costs no
+                // extra request. `medium_url` rather than `square_url`: the square is 75px and
+                // visibly soft on a tile, while medium is 500px and already cached by Coil.
+                val photo = taxon.optJSONObject("default_photo")
                 add(
                     NearbySpecies(
                         taxonId = taxonId,
                         commonName = taxon.optString("preferred_common_name")
                             .takeIf { it.isNotBlank() && it != "null" },
                         scientificName = scientificName,
-                        taxonGroup = taxon.optString("iconic_taxon_name")
-                            .takeIf { it.isNotBlank() && it != "null" },
+                        // Normalized here, not at the render site. `iconic_taxon_name` is
+                        // "Aves"; the silhouette assets are named "birds", and the loader
+                        // fails silently on a miss, so an un-normalized value would draw an
+                        // empty plate with no error anywhere.
+                        taxonGroup = taxonGroupForClass(
+                            taxon.optString("iconic_taxon_name")
+                                .takeIf { it.isNotBlank() && it != "null" },
+                        ),
                         observationCount = result.optInt("count", 0).coerceAtLeast(0),
+                        photoUrl = photo?.optString("medium_url")
+                            ?.takeIf { it.isNotBlank() && it != "null" }
+                            ?: photo?.optString("url")?.takeIf { it.isNotBlank() && it != "null" },
+                        photoAttribution = photo?.optString("attribution")
+                            ?.takeIf { it.isNotBlank() && it != "null" },
+                        photoLicenseCode = photo?.optString("license_code")
+                            ?.takeIf { it.isNotBlank() && it != "null" },
                     ),
                 )
             }
@@ -160,19 +148,20 @@ class INaturalistClient(
         }
     }
 
-    fun referencePhoto(taxonId: Long, placeId: Long = 12997): ReferencePhoto? {
+    fun referencePhoto(taxonId: Long, placeId: Long? = null): ReferencePhoto? {
+        val parameters = linkedMapOf(
+            "taxon_id" to taxonId.toString(),
+            "quality_grade" to "research",
+            "photos" to "true",
+            "order_by" to "votes",
+            "order" to "desc",
+            "per_page" to "30",
+        )
+        placeId?.let { parameters["place_id"] = it.toString() }
         val root = getJson(
             url(
                 "https://api.inaturalist.org/v1/observations",
-                linkedMapOf(
-                    "taxon_id" to taxonId.toString(),
-                    "place_id" to placeId.toString(),
-                    "quality_grade" to "research",
-                    "photos" to "true",
-                    "order_by" to "votes",
-                    "order" to "desc",
-                    "per_page" to "30",
-                ),
+                parameters,
             ),
         )
         val observations = root.optJSONArray("results") ?: return null

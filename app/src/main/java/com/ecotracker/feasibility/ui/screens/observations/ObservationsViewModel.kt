@@ -21,7 +21,9 @@ import com.wildlife.feasibility.PlaceLabeler
 import com.wildlife.feasibility.PlaceRequest
 import com.wildlife.feasibility.SyncedObservation
 import com.wildlife.feasibility.VerifiedAccount
+import com.wildlife.feasibility.ui.ProjectionLoadGate
 import kotlinx.coroutines.Dispatchers
+import kotlinx.coroutines.Job
 import kotlinx.coroutines.launch
 import kotlinx.coroutines.withContext
 import java.io.File
@@ -46,8 +48,10 @@ class ObservationsViewModel(application: Application) : AndroidViewModel(applica
     private var syncing = false
     private var message: String? = null
     private var taxonFilter: Long? = null
+    private var stateJob: Job? = null
+    private val stateGate = ProjectionLoadGate()
 
-    var uiState by mutableStateOf(ObservationsUiState())
+    var uiState by mutableStateOf(ObservationsUiState(isLoading = true))
         private set
 
     init {
@@ -69,24 +73,76 @@ class ObservationsViewModel(application: Application) : AndroidViewModel(applica
     }
 
     private fun reload() {
-        markers = markerStore.load()
-        account = accountStore.verified()
-        observations = account?.let { observationStore.observations(it.userId) }.orEmpty()
-        regionsByObservationUuid = account?.let { linked ->
-            observations.mapNotNull { observation ->
-                observationStore.observationRegion(linked.userId, observation.uuid)
-            }.associateBy(ObservationRegion::observationUuid)
-        }.orEmpty()
-        hidden = account?.let { observationStore.mapHiddenObservationUuids(it.userId) }.orEmpty()
-        projectUi()
-        requestPlaces()
+        val revision = stateGate.next()
+        val syncingSnapshot = syncing
+        val messageSnapshot = message
+        val filterSnapshot = taxonFilter
+        val placesSnapshot = placeNames
+        val proposalsSnapshot = proposalsByMarker
+        stateJob?.cancel()
+        uiState = uiState.copy(isLoading = true)
+        stateJob = viewModelScope.launch {
+            val loaded = withContext(Dispatchers.IO) {
+                val loadedMarkers = markerStore.load()
+                val loadedAccount = accountStore.verified()
+                val loadedObservations = loadedAccount?.let {
+                    observationStore.observations(it.userId)
+                }.orEmpty()
+                val loadedRegions = loadedAccount?.let { linked ->
+                    loadedObservations.mapNotNull { observation ->
+                        observationStore.observationRegion(linked.userId, observation.uuid)
+                    }.associateBy(ObservationRegion::observationUuid)
+                }.orEmpty()
+                val loadedHidden = loadedAccount?.let {
+                    observationStore.mapHiddenObservationUuids(it.userId)
+                }.orEmpty()
+                ObservationReload(
+                    markers = loadedMarkers,
+                    observations = loadedObservations,
+                    regions = loadedRegions,
+                    hidden = loadedHidden,
+                    account = loadedAccount,
+                    state = ObservationsProjection.build(
+                        loadedMarkers, proposalsSnapshot, loadedObservations, loadedHidden,
+                        loadedAccount, syncingSnapshot, messageSnapshot, filterSnapshot,
+                        placesSnapshot, loadedRegions,
+                    ).copy(isLoading = false),
+                )
+            }
+            if (!stateGate.isLatest(revision)) return@launch
+            markers = loaded.markers
+            observations = loaded.observations
+            regionsByObservationUuid = loaded.regions
+            hidden = loaded.hidden
+            account = loaded.account
+            uiState = loaded.state
+            requestPlaces()
+        }
     }
 
     private fun projectUi() {
-        uiState = ObservationsProjection.build(
-            markers, proposalsByMarker, observations, hidden, account, syncing, message, taxonFilter,
-            placeNames, regionsByObservationUuid,
-        )
+        val revision = stateGate.next()
+        val markersSnapshot = markers
+        val proposalsSnapshot = proposalsByMarker
+        val observationsSnapshot = observations
+        val hiddenSnapshot = hidden
+        val accountSnapshot = account
+        val syncingSnapshot = syncing
+        val messageSnapshot = message
+        val filterSnapshot = taxonFilter
+        val placesSnapshot = placeNames
+        val regionsSnapshot = regionsByObservationUuid
+        stateJob?.cancel()
+        stateJob = viewModelScope.launch {
+            val projected = withContext(Dispatchers.Default) {
+                ObservationsProjection.build(
+                    markersSnapshot, proposalsSnapshot, observationsSnapshot, hiddenSnapshot,
+                    accountSnapshot, syncingSnapshot, messageSnapshot, filterSnapshot,
+                    placesSnapshot, regionsSnapshot,
+                )
+            }
+            if (stateGate.isLatest(revision)) uiState = projected.copy(isLoading = false)
+        }
     }
 
     /** Reverse-geocodes any new coordinates in the background, then re-projects with the names. */
@@ -104,8 +160,10 @@ class ObservationsViewModel(application: Application) : AndroidViewModel(applica
             }
         }
         if (requests.isEmpty()) return
+        val sourceRevision = stateGate.next()
         placeLabeler.ensureResolved(requests) { resolved ->
             viewModelScope.launch {
+                if (!stateGate.isLatest(sourceRevision)) return@launch
                 placeNames = resolved
                 projectUi()
             }
@@ -246,4 +304,13 @@ class ObservationsViewModel(application: Application) : AndroidViewModel(applica
     }
 
     private fun groupKey(marker: PendingMarker) = marker.handoffId ?: marker.id
+
+    private data class ObservationReload(
+        val markers: List<PendingMarker>,
+        val observations: List<SyncedObservation>,
+        val regions: Map<String, ObservationRegion>,
+        val hidden: Set<String>,
+        val account: VerifiedAccount?,
+        val state: ObservationsUiState,
+    )
 }

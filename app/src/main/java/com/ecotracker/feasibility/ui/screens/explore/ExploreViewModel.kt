@@ -6,29 +6,39 @@ import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.setValue
 import androidx.lifecycle.AndroidViewModel
 import androidx.lifecycle.viewModelScope
+import androidx.lifecycle.Observer
+import androidx.work.WorkInfo
 import com.wildlife.feasibility.AccountStore
-import com.wildlife.feasibility.CataloguePhotoPolicy
-import com.wildlife.feasibility.CatalogueStore
 import com.wildlife.feasibility.CollectionProjection
-import com.wildlife.feasibility.ActiveCatalogueStore
+import com.wildlife.feasibility.RegionContextStore
 import com.wildlife.feasibility.InstalledRegionalCatalogue
 import com.wildlife.feasibility.InstalledRegionalTaxon
 import com.wildlife.feasibility.NearbySpecies
+import java.time.LocalDate
+import com.wildlife.feasibility.NearbyDiscoveryStore
+import com.wildlife.feasibility.NearbyCachePolicy
 import com.wildlife.feasibility.ObservationStore
 import com.wildlife.feasibility.OnDeviceWildlifeRepository
-import com.wildlife.feasibility.RegionalCatalogueAssetStore
+import com.wildlife.feasibility.PublishedContentRepositories
 import com.wildlife.feasibility.SyncedObservation
 import com.wildlife.feasibility.TaxonDetails
+import com.wildlife.feasibility.toLocalTaxonDetails
+import com.wildlife.feasibility.LocalMediaStore
+import com.wildlife.feasibility.MediaPrefetchScheduler
+import com.wildlife.feasibility.MediaPrefetchStore
+import com.wildlife.feasibility.MediaPrefetchSummary
 import com.wildlife.feasibility.ui.components.SpeciesCardModel
 import com.wildlife.feasibility.ui.components.SpeciesCardPhotoKind
-import com.wildlife.feasibility.ui.components.SpeciesCardPhotoCandidate
 import com.wildlife.feasibility.ui.components.SpeciesCardStatus
+import com.wildlife.feasibility.ui.ProjectionLoadGate
 import com.wildlife.feasibility.ui.screens.collection.taxonGroupFor
 import com.wildlife.feasibility.ui.screens.map.PersonalObservationMap
 import com.wildlife.feasibility.ui.screens.map.PersonalObservationMapProjection
 import com.wildlife.feasibility.ui.screens.map.RegionalMapProgress
 import com.wildlife.feasibility.ui.screens.map.RegionalMapProgressProjection
 import kotlinx.coroutines.Dispatchers
+import kotlinx.coroutines.Job
+import kotlinx.coroutines.delay
 import kotlinx.coroutines.launch
 import kotlinx.coroutines.withContext
 
@@ -50,7 +60,8 @@ data class RegionalExploreCatalogue(
 )
 
 data class ExploreUiState(
-    val activeCatalogue: RegionalExploreCatalogue? = null,
+    val isLoading: Boolean = false,
+    val browsedCatalogue: RegionalExploreCatalogue? = null,
     val installedCatalogues: List<InstalledRegionalCatalogue> = emptyList(),
     val entries: List<ExploreSpecies> = emptyList(),
     val accountLinked: Boolean = false,
@@ -58,6 +69,7 @@ data class ExploreUiState(
     val regionalMapProgress: List<RegionalMapProgress> = emptyList(),
     val nearby: NearbyDiscoveryState = NearbyDiscoveryState(),
     val errorMessage: String? = null,
+    val mediaPrefetch: MediaPrefetchSummary = MediaPrefetchSummary(0, 0, 0, 0),
 ) {
     val observedCount: Int get() = entries.count(ExploreSpecies::observed)
 }
@@ -68,117 +80,13 @@ data class NearbyDiscoveryState(
     val species: List<NearbySpecies> = emptyList(),
     val errorMessage: String? = null,
     val radiusKm: Int = 25,
+    /** When this answer was fetched, so the UI can say how old it is. Null when never searched. */
+    val fetchedAtMs: Long? = null,
+    /** True while showing a restored answer that has not been re-checked this session. */
+    val fromCache: Boolean = false,
 )
 
 internal object ExploreProjection {
-    /** Kept for the legacy snapshot tests and detail-cache migration. */
-    fun entries(
-        snapshot: com.wildlife.feasibility.CatalogueSnapshot?,
-        observations: List<SyncedObservation>,
-        detailsByTaxon: Map<Long, TaxonDetails> = emptyMap(),
-    ): List<ExploreSpecies> {
-        if (snapshot == null) return emptyList()
-        val collectionByTaxon = CollectionProjection.species(observations)
-            .mapNotNull { entry -> entry.taxonId?.let { it to entry } }
-            .toMap()
-        return snapshot.species.map { species ->
-            val collected = collectionByTaxon[species.taxonId]
-            val details = detailsByTaxon[species.taxonId]
-            val detailPhoto = details?.let(CataloguePhotoPolicy::detailUrl)
-            val detailAttribution = detailPhoto?.let {
-                details?.let(CataloguePhotoPolicy::attribution)
-            }
-            val cataloguePhoto = CataloguePhotoPolicy.cardUrl(species)?.let {
-                species.photoLocalUri ?: it
-            }
-            val referencePhoto = detailPhoto?.let { details?.photoLocalUri ?: it }
-                ?: cataloguePhoto
-            val referencePhotoRemote = detailPhoto ?: CataloguePhotoPolicy.cardUrl(species)
-            val personalPhoto = collected?.photoUrl
-            val displayedPhoto = if (collected != null) personalPhoto ?: referencePhoto else null
-            val fallbackPhoto = when {
-                displayedPhoto != null && displayedPhoto == personalPhoto -> referencePhoto
-                displayedPhoto != null && displayedPhoto == referencePhoto -> referencePhotoRemote
-                else -> null
-            }?.takeIf { it != displayedPhoto }
-            val displayedAttribution = if (displayedPhoto == referencePhoto) {
-                detailAttribution ?: CataloguePhotoPolicy.attribution(species)
-            } else {
-                null
-            }
-            val label = species.commonName ?: species.scientificName
-            val status = when {
-                collected?.bestQualityGrade == "research" -> SpeciesCardStatus.RESEARCH_GRADE
-                collected != null -> SpeciesCardStatus.OBSERVED
-                else -> SpeciesCardStatus.NONE
-            }
-            val detailedSilhouette = details?.silhouetteUrl
-            val silhouetteUrl = if (detailedSilhouette != null) {
-                details.silhouetteLocalUri ?: detailedSilhouette
-            } else {
-                species.silhouetteLocalUri ?: species.silhouetteUrl
-            }
-            val silhouetteMatchRank = if (detailedSilhouette != null) {
-                details?.silhouetteMatchRank
-            } else {
-                species.silhouetteMatchRank
-            }
-            ExploreSpecies(
-                taxonId = species.taxonId,
-                taxonGroup = species.taxonGroup,
-                commonName = species.commonName,
-                scientificName = species.scientificName,
-                observed = collected != null,
-                card = SpeciesCardModel(
-                    key = "taxon:${species.taxonId}",
-                    collected = collected != null,
-                    label = label,
-                    supportingText = if (species.commonName != null) {
-                        species.scientificName
-                    } else {
-                        "Scientific name"
-                    },
-                    photoUrl = displayedPhoto,
-                    photoKind = when {
-                        displayedPhoto == null -> null
-                        displayedPhoto == personalPhoto -> SpeciesCardPhotoKind.PERSONAL
-                        else -> SpeciesCardPhotoKind.REFERENCE
-                    },
-                    photoFallbackUrl = fallbackPhoto,
-                    photoFallbackKind = fallbackPhoto?.let {
-                        SpeciesCardPhotoKind.REFERENCE
-                    },
-                    photoFallbackAttribution = fallbackPhoto?.let {
-                        detailAttribution ?: CataloguePhotoPolicy.attribution(species)
-                    },
-                    additionalPhotoFallbacks = buildList {
-                        if (displayedPhoto != null && displayedPhoto == personalPhoto &&
-                            referencePhotoRemote != null &&
-                            referencePhotoRemote != displayedPhoto &&
-                            referencePhotoRemote != referencePhoto
-                        ) {
-                            add(
-                                SpeciesCardPhotoCandidate(
-                                    referencePhotoRemote,
-                                    SpeciesCardPhotoKind.REFERENCE,
-                                    detailAttribution ?: CataloguePhotoPolicy.attribution(species),
-                                ),
-                            )
-                        }
-                    },
-                    photoAttribution = displayedAttribution,
-                    silhouetteUrl = silhouetteUrl,
-                    silhouetteFallbackUrl = (details?.silhouetteUrl ?: species.silhouetteUrl)
-                        ?.takeIf { it != silhouetteUrl },
-                    silhouetteMatchRank = silhouetteMatchRank,
-                    fallbackSilhouetteGroup = species.taxonGroup,
-                    supportingTextItalic = true,
-                    status = status,
-                ),
-            )
-        }
-    }
-
     fun regionalEntries(
         taxa: List<InstalledRegionalTaxon>,
         observations: List<SyncedObservation>,
@@ -190,10 +98,10 @@ internal object ExploreProjection {
         return taxa.map { taxon ->
             val collected = collectionByTaxon[taxon.taxonId]
             val details = detailsByTaxon[taxon.taxonId]
-            val detailPhoto = details?.let(CataloguePhotoPolicy::detailUrl)
             val personalPhoto = collected?.photoUrl
-            val referencePhoto = detailPhoto?.let { details?.photoLocalUri ?: it }
-            val displayedPhoto = if (collected != null) personalPhoto ?: referencePhoto else null
+            // Reference photography belongs to detail. The guide stays silhouette-first and
+            // only shows a photograph when it is the user's own observation.
+            val displayedPhoto = personalPhoto.takeIf { collected != null }
             val status = when {
                 collected?.bestQualityGrade == "research" -> SpeciesCardStatus.RESEARCH_GRADE
                 collected != null -> SpeciesCardStatus.OBSERVED
@@ -212,16 +120,10 @@ internal object ExploreProjection {
                     label = taxon.commonName,
                     supportingText = taxon.scientificName,
                     photoUrl = displayedPhoto,
-                    photoKind = when {
-                        displayedPhoto == null -> null
-                        displayedPhoto == personalPhoto -> SpeciesCardPhotoKind.PERSONAL
-                        else -> SpeciesCardPhotoKind.REFERENCE
-                    },
-                    photoAttribution = if (displayedPhoto == referencePhoto) {
-                        details?.let(CataloguePhotoPolicy::attribution)
-                    } else null,
+                    photoKind = displayedPhoto?.let { SpeciesCardPhotoKind.PERSONAL },
+                    photoAttribution = null,
                     silhouetteUrl = silhouetteUrl,
-                    silhouetteFallbackUrl = details?.silhouetteUrl?.takeIf { it != silhouetteUrl },
+                    silhouetteFallbackUrl = details?.silhouetteFallbackUrl,
                     silhouetteMatchRank = details?.silhouetteMatchRank,
                     fallbackSilhouetteGroup = taxonGroupFor(taxon.taxonClass),
                     supportingTextItalic = true,
@@ -240,23 +142,167 @@ internal object NearbyDiscoveryProjection {
         val catalogueTaxa = catalogue.mapTo(hashSetOf(), ExploreSpecies::taxonId)
         return nearby.filter { it.taxonId in catalogueTaxa }
     }
+
+    fun withLocalMedia(
+        nearby: List<NearbySpecies>,
+        catalogue: List<ExploreSpecies>,
+    ): List<NearbySpecies> {
+        val cards = catalogue.associateBy(ExploreSpecies::taxonId)
+        return nearby.map { species ->
+            val card = cards[species.taxonId]?.card
+            species.copy(
+                personalPhotoUrl = card?.photoUrl
+                    .takeIf { card?.photoKind == SpeciesCardPhotoKind.PERSONAL },
+                silhouetteUrl = card?.silhouetteUrl ?: card?.silhouetteFallbackUrl,
+                silhouetteMatchRank = card?.silhouetteMatchRank,
+            )
+        }
+    }
 }
 
 class ExploreViewModel(application: Application) : AndroidViewModel(application) {
+    private val mediaWork = MediaPrefetchScheduler.workInfos(application)
+    private val mediaObserver = Observer<List<WorkInfo>> { refreshMediaProgress() }
+    private var mediaSummaryJob: Job? = null
+    private var loadJob: Job? = null
+    private val loadGate = ProjectionLoadGate()
+    private var visiblePrefetchJob: Job? = null
+    private var visibleDemand: Pair<String, Set<Long>>? = null
+    /**
+     * Seeded from the cache, so Home and Explore open with the last answer rather than a
+     * button. A restored answer stays marked [NearbyDiscoveryState.fromCache] until something
+     * re-checks it.
+     */
     private var nearbyState = NearbyDiscoveryState()
-    var uiState by mutableStateOf(loadLocal())
+    private var nearbyInitialized = false
+    private var pendingNearbyStaleCheck = false
+    private var pendingNearbyLatitude: Double? = null
+    private var pendingNearbyLongitude: Double? = null
+    var uiState by mutableStateOf(ExploreUiState(isLoading = true))
         private set
-    fun refreshLocal() {
-        uiState = loadLocal()
+
+    init {
+        mediaWork.observeForever(mediaObserver)
+        refreshLocal()
+    }
+
+    private fun restoreNearby(): NearbyDiscoveryState {
+        val cached = NearbyDiscoveryStore(getApplication()).load() ?: return NearbyDiscoveryState()
+        return NearbyDiscoveryState(
+            requested = true,
+            loading = false,
+            species = cached.species,
+            radiusKm = cached.radiusKm,
+            fetchedAtMs = cached.fetchedAtMs,
+            fromCache = true,
+        )
     }
 
     /**
-     * Explore owns the active regional guide: it is the one surface that works unlinked, so the
-     * choice must not sit behind an account wall on Collection.
+     * Re-runs the search only if the cached answer no longer applies here and now.
+     *
+     * [latitude]/[longitude] are null when the caller could not read a location without
+     * prompting. The cache is then judged on age and month alone, so someone who has not
+     * granted location keeps their last answer instead of being shown an empty section.
+     *
+     * Deliberately does nothing while a search is already in flight. Cache I/O and policy
+     * evaluation run away from the UI thread.
+     */
+    fun refreshNearbyIfStale(latitude: Double?, longitude: Double?) {
+        if (uiState.nearby.loading) return
+        if (uiState.isLoading) {
+            pendingNearbyStaleCheck = true
+            pendingNearbyLatitude = latitude
+            pendingNearbyLongitude = longitude
+            return
+        }
+        if (uiState.browsedCatalogue == null) return
+        val radiusKm = uiState.nearby.radiusKm
+        viewModelScope.launch {
+            val shouldRefresh = withContext(Dispatchers.IO) {
+                val cached = NearbyDiscoveryStore(getApplication()).load()
+                    ?: return@withContext false
+                !NearbyCachePolicy.isFresh(
+                    cached = cached,
+                    nowMs = System.currentTimeMillis(),
+                    currentMonth = LocalDate.now().monthValue,
+                    currentLatitude = latitude,
+                    currentLongitude = longitude,
+                    radiusKm = radiusKm,
+                )
+            }
+            // Without a coordinate there is nothing to search with, so the stale answer stays up
+            // rather than being replaced by an error the user cannot act on.
+            if (shouldRefresh && latitude != null && longitude != null) {
+                discoverNearby(latitude, longitude)
+            }
+        }
+    }
+
+    fun refreshLocal() {
+        val revision = loadGate.next()
+        val shouldRestoreNearby = !nearbyInitialized
+        val nearbySnapshot = nearbyState
+        loadJob?.cancel()
+        uiState = uiState.copy(isLoading = true, errorMessage = null)
+        loadJob = viewModelScope.launch {
+            val loaded = withContext(Dispatchers.IO) {
+                val nearby = if (shouldRestoreNearby) restoreNearby() else nearbySnapshot
+                loadLocal(nearby)
+            }
+            if (loadGate.isLatest(revision)) {
+                if (!nearbyInitialized) {
+                    nearbyState = loaded.nearby
+                    nearbyInitialized = true
+                }
+                uiState = loaded.copy(isLoading = false, nearby = nearbyState)
+                if (pendingNearbyStaleCheck) {
+                    pendingNearbyStaleCheck = false
+                    val latitude = pendingNearbyLatitude
+                    val longitude = pendingNearbyLongitude
+                    pendingNearbyLatitude = null
+                    pendingNearbyLongitude = null
+                    refreshNearbyIfStale(latitude, longitude)
+                }
+            }
+        }
+    }
+
+    /**
+     * Converts the grid's actual viewport into bounded, debounced media demand. Catalogue
+     * projection stays read-only: scrolling is the only routine source of visible-row work.
+     */
+    fun prioritizeVisibleTaxa(taxonIds: Set<Long>) {
+        val regionKey = uiState.browsedCatalogue?.regionKey ?: return
+        val boundedIds = taxonIds.asSequence().take(MAX_VISIBLE_PREFETCH_COUNT).toSet()
+        if (boundedIds.isEmpty()) return
+        val demand = regionKey to boundedIds
+        if (visibleDemand == demand) return
+        visibleDemand = demand
+        visiblePrefetchJob?.cancel()
+        visiblePrefetchJob = viewModelScope.launch {
+            delay(VISIBLE_PREFETCH_DEBOUNCE_MS)
+            withContext(Dispatchers.IO) {
+                MediaPrefetchScheduler.prioritizeBrowsedVisible(
+                    getApplication(), regionKey, boundedIds,
+                )
+            }
+            if (uiState.browsedCatalogue?.regionKey == regionKey) refreshMediaProgress()
+        }
+    }
+
+    /**
+     * Explore owns only the guide being browsed. This never changes the location-derived current
+     * region used for progress and background preparation.
      */
     fun selectRegion(regionKey: String) {
-        ActiveCatalogueStore(getApplication()).selectRegion(regionKey)
-        refreshLocal()
+        viewModelScope.launch {
+            withContext(Dispatchers.IO) {
+                RegionContextStore(getApplication()).selectBrowsedRegion(regionKey)
+            }
+            visibleDemand = null
+            refreshLocal()
+        }
     }
 
     fun setObservationMapVisible(observationUuid: String, visible: Boolean) {
@@ -267,12 +313,13 @@ class ExploreViewModel(application: Application) : AndroidViewModel(application)
                     it.setObservationMapVisible(account, observationUuid, visible)
                 }
             }
-            uiState = loadLocal()
+            refreshLocal()
         }
     }
 
     fun nearbyLocationStarted() {
         if (!uiState.nearby.loading) {
+            nearbyInitialized = true
             nearbyState = uiState.nearby.copy(
                 requested = true,
                 loading = true,
@@ -285,6 +332,7 @@ class ExploreViewModel(application: Application) : AndroidViewModel(application)
     }
 
     fun nearbyLocationFailed(message: String) {
+        nearbyInitialized = true
         nearbyState = uiState.nearby.copy(
             requested = true,
             loading = false,
@@ -297,31 +345,46 @@ class ExploreViewModel(application: Application) : AndroidViewModel(application)
 
     fun discoverNearby(latitude: Double, longitude: Double) {
         nearbyLocationStarted()
+        val catalogue = uiState.entries
+        val radiusKm = uiState.nearby.radiusKm
         viewModelScope.launch {
             val result = runCatching {
                 withContext(Dispatchers.IO) {
-                    OnDeviceWildlifeRepository(getApplication()).use {
+                    val species = OnDeviceWildlifeRepository(getApplication()).use {
                         it.discoverNearbySpecies(
                             latitude = latitude,
                             longitude = longitude,
-                            radiusKm = uiState.nearby.radiusKm,
+                            radiusKm = radiusKm,
                         )
                     }
+                    val within = NearbyDiscoveryProjection.withinCatalogue(species, catalogue)
+                    val displayed = NearbyDiscoveryProjection.withLocalMedia(within, catalogue)
+                    val fetchedAtMs = System.currentTimeMillis()
+                    NearbyDiscoveryStore(getApplication()).save(
+                        latitude = latitude,
+                        longitude = longitude,
+                        radiusKm = radiusKm,
+                        month = LocalDate.now().monthValue,
+                        fetchedAtMs = fetchedAtMs,
+                        species = within,
+                    )
+                    displayed to fetchedAtMs
                 }
             }
             nearbyState = result.fold(
-                    onSuccess = { species ->
+                    onSuccess = { (within, fetchedAtMs) ->
                         uiState.nearby.copy(
                             requested = true,
                             loading = false,
-                            species = NearbyDiscoveryProjection.withinCatalogue(
-                                nearby = species,
-                                catalogue = uiState.entries,
-                            ),
+                            species = within,
                             errorMessage = null,
+                            fetchedAtMs = fetchedAtMs,
+                            fromCache = false,
                         )
                     },
                     onFailure = { error ->
+                        // The previous answer is kept on screen. A failed re-check is not a
+                        // reason to discard a result that was good a moment ago.
                         uiState.nearby.copy(
                             requested = true,
                             loading = false,
@@ -336,15 +399,17 @@ class ExploreViewModel(application: Application) : AndroidViewModel(application)
         }
     }
 
-    private fun loadLocal(): ExploreUiState = runCatching {
+    private fun loadLocal(nearby: NearbyDiscoveryState): ExploreUiState = runCatching {
         val context = getApplication<Application>()
-        val detailsByTaxon = CatalogueStore(context).use { it.loadTaxonDetails() }
-        val content = RegionalCatalogueAssetStore(context)
+        val content = PublishedContentRepositories.application(context)
         val catalogues = content.catalogues()
-        val selectedKey = ActiveCatalogueStore(context).selectedRegionKey()
-            .takeIf { key -> catalogues.any { it.regionKey == key } }
-            ?: catalogues.first().regionKey
+        val selectedKey = RegionContextStore(context).browsedRegionKey(
+            catalogues.map { it.regionKey },
+        ) ?: error("No regional catalogue is installed.")
         val selected = catalogues.first { it.regionKey == selectedKey }
+        val mediaStore = LocalMediaStore(context)
+        val detailsByTaxon = content.taxaContent(selectedKey)
+            .mapValues { (_, taxon) -> taxon.toLocalTaxonDetails(mediaStore) }
         val account = AccountStore(context).verified()
         val observationStore = account?.let { ObservationStore(context) }
         val observations = account?.let { observationStore?.observations(it.userId) }.orEmpty()
@@ -376,31 +441,67 @@ class ExploreViewModel(application: Application) : AndroidViewModel(application)
             assignmentsByObservationUuid = observationRegionsByUuid,
         )
         observationStore?.close()
+        val entries = ExploreProjection.regionalEntries(
+            taxa = content.taxa(selectedKey), observations = regionalObservations,
+            detailsByTaxon = detailsByTaxon,
+        )
         ExploreUiState(
-            activeCatalogue = RegionalExploreCatalogue(
+            browsedCatalogue = RegionalExploreCatalogue(
                 regionKey = selected.regionKey,
                 displayName = selected.displayName,
                 version = selected.version,
                 speciesCount = content.taxa(selectedKey).size,
             ),
             installedCatalogues = catalogues,
-            entries = ExploreProjection.regionalEntries(
-                taxa = content.taxa(selectedKey), observations = regionalObservations,
-                detailsByTaxon = detailsByTaxon,
-            ),
+            entries = entries,
             accountLinked = account != null,
             personalMap = PersonalObservationMapProjection.build(
                 observations = observations,
                 hiddenObservationUuids = hiddenObservationUuids,
             ),
             regionalMapProgress = regionalMapProgress,
-            nearby = nearbyState,
+            nearby = nearby.copy(
+                species = NearbyDiscoveryProjection.withLocalMedia(nearby.species, entries),
+            ),
             errorMessage = null,
+            mediaPrefetch = MediaPrefetchStore(context).use {
+                it.summary(content.generation().generationId, selectedKey)
+            },
         )
     }.getOrElse { error ->
         ExploreUiState(
-            nearby = nearbyState,
+            nearby = nearby,
             errorMessage = error.message ?: "The offline catalogue could not be read.",
         )
+    }
+
+    private fun refreshMediaProgress() {
+        val regionKey = uiState.browsedCatalogue?.regionKey ?: return
+        mediaSummaryJob?.cancel()
+        mediaSummaryJob = viewModelScope.launch {
+            val summary = runCatching {
+                withContext(Dispatchers.IO) {
+                    val context = getApplication<Application>()
+                    val generation = PublishedContentRepositories.application(context)
+                        .generation().generationId
+                    MediaPrefetchStore(context).use { it.summary(generation, regionKey) }
+                }
+            }.getOrNull() ?: return@launch
+            if (uiState.browsedCatalogue?.regionKey == regionKey &&
+                uiState.mediaPrefetch != summary
+            ) {
+                uiState = uiState.copy(mediaPrefetch = summary)
+            }
+        }
+    }
+
+    private companion object {
+        const val MAX_VISIBLE_PREFETCH_COUNT = 40
+        const val VISIBLE_PREFETCH_DEBOUNCE_MS = 150L
+    }
+
+    override fun onCleared() {
+        mediaWork.removeObserver(mediaObserver)
+        super.onCleared()
     }
 }

@@ -2,6 +2,7 @@
 
 **Status:** Adopted product and data contract
 **Date:** 21 August 2026
+**Content-pipeline amendment:** 24 August 2026
 **Authority:** [`Wildlife_prd.md`](Wildlife_prd.md) remains the product authority. This document defines the regional catalogue system and its authoring inputs.
 
 ## 1. Scope decision
@@ -93,7 +94,19 @@ Global taxon identity and regional membership are separate:
 
 ```text
 Taxon
-  taxon_id, rank, scientific names, localised common names, taxonomy, media provenance
+  taxon_id, rank, accepted taxon ID, scientific name, localised common names,
+  taxonomy and source revision
+
+TaxonDescription / TaxonConservation
+  taxon_id, locale/status, sourced value, source URL, text attribution/licence where applicable,
+  retrieval revision/date
+
+TaxonChange
+  previous taxon ID, accepted taxon ID, change type, source revision
+
+MediaAsset / MediaVariant
+  global asset ID, taxon ID, provider asset ID, media type, direct thumbnail/detail URLs,
+  source page, creator, licence, dimensions, checksum, assessment and taxonomic match rank
 
 Region
   region_key, localised names, polygon version, display order
@@ -112,7 +125,13 @@ ObservationRegion
   observation_uuid, region_key, boundary_version, assignment source, confidence
 ```
 
-Taxon details and reusable media are deduplicated globally. A species may belong to several regional catalogues, but one observation unlocks only the region containing that observation.
+Taxon details and reusable media are deduplicated globally. A species may belong to several regional catalogues, but one observation unlocks only the region containing that observation. Published biological content is immutable for one content generation; mutable download/cache state and user data live outside the generated catalogue database.
+
+At runtime, `PublishedContentRepository` is the product-facing reader for this database. Installation
+verifies pack checksums, SQLite integrity/foreign keys, schema and generation metadata before an
+atomic staged/backup swap. Startup restores a valid backup after interruption. Release builds reject
+draft, incompatible, conflicting and older generations; a failed candidate leaves the active
+generation untouched. Region display names come from content rather than compiled app constants.
 
 ## 5. Catalogue content policy
 
@@ -125,7 +144,7 @@ Catalogues focus on wildlife a normal user can intentionally encounter and photo
 
 Routine vagrants, accidental records, taxa normally impossible to identify photographically and exhaustive invertebrate coverage are excluded. Inclusion is curated; raw iNaturalist reporting frequency never becomes the catalogue automatically.
 
-Each catalogue is frozen and versioned. Catalogue updates may change projected completion, but never remove historical XP or an already-earned achievement.
+Each published catalogue snapshot is frozen and versioned. The authoring sources remain deliberately editable: membership, rarity, 10 Essentials and 5 Icons may be revised, then promoted as a new version. Updates may change projected completion but never remove historical XP or an already-earned achievement.
 
 ## 6. Encounter rarity and regional standing
 
@@ -167,13 +186,15 @@ The two sets are curated independently from raw frequency. A taxon should not ap
 
 Achievement identity includes region, catalogue version and type. Once awarded, an achievement remains in history even if a later catalogue version changes its checklist.
 
-## 8. Active catalogue and browsing
+## 8. Current region and browsing
 
-- Location is sampled only after an explicit user action or permission grant; it is never monitored continuously.
-- A confident local polygon match may suggest an active catalogue.
-- The app remembers the user's selected catalogue and never interrupts browsing with an automatic switch.
-- The user can browse every installed catalogue and manually choose the active one.
-- The currently relevant catalogue metadata, achievement definitions, rarity and thumbnails should be local. Other regional media may be delivered as optional local packs.
+- Location is sampled after permission has been granted; it is never monitored continuously.
+- A unique supported polygon match sets the current region. The user cannot manually override it.
+- A single last-known fix is labelled as such. Unsupported, ambiguous or absent fixes remain unavailable and never fall back silently to the first catalogue.
+- Explore remembers a separate browsed catalogue. This does not change current-region progress or background preparation.
+- Names, taxonomy, achievement definitions, rarity, seasonality, available sourced summaries/conservation snapshots and media manifests are local for every published catalogue. Missing description/conservation renders unavailable.
+- Direct thumbnail/detail URLs are selected and validated during content authoring. They remain primary. Species Detail alone may repair a missing photo or taxon-specific silhouette for its opened taxon; the licensed result and local file (or a 30-day negative result) are persisted without modifying the published catalogue.
+- Broad-group silhouettes are bundled and the most specific reusable silhouettes available are curated incrementally. Current-region thumbnails are prefetched into bounded durable storage; another browsed region gets only visible-row preparation. Reference photos are used on detail pages, not as catalogue-grid substitutes.
 
 ## 9. Authoring contract
 
@@ -184,13 +205,16 @@ catalogues/
   regions.yaml
   boundaries/
   taxa.yaml
+  taxon_descriptions.yaml
+  taxon_conservation.yaml
+  taxon_changes.yaml
   regions/<region_key>/catalogue.yaml
   regions/<region_key>/overrides.yaml
   achievements.yaml
   media_manifest.yaml
 ```
 
-The generator produces a deterministic SQLite catalogue, boundary assets, localisation checks, media/provenance manifests and a human-readable diff. Validation fails when:
+The networked authoring refresh and offline generator are separate commands. Source refresh resolves approved biological fields and media provider identities/direct variants into frozen reviewable inputs. The normal Android/Gradle build performs no network request. The generator produces one deduplicated deterministic SQLite content generation for all published regions, boundary assets, localisation checks, media/provenance manifests and a human-readable diff. Validation fails when:
 
 - a region key, catalogue version or taxon ID is invalid;
 - a country/territory has zero or multiple region assignments;
@@ -198,7 +222,13 @@ The generator produces a deterministic SQLite catalogue, boundary assets, locali
 - a listed achievement taxon is not in the regional catalogue;
 - an unexplained taxon appears in both regional checklists;
 - rarity or override provenance is missing;
-- reusable media lacks creator, source and compatible licence metadata.
+- reusable media lacks creator, source and compatible licence metadata;
+- a media URL is temporary, non-HTTPS, on an unapproved host or not a decodable declared image;
+- an Essentials/Icon taxon lacks an approved photo or explicit reviewed waiver;
+- a taxon change is cyclic or points outside the published global taxon set;
+- identical frozen inputs produce a different logical output.
+
+The runtime content/cache, prefetch, migration and 25-region scale contract is defined in [`species_content_pipeline_plan.md`](species_content_pipeline_plan.md). A later twenty-fifth region must be addable through content rows and media manifests without an Android schema migration.
 
 ## 10. Pilot strategy
 
@@ -209,12 +239,11 @@ The engine targets all 24 regions, but the pipeline is proven with three contras
 3. Caribbean — validates island/territory boundaries and media packaging with a more manageable
    first curation scope than Insular Southeast Asia.
 
-Pilot choice may change without changing the architecture. Scaling the remaining catalogues begins only after deterministic generation, assignment tests and catalogue diffs are trustworthy.
+Pilot choice may change without changing the architecture. Scaling the remaining catalogues begins only after deterministic generation, assignment tests, catalogue diffs, direct-media validation, bounded cache behavior and the production-schema/insertion 25-region runtime gate are trustworthy.
 
-### Pilot content status — 21 August 2026
+### Pilot content status — 24 August 2026
 
-Mediterranean Europe, East Africa and the Caribbean each contain 15 owner-directed,
-photographable species: ten distinct Regional Essentials and five distinct Regional Icons.
-Their encounter rarity and checklist membership are curated game metadata, not conservation
-claims. All three v1 catalogues are frozen with licence-verified reusable media, source and
-creator provenance, and pass deterministic release validation.
+Mediterranean Europe, East Africa and the Caribbean currently have editable broad draft
+catalogues plus ten Essentials and five Icons each. Those lists are owner-directed working
+versions, not final biological or balance claims. They remain draft until an approved revision is
+promoted individually; the audit currently reports that no region is frozen.

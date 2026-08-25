@@ -116,45 +116,74 @@ data class ObservationQualityTransition(
     val detectedAtMs: Long,
 )
 
+/**
+ * Maps a Linnaean class to the app's normalized, filterable group key.
+ *
+ * The same vocabulary serves two sources: the frozen catalogue's `taxonClass` and
+ * iNaturalist's `iconic_taxon_name`, which agree on these five groups. Group keys are what
+ * `assets/taxon-glyphs/` is named by, so anything that will draw a silhouette must go
+ * through here first — passing a raw "Aves" to the silhouette loader finds no asset and
+ * renders nothing at all, with no error.
+ *
+ * Lives in the data layer rather than in a ViewModel because parsing normalizes at the
+ * boundary now, and a UI-layer function cannot be called from the API client.
+ */
+fun taxonGroupForClass(taxonClass: String?): String? = when (taxonClass) {
+    "Mammalia" -> "mammals"
+    "Aves" -> "birds"
+    "Reptilia" -> "reptiles"
+    "Amphibia" -> "amphibians"
+    "Actinopterygii", "Chondrichthyes", "Myxini", "Petromyzonti" -> "fish"
+    // Already normalized, e.g. a value restored from the nearby cache.
+    "mammals", "birds", "reptiles", "amphibians", "fish" -> taxonClass
+    else -> null
+}
+
 data class NearbySpecies(
     val taxonId: Long,
     val commonName: String?,
     val scientificName: String,
     val taxonGroup: String?,
     val observationCount: Int,
-)
+    /**
+     * The taxon's default photo, straight off the species_counts response.
+     *
+     * Carried unfiltered; [CataloguePhotoPolicy.cardUrl] decides whether it may actually be
+     * shown. The licence and attribution travel with it because that decision cannot be made
+     * without them, and a URL that arrives without its licence must never be rendered.
+     */
+    val photoUrl: String? = null,
+    val photoAttribution: String? = null,
+    val photoLicenseCode: String? = null,
+    /** Region-scoped user sighting selected by the local projection; never provider media. */
+    val personalPhotoUrl: String? = null,
+    /** Most specific validated local catalogue silhouette, with the group glyph beneath it. */
+    val silhouetteUrl: String? = null,
+    val silhouetteMatchRank: String? = null,
+) {
+    /** The photo if its licence permits uncredited card use, otherwise null. CC0 only. */
+    fun cardPhotoUrl(): String? =
+        CataloguePhotoPolicy.cardUrl(photoUrl, photoAttribution, photoLicenseCode)
+
+    /**
+     * The photo for a surface that shows a credit line, which is the wider set.
+     *
+     * Callers must render [tileAttribution] alongside it; a tile that shows this URL without
+     * the credit is a licence breach, not a layout choice.
+     */
+    fun tilePhotoUrl(): String? =
+        CataloguePhotoPolicy.creditedUrl(photoUrl, photoAttribution, photoLicenseCode)
+
+    /** The credit that must appear with [tilePhotoUrl], shortened to one narrow line. */
+    fun tileAttribution(): String? {
+        if (tilePhotoUrl() == null) return null
+        return CataloguePhotoPolicy.compactCredit(photoAttribution, photoLicenseCode)
+    }
+}
 
 data class ObservationConfirmationResult(
     val xpAwarded: Int,
     val summary: CollectionSummary,
-)
-
-data class CatalogueSpecies(
-    val taxonId: Long,
-    val scientificName: String,
-    val commonName: String?,
-    val taxonGroup: String?,
-    val observationCount: Int,
-    val position: Int,
-    val photoUrl: String?,
-    val photoAttribution: String?,
-    val photoLicenseCode: String?,
-    val familyName: String? = null,
-    val wikipediaSummary: String? = null,
-    val wikipediaUrl: String? = null,
-    val conservationStatus: String? = null,
-    val conservationAuthority: String? = null,
-    val conservationUrl: String? = null,
-    val silhouetteUrl: String? = null,
-    val silhouetteSourceUrl: String? = null,
-    val silhouetteAttribution: String? = null,
-    val silhouetteLicenseCode: String? = null,
-    val silhouetteLicenseUrl: String? = null,
-    val silhouetteTaxonName: String? = null,
-    val silhouetteMatchRank: String? = null,
-    val photoLocalUri: String? = null,
-    val silhouetteLocalUri: String? = null,
-    val silhouetteResolverVersion: Int? = null,
 )
 
 data class TaxonDetails(
@@ -186,21 +215,13 @@ data class TaxonDetails(
     val silhouetteLocalUri: String? = null,
     val photoPipelineVersion: Int? = null,
     val silhouetteResolverVersion: Int? = null,
-)
-
-data class CatalogueSnapshot(
-    val regionKey: String,
-    val placeId: Long,
-    val version: String,
-    val updatedAtMs: Long?,
-    val provisional: Boolean,
-    val species: List<CatalogueSpecies>,
-    val cached: Boolean,
-    val silhouettePipelineVersion: Int? = null,
-    val lastRefreshAttemptMs: Long? = null,
-    val lastRefreshSuccessMs: Long? = null,
-    val lastRefreshErrorCode: String? = null,
-    val refreshInProgress: Boolean = false,
+    val silhouetteFallbackUrl: String? = null,
+    val silhouetteFallbackSourceUrl: String? = null,
+    val silhouetteFallbackAttribution: String? = null,
+    val silhouetteFallbackLicenseCode: String? = null,
+    val silhouetteFallbackLicenseUrl: String? = null,
+    val silhouetteFallbackTaxonName: String? = null,
+    val silhouetteFallbackMatchRank: String? = null,
 )
 
 data class CollectionSpecies(

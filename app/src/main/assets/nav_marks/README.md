@@ -2,7 +2,7 @@
 
 The bottom bar's five marks, supplied by the Wildlife product owner on 23 August 2026 and
 tinted at runtime — parchment ink on the dark strip, background ink on the selected cream
-cell, parchment on the olive capture stamp.
+cell, and a larger olive camera for Capture.
 
 | File             | Destination | Subject                          |
 | ---------------- | ----------- | -------------------------------- |

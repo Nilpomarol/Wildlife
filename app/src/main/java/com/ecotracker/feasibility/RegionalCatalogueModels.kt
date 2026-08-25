@@ -62,13 +62,6 @@ data class RegionalRewardContext(
     val icons: Set<Long>,
 )
 
-/** The minimal immutable catalogue data required to resolve a missing species silhouette. */
-data class RegionalSilhouetteCandidate(
-    val taxonId: Long,
-    val scientificName: String,
-    val taxonGroup: String?,
-)
-
 object RegionalAssignmentPolicy {
     const val MARINE_WORLDWIDE = "marine_worldwide"
 

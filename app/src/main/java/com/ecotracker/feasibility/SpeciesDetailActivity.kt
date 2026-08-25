@@ -14,6 +14,7 @@ import com.wildlife.feasibility.ui.screens.speciesdetail.SpeciesDetailScreen
 import com.wildlife.feasibility.ui.screens.speciesdetail.SpeciesDetailViewModel
 import com.wildlife.feasibility.ui.screens.speciesdetail.TAXON_ID_KEY
 import com.wildlife.feasibility.ui.screens.speciesdetail.TAXON_LABEL_KEY
+import com.wildlife.feasibility.ui.screens.speciesdetail.REGION_KEY
 import com.wildlife.feasibility.ui.theme.WildlifeTheme
 
 class SpeciesDetailActivity : ComponentActivity() {
@@ -41,6 +42,8 @@ class SpeciesDetailActivity : ComponentActivity() {
                     },
                     onOpenUrl = ::open,
                     onRetryMedia = viewModel::retryMedia,
+                    onRequestAlternativeImage = viewModel::requestAlternativeImage,
+                    onRetryObservationDensity = viewModel::retryObservationDensity,
                 )
             }
         }
@@ -56,10 +59,11 @@ class SpeciesDetailActivity : ComponentActivity() {
     }
 
     companion object {
-        fun intent(context: Context, taxonId: Long, fallbackLabel: String?) =
+        fun intent(context: Context, taxonId: Long, fallbackLabel: String?, regionKey: String? = null) =
             Intent(context, SpeciesDetailActivity::class.java).apply {
                 putExtra(TAXON_ID_KEY, taxonId)
                 putExtra(TAXON_LABEL_KEY, fallbackLabel)
+                regionKey?.let { putExtra(REGION_KEY, it) }
             }
     }
 }

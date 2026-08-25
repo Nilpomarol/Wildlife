@@ -1,8 +1,8 @@
 # Wildlife UI Architecture
 
-**Status:** Adopted design and implementation contract  
-**Visual system:** Field Guide Classic  
-**Platform:** Android, Kotlin, Jetpack Compose, Material 3  
+**Status:** Adopted design and implementation contract; post-cutover content/media remediation is complete and broad UI redesign may resume
+**Visual system:** Field Guide Classic
+**Platform:** Android, Kotlin, Jetpack Compose, Material 3
 **Source of visual truth:** [`style.md`](style.md)
 
 ## 1. Decision
@@ -15,6 +15,8 @@ Wildlife will not wait for a final whole-app redesign. The final design system i
 - A big-bang rewrite is explicitly avoided.
 
 This keeps new work production-shaped without delaying catalogue and matching validation.
+
+**Implementation gate closed 24 August 2026:** runtime/device evidence exposed defects outside the original synthetic benchmark; the audited remediation and production-path 25-region gate now pass. Broad UI work may resume. Pilot curation and the representative-device matrix remain release gates.
 
 ## 2. Authority and references
 
@@ -39,9 +41,13 @@ The AI-generated reference animals must never be shipped. Production images requ
 UI state flows in one direction:
 
 ```text
-Public iNaturalist + PhyloPic APIs
+Frozen iNaturalist/provider source inputs
           ↓
-Versioned regional content pack + on-device repository/cache
+Offline deterministic global content generation
+          ↓
+Versioned published catalogue + direct media manifest
+          ↓
+Read-only content repository + bounded durable media store
           ↓
 Domain projection
           ↓
@@ -110,10 +116,10 @@ Build only components that recur or carry core identity:
 |---|---|
 | `WildlifeScaffold` | Background, safe system insets, top/bottom structure and snackbar host |
 | `WildlifeTopBar` | Serif screen title with restrained Material actions |
-| `WildlifeBottomBar` | Home, Collection, Capture, Explore and Profile; labelled 48dp targets. The four navigating destinations are tabs; the centre Capture item launches an Activity and therefore carries a button role, never an unselectable tab role |
+| `WildlifeBottomBar` | Home, Collection, Capture, Explore and Profile; labelled 48dp targets. The four navigating destinations are tabs; Capture is a larger unfilled camera mark that launches an Activity and therefore carries a button role, never an unselectable tab role |
 | `CollectionProgress` | Region, observed/total value and thin olive progress; only after a curated denominator exists |
-| `RegionSelector` | Active/manual catalogue selection and installed-content state; never performs continuous location tracking. It belongs to the Explore top bar, which is reachable without a linked account, so the choice is never gated behind account state. `RegionPill` is its read-only counterpart for screens that display the active region but do not own the choice |
-| `SpeciesGrid` | Shared responsive grid used by Collection, Explore/Near Me and achievement checklists |
+| `RegionSelector` | Browsed-guide selection in Explore only. It never changes the location-derived current region, regional progress or full-region prefetch. `RegionPill` is the read-only current-region counterpart |
+| `SpeciesGrid` | Shared responsive grid used by Collection, Explore/Near Me and achievement checklists; its optional viewport callback reports only visible entries and owns no repository or scheduling policy |
 | `CollectionSearchBar` | Primary collection discovery control with compact inline collection/XP stats below it |
 | `TaxonFilterRow` | Horizontally scrolling index-tab filter chips |
 | `SpeciesCard` | One stable layout for observed, confirmed, pending and silhouette states |
@@ -126,6 +132,7 @@ Build only components that recur or carry core identity:
 | `SpeciesFactsGrid` | Compact reusable facts panel; hides unavailable facts rather than inventing them |
 | `ObservationTile` | Image and date for the horizontal personal-history strip |
 | `SectionHeader` | Consistent title and optional trailing action |
+| `WildlifeLoadingState` | Shared accessible initial-loading treatment; later refreshes retain existing screen content where available |
 | `CaptureButton` | Olive circular primary capture action with parchment icon |
 
 Prefer parameters and slots over visually similar duplicate components.
@@ -137,7 +144,7 @@ Prefer parameters and slots over visually similar duplicate components.
 The first production-style migration target.
 
 - Displays a frozen catalogue denominator, not the raw regional occurrence pool.
-- Reads the selected regional catalogue; location may suggest a catalogue but manual choice is always available.
+- Reads the location-derived current regional catalogue. Collection does not manually change it; when no supported fix exists it shows an explicit unavailable state and points to Explore for browsing.
 - Counts only observations assigned to that region under a versioned boundary policy.
 - Uses the same card geometry for observed and missing species.
 - Makes the species photograph or silhouette dominant.
@@ -153,13 +160,27 @@ Until the curated catalogue is frozen, the UI must say **Provisional catalogue**
 
 ### Catalogue / Explore
 
-- Reads the active installed regional catalogue, including its frozen version and curated denominator. The legacy Catalonia snapshot remains only a migration/detail-media cache and is not a guide source.
+- Reads the installed regional catalogue being browsed, including its version and curated denominator. This temporary Explore choice is independent from the current region.
 - Shows licence-approved imagery only.
 - Does not label raw observation frequency as biological rarity.
 - Works unlinked and offline after the first snapshot is stored.
 - Provides three explicit sections: the stored Species guide first, one-shot Near me discovery second and My Map third. The guide opens by default because it is the section that works offline and without a permission prompt.
 - Home carries a preview of Near me: the same one-shot request and a short ranked extract, with a "See all" entry that opens Explore's Near me section. The preview and the section share one row component and one discovery call, so the reporting-frequency caveat is stated identically in both.
-- Near me requests device location only after the user acts, does not persist the search coordinate/results, intersects returned taxa with the provisional guide, labels species-count order as reporting frequency rather than rarity and includes loading, permission/location, empty and network-error states.
+- Near me requests device location only after the user acts **for its first search**, intersects returned taxa with the provisional guide, labels species-count order as reporting frequency rather than rarity and includes loading, permission/location, empty and network-error states.
+- **Near me results are cached** (`NearbyDiscoveryStore`), superseding the earlier rule that the search coordinate and results were never persisted. That rule was written to stop the app becoming a location tracker; re-running the search on every visit to Home turned out to sample location *more* often, not less. The replacement keeps the intent through four constraints, all of which are load-bearing:
+  - The stored coordinate is **coarsened to 0.01° (~1 km)** at the store boundary, so nothing finer than a cell ever reaches disk. It exists only to answer "have I moved far enough to re-search?".
+  - The automatic re-check **never prompts for permission**. With permission not already granted it does nothing, and the explicit button remains the only way in.
+  - It reads a **single last-known fix**, never a location stream, and never wakes the GPS with `getCurrentLocation`. With no recent fix the cache is judged on age and month alone.
+  - It runs **only when a cached answer already exists**, i.e. only after the user has explicitly asked for a nearby search at least once.
+- Staleness lives in `NearbyCachePolicy`, not in the ViewModel, so the thresholds are unit-tested: re-search past **5 km** of movement (a fifth of the 25 km radius), on a **calendar-month change** (the month is part of the query), on a **radius change**, or after **7 days**. A failed or stale re-check leaves the previous answer on screen rather than replacing it with an error.
+- Home renders the extract as a **carousel** of plates and Explore keeps the full ranked table; both share `NearbySpeciesRow`/`NearbySpeciesCarousel` imagery rules and state the reporting-frequency caveat identically.
+- Nearby results use reporting counts and identity from `species_counts`, but their artwork follows
+  the collection contract: a user observation assigned to the browsed region, then the most
+  specific validated local catalogue silhouette, then its validated family assignment, then the
+  bundled group mark. The provider's
+  taxon-default photo remains discovery evidence and is never shown as collection artwork.
+  `iconic_taxon_name` is normalized to a group key (`taxonGroupForClass`) at parse time so the
+  final offline fallback cannot silently render empty.
 - My Map is Explore's third section rather than a separate route. Home links to it by selecting that section. It is a regional-progress and personal-history surface. It renders all bundled local regional boundaries and exposes installed-catalogue completion plus Essentials/Icons states with an accessible textual legend. Personal history remains a separately toggleable 0.1°-cell layer; it never renders exact pins and retains hidden/unavailable-location disclosure and separate Research Grade meaning.
 - Debug builds provide a clearly labelled in-memory map appearance preview with representative coarse cells and pilot-region states. It must never persist, sync or mutate a user's observations, progress or map settings, and is not shown in release builds.
 - My Map embeds MapLibre Native in Compose but uses a Wildlife-owned local style and display-only atlas: warm water, neutral land, opaque olive completion, regional outlines, selection and owner-supplied Essential/Icon sprites. It makes no basemap tile request. The 13.7 MB Natural Earth-derived boundary asset remains the assignment source of truth; a separately generated, dissolved and topology-preserving simplified atlas is used only for display. Region selection and all observation-cell projection remain on device.
@@ -177,7 +198,28 @@ Until the curated catalogue is frozen, the UI must say **Provisional catalogue**
 ### Species detail
 
 - Leads with approved wildlife photography.
-- Prefers a cached, licence-verified Wikimedia Commons Featured/Quality reference image for the hero; otherwise uses the iNaturalist taxon default, a compatible research-grade observation photo, the user's own photo, or a silhouette in that order.
+- Reads the published taxon's identity, short sourced description, conservation snapshot, regional context and selected media manifest locally. Those immutable fields never wait for or accept a runtime overlay.
+- Uses the authoring-selected, licence-verified reference image manifest first. It shows the bundled group silhouette and any validated local thumbnail immediately, then issues the direct stored detail-variant request when that file is absent.
+- Keeps the shared bundled `TaxonSilhouette` mounted underneath the hero media layers. A published
+  taxon uses its frozen specific and family roles in specific → family → bundled-group order on
+  Collection, Explore, Near Me and Detail. Each locally validated role becomes usable immediately;
+  an unavailable or not-yet-downloaded specific role never withholds the family fallback.
+  Device-side name matching must not invent a catalogue assignment. PhyloPic resolution is an
+  authoring operation for catalogue taxa and remains a runtime repair only for off-catalogue
+  records. Missing published photos may still use the bounded licence-verified repair overlay.
+  Retry represents a failed/incomplete downloadable stage, not provider discovery for a catalogue
+  silhouette.
+- Updates text, thumbnail, detail image and silhouette independently; one incomplete stage never withholds another completed stage.
+- Gives the open hero absolute media-queue priority. Its photo is downloaded and projected before
+  any specific-silhouette download or missing-stage repair, while the bundled group silhouette
+  remains visible underneath. Whole-region thumbnail preparation must never delay this request.
+- Offers a separate **Find another reference image** action when a reference photo is shown. It
+  records the currently shown source in a durable per-taxon rejection history, searches for a
+  different licence-compatible Wikimedia asset excluding every prior rejection, validates and
+  stores the file before display, and persists the choice as a media-only overlay. A no-result or
+  temporary failure leaves the current photo unchanged and is stated explicitly. Rejection records
+  are included in the structured local-data export with taxon, provider, catalogue generation,
+  reason and timestamp so they can feed a reviewed authoring denylist without telemetry.
 - Keeps the user's sighting photos in the personal observation strip even when a curated reference image leads the page.
 - Shows the reference creator/licence directly on the hero image as a tappable source credit; do not defer image attribution to the bottom of the page.
 - Common name is the primary serif identity; scientific name is italic and secondary.
@@ -186,6 +228,7 @@ Until the curated catalogue is frozen, the UI must say **Provisional catalogue**
 - Image attribution remains reachable from the detail screen.
 - Adds regional encounter rarity, catalogue/achievement membership, seasonality when sourced and the observation's valid regional unlock state.
 - May show a cached public iNaturalist distribution/observation panel as an online enhancement; the local identity, collection state and personal observation strip remain available offline.
+- Uses the stale-while-revalidate remote taxon store for complete off-catalogue records and for missing-photo repair on published taxa. Published projections never merge an overlay silhouette; the frozen silhouette assignment or bundled group fallback is authoritative on every catalogue surface.
 
 ### Capture and handoff
 
@@ -204,17 +247,24 @@ Use standard Material 3 forms, dialogs and lists within the theme. These screens
 
 ## 7. Photography and attribution
 
-Every reusable image record must contain:
+Every reusable published image record must contain:
 
 ```text
-source URL
-creator / attribution
-licence code
+provider + stable provider asset ID
+direct thumbnail/detail URL
+source page URL
+creator / attribution when the provider publishes one (never fabricate it)
+licence code + licence URL
 taxon ID
-retrieval or catalogue version
+matched taxon name + match rank; matched catalogue taxon ID only for exact species assignments
+dimensions / MIME type / expected bytes
+checksum where the published variant is frozen
+selection evidence and content generation
 ```
 
-Species Detail resolves reference media in this order: Wikimedia Commons Featured/Quality image associated with the linked Wikipedia article, then a scientific-name Wikidata fallback only when it is verified against the iNaturalist taxon ID (or is one unambiguous exact match), licensed iNaturalist taxon default, compatible research-grade iNaturalist observation photo, then the closest licensed silhouette in species, genus, family, order and broad-group order. Explore always shows a silhouette for an unobserved species. Observed Explore cards favour the user's own sighting and use an attributed reference only when that photo is missing. Collection remains personal. A temporary media failure preserves the previous reference, leaves the affected pipeline stage incomplete and retries later. Catalogue load starts a resumable on-device enrichment pass over unique biological families. Successful photos and silhouettes are downloaded to app-owned private files and their provenance is persisted in SQLite; remote source/display URLs remain available for attribution and repair. Local-file failure falls back to the remote display URL. Species Detail can supersede a family silhouette with a more specific genus/species match. Do not silently fall back to an unlicensed URL, an AI-generated animal or an unrelated generic animal image.
+The content-authoring refresh resolves reference photos in this order: reviewed Wikimedia Commons Featured/Quality image associated with the taxon, licensed iNaturalist taxon default, compatible research-grade iNaturalist observation photo, then no reference photo. It resolves PhyloPic into two independent frozen roles for every published taxon: species→genus for the specific role and family→order for the family role. It records each assignment's real matched name even when one provider image is reused by several catalogue taxa. It records selected direct variants and provenance in frozen inputs before the network-independent Android content build. All authored and stored licence codes use exactly `pdm`, `cc0`, `cc-by` or `cc-by-sa`; the licence URL carries the version. Species Detail may repeat only a missing photo/download stage for its one opened taxon; grids and background catalogue loading never run provider discovery.
+
+Explore always shows a licensed broad-group/family silhouette for an unobserved species. Observed Explore cards favour the user's own sighting and use an attributed published reference only when that photo is missing. Collection remains personal. A failed direct image retains the local thumbnail/silhouette and enters persistent targeted repair. Active-region media prefetch is resumable WorkManager work backed by a durable priority queue; it is not an in-memory ViewModel pass. Files use atomic validated writes, deduplication, pinning, storage accounting, LRU eviction and orphan cleanup. Media metadata lives in one application-scoped WAL SQLite index; downloads reserve capacity transactionally but run outside storage locks, while workers use persisted queue due times rather than generic WorkManager retry for normal batching. Do not silently fall back to an unlicensed URL, an AI-generated animal or an unrelated generic animal image. Full ownership and loading rules are in [`species_content_pipeline_plan.md`](species_content_pipeline_plan.md).
 
 User observation photos can represent observed cards subject to privacy and local caching rules. Reference catalogue photos and user photos are different sources and must remain distinguishable in data.
 
@@ -272,7 +322,7 @@ Each destination owns one concept — Observations included, though it is not a 
 |---|---|
 | Home | What is happening now: latest discovery, a Near me preview, map and observation-queue entries |
 | Collection | Personal collection counts and the regional grid; works unlinked as silhouettes |
-| Explore | The world: Species guide, Near me and My Map, plus the active-region choice |
+| Explore | The world: Species guide, Near me and My Map, plus an independent browsed-guide choice |
 | Observations | Long-term observation management and its sync retry |
 | Profile | Identity, progression/XP, and data & diagnostics |
 
@@ -288,6 +338,8 @@ During migration, existing Activities may still host focused workflows. Capture 
 
 ## 10. Delivery sequence
 
+**Gate note — 24 August 2026:** the historical sequence below is retained as design-system history. The species content/media gate now passes, so continue it under the current shared-component rules.
+
 1. Add Compose dependencies, theme tokens, fonts and baseline components.
 2. Convert Collection to the real grid using licensed images and silhouettes.
 3. Convert Catalogue into Explore using the same `SpeciesCard` and filters.
@@ -301,7 +353,21 @@ Each step must leave a usable, testable app. Do not block data work on convertin
 ### Implementation status
 
 - **Gate 1 passed — 21 August 2026:** the product owner accepted the core field loop after one week of testing. Closed beta still measures reliability; implementation work may now proceed past feasibility.
-- **Next architecture migration:** complete map-layer device/accessibility validation, then continue beta-readiness work (export, localisation, broader accessibility/device coverage and conservative batched sync). The regional catalogue contract is established in [`regional_catalogues.md`](regional_catalogues.md).
+- **Content media P0 corrected — 24 August 2026:** schema v4 uses the same canonical licence codes in authoring manifests, SQLite and runtime policy; a production-path test reads every generated photo through that runtime policy. Media assignments store the real matched taxon name, permit a provider silhouette to be assigned to several catalogue taxa without conflicting provenance, and preserve genuinely absent PhyloPic creator metadata as absent. Catalogue Detail no longer merges device-discovered silhouettes, so Collection and Detail share the frozen assignment or the same bundled group fallback. The authoring resolver freezes species→genus→family→order PhyloPic candidates; provider requests never run in the Android catalogue path.
+- **Content remediation complete — 24 August 2026:** production content readers use one application-scoped, generation-bound read-only repository. Regional content is loaded with bounded batch queries and a small immutable projection cache; database integrity is not rechecked for ordinary reads. Catalogue projections are side-effect free: WorkManager transitions refresh only media progress, while Explore sends bounded, debounced demand for the grid's actual visible taxa. Home/Profile, Collection, Explore, Observations and Species Detail projections are cancellable background jobs guarded against stale completion; startup maintenance is also off the UI thread and resume refresh is route-scoped. The media index and worker lifecycle are transactional and due-time driven. Schema v4 and immutable sequence-based publication validation pass the production-path region gate.
+- **Complete — content pipeline Slice 3:** schema-v4 published content is checksum/integrity validated and atomically installed with rollback recovery. Collection, Explore, Species Detail and diagnostics read it through `PublishedContentRepository`; missing Detail photos may be filled only by the bounded media-repair overlay. Draft packs are debug-only.
+- **Complete — content pipeline Slice 4:** published variants use direct manifest URLs and a generation-aware, checksum-validated atomic store with deduplication, pinning, storage accounting, LRU eviction, corruption repair and orphan cleanup. Species Detail upgrades its hero independently without provider discovery.
+- **Complete — content pipeline Slice 5:** current-region media uses a persisted generation-scoped priority queue and unique network-constrained WorkManager chain. Work survives restart, isolates failures, applies persisted retry due times and reports aggregate state in diagnostics.
+- **Complete — media operations diagnostics:** Profile reports bounded cache use/capacity and pinned count, queued versus active work, privacy-safe open-detail priority state, the next persisted retry time and aggregate failure codes. It deliberately excludes species identity, provider IDs, URLs and local paths from both the screen and copied test report.
+- **Species observation density:** after user-facing detail media work, Species Detail may fetch an unauthenticated capped sample of publicly mappable research-grade iNaturalist observations. Raw observation records are reduced immediately to anonymous 1° cells; no observation IDs, users, dates or raw coordinates are stored. Snapshots expire after 30 days, retain stale data on network failure, are bounded to the 40 most recently used taxa and are labelled as observation activity rather than biological range.
+- **Complete — content pipeline Slice 6:** Collection and Explore use silhouettes plus personal observation photos; published reference photography is reserved for Species Detail and comes only from validated local files. Species Detail is local-first, keeps the group silhouette beneath loading media, independently upgrades manifest assets through the direct-download queue and runs persistent targeted repair for missing media stages. `MediaPrefetchStatus` is the shared compact preparing/repair contract.
+- **Implemented — content pipeline Slice 7 engineering cutover:** the mutable regional catalogue
+  schema, refresh clients and legacy projection adapters are deleted. `RemoteTaxonRepository` is
+  isolated to off-catalogue stale-while-revalidate content plus published media-only repairs. Automated preservation/rollback and
+  production-path 25-region performance gates pass, as does one device cold-start smoke check. The
+  current-region/browsed-region correction is also complete. The later post-cutover audit supersedes
+  its UI-resume declaration; strict pilot promotion and the full representative-device matrix remain release gates.
+- **Historical-status note:** legacy taxon/media bullets below are retained only as implementation history. Where they conflict with the content-pipeline plan or the Slice 7 status above, the newer pipeline is authoritative.
 - **Complete:** shared `SpeciesGrid` reads the regional encounter-rarity field and achievement membership, which are independent of each other. Its shared Field Marks use encounter traces plus Essential and Icon stamps; rarity, standing and verification remain independent.
 
 - **Complete:** Compose compiler/dependencies, dark Field Guide Classic theme, semantic colours, centralized typography/shapes/spacing, safe-edge scaffold, compact filter tabs, summary panel and reusable image-led species card.
@@ -309,13 +375,13 @@ Each step must leave a usable, testable app. Do not block data work on convertin
 - **Complete:** Lora is bundled under the SIL Open Font License for display headings; sans-serif remains the compact UI/body face.
 - **Complete:** Species Detail uses a shared local taxon cache and lazily refreshes public iNaturalist taxon metadata. It can show scientific/common names, group, family, Wikipedia summary and global IUCN status for observations outside the regional catalogue without OAuth. Cached content remains available offline and enrichment failures are non-blocking.
 - **Complete:** Explore reads the selected installed regional catalogue with the shared Compose grid, offline/error states, regional search, observed/not-observed discovery filters and responsive taxonomic filters. The observed state is regional: sightings assigned to another region do not unlock the selected guide. Unobserved taxa remain silhouettes. Observed cards lead with the user's sighting and can fall back to an attributed stored reference.
-- **Complete:** Species Detail is internally reachable from Collection and Explore. When the opened species belongs to the active regional catalogue, its discovery state is resolved from observations assigned to that region and the screen shows that region’s encounter rarity and Essentials/Icons membership separately. It also provides an image-led identity, truthful local facts, compatible CC0/CC BY/CC BY-SA reference imagery with attribution, explicit missing-data states and links back to the corresponding iNaturalist records.
-- **Complete:** Missing Explore imagery and Species Detail heroes support attributed PhyloPic silhouettes. Catalogue sync caches broad group fallbacks; detail sync resolves species, genus, family and order in sequence and cached closer matches replace generic Explore silhouettes. If an iNaturalist default photo is unusable, detail sync searches research-grade observations for an explicitly compatible alternative and records its direct source and recovery status. The UI distinguishes exact and representative silhouettes and explains when no reusable photo was found.
+- **Complete:** Species Detail is internally reachable from Collection and Explore and receives the originating current/browsed region explicitly. Its discovery state is resolved from observations assigned to that region and the screen shows encounter rarity and Essentials/Icons membership separately. It also provides an image-led identity, truthful local facts, compatible CC0/CC BY/CC BY-SA reference imagery with attribution, explicit missing-data states and links back to the corresponding iNaturalist records.
+- **Superseded implementation:** the earlier device resolver searched PhyloPic by species, genus, family and order for Detail only. Schema v4 moves that policy to authoring and forbids its overlay result from changing a published catalogue projection. If an iNaturalist default photo is unusable, bounded missing-photo repair may still select an explicitly compatible alternative and records its direct source and recovery status.
 - **Current catalogue scope:** Explore uses the bundled pilot catalogues for Mediterranean Europe, East Africa and the Caribbean. Their curated contents prioritise mammals, birds, reptiles, fish and amphibians; plants, fungi and invertebrates are outside this pilot scope.
 - **Complete:** Shared Navigation Compose shell with Home, Collection, central Capture action, Explore and Profile. Home shows truthful local collection/catalogue/queue state; Profile exposes the existing account flow and permanent read-only boundary. Collection and Explore retain their screen/filter state when switching destinations.
 - **Complete:** Capture and the post-handoff return/reward moment migrated to Field Guide Classic Compose. It supports camera/gallery drafts, EXIF metadata repair, one-observation validation, official-app handoff, explicit submitted/not-submitted return state, public-API retry and candidate confirmation, local-only deletion, no-app fallback and a reward moment gated by successful public confirmation.
 - **Complete:** Core sync no longer depends on a local or hosted Wildlife backend. Android directly reads public APIs through an on-device repository, stores observation/catalogue/taxon projections in SQLite and records confirmation XP in an idempotent local ledger. The existing regional catalogue is reused until an explicit refresh. Stored screens remain usable offline. A future social service is optional and outside this core data path.
-- **Complete:** Species Detail separates curated reference media from personal sightings. Media pipeline v9 inspects eligible images across the linked article, uses a taxon-verified Wikidata scientific-name fallback, requires creator metadata for every reusable photo, paces and retries Wikimedia requests, and stores selected files outside Android's disposable cache while retaining attribution and repair URLs. Silhouette pipeline v3 stores raster files durably, resumes family enrichment after partial failure and does not let a broad or stale result replace a closer current match.
+- **Complete:** Species Detail separates curated reference media from personal sightings. Media pipeline v9 inspects eligible images across the linked article, uses a taxon-verified Wikidata scientific-name fallback, requires creator metadata for every reusable photo, paces and retries Wikimedia requests, and stores selected files outside Android's disposable cache while retaining attribution and repair URLs. Off-catalogue silhouette pipeline v3 stores raster files durably and does not let a broad or stale result replace a closer current match; published catalogue silhouettes use only schema-v4 assignments.
 - **Complete:** Catalogue storage schema v8 journals refresh attempts independently from the last complete snapshot. Catalogue and taxon-detail replacement is one SQLite transaction, a failed/interrupted refresh leaves the stored guide readable, and Explore requires confirmation before a refresh. Provisional revision IDs hash the stable taxon denominator instead of the fetch date. App-owned reusable media has a 384 MiB ceiling, retains valid files across catalogue refreshes and removes only abandoned temporary downloads older than 24 hours. The curated release catalogue/media pack remains a launch-content deliverable rather than something generated silently on each device.
 - **Complete:** Public JSON networking is routed through one injectable read-only client with per-service pacing, bounded 429/5xx and network retries, stable typed failures, shared URL encoding and identifying headers. iNaturalist, Wikimedia and PhyloPic retain separate biological/media parsing policies but no longer maintain separate connection machinery. Photo and silhouette lookup use the same typed resolution outcome, allowing a temporary earlier failure to preserve better stored media without being confused with a clean no-result. Reference-image display and durable downloads share one request identity. Explore and the Species Detail hero no longer overlay redundant “not observed” or “representative silhouette” text; exact/representative rank remains in accessibility and source credits.
 - **Complete:** Media presentation distinguishes personal photos, attributed reference photos and exact/representative silhouettes in accessibility text. Explore cards recover in order from a personal photo to stored and remote attributed references before using a silhouette. Species Detail offers an explicit retry when reference media or enrichment fails. Collection, Explore and Species Detail include large-text previews; the shared grid reduces to one column at very large font scales, and compact collection statistics stack instead of clipping.
@@ -325,7 +391,7 @@ Each step must leave a usable, testable app. Do not block data work on convertin
 - **Complete:** Placeholder progression v0.1 centralizes enabled XP values and level thresholds, migrates existing ledger events without rewriting points, projects lifetime XP into a level, and adds a Profile surface with progress, recent reward sources and selectable earned titles. Rarity, badges and streaks remain disabled. Research Grade XP is enabled only through the idempotent lifecycle transition described below.
 - **Complete:** Foreground observation lifecycle synchronization persists public quality changes, distinguishes Wildlife match confirmation from iNaturalist quality, exposes last checked/stale/syncing/error/retry state, recomputes durable pending handoffs after restart and repairs confirmed ledger writes. A previously known observation that first transitions to Research Grade records one `research_grade:<UUID>` event. The future background policy is per observation: new/Needs ID records remain eligible, Research Grade leaves routine refresh after one confirmation pass, manual and rare reconciliation remain available, and due records are batched rather than fetched one by one. Gate 1 now permits implementing conservative WorkManager batching after the observation-management slice.
 - **Complete:** Explore discovery/map foundation adds an explicit one-shot Near me query. My Map is a field atlas with 24 dissolved display regions, restrained completion fills, owner-supplied Essential/Icon marks, selectable regional status and an accessible legend. The regional-progress and privacy-safe coarse observation layers toggle independently. The local atlas works without external map tiles; accurate assignment continues to use the separate full-resolution versioned boundary asset. Linked, empty/unavailable-location, area-list and content states are represented. A local map-visibility override is stored separately from the replaceable iNaturalist cache, so users can exclude or restore individual observations without changing iNaturalist; obscured, unavailable and user-hidden states remain distinct in the projection and UI.
-- **Complete:** Navigation restructured so each bottom destination owns one concept. `RegionSelector` moved from the Collection header to the Explore top bar, making the active-region choice reachable without a linked account; Collection shows the read-only `RegionPill`. Collection renders the regional guide unlinked as silhouettes with an inline link prompt instead of an account wall. Explore gained a third My Map section and now opens on the Species guide; the separate map route was removed and Home links into the section. Home carries a Near me preview sharing one row component and one discovery call with Explore's section. Observations became an in-shell route backed by `ObservationsViewModel`, keeps the bottom bar, and owns its sync retry while Profile reports status read-only. Duplicated species/observation/XP counts were removed from Home, Profile was split into Account, Progression and Data & diagnostics sections, and the centre Capture item carries a button role rather than an unselectable tab role. The unreachable `UserObservationsActivity` was deleted.
+- **Complete:** Navigation restructured so each bottom destination owns one concept. `RegionSelector` in the Explore top bar changes only the browsed guide; Collection follows the read-only, location-derived current region. Collection renders the regional guide unlinked as silhouettes with an inline link prompt instead of an account wall. Explore gained a third My Map section and now opens on the Species guide; the separate map route was removed and Home links into the section. Home carries a Near me preview sharing one row component and one discovery call with Explore's section. Observations became an in-shell route backed by `ObservationsViewModel`, keeps the bottom bar, and owns its sync retry while Profile reports status read-only. Duplicated species/observation/XP counts were removed from Home, Profile was split into Account, Progression and Data & diagnostics sections, and the centre Capture item carries a button role rather than an unselectable tab role. The unreachable `UserObservationsActivity` was deleted.
 - **Complete:** Profile exposes a retained-data inventory and privacy-safe test report using aggregate counts only. The report contract excludes login/user ID, coordinates, species labels, URLs and local paths. Confirmed local deletion clears Wildlife’s account preferences, handoff state/private capture files, observation/progression/map databases, catalogue/reference media and temporary cache, then reloads all shell projections. It does not call an iNaturalist write or deletion path. Structured user-data export remains a later privacy deliverable.
 
 ## 11. UI definition of done

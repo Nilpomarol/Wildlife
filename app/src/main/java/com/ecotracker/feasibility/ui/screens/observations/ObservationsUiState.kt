@@ -71,6 +71,7 @@ data class RegionalContextUi(
 )
 
 data class ObservationsUiState(
+    val isLoading: Boolean = false,
     val account: VerifiedAccount? = null,
     val managed: List<ManagedObservationUi> = emptyList(),
     val publicObservations: List<PublicObservationUi> = emptyList(),

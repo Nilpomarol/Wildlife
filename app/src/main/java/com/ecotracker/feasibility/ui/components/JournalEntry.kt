@@ -1,0 +1,408 @@
+package com.wildlife.feasibility.ui.components
+
+import androidx.compose.foundation.Canvas
+import androidx.compose.foundation.background
+import androidx.compose.foundation.border
+import androidx.compose.foundation.clickable
+import androidx.compose.foundation.layout.Arrangement
+import androidx.compose.foundation.layout.Box
+import androidx.compose.foundation.layout.Column
+import androidx.compose.foundation.layout.Row
+import androidx.compose.foundation.layout.Spacer
+import androidx.compose.foundation.layout.fillMaxSize
+import androidx.compose.foundation.layout.fillMaxWidth
+import androidx.compose.foundation.layout.height
+import androidx.compose.foundation.layout.padding
+import androidx.compose.foundation.layout.size
+import androidx.compose.foundation.shape.RoundedCornerShape
+import androidx.compose.material3.Text
+import androidx.compose.runtime.Composable
+import androidx.compose.ui.Alignment
+import androidx.compose.ui.Modifier
+import androidx.compose.ui.draw.clip
+import androidx.compose.ui.graphics.Color
+import androidx.compose.ui.layout.ContentScale
+import androidx.compose.ui.platform.LocalContext
+import androidx.compose.ui.semantics.contentDescription
+import androidx.compose.ui.semantics.semantics
+import androidx.compose.ui.text.font.FontWeight
+import androidx.compose.ui.text.style.TextOverflow
+import androidx.compose.ui.unit.Dp
+import androidx.compose.ui.unit.dp
+import androidx.compose.ui.unit.sp
+import coil.compose.AsyncImage
+import coil.request.ImageRequest
+import com.wildlife.feasibility.WildlifeNetworkIdentity
+import com.wildlife.feasibility.ui.art.ContourField
+import com.wildlife.feasibility.ui.art.RankBadgeArt
+import com.wildlife.feasibility.ui.art.RankPatch
+import com.wildlife.feasibility.ui.art.StampRing
+import com.wildlife.feasibility.ui.art.drawCornerMounts
+import com.wildlife.feasibility.ui.art.drawSlipEdges
+import com.wildlife.feasibility.ui.theme.DisplayFontFamily
+import com.wildlife.feasibility.ui.theme.FieldLabelStyle
+import com.wildlife.feasibility.ui.theme.FieldStampStyle
+import com.wildlife.feasibility.ui.theme.FieldTallyStyle
+import com.wildlife.feasibility.ui.theme.ScientificNameStyle
+import com.wildlife.feasibility.ui.theme.WildlifeBackground
+import com.wildlife.feasibility.ui.theme.WildlifeOutlineSubtle
+import com.wildlife.feasibility.ui.theme.WildlifePlate
+import com.wildlife.feasibility.ui.theme.WildlifePlateContour
+import com.wildlife.feasibility.ui.theme.WildlifeSurface
+import com.wildlife.feasibility.ui.theme.WildlifeTheme
+import com.wildlife.feasibility.ui.theme.levelAccent
+
+/**
+ * The surfaces of a *dated journal entry*, as opposed to the reference surfaces in
+ * `FieldGuide.kt`.
+ *
+ * The distinction is the point of the design: Collection is the printed reference section
+ * of the guide — plates in a grid, browsed by narrowing. Home is the loose dated page at
+ * the front, where a ranger records what happened today. These components carry that
+ * second voice: mounted photographs, typed datelines, stamped tallies, stacked slips.
+ *
+ * They share the page, the palette, the type and the header ground with the reference
+ * surfaces. Nothing here re-decides those.
+ */
+
+// ---------------------------------------------------------------- masthead
+
+/**
+ * Home's header: the *ranger*, where [RangerHeader] carries the *region*.
+ *
+ * The division is deliberate and load-bearing. Collection's header measures one region and
+ * explicitly refuses lifetime XP, because a bar counting a region and a rank counting a
+ * lifetime read as one number when stacked. Home is where that lifetime measure belongs, so
+ * the rank patch runs large here and the progress bar counts XP toward the next rank.
+ *
+ * [dateline] is typed rather than lettered — it is the one line on the screen that says
+ * *when*, and the mono is the only face in the app that can say so without reading as a
+ * heading.
+ */
+@Composable
+fun Masthead(
+    dateline: String,
+    levelKey: String,
+    levelName: String,
+    /** Sits under the rank name; the ranger's handle, or the invitation to make one. */
+    subtitle: String,
+    progressLabel: String,
+    progressTrailing: String?,
+    progressFraction: Float,
+    modifier: Modifier = Modifier,
+) {
+    val colors = WildlifeTheme.colors
+    val accent = levelAccent(levelKey)
+    Box(modifier.fillMaxWidth()) {
+        Box(Modifier.matchParentSize().background(headerScrim()))
+        Column(Modifier.padding(start = 16.dp, end = 16.dp, top = 14.dp, bottom = 18.dp)) {
+            // The dateline sits above everything, alone on its line, as the head of a form.
+            Text(dateline.uppercase(), style = FieldStampStyle, color = colors.oliveStrong)
+            Spacer(Modifier.height(12.dp))
+            Row(verticalAlignment = Alignment.CenterVertically) {
+                // Larger than Collection's badge: on Home the rank *is* the identity, not
+                // an annotation beside a region name.
+                val badgeSize = 64.dp
+                Box(contentAlignment = Alignment.Center) {
+                    val drawn = RankBadgeArt(
+                        levelKey = levelKey,
+                        color = accent,
+                        modifier = Modifier.size(badgeSize),
+                    )
+                    if (!drawn) {
+                        RankPatch(
+                            levelKey = levelKey,
+                            border = accent,
+                            field = colors.oliveDark,
+                            art = colors.parchment,
+                            modifier = Modifier.size(width = badgeSize * 0.82f, height = badgeSize),
+                        )
+                    }
+                }
+                Spacer(Modifier.size(14.dp))
+                Column(Modifier.weight(1f)) {
+                    Text(
+                        levelName,
+                        fontFamily = DisplayFontFamily,
+                        fontWeight = FontWeight.SemiBold,
+                        fontSize = 24.sp,
+                        lineHeight = 27.sp,
+                        color = colors.parchment,
+                        maxLines = 2,
+                        overflow = TextOverflow.Ellipsis,
+                    )
+                    Spacer(Modifier.height(3.dp))
+                    Text(
+                        subtitle,
+                        style = FieldLabelStyle,
+                        color = colors.parchmentDim,
+                        maxLines = 1,
+                        overflow = TextOverflow.Ellipsis,
+                    )
+                }
+            }
+            Spacer(Modifier.height(16.dp))
+            Row(
+                Modifier.fillMaxWidth(),
+                horizontalArrangement = Arrangement.SpaceBetween,
+                verticalAlignment = Alignment.Bottom,
+            ) {
+                Text(
+                    progressLabel.uppercase(),
+                    style = FieldStampStyle,
+                    color = colors.parchmentDim,
+                    modifier = Modifier.padding(bottom = 1.dp),
+                )
+                // Stamped, not lettered: this is a count read off a form, so it takes the
+                // mono tally rather than Eczar. Eczar numerals stay with achievement.
+                if (progressTrailing != null) {
+                    Text(progressTrailing, style = FieldTallyStyle, color = accent)
+                }
+            }
+            Spacer(Modifier.height(6.dp))
+            JournalProgressBar(progressFraction, accent = accent)
+        }
+        HeaderHairline(Modifier.align(Alignment.BottomCenter))
+    }
+}
+
+// ---------------------------------------------------------------- mounted specimen
+
+/**
+ * A photograph mounted onto the page, with its caption printed *below* the image.
+ *
+ * Both halves of that are deliberate. The corner mounts say a person put this here, which
+ * is what separates a journal entry from a feed item. Printing the caption on the page
+ * rather than scrimming it over the photograph is the older and better field-guide habit:
+ * a plate is not obscured by its own description, and the photograph gets to be a
+ * photograph rather than a background for text.
+ *
+ * [stampLabel] strikes a rubber stamp across the top corner — reserved for a state the
+ * *record* has reached, such as Research Grade, never for rarity or standing.
+ */
+@Composable
+fun SpecimenPlate(
+    label: String,
+    scientificName: String?,
+    caption: String,
+    photoUrl: String?,
+    photoDescription: String,
+    onClick: () -> Unit,
+    modifier: Modifier = Modifier,
+    stampLabel: String? = null,
+    stampTint: Color? = null,
+) {
+    val colors = WildlifeTheme.colors
+    val context = LocalContext.current
+    Column(modifier.fillMaxWidth().clickable(onClick = onClick)) {
+        Box(
+            Modifier
+                .fillMaxWidth()
+                .height(232.dp)
+                .clip(RoundedCornerShape(4.dp))
+                .background(WildlifePlate)
+                .border(1.dp, WildlifeOutlineSubtle, RoundedCornerShape(4.dp)),
+        ) {
+            if (photoUrl != null) {
+                AsyncImage(
+                    model = ImageRequest.Builder(context)
+                        .data(photoUrl)
+                        .setHeader("User-Agent", WildlifeNetworkIdentity.REFERENCE_MEDIA_USER_AGENT)
+                        .build(),
+                    contentDescription = photoDescription,
+                    contentScale = ContentScale.Crop,
+                    modifier = Modifier.fillMaxSize(),
+                )
+            } else {
+                // The unfound-plate language, borrowed: contours mean "no specimen image",
+                // and they are the one place the drawn terrain still lives.
+                Box(Modifier.fillMaxSize(), contentAlignment = Alignment.Center) {
+                    ContourField(WildlifePlateContour, Modifier.fillMaxSize(), lines = 7, seed = 23)
+                    Text(
+                        text = label.firstOrNull()?.uppercase() ?: "?",
+                        fontFamily = DisplayFontFamily,
+                        fontWeight = FontWeight.SemiBold,
+                        fontSize = 56.sp,
+                        color = colors.silhouette,
+                    )
+                }
+            }
+            // Drawn over the artwork, in the page's own dark, so the corners read as
+            // paper holding the print down rather than as a border on the image. The page
+            // background rather than the surface: the surface is within a few points of
+            // the plate it sits on, so a mount in it vanished on an unphotographed record.
+            Canvas(Modifier.fillMaxSize()) {
+                drawCornerMounts(
+                    color = WildlifeBackground.copy(alpha = 0.94f),
+                    inset = 1.dp.toPx(),
+                    leg = 26.dp.toPx(),
+                    edge = colors.oliveStrong.copy(alpha = 0.30f),
+                )
+            }
+            if (stampLabel != null) {
+                FieldStamp(
+                    label = stampLabel,
+                    tint = stampTint ?: colors.confirmed,
+                    modifier = Modifier.align(Alignment.TopEnd).padding(12.dp),
+                )
+            }
+        }
+        Spacer(Modifier.height(10.dp))
+        Text(
+            label,
+            fontFamily = DisplayFontFamily,
+            fontWeight = FontWeight.SemiBold,
+            fontSize = 22.sp,
+            lineHeight = 25.sp,
+            color = colors.parchment,
+            maxLines = 2,
+            overflow = TextOverflow.Ellipsis,
+        )
+        if (scientificName != null) {
+            Text(scientificName, style = ScientificNameStyle, color = colors.parchmentDim)
+        }
+        Spacer(Modifier.height(5.dp))
+        Text(caption.uppercase(), style = FieldStampStyle, color = colors.parchmentFaint)
+    }
+}
+
+/**
+ * A struck rubber stamp: the ring with its word across the middle.
+ *
+ * The label is set a little tighter than [FieldStampStyle] elsewhere, because the inner
+ * ring is roughly 0.74 of [size] and a word has to clear it — at the default that is about
+ * 47dp of room, which holds eight mono characters.
+ */
+@Composable
+fun FieldStamp(
+    label: String,
+    tint: Color,
+    modifier: Modifier = Modifier,
+    size: Dp = 64.dp,
+    /** Spoken instead of [label] where the stamped word is an abbreviation. */
+    description: String = label,
+) {
+    Box(
+        modifier.semantics { contentDescription = description },
+        contentAlignment = Alignment.Center,
+    ) {
+        StampRing(tint.copy(alpha = 0.85f), Modifier.size(size))
+        Text(
+            label.uppercase(),
+            style = FieldStampStyle.copy(fontSize = 9.sp, letterSpacing = 0.5.sp),
+            color = tint,
+            maxLines = 1,
+        )
+    }
+}
+
+/**
+ * The journal's action: a stamped word in an olive pill.
+ *
+ * Deliberately not a Material button. A filled Material button is the single loudest way
+ * for this page to stop reading as paper, and its label would be the only sentence-case
+ * sans on a screen where every other control is a stamped word.
+ */
+@Composable
+fun JournalButton(
+    label: String,
+    onClick: () -> Unit,
+    modifier: Modifier = Modifier,
+    /** Draws the pill filled rather than outlined, for the one primary action on a page. */
+    primary: Boolean = false,
+) {
+    val colors = WildlifeTheme.colors
+    val accent = colors.oliveStrong
+    Box(
+        modifier
+            .clip(RoundedCornerShape(8.dp))
+            .background(if (primary) colors.oliveDark else Color.Transparent)
+            .border(
+                width = if (primary) 1.5.dp else 1.dp,
+                color = accent.copy(alpha = if (primary) 0.85f else 0.45f),
+                shape = RoundedCornerShape(8.dp),
+            )
+            .clickable(onClick = onClick)
+            .padding(horizontal = 14.dp, vertical = 9.dp),
+        contentAlignment = Alignment.Center,
+    ) {
+        Text(
+            label.uppercase(),
+            style = FieldStampStyle,
+            color = if (primary) colors.parchment else accent,
+            maxLines = 1,
+        )
+    }
+}
+
+// ---------------------------------------------------------------- stacked slips
+
+/**
+ * Content presented as the top of a pile of loose slips.
+ *
+ * Used for the unfiled queue, where the *quantity* of outstanding paperwork should be felt
+ * before any number is read. [depth] is a visual weight, not the count — it saturates at
+ * three, because a deeper drawn pile stops reading as paper and starts reading as noise.
+ */
+@Composable
+fun SlipStack(
+    depth: Int,
+    modifier: Modifier = Modifier,
+    content: @Composable () -> Unit,
+) {
+    val slips = depth.coerceIn(1, 3)
+    val rise = 7.dp
+    val peek = rise * (slips - 1)
+    Box(modifier.fillMaxWidth()) {
+        if (slips > 1) {
+            Canvas(Modifier.matchParentSize()) {
+                drawSlipEdges(
+                    fill = WildlifeSurface,
+                    stroke = WildlifeOutlineSubtle,
+                    shadow = WildlifeBackground,
+                    count = slips,
+                    rise = rise.toPx(),
+                    inset = 7.dp.toPx(),
+                    corner = 10.dp.toPx(),
+                )
+            }
+        }
+        Box(
+            Modifier
+                .fillMaxWidth()
+                .padding(top = peek)
+                .clip(RoundedCornerShape(10.dp))
+                .background(WildlifeSurface)
+                .border(1.dp, WildlifeOutlineSubtle, RoundedCornerShape(10.dp)),
+        ) {
+            content()
+        }
+    }
+}
+
+/**
+ * One typed line of a record: a stamped label, a leader of dots, and its value.
+ *
+ * The leader is what makes it a form rather than a list row — the eye is carried across
+ * the gap instead of jumping it.
+ */
+@Composable
+fun RecordLine(
+    label: String,
+    value: String,
+    modifier: Modifier = Modifier,
+    valueTint: Color? = null,
+) {
+    val colors = WildlifeTheme.colors
+    Row(modifier.fillMaxWidth(), verticalAlignment = Alignment.CenterVertically) {
+        Text(label.uppercase(), style = FieldStampStyle, color = colors.parchmentDim)
+        Box(
+            Modifier
+                .weight(1f)
+                .padding(horizontal = 7.dp)
+                .height(1.dp)
+                .background(WildlifeOutlineSubtle),
+        )
+        Text(value, style = FieldTallyStyle, color = valueTint ?: colors.parchment)
+    }
+}

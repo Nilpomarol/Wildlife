@@ -21,7 +21,7 @@ class PhyloPicClientTest {
             client.licenceCode("https://creativecommons.org/publicdomain/zero/1.0/"),
         )
         assertEquals(
-            "cc-by-4.0",
+            "cc-by",
             client.licenceCode("https://creativecommons.org/licenses/by/4.0/"),
         )
         assertNull(client.licenceCode("https://creativecommons.org/licenses/by-sa/4.0/"))

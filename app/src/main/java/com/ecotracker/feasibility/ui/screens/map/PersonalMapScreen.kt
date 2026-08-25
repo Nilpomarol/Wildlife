@@ -988,8 +988,8 @@ private val regionalPreview = listOf(
     RegionalMapProgress("caribbean", "Caribbean", 79, 110, essentialsComplete = true, iconsComplete = true),
 )
 
-private const val FIELD_ATLAS_STYLE = """{"version":8,"name":"Wildlife Field Atlas","sources":{},"layers":[{"id":"atlas-water","type":"background","paint":{"background-color":"#B8C7C0"}}]}"""
-private const val REGIONAL_ATLAS_ASSET = "atlas/regional-atlas-v1.geojson"
+internal const val FIELD_ATLAS_STYLE = """{"version":8,"name":"Wildlife Field Atlas","sources":{},"layers":[{"id":"atlas-water","type":"background","paint":{"background-color":"#B8C7C0"}}]}"""
+internal const val REGIONAL_ATLAS_ASSET = "atlas/regional-atlas-v1.geojson"
 private const val REGIONAL_LABEL_ASSET = "atlas/regional-atlas-labels-v1.geojson"
 private const val REGIONAL_SOURCE = "wildlife-regional-boundaries"
 private const val BASE_LAND_LAYER = "wildlife-atlas-land"
@@ -1010,7 +1010,7 @@ private const val OBSERVATION_SOURCE = "wildlife-observation-cells"
 private const val OBSERVATION_LAYER = "wildlife-observation-circles"
 private const val RESEARCH_LAYER = "wildlife-research-circles"
 
-private const val ATLAS_LAND = "#D8D2BC"
+internal const val ATLAS_LAND = "#D8D2BC"
 private const val ATLAS_NO_PROGRESS = "#C9C8AE"
 private const val ATLAS_PROGRESS_LOW = "#B6BD82"
 private const val ATLAS_PROGRESS_MID = "#98A25D"
@@ -1021,7 +1021,7 @@ private const val ATLAS_ESSENTIAL_BORDER = "#C89432"
 private const val ATLAS_ACHIEVEMENT = "#B77B22"
 private const val ATLAS_ICON_SHINE = "#F0B646"
 private const val ATLAS_SELECTION = "#E0A43D"
-private const val ATLAS_LABEL_HALO = "#EFE7D2"
-private const val ATLAS_OBSERVATION = "#59682C"
+internal const val ATLAS_LABEL_HALO = "#EFE7D2"
+internal const val ATLAS_OBSERVATION = "#59682C"
 
 private val ATLAS_CENTER = LatLng(12.0, 8.0)

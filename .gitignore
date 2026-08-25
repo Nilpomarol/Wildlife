@@ -8,3 +8,17 @@ backend/*.db
 backend/*.db-shm
 backend/*.db-wal
 backend/__pycache__/
+**/__pycache__/
+*.py[cod]
+.kotlin/
+*.bak
+
+# Provider caches are reproducible local acceleration data, not catalogue sources.
+catalogues/review/catalogue_pipeline/cache/
+catalogues/review/content_refresh/raw/
+catalogues/review/content_refresh/validated/
+
+# Local visual/device inspection artifacts.
+/*.png
+/*.mp4
+/window-*.xml

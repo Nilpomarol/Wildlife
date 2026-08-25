@@ -145,8 +145,7 @@ class PhyloPicClient(
         val normalized = value.lowercase().trimEnd('/')
         if ("/publicdomain/mark/" in normalized) return "pdm"
         if ("/publicdomain/zero/" in normalized) return "cc0"
-        val version = Regex("/licenses/by/([0-9.]+)$").find(normalized)?.groupValues?.get(1)
-        return version?.let { "cc-by-$it" }
+        return if (Regex("/licenses/by/[0-9.]+$").containsMatchIn(normalized)) "cc-by" else null
     }
 
     companion object {

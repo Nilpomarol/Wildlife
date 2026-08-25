@@ -14,8 +14,7 @@ ROOT = Path(__file__).resolve().parents[1]
 CATALOGUES = ROOT / "catalogues"
 REVIEW = CATALOGUES / "review"
 GENERATED = CATALOGUES / "generated"
-PILOTS = ("mediterranean_europe", "east_africa", "caribbean")
-COMPATIBLE_LICENCES = {"CC0", "CC BY", "CC BY-SA", "Public Domain"}
+COMPATIBLE_LICENCES = {"pdm", "cc0", "cc-by", "cc-by-sa"}
 
 
 def read_json(path: Path) -> dict:
@@ -28,8 +27,11 @@ def sha256_bytes(payload: bytes) -> str:
 
 def audit() -> dict:
     achievements = {entry["region"]: entry for entry in read_json(CATALOGUES / "achievements.yaml")["achievements"]}
+    media_document = read_json(CATALOGUES / "media_manifest.yaml")
+    media_items = media_document.get("assets", media_document.get("media", []))
+    media_waivers = {row["taxon_id"] for row in media_document.get("waivers", [])}
     media_by_taxon = {}
-    for media in read_json(CATALOGUES / "media_manifest.yaml")["media"]:
+    for media in media_items:
         media_by_taxon.setdefault(media["taxon_id"], []).append(media)
     report = read_json(GENERATED / "catalogue-report.json")
     pack_path = GENERATED / "wildlife-content-pack.zip"
@@ -39,22 +41,41 @@ def audit() -> dict:
             manifest = json.loads(archive.read("manifest.json"))
             database = archive.read("catalogue.sqlite")
             pack["valid"] = (
-                manifest.get("schema_version") == 1
+                manifest.get("schema_version") == 3
+                and manifest.get("content_schema_version") == 3
+                and manifest.get("generation_id") == report.get("generation_id")
+                and manifest.get("generation_sequence") == report.get("generation_sequence")
+                and manifest.get("generated_at") == report.get("generated_at")
+                and manifest.get("minimum_app_version") == report.get("minimum_app_version")
+                and manifest.get("release_status") == report.get("release_status")
                 and manifest.get("files", {}).get("catalogue.sqlite") == sha256_bytes(database)
             )
             pack["source_digest_matches"] = manifest.get("source_digest") == report.get("source_digest")
 
     regional = []
     blockers = []
-    for region in PILOTS:
-        catalogue = read_json(CATALOGUES / "regions" / region / "catalogue.yaml")
+    frozen_regions = 0
+    catalogue_paths = sorted((CATALOGUES / "regions").glob("*/catalogue.yaml"))
+    for catalogue_path in catalogue_paths:
+        catalogue = read_json(catalogue_path)
+        region = catalogue_path.parent.name
         achievement = achievements.get(region, {})
         taxa = catalogue.get("taxa", [])
         essentials = achievement.get("essentials", [])
         icons = achievement.get("icons", [])
         listed = set(essentials).union(icons)
         media_complete = all(
-            any(item.get("licence_code") in COMPATIBLE_LICENCES for item in media_by_taxon.get(taxon_id, []))
+            taxon_id in media_waivers
+            or any(item.get("licence_code") in COMPATIBLE_LICENCES for item in media_by_taxon.get(taxon_id, []))
+            for taxon_id in listed
+        )
+        direct_media_complete = all(
+            taxon_id in media_waivers or any(
+                item.get("media_type") == "photo"
+                and {variant.get("variant") for variant in item.get("variants", [])}
+                >= {"thumbnail", "detail"}
+                for item in media_by_taxon.get(taxon_id, [])
+            )
             for taxon_id in listed
         )
         evidence_path = REVIEW / f"{region}_inaturalist_evidence.csv"
@@ -66,11 +87,14 @@ def audit() -> dict:
             "five_icons": len(icons) == 5 and len(set(icons)) == 5,
             "checklists_in_catalogue": listed.issubset({entry.get("taxon_id") for entry in taxa}),
             "achievement_media_licenced": media_complete,
+            "achievement_media_direct_variants": direct_media_complete,
             "iNaturalist_evidence_present": evidence_path.is_file(),
             "no_unknown_rarity": unknown_rarity == 0,
         }
         failed = [name for name, value in checks.items() if not value]
-        if failed:
+        if catalogue.get("status") == "frozen":
+            frozen_regions += 1
+        if failed and catalogue.get("status") == "frozen":
             blockers.append({"region": region, "checks": failed})
         regional.append({
             "region": region,
@@ -79,13 +103,31 @@ def audit() -> dict:
             "unknown_rarity": unknown_rarity,
             "checks": checks,
         })
+    if frozen_regions == 0:
+        blockers.append({"region": "regional_catalogues", "checks": ["at_least_one_frozen_catalogue"]})
     if not pack["valid"] or not pack["source_digest_matches"]:
         blockers.append({"region": "generated_pack", "checks": ["valid_pack_matching_current_sources"]})
+    content_checks = {
+        "content_schema_v3": report.get("schema_version") == 3,
+        "achievement_direct_media_complete": report.get("achievement_taxa_without_direct_media") == 0,
+    }
+    failed_content = [name for name, value in content_checks.items() if not value]
+    if failed_content:
+        blockers.append({"region": "published_content", "checks": failed_content})
     return {
-        "schema_version": 1,
+        "schema_version": 3,
         "release_ready": not blockers,
         "source_digest": report.get("source_digest"),
         "pack": pack,
+        "content_checks": content_checks,
+        "content_coverage": {
+            "published_taxa": report.get("published_taxa", 0),
+            "missing_descriptions": report.get("missing_published_descriptions", 0),
+            "missing_conservation": report.get("missing_published_conservation", 0),
+            "taxa_with_photos": report.get("published_taxa_with_photos", 0),
+            "taxa_with_curated_silhouettes": report.get("published_taxa_with_curated_silhouettes", 0),
+            "taxa_using_group_silhouettes": report.get("published_taxa_using_group_silhouettes", 0),
+        },
         "regions": regional,
         "blockers": blockers,
     }
@@ -97,6 +139,17 @@ def markdown(result: dict) -> str:
     for region in result["regions"]:
         passed = sum(region["checks"].values())
         lines.append(f"| {region['region']} | {region['catalogue_version']} | {region['taxa']} | {region['unknown_rarity']} | {passed}/{len(region['checks'])} |")
+    coverage = result["content_coverage"]
+    lines += [
+        "",
+        "## Non-blocking content coverage",
+        "",
+        f"- Missing sourced descriptions: {coverage['missing_descriptions']} of {coverage['published_taxa']} published taxa.",
+        f"- Missing conservation assessments: {coverage['missing_conservation']} of {coverage['published_taxa']} published taxa.",
+        f"- Curated reference photos: {coverage['taxa_with_photos']} of {coverage['published_taxa']} published taxa.",
+        f"- Curated silhouettes: {coverage['taxa_with_curated_silhouettes']} of {coverage['published_taxa']} published taxa; {coverage['taxa_using_group_silhouettes']} use the bundled group fallback.",
+        "- Missing values render as unavailable; every supplied value still must pass provenance validation.",
+    ]
     lines += ["", "## Blockers", ""]
     if result["blockers"]:
         for blocker in result["blockers"]:

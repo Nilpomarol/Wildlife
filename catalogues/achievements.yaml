@@ -1,55 +1,7 @@
 {
-  "schema_version": 1,
   "achievements": [
     {
-      "region": "mediterranean_europe",
-      "catalogue_version": "mediterranean-europe-broad-draft-1",
-      "essentials": [
-        13094,
-        20969,
-        2191,
-        2599,
-        5366,
-        42350,
-        41482,
-        71212,
-        73972,
-        73222
-      ],
-      "icons": [
-        41975,
-        144467,
-        41850,
-        41716,
-        5081
-      ]
-    },
-    {
-      "region": "east_africa",
-      "catalogue_version": "east-africa-broad-draft-1",
-      "essentials": [
-        1510574,
-        43335,
-        42122,
-        42149,
-        42405,
-        41886,
-        341972,
-        1505670,
-        2269,
-        53
-      ],
-      "icons": [
-        43694,
-        41964,
-        41955,
-        43350,
-        147661
-      ]
-    },
-    {
-      "region": "caribbean",
-      "catalogue_version": "caribbean-broad-draft-1",
+      "catalogue_version": "caribbean-auto-7ed5999b07",
       "essentials": [
         2117,
         4257,
@@ -68,7 +20,55 @@
         26061,
         35298,
         19006
-      ]
+      ],
+      "region": "caribbean"
+    },
+    {
+      "catalogue_version": "east-africa-auto-b9df3159f6",
+      "essentials": [
+        1510574,
+        43335,
+        42122,
+        42149,
+        42405,
+        41886,
+        341972,
+        1505670,
+        2269,
+        53
+      ],
+      "icons": [
+        43694,
+        41964,
+        41955,
+        43350,
+        147661
+      ],
+      "region": "east_africa"
+    },
+    {
+      "catalogue_version": "mediterranean-europe-auto-ceeaefe294",
+      "essentials": [
+        13094,
+        20969,
+        2191,
+        2599,
+        5366,
+        42350,
+        41482,
+        71212,
+        73972,
+        73222
+      ],
+      "icons": [
+        41975,
+        144467,
+        41850,
+        41716,
+        5081
+      ],
+      "region": "mediterranean_europe"
     }
-  ]
+  ],
+  "schema_version": 1
 }

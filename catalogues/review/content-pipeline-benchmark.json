@@ -1,0 +1,77 @@
+{
+  "fixture": {
+    "global_taxa": 30000,
+    "regions": 25,
+    "memberships_per_region": 2000,
+    "regional_memberships": 50000,
+    "media_assets": 30000,
+    "media_variants": 60000
+  },
+  "storage": {
+    "sqlite_bytes": 37154816,
+    "deflated_sqlite_bytes": 4015122
+  },
+  "queries": {
+    "regions": {
+      "rows": 25,
+      "iterations": 100,
+      "p50_ms": 0.048,
+      "p95_ms": 0.09,
+      "max_ms": 0.17
+    },
+    "active_region_taxa": {
+      "rows": 2000,
+      "iterations": 40,
+      "p50_ms": 3.425,
+      "p95_ms": 4.233,
+      "max_ms": 4.959
+    },
+    "taxon_detail_and_variants": {
+      "rows": 2,
+      "iterations": 250,
+      "p50_ms": 0.04,
+      "p95_ms": 0.07,
+      "max_ms": 0.186
+    },
+    "active_region_media_manifest": {
+      "rows": 4000,
+      "iterations": 30,
+      "p50_ms": 5.684,
+      "p95_ms": 7.06,
+      "max_ms": 7.337
+    }
+  },
+  "cold_open_validation": {
+    "iterations": 12,
+    "p50_ms": 71.267,
+    "p95_ms": 79.183,
+    "max_ms": 79.183
+  },
+  "all_region_runtime_projection": {
+    "regions": 25,
+    "taxa_rows": 50000,
+    "media_variant_rows": 100000,
+    "iterations": 5,
+    "p50_ms": 290.159,
+    "p95_ms": 316.57,
+    "max_ms": 316.57
+  },
+  "media_budget": {
+    "observed_average_thumbnail_bytes": 36704,
+    "observed_average_detail_bytes": 456512,
+    "active_region_2000_thumbnails_bytes": 73408000,
+    "all_30000_thumbnails_bytes": 1101120000,
+    "cache_budget_bytes": 201326592
+  },
+  "gates": {
+    "production_pack_round_trip": true,
+    "sqlite_under_45_mib": true,
+    "archive_under_50_mib": true,
+    "cold_open_p95_under_1000_ms": true,
+    "active_region_taxa_p95_under_100_ms": true,
+    "active_region_media_p95_under_150_ms": true,
+    "all_25_regions_p95_under_5000_ms": true
+  },
+  "passed": true,
+  "measurement_scope": "Production schema/insertion and Android runtime query-shape host gate; representative-device startup remains a separate release gate."
+}

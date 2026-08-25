@@ -5,9 +5,9 @@ import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.setValue
 import androidx.lifecycle.AndroidViewModel
+import androidx.lifecycle.viewModelScope
 import com.wildlife.feasibility.AccountStore
-import com.wildlife.feasibility.ActiveCatalogueStore
-import com.wildlife.feasibility.CatalogueStore
+import com.wildlife.feasibility.RegionContextStore
 import com.wildlife.feasibility.CollectionProjection
 import com.wildlife.feasibility.CollectionSpecies
 import com.wildlife.feasibility.MarkerState
@@ -20,8 +20,13 @@ import com.wildlife.feasibility.ObservationQualityTransition
 import com.wildlife.feasibility.ProgressionProjection
 import com.wildlife.feasibility.ProgressionState
 import com.wildlife.feasibility.ProgressionStore
-import com.wildlife.feasibility.RegionalCatalogueAssetStore
+import com.wildlife.feasibility.PublishedContentRepositories
 import com.wildlife.feasibility.VerifiedAccount
+import com.wildlife.feasibility.ui.ProjectionLoadGate
+import kotlinx.coroutines.Dispatchers
+import kotlinx.coroutines.Job
+import kotlinx.coroutines.launch
+import kotlinx.coroutines.withContext
 
 data class HomeHighlight(
     val taxonId: Long?,
@@ -34,6 +39,7 @@ data class HomeHighlight(
 )
 
 data class RegionalHomeProgress(
+    val regionKey: String = "",
     val displayName: String,
     val observedSpecies: Int,
     val totalSpecies: Int,
@@ -44,6 +50,7 @@ data class RegionalHomeProgress(
 )
 
 data class ShellUiState(
+    val isLoading: Boolean = false,
     val account: VerifiedAccount? = null,
     val collectionEntries: Int = 0,
     val identifiedSpecies: Int = 0,
@@ -68,12 +75,30 @@ data class ShellUiState(
 class ShellViewModel(application: Application) : AndroidViewModel(application) {
     private var observationSyncing = false
     private var observationSyncError: String? = null
+    private var loadJob: Job? = null
+    private val loadGate = ProjectionLoadGate()
 
-    var uiState by mutableStateOf(load())
+    var uiState by mutableStateOf(ShellUiState(isLoading = true))
         private set
 
+    init { refresh() }
+
     fun refresh() {
-        uiState = load()
+        val revision = loadGate.next()
+        val syncing = observationSyncing
+        val syncError = observationSyncError
+        loadJob?.cancel()
+        uiState = uiState.copy(isLoading = true, errorMessage = null)
+        loadJob = viewModelScope.launch {
+            val loaded = withContext(Dispatchers.IO) { load(syncing, syncError) }
+            if (loadGate.isLatest(revision)) {
+                uiState = loaded.copy(
+                    isLoading = false,
+                    observationSyncing = observationSyncing,
+                    observationSyncError = observationSyncError,
+                )
+            }
+        }
     }
 
     fun observationSyncStarted() {
@@ -98,11 +123,15 @@ class ShellViewModel(application: Application) : AndroidViewModel(application) {
         val account = uiState.account ?: return
         val progression = uiState.progression ?: return
         if (progression.earnedLevels.none { it.key == levelKey }) return
-        ProgressionStore(getApplication()).selectLevel(account.userId, levelKey)
-        refresh()
+        viewModelScope.launch {
+            withContext(Dispatchers.IO) {
+                ProgressionStore(getApplication()).selectLevel(account.userId, levelKey)
+            }
+            refresh()
+        }
     }
 
-    private fun load(): ShellUiState = runCatching {
+    private fun load(syncing: Boolean, syncError: String?): ShellUiState = runCatching {
         val context = getApplication<Application>()
         val account = AccountStore(context).verified()
         val observationStore = account?.let { ObservationStore(context) }
@@ -124,12 +153,12 @@ class ShellViewModel(application: Application) : AndroidViewModel(application) {
         }
         val summary = account?.let { observationStore?.summary(it.userId) }
         val regionalProgress = account?.let { verified ->
-            val content = RegionalCatalogueAssetStore(context)
+            val content = PublishedContentRepositories.application(context)
             val catalogues = content.catalogues()
-            val selected = ActiveCatalogueStore(context).selectedRegionKey()
-                .takeIf { key -> catalogues.any { it.regionKey == key } }
+            val selected = RegionContextStore(context).currentRegionKey(
+                catalogues.mapTo(mutableSetOf()) { it.regionKey },
+            )
                 ?.let { key -> catalogues.first { it.regionKey == key } }
-                ?: catalogues.firstOrNull()
             selected?.let { catalogue ->
                 val observedTaxa = observations.filter { observation ->
                     observationStore?.observationRegion(verified.userId, observation.uuid)?.let { assignment ->
@@ -140,6 +169,7 @@ class ShellViewModel(application: Application) : AndroidViewModel(application) {
                 val essentials = achievements["essentials"]?.taxonIds.orEmpty()
                 val icons = achievements["icons"]?.taxonIds.orEmpty()
                 RegionalHomeProgress(
+                    regionKey = catalogue.regionKey,
                     displayName = catalogue.displayName,
                     observedSpecies = observedTaxa.intersect(content.taxa(catalogue.regionKey).map { it.taxonId }.toSet()).size,
                     totalSpecies = content.taxa(catalogue.regionKey).size,
@@ -177,8 +207,8 @@ class ShellViewModel(application: Application) : AndroidViewModel(application) {
             totalXp = summary?.totalXp ?: 0,
             latestDiscovery = latestDiscovery,
             progression = progression,
-            observationSyncing = observationSyncing,
-            observationSyncError = observationSyncError,
+            observationSyncing = syncing,
+            observationSyncError = syncError,
             lastObservationSyncAtMs = summary?.lastSyncedAtMs,
             observationDataStale = ObservationLifecyclePolicy.isStale(
                 summary?.lastSyncedAtMs,
@@ -188,9 +218,7 @@ class ShellViewModel(application: Application) : AndroidViewModel(application) {
             recentQualityTransitions = account?.let {
                 observationStore?.qualityTransitions(it.userId).orEmpty()
             }.orEmpty(),
-            catalogueSpecies = CatalogueStore(context).use {
-                it.load()?.species?.size ?: 0
-            },
+            catalogueSpecies = PublishedContentRepositories.application(context).publishedTaxonCount(),
             pendingHandoffs = markers.count {
                 it.state == MarkerState.HANDED_OFF || it.state == MarkerState.PENDING
             },

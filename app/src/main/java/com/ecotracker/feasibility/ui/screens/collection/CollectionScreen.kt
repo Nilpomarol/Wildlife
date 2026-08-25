@@ -71,19 +71,21 @@ import com.wildlife.feasibility.CollectionSpecies
 import com.wildlife.feasibility.EncounterRarity
 import com.wildlife.feasibility.InstalledRegionalAchievement
 import com.wildlife.feasibility.InstalledRegionalCatalogue
+import com.wildlife.feasibility.CurrentRegionSource
 import com.wildlife.feasibility.ProgressionLevel
 import com.wildlife.feasibility.ProgressionProjection
 import com.wildlife.feasibility.ProgressionState
 import com.wildlife.feasibility.ui.components.CollectionSearchBar
-import com.wildlife.feasibility.ui.components.RegionPill
 import com.wildlife.feasibility.ui.components.regionVisual
 import com.wildlife.feasibility.ui.components.SpeciesCardModel
 import com.wildlife.feasibility.ui.components.SpeciesCardPhotoKind
 import com.wildlife.feasibility.ui.components.SpeciesCardRarity
 import com.wildlife.feasibility.ui.components.SpeciesCardStatus
 import com.wildlife.feasibility.ui.components.SpeciesGrid
+import com.wildlife.feasibility.ui.components.MediaPrefetchStatus
 import com.wildlife.feasibility.ui.components.WildlifeDropdown
 import com.wildlife.feasibility.ui.components.WildlifeScaffold
+import com.wildlife.feasibility.ui.components.WildlifeLoadingState
 import com.wildlife.feasibility.ui.components.RangerHeader
 import com.wildlife.feasibility.ui.components.RangerStat
 import com.wildlife.feasibility.ui.components.SectionRule
@@ -176,6 +178,10 @@ fun CollectionScreen(
     ) { innerPadding ->
       FieldGuidePage {
         when {
+            state.isLoading && state.entries.isEmpty() -> WildlifeLoadingState(
+                label = "Opening the regional field guide…",
+                modifier = Modifier.padding(innerPadding),
+            )
             state.errorMessage != null -> CollectionMessage(
                 message = state.errorMessage,
                 actionLabel = "Try again",
@@ -213,8 +219,13 @@ fun CollectionScreen(
                             xp = state.totalXp,
                             progression = state.progression,
                             selectedCatalogue = state.selectedCatalogue,
+                            currentRegionSource = state.currentRegionSource,
                             achievements = state.achievements,
                             observedTaxa = state.observedRegionalTaxa,
+                        )
+                        MediaPrefetchStatus(
+                            state.mediaPrefetch,
+                            Modifier.padding(horizontal = WildlifeSpacing.Screen),
                         )
                         if (!state.linked) {
                             UnlinkedCollectionBanner(onLinkAccount = onLinkAccount)
@@ -267,6 +278,7 @@ private fun CollectorHeader(
     xp: Int,
     progression: ProgressionState?,
     selectedCatalogue: InstalledRegionalCatalogue?,
+    currentRegionSource: CurrentRegionSource,
     achievements: List<InstalledRegionalAchievement>,
     observedTaxa: Set<Long>,
     modifier: Modifier = Modifier,
@@ -278,7 +290,11 @@ private fun CollectorHeader(
 
     Column(modifier.fillMaxWidth()) {
         RangerHeader(
-            regionName = selectedCatalogue?.displayName ?: "Your collection",
+            regionName = when (currentRegionSource) {
+                CurrentRegionSource.LAST_KNOWN_FIX -> selectedCatalogue?.displayName?.let { "Last known · $it" }
+                CurrentRegionSource.CURRENT_FIX -> selectedCatalogue?.displayName
+                CurrentRegionSource.UNAVAILABLE -> null
+            } ?: "Your collection",
             regionKey = selectedCatalogue?.regionKey,
             levelKey = title.key,
             levelName = title.displayName,

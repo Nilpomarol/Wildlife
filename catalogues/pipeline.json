@@ -1,0 +1,29 @@
+{
+  "schema_version": 1,
+  "policy_version": "wildlife-catalogue-v1",
+  "candidate_oversample_factor": 1.2,
+  "minimum_rarity_observations": 5,
+  "rarity_percentiles": {
+    "common": 0.6,
+    "uncommon": 0.85,
+    "rare": 0.97
+  },
+  "photo": {
+    "commons_search_limit": 12,
+    "minimum_landscape_ratio": 1.05,
+    "maximum_landscape_ratio": 2.4,
+    "reject_terms": [
+      "bone", "bones", "carcass", "dead", "death", "dropping", "droppings",
+      "egg", "eggs", "excrement", "feces", "faeces", "fossil", "museum",
+      "nest", "poop", "preserved", "scat", "skeleton", "skull", "skin",
+      "specimen", "taxidermy"
+    ]
+  },
+  "silhouette": {
+    "specific_rank_order": ["species", "genus"],
+    "family_rank_order": ["family", "order"]
+  },
+  "network": {
+    "request_delay_seconds": 1.05
+  }
+}

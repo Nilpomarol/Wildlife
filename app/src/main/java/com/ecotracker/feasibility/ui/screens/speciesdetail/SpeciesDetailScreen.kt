@@ -53,6 +53,8 @@ import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.graphics.ColorFilter
 import androidx.compose.ui.layout.ContentScale
 import androidx.compose.ui.platform.LocalContext
+import androidx.compose.ui.semantics.contentDescription
+import androidx.compose.ui.semantics.semantics
 import androidx.compose.ui.text.font.FontStyle
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.style.TextAlign
@@ -66,6 +68,9 @@ import com.wildlife.feasibility.ui.components.EncounterTrace
 import com.wildlife.feasibility.ui.components.RegionalCollectionMark
 import com.wildlife.feasibility.ui.components.RegionalCollectionStamp
 import com.wildlife.feasibility.ui.components.SpeciesCardRarity
+import com.wildlife.feasibility.ui.components.WildlifeLoadingState
+import com.wildlife.feasibility.ui.components.ObservationDensityMap
+import com.wildlife.feasibility.ui.art.TaxonSilhouette
 import com.wildlife.feasibility.ui.theme.WildlifeSpacing
 import com.wildlife.feasibility.ui.theme.WildlifeTheme
 import java.text.DateFormat
@@ -80,12 +85,19 @@ fun SpeciesDetailScreen(
     onSeeAllObservations: () -> Unit,
     onOpenUrl: (String) -> Unit,
     onRetryMedia: () -> Unit,
+    onRequestAlternativeImage: () -> Unit,
+    onRetryObservationDensity: () -> Unit,
 ) {
     Scaffold(
         containerColor = MaterialTheme.colorScheme.background,
         contentWindowInsets = WindowInsets.safeDrawing,
     ) { innerPadding ->
-        if (state.errorMessage != null) {
+        if (state.isLoading && state.scientificName == null && state.observations.isEmpty()) {
+            WildlifeLoadingState(
+                label = "Opening the species record…",
+                modifier = Modifier.padding(innerPadding),
+            )
+        } else if (state.errorMessage != null) {
             DetailError(
                 message = state.errorMessage,
                 onBack = onBack,
@@ -148,13 +160,24 @@ fun SpeciesDetailScreen(
                         ),
                     )
                 }
-                if (state.aboutSummary != null) {
+                item {
+                    AboutSection(
+                        summary = state.aboutSummary,
+                        wikipediaUrl = state.wikipediaUrl,
+                        onOpenUrl = onOpenUrl,
+                        modifier = Modifier.padding(horizontal = WildlifeSpacing.Screen),
+                    )
+                }
+                if (state.observationDensityLoading || state.observationDensity != null || state.observationDensityMessage != null) {
                     item {
-                        AboutSection(
-                            summary = state.aboutSummary,
-                            wikipediaUrl = state.wikipediaUrl,
+                        ObservationDensitySection(
+                            state = state,
                             onOpenUrl = onOpenUrl,
-                            modifier = Modifier.padding(horizontal = WildlifeSpacing.Screen),
+                            onRetry = onRetryObservationDensity,
+                            modifier = Modifier.padding(
+                                horizontal = WildlifeSpacing.Screen,
+                                vertical = WildlifeSpacing.Section,
+                            ),
                         )
                     }
                 }
@@ -167,7 +190,7 @@ fun SpeciesDetailScreen(
                         )
                     }
                 }
-                if (state.silhouetteSourceUrl != null) {
+                if (state.silhouetteSourceUrl != null || state.silhouetteFallbackSourceUrl != null) {
                     item {
                         SilhouetteAttributionSection(
                             state = state,
@@ -204,6 +227,27 @@ fun SpeciesDetailScreen(
                                 modifier = Modifier.weight(1f),
                             )
                             TextButton(onClick = onRetryMedia) { Text("Try again") }
+                        }
+                    }
+                }
+                if (state.alternativeImageAvailable) {
+                    item {
+                        OutlinedButton(
+                            onClick = onRequestAlternativeImage,
+                            enabled = !state.enriching,
+                            modifier = Modifier
+                                .fillMaxWidth()
+                                .padding(
+                                    start = WildlifeSpacing.Screen,
+                                    end = WildlifeSpacing.Screen,
+                                    top = WildlifeSpacing.Section,
+                                ),
+                        ) {
+                            Icon(Icons.Outlined.Refresh, contentDescription = null)
+                            Text(
+                                text = "Find another reference image",
+                                modifier = Modifier.padding(start = WildlifeSpacing.Small),
+                            )
                         }
                     }
                 }
@@ -322,6 +366,71 @@ private fun SpeciesHero(
             .height(290.dp)
             .background(MaterialTheme.colorScheme.surfaceVariant),
     ) {
+        // The local broad-group mark is the permanent bottom layer. Keeping it mounted while
+        // Coil decodes a photo or a recovered PhyloPic file prevents an empty hero at every
+        // loading transition and still lets the more specific media replace it naturally.
+        if (state.fallbackSilhouetteGroup != null) {
+            TaxonSilhouette(
+                groupKey = state.fallbackSilhouetteGroup,
+                color = WildlifeTheme.colors.silhouette,
+                modifier = Modifier
+                    .fillMaxSize()
+                    .padding(56.dp)
+                    .then(
+                        if (imageFailed && silhouetteFailed) {
+                            Modifier.semantics {
+                                contentDescription = "Representative ${state.taxonGroup ?: "animal"} silhouette for ${state.commonName}"
+                            }
+                        } else {
+                            Modifier
+                        },
+                    ),
+            )
+        } else if (imageFailed && silhouetteFailed) {
+            Text(
+                text = state.commonName.firstOrNull()?.uppercase() ?: "?",
+                style = MaterialTheme.typography.displayLarge,
+                color = WildlifeTheme.colors.silhouette,
+                modifier = Modifier.align(Alignment.Center),
+            )
+        }
+        if (!silhouetteFailed) {
+            AsyncImage(
+                model = ImageRequest.Builder(context)
+                    .data(activeSilhouetteUrl)
+                    .setHeader(
+                        "User-Agent",
+                        WildlifeNetworkIdentity.REFERENCE_MEDIA_USER_AGENT,
+                    )
+                    .build(),
+                contentDescription = if (!imageFailed) null else {
+                    val activeRank = if (activeSilhouetteUrl == state.silhouetteFallbackUrl) {
+                        state.silhouetteFallbackMatchRank
+                    } else {
+                        state.silhouetteMatchRank
+                    }
+                    if (activeRank == "species") {
+                        "Silhouette for ${state.commonName}"
+                    } else {
+                        "Representative silhouette for ${state.commonName}"
+                    }
+                },
+                contentScale = ContentScale.Fit,
+                colorFilter = ColorFilter.tint(WildlifeTheme.colors.silhouette),
+                modifier = Modifier
+                    .fillMaxSize()
+                    .padding(56.dp),
+                onError = {
+                    if (activeSilhouetteUrl != state.silhouetteFallbackUrl &&
+                        state.silhouetteFallbackUrl != null
+                    ) {
+                        activeSilhouetteUrl = state.silhouetteFallbackUrl
+                    } else {
+                        silhouetteFailed = true
+                    }
+                },
+            )
+        }
         if (!imageFailed) {
             AsyncImage(
                 model = ImageRequest.Builder(context)
@@ -348,53 +457,10 @@ private fun SpeciesHero(
                     }
                 },
             )
-        } else if (!silhouetteFailed) {
-            AsyncImage(
-                model = ImageRequest.Builder(context)
-                    .data(activeSilhouetteUrl)
-                    .setHeader(
-                        "User-Agent",
-                        WildlifeNetworkIdentity.REFERENCE_MEDIA_USER_AGENT,
-                    )
-                    .build(),
-                contentDescription = if (state.silhouetteMatchRank == "species") {
-                    "Silhouette for ${state.commonName}"
-                } else {
-                    "Representative silhouette for ${state.commonName}"
-                },
-                contentScale = ContentScale.Fit,
-                colorFilter = ColorFilter.tint(WildlifeTheme.colors.silhouette),
-                modifier = Modifier
-                    .fillMaxSize()
-                    .padding(56.dp),
-                onError = {
-                    if (activeSilhouetteUrl != state.silhouetteFallbackUrl &&
-                        state.silhouetteFallbackUrl != null
-                    ) {
-                        activeSilhouetteUrl = state.silhouetteFallbackUrl
-                    } else {
-                        silhouetteFailed = true
-                    }
-                },
-            )
-        } else {
-            Text(
-                text = state.commonName.firstOrNull()?.uppercase() ?: "?",
-                style = MaterialTheme.typography.displayLarge,
-                color = WildlifeTheme.colors.silhouette,
-                modifier = Modifier.align(Alignment.Center),
-            )
-            Text(
-                text = "Reference photo unavailable",
-                style = MaterialTheme.typography.labelMedium,
-                color = WildlifeTheme.colors.mutedText,
-                modifier = Modifier
-                    .align(Alignment.Center)
-                    .padding(top = 70.dp),
-            )
+        }
+        if (imageFailed && state.mediaRetryAvailable && !state.enriching) {
             OutlinedButton(
                 onClick = onRetryMedia,
-                enabled = !state.enriching,
                 modifier = Modifier
                     .align(Alignment.Center)
                     .padding(top = 160.dp),
@@ -611,7 +677,7 @@ private fun friendlyConservationStatus(value: String?): String = when (value?.lo
 
 @Composable
 private fun AboutSection(
-    summary: String,
+    summary: String?,
     wikipediaUrl: String?,
     onOpenUrl: (String) -> Unit,
     modifier: Modifier = Modifier,
@@ -622,7 +688,7 @@ private fun AboutSection(
     ) {
         Text("About", style = MaterialTheme.typography.titleLarge)
         Text(
-            text = summary,
+            text = summary ?: "No sourced description is available yet.",
             style = MaterialTheme.typography.bodyMedium,
             color = MaterialTheme.colorScheme.onSurfaceVariant,
         )
@@ -640,32 +706,90 @@ private fun SilhouetteAttributionSection(
     onOpenUrl: (String) -> Unit,
     modifier: Modifier = Modifier,
 ) {
-    val attribution = state.silhouetteAttribution ?: "PhyloPic contributor"
-    val licence = state.silhouetteLicenseCode?.uppercase()?.replace('-', ' ')
+    val credits = listOfNotNull(
+        state.silhouetteSourceUrl?.let {
+            SilhouetteCredit(
+                it, state.silhouetteAttribution, state.silhouetteLicenseCode,
+                state.silhouetteTaxonName, state.silhouetteMatchRank,
+            )
+        },
+        state.silhouetteFallbackSourceUrl?.let {
+            SilhouetteCredit(
+                it, state.silhouetteFallbackAttribution, state.silhouetteFallbackLicenseCode,
+                state.silhouetteFallbackTaxonName, state.silhouetteFallbackMatchRank,
+            )
+        },
+    ).distinctBy(SilhouetteCredit::sourceUrl)
     Column(modifier, verticalArrangement = Arrangement.spacedBy(WildlifeSpacing.Small)) {
         HorizontalDivider(color = MaterialTheme.colorScheme.outlineVariant)
-        Text("Silhouette", style = MaterialTheme.typography.titleMedium)
-        Text(
-            text = buildString {
-                append(attribution)
-                if (licence != null) append(" / $licence")
-                if (state.silhouetteMatchRank != "species") {
-                    append(" / ${silhouetteLabel(state).lowercase()}")
-                }
-            },
-            style = MaterialTheme.typography.bodySmall,
-            color = MaterialTheme.colorScheme.onSurfaceVariant,
-        )
-        TextButton(
-            onClick = { onOpenUrl(state.silhouetteSourceUrl!!) },
-            contentPadding = PaddingValues(0.dp),
-        ) { Text("View silhouette source on PhyloPic") }
+        Text(if (credits.size == 1) "Silhouette" else "Silhouette hierarchy", style = MaterialTheme.typography.titleMedium)
+        credits.forEach { credit ->
+            val licence = credit.licenceCode?.uppercase()?.replace('-', ' ')
+            Text(
+                text = buildString {
+                    append(credit.attribution ?: "PhyloPic contributor")
+                    if (licence != null) append(" / $licence")
+                    append(" / ${silhouetteLabel(credit.matchRank, credit.taxonName).lowercase()}")
+                },
+                style = MaterialTheme.typography.bodySmall,
+                color = MaterialTheme.colorScheme.onSurfaceVariant,
+            )
+            TextButton(
+                onClick = { onOpenUrl(credit.sourceUrl) },
+                contentPadding = PaddingValues(0.dp),
+            ) { Text("View silhouette source on PhyloPic") }
+        }
+    }
+}
+
+@Composable
+private fun ObservationDensitySection(
+    state: SpeciesDetailUiState,
+    onOpenUrl: (String) -> Unit,
+    onRetry: () -> Unit,
+    modifier: Modifier = Modifier,
+) {
+    val snapshot = state.observationDensity
+    Column(modifier, verticalArrangement = Arrangement.spacedBy(WildlifeSpacing.Small)) {
+        Text("Recent public observations", style = MaterialTheme.typography.titleLarge)
+        if (state.observationDensityLoading) LinearProgressIndicator(Modifier.fillMaxWidth())
+        if (snapshot != null && snapshot.cells.isNotEmpty()) {
+            ObservationDensityMap(snapshot)
+            Text(
+                text = buildString {
+                    append("${snapshot.sampledObservations} recent public research-grade observations grouped into ${snapshot.cells.size} coarse 1° areas")
+                    if (snapshot.isCappedSample) append(" (from ${snapshot.totalResults} matching observations)")
+                    append(". This shows iNaturalist activity density, not the species' biological range.")
+                },
+                style = MaterialTheme.typography.bodySmall,
+                color = MaterialTheme.colorScheme.onSurfaceVariant,
+            )
+            TextButton(
+                onClick = { onOpenUrl("https://www.inaturalist.org/observations?taxon_id=${state.taxonId}") },
+                contentPadding = PaddingValues(0.dp),
+            ) { Text("Explore observations on iNaturalist") }
+        }
+        state.observationDensityMessage?.let { message ->
+            Row(verticalAlignment = Alignment.CenterVertically) {
+                Text(
+                    message,
+                    style = MaterialTheme.typography.bodySmall,
+                    color = WildlifeTheme.colors.mutedText,
+                    modifier = Modifier.weight(1f),
+                )
+                if (!state.observationDensityLoading) TextButton(onClick = onRetry) { Text("Try again") }
+            }
+        }
     }
 }
 
 private fun silhouetteLabel(state: SpeciesDetailUiState): String {
-    val taxonName = state.silhouetteTaxonName?.takeIf(String::isNotBlank)
-    return when (state.silhouetteMatchRank) {
+    return silhouetteLabel(state.silhouetteMatchRank, state.silhouetteTaxonName)
+}
+
+private fun silhouetteLabel(matchRank: String?, value: String?): String {
+    val taxonName = value?.takeIf(String::isNotBlank)
+    return when (matchRank) {
         "species" -> "Species silhouette"
         "genus" -> "Representative ${taxonName ?: "genus"} silhouette"
         "family" -> "Representative ${taxonName ?: "family"} silhouette"
@@ -673,6 +797,14 @@ private fun silhouetteLabel(state: SpeciesDetailUiState): String {
         else -> "Broad ${taxonName ?: "group"} silhouette"
     }
 }
+
+private data class SilhouetteCredit(
+    val sourceUrl: String,
+    val attribution: String?,
+    val licenceCode: String?,
+    val taxonName: String?,
+    val matchRank: String?,
+)
 
 @Composable
 private fun Fact(label: String, value: String, modifier: Modifier = Modifier) {
@@ -864,6 +996,8 @@ private fun SpeciesDetailPreview() {
                 observations = listOf(
                     SpeciesDetailObservation("preview", 0, "research", null),
                 ),
+                fallbackSilhouetteGroup = "birds",
+                observationDensityLoading = true,
             ),
             onBack = {},
             onOpenTaxon = {},
@@ -871,6 +1005,8 @@ private fun SpeciesDetailPreview() {
             onSeeAllObservations = {},
             onOpenUrl = {},
             onRetryMedia = {},
+            onRequestAlternativeImage = {},
+            onRetryObservationDensity = {},
         )
     }
 }

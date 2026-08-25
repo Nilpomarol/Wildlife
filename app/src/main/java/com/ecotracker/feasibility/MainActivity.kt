@@ -55,6 +55,8 @@ class MainActivity : ComponentActivity() {
     private var requestedDestination by mutableStateOf(WildlifeDestination.HOME)
     private var exploreSection by mutableStateOf(ExploreSection.GUIDE)
     private var observationsRequest by mutableStateOf<ObservationsRequest?>(null)
+    private var resumeRevision by mutableStateOf(0)
+    private var activeRoute = WildlifeDestination.HOME.route
     private var observationSyncInFlight = false
     private val locationPermissionLauncher = registerForActivityResult(
         ActivityResultContracts.RequestMultiplePermissions(),
@@ -63,13 +65,24 @@ class MainActivity : ComponentActivity() {
             requestCurrentLocation()
         } else {
             exploreViewModel.nearbyLocationFailed(
-                "Location permission is needed only when you choose Check near me.",
+                "Location permission sets your current region and checks nearby wildlife.",
             )
         }
     }
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
+        lifecycleScope.launch(Dispatchers.IO) {
+            runCatching {
+                val content = PublishedContentRepositories.application(this@MainActivity)
+                content.migrateLegacyCacheIfNeeded()
+                LocalMediaStore(this@MainActivity).reconcileGeneration(
+                    content.generation().generationId,
+                    content.mediaAssetIds(),
+                )
+                MediaPrefetchScheduler.scheduleCurrentRegion(this@MainActivity)
+            }
+        }
         enableEdgeToEdge(
             statusBarStyle = SystemBarStyle.dark(Color.TRANSPARENT),
             navigationBarStyle = SystemBarStyle.dark(Color.rgb(8, 11, 9)),
@@ -92,13 +105,53 @@ class MainActivity : ComponentActivity() {
 
     override fun onResume() {
         super.onResume()
-        ObservationSyncScheduler.schedule(this)
-        shellViewModel.refresh()
-        collectionViewModel.refresh()
-        exploreViewModel.refreshLocal()
-        observationsViewModel.refresh()
+        lifecycleScope.launch(Dispatchers.IO) {
+            ObservationSyncScheduler.schedule(this@MainActivity)
+        }
+        resumeRevision++
         syncObservationsOnDevice()
+        refreshLocationContext()
     }
+
+    /** Reads one last-known fix when permission already exists; never prompts or tracks. */
+    @Suppress("MissingPermission")
+    private fun refreshLocationContext() {
+        if (!hasLocationPermission()) {
+            refreshLastKnownLabel()
+            // No coordinate available, so an existing cache is judged on age and month only.
+            if (activeRoute == WildlifeDestination.HOME.route ||
+                activeRoute == WildlifeDestination.EXPLORE.route
+            ) {
+                exploreViewModel.refreshNearbyIfStale(latitude = null, longitude = null)
+            }
+            return
+        }
+        val manager = getSystemService(Context.LOCATION_SERVICE) as LocationManager
+        val location = listOf(LocationManager.NETWORK_PROVIDER, LocationManager.GPS_PROVIDER)
+            .asSequence()
+            .filter { runCatching { manager.isProviderEnabled(it) }.getOrDefault(false) }
+            .mapNotNull { runCatching { manager.getLastKnownLocation(it) }.getOrNull() }
+            .maxByOrNull { it.time }
+        if (location == null) refreshLastKnownLabel()
+        else updateCurrentRegion(location.latitude, location.longitude, location.time, isCurrentFix = false)
+        if (activeRoute == WildlifeDestination.HOME.route ||
+            activeRoute == WildlifeDestination.EXPLORE.route
+        ) {
+            exploreViewModel.refreshNearbyIfStale(
+                latitude = location?.latitude,
+                longitude = location?.longitude,
+            )
+        }
+    }
+
+    private fun hasLocationPermission(): Boolean =
+        ContextCompat.checkSelfPermission(
+            this,
+            Manifest.permission.ACCESS_COARSE_LOCATION,
+        ) == PackageManager.PERMISSION_GRANTED || ContextCompat.checkSelfPermission(
+            this,
+            Manifest.permission.ACCESS_FINE_LOCATION,
+        ) == PackageManager.PERMISSION_GRANTED
 
     @Composable
     private fun WildlifeShell(requestedDestination: WildlifeDestination) {
@@ -119,6 +172,20 @@ class MainActivity : ComponentActivity() {
         LaunchedEffect(requestedDestination) {
             if (requestedDestination != WildlifeDestination.HOME) {
                 navController.openDestination(requestedDestination)
+            }
+        }
+
+        LaunchedEffect(currentRoute, resumeRevision) {
+            activeRoute = currentRoute ?: WildlifeDestination.HOME.route
+            when (activeRoute) {
+                WildlifeDestination.HOME.route -> {
+                    shellViewModel.refresh()
+                    exploreViewModel.refreshLocal()
+                }
+                WildlifeDestination.COLLECTION.route -> collectionViewModel.refresh()
+                WildlifeDestination.EXPLORE.route -> exploreViewModel.refreshLocal()
+                WildlifeDestination.PROFILE.route -> shellViewModel.refresh()
+                OBSERVATIONS_ROUTE -> observationsViewModel.refresh()
             }
         }
 
@@ -151,6 +218,7 @@ class MainActivity : ComponentActivity() {
                                 this@MainActivity,
                                 taxonId,
                                 shellViewModel.uiState.latestDiscovery?.label,
+                                shellViewModel.uiState.regionalProgress?.regionKey,
                             ),
                         )
                     },
@@ -174,6 +242,7 @@ class MainActivity : ComponentActivity() {
                             startActivity(
                                 SpeciesDetailActivity.intent(
                                     this@MainActivity, taxonId, species.label,
+                                    collectionViewModel.uiState.selectedCatalogue?.regionKey,
                                 ),
                             )
                         } ?: openExternal(
@@ -199,6 +268,7 @@ class MainActivity : ComponentActivity() {
                                 this@MainActivity,
                                 taxonId,
                                 species?.commonName ?: species?.scientificName,
+                                exploreViewModel.uiState.browsedCatalogue?.regionKey,
                             ),
                         )
                     },
@@ -208,6 +278,7 @@ class MainActivity : ComponentActivity() {
                         openExternal("https://www.inaturalist.org/observations/$uuid")
                     },
                     onMapVisibilityChanged = exploreViewModel::setObservationMapVisible,
+                    onVisibleTaxaChanged = exploreViewModel::prioritizeVisibleTaxa,
                     bottomBar = bottomBar,
                     selectedSection = exploreSection,
                     onSectionChange = { exploreSection = it },
@@ -260,11 +331,9 @@ class MainActivity : ComponentActivity() {
         navController.navigate(OBSERVATIONS_ROUTE) { launchSingleTop = true }
     }
 
-    /** One region choice, applied to every projection that reads it. */
+    /** Explore changes only the guide being browsed. */
     private fun selectRegion(regionKey: String) {
         exploreViewModel.selectRegion(regionKey)
-        collectionViewModel.selectRegion(regionKey)
-        shellViewModel.refresh()
     }
 
     private fun openAccountManagement() {
@@ -298,8 +367,12 @@ class MainActivity : ComponentActivity() {
                 }
             }.onSuccess {
                 shellViewModel.observationSyncSucceeded()
-                collectionViewModel.refresh()
-                exploreViewModel.refreshLocal()
+                when (activeRoute) {
+                    WildlifeDestination.HOME.route -> exploreViewModel.refreshLocal()
+                    WildlifeDestination.COLLECTION.route -> collectionViewModel.refresh()
+                    WildlifeDestination.EXPLORE.route -> exploreViewModel.refreshLocal()
+                    OBSERVATIONS_ROUTE -> observationsViewModel.refresh()
+                }
             }.onFailure { error ->
                 shellViewModel.observationSyncFailed(
                     error.message ?: "Could not update public iNaturalist observations.",
@@ -343,14 +416,7 @@ class MainActivity : ComponentActivity() {
 
     private fun beginNearbyDiscovery() {
         exploreViewModel.nearbyLocationStarted()
-        val granted = ContextCompat.checkSelfPermission(
-            this,
-            Manifest.permission.ACCESS_COARSE_LOCATION,
-        ) == PackageManager.PERMISSION_GRANTED || ContextCompat.checkSelfPermission(
-            this,
-            Manifest.permission.ACCESS_FINE_LOCATION,
-        ) == PackageManager.PERMISSION_GRANTED
-        if (granted) {
+        if (hasLocationPermission()) {
             requestCurrentLocation()
         } else {
             locationPermissionLauncher.launch(
@@ -380,6 +446,12 @@ class MainActivity : ComponentActivity() {
                         "A current location was not available. Try again outdoors or with location enabled.",
                     )
                 } else {
+                    updateCurrentRegion(
+                        location.latitude,
+                        location.longitude,
+                        location.time,
+                        isCurrentFix = true,
+                    )
                     exploreViewModel.discoverNearby(location.latitude, location.longitude)
                 }
             }
@@ -390,8 +462,50 @@ class MainActivity : ComponentActivity() {
                     "A recent location was not available. Open Maps once or try again outdoors.",
                 )
             } else {
+                updateCurrentRegion(
+                    location.latitude,
+                    location.longitude,
+                    location.time,
+                    isCurrentFix = false,
+                )
                 exploreViewModel.discoverNearby(location.latitude, location.longitude)
             }
+        }
+    }
+
+    private fun updateCurrentRegion(
+        latitude: Double,
+        longitude: Double,
+        locatedAtMs: Long,
+        isCurrentFix: Boolean,
+    ) {
+        lifecycleScope.launch {
+            withContext(Dispatchers.IO) {
+                val content = PublishedContentRepositories.application(this@MainActivity)
+                RegionContextStore(this@MainActivity).recordLocation(
+                    latitude = latitude,
+                    longitude = longitude,
+                    locatedAtMs = locatedAtMs,
+                    isCurrentFix = isCurrentFix,
+                    installedRegionKeys = content.catalogues()
+                        .mapTo(mutableSetOf()) { it.regionKey },
+                )
+                MediaPrefetchScheduler.scheduleCurrentRegion(this@MainActivity)
+            }
+            shellViewModel.refresh()
+            if (activeRoute == WildlifeDestination.COLLECTION.route) {
+                collectionViewModel.refresh()
+            }
+        }
+    }
+
+    private fun refreshLastKnownLabel() {
+        if (!RegionContextStore(this).markCurrentAsLastKnown()) return
+        shellViewModel.refresh()
+        when (activeRoute) {
+            WildlifeDestination.HOME.route,
+            WildlifeDestination.EXPLORE.route -> exploreViewModel.refreshLocal()
+            WildlifeDestination.COLLECTION.route -> collectionViewModel.refresh()
         }
     }
 

@@ -122,6 +122,26 @@ fun FieldGuidePage(
 }
 
 /**
+ * The ground a full-bleed header sits on: transparent at the top so the page painting's
+ * moon and canopy stay open, settling to near-solid where the type begins.
+ *
+ * Shared by every header in the app. A header that mixes its own gradient here is the
+ * fastest way for two screens to stop looking like the same product.
+ */
+fun headerScrim(bottomAlpha: Float = 0.94f): Brush = Brush.verticalGradient(
+    0f to Color(0x00000000),
+    0.42f to WildlifeBackground.copy(alpha = 0.30f),
+    0.78f to WildlifeBackground.copy(alpha = 0.80f),
+    1f to WildlifeBackground.copy(alpha = bottomAlpha),
+)
+
+/** The hairline that closes a header against the page below it. */
+@Composable
+fun HeaderHairline(modifier: Modifier = Modifier) {
+    Box(modifier.fillMaxWidth().height(1.dp).background(WildlifeOutlineSubtle))
+}
+
+/**
  * One readout in the ranger header's stat row.
  *
  * A readout carries either a drawn [mark] or a bundled [fieldMark] asset name, so rarity
@@ -169,18 +189,7 @@ fun RangerHeader(
         // The page painting supplies the sky, moon and canopy behind this header, so it
         // draws no scene of its own — only the scrim that keeps type readable on it.
         if (showBackgroundScrim) {
-            Box(
-                Modifier
-                    .matchParentSize()
-                    .background(
-                        Brush.verticalGradient(
-                            0f to Color(0x00000000),
-                            0.42f to WildlifeBackground.copy(alpha = 0.30f),
-                            0.78f to WildlifeBackground.copy(alpha = 0.80f),
-                            1f to WildlifeBackground.copy(alpha = scrimBottomAlpha),
-                        )
-                    )
-            )
+            Box(Modifier.matchParentSize().background(headerScrim(scrimBottomAlpha)))
         }
 
         Column(
@@ -286,13 +295,7 @@ fun RangerHeader(
             // A plain hairline. The header is separated by its ground and this rule, the
             // way an app bar is — the decorative torn edge that used to sit here drew
             // attention to the seam rather than to the header.
-            Box(
-                Modifier
-                    .align(Alignment.BottomCenter)
-                    .fillMaxWidth()
-                    .height(1.dp)
-                    .background(WildlifeOutlineSubtle)
-            )
+            HeaderHairline(Modifier.align(Alignment.BottomCenter))
         }
     }
 }

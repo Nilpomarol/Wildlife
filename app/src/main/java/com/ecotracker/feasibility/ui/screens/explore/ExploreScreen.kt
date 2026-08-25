@@ -15,6 +15,7 @@ import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.lazy.items
+import androidx.compose.foundation.lazy.itemsIndexed
 import androidx.compose.foundation.lazy.grid.GridCells
 import androidx.compose.foundation.lazy.grid.LazyVerticalGrid
 import androidx.compose.foundation.lazy.grid.items
@@ -45,7 +46,9 @@ import androidx.compose.ui.unit.dp
 import com.wildlife.feasibility.NearbySpecies
 import com.wildlife.feasibility.ui.components.CollectionSearchBar
 import com.wildlife.feasibility.ui.components.NearbySpeciesRow
+import com.wildlife.feasibility.ui.components.RowRule
 import com.wildlife.feasibility.ui.components.RegionSelector
+import com.wildlife.feasibility.ui.components.MediaPrefetchStatus
 import com.wildlife.feasibility.ui.screens.map.PersonalMapContent
 import com.wildlife.feasibility.ui.components.SpeciesCard
 import com.wildlife.feasibility.ui.components.SpeciesGrid
@@ -53,6 +56,7 @@ import com.wildlife.feasibility.ui.components.SpeciesCardModel
 import com.wildlife.feasibility.ui.components.SpeciesCardStatus
 import com.wildlife.feasibility.ui.components.TaxonFilterRow
 import com.wildlife.feasibility.ui.components.WildlifeScaffold
+import com.wildlife.feasibility.ui.components.WildlifeLoadingState
 import com.wildlife.feasibility.ui.components.responsiveSpeciesGridColumns
 import com.wildlife.feasibility.ui.theme.WildlifeSpacing
 import com.wildlife.feasibility.ui.theme.WildlifeTheme
@@ -84,6 +88,7 @@ fun ExploreScreen(
     onSelectRegion: (String) -> Unit,
     onOpenObservation: (String) -> Unit,
     onMapVisibilityChanged: (String, Boolean) -> Unit,
+    onVisibleTaxaChanged: (Set<Long>) -> Unit,
     bottomBar: @Composable () -> Unit = {},
     selectedSection: ExploreSection,
     onSectionChange: (ExploreSection) -> Unit,
@@ -111,7 +116,7 @@ fun ExploreScreen(
         actions = {
             RegionSelector(
                 selected = state.installedCatalogues.firstOrNull {
-                    it.regionKey == state.activeCatalogue?.regionKey
+                    it.regionKey == state.browsedCatalogue?.regionKey
                 },
                 catalogues = state.installedCatalogues,
                 onSelectRegion = onSelectRegion,
@@ -130,7 +135,12 @@ fun ExploreScreen(
                 onSelected = onSectionChange,
             )
             when (selectedSection) {
-            ExploreSection.GUIDE -> if (state.activeCatalogue == null) {
+            ExploreSection.GUIDE -> if (state.isLoading && state.browsedCatalogue == null) {
+            WildlifeLoadingState(
+                label = "Opening the regional species guide…",
+                modifier = Modifier.weight(1f),
+            )
+        } else if (state.browsedCatalogue == null) {
             EmptyCatalogue(
                 message = state.errorMessage
                     ?: "The installed regional guide could not be read.",
@@ -143,10 +153,14 @@ fun ExploreScreen(
                     .fillMaxSize(),
             ) {
                 ExploreIntro(
-                    catalogue = state.activeCatalogue,
+                    catalogue = state.browsedCatalogue,
                     observedCount = state.observedCount,
                     errorMessage = state.errorMessage,
                     modifier = Modifier.padding(horizontal = WildlifeSpacing.Screen),
+                )
+                MediaPrefetchStatus(
+                    state.mediaPrefetch,
+                    Modifier.padding(horizontal = WildlifeSpacing.Screen),
                 )
                 CollectionSearchBar(
                     query = query,
@@ -175,6 +189,7 @@ fun ExploreScreen(
                     ExploreGrid(
                         entries = filtered,
                         onOpenTaxon = onOpenTaxon,
+                        onVisibleTaxaChanged = onVisibleTaxaChanged,
                         modifier = Modifier.fillMaxSize(),
                     )
                 }
@@ -306,8 +321,13 @@ private fun NearbyDiscoveryContent(
                         color = WildlifeTheme.colors.mutedText,
                     )
                 }
-                items(state.species, key = NearbySpecies::taxonId) { species ->
-                    NearbySpeciesRow(species, onOpenTaxon)
+                // Ruled, like the Home extract: the row is a printed table line now, and
+                // an unruled run of them loses the ranking the ordering exists to show.
+                itemsIndexed(state.species, key = { _, s -> s.taxonId }) { index, species ->
+                    Column {
+                        if (index > 0) RowRule()
+                        NearbySpeciesRow(species, onOpenTaxon)
+                    }
                 }
             }
         }
@@ -363,11 +383,15 @@ private fun ExploreIntro(
 private fun ExploreGrid(
     entries: List<ExploreSpecies>,
     onOpenTaxon: (Long) -> Unit,
+    onVisibleTaxaChanged: (Set<Long>) -> Unit,
     modifier: Modifier = Modifier,
 ) {
     SpeciesGrid(
         entries = entries, key = ExploreSpecies::taxonId, model = ExploreSpecies::card,
         onClick = { onOpenTaxon(it.taxonId) }, modifier = modifier, cardAspectRatio = 0.94f,
+        onVisibleEntriesChanged = { visible ->
+            visible.mapTo(linkedSetOf(), ExploreSpecies::taxonId).let(onVisibleTaxaChanged)
+        },
     )
 }
 
@@ -426,7 +450,7 @@ private fun ExplorePreview() {
     WildlifeTheme {
         ExploreScreen(
             state = ExploreUiState(
-                activeCatalogue = RegionalExploreCatalogue(
+                browsedCatalogue = RegionalExploreCatalogue(
                     regionKey = "mediterranean_europe",
                     displayName = "Mediterranean Europe",
                     version = "preview",
@@ -444,6 +468,7 @@ private fun ExplorePreview() {
             onSelectRegion = {},
             onOpenObservation = {},
             onMapVisibilityChanged = { _, _ -> },
+            onVisibleTaxaChanged = {},
             selectedSection = ExploreSection.GUIDE,
             onSectionChange = {},
         )

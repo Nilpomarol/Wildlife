@@ -18,7 +18,6 @@ from openpyxl import load_workbook
 
 ROOT = Path(__file__).resolve().parents[1]
 CATALOGUES = ROOT / "catalogues"
-PILOTS = ("mediterranean_europe", "east_africa", "caribbean")
 RARITIES = {"unknown", "common", "uncommon", "rare", "very_rare"}
 EVENT_KEYS = (
     "confirmed_observation", "first_species", "research_grade", "regional_discovery",
@@ -29,6 +28,10 @@ EVENT_KEYS = (
 
 def fail(message: str) -> None:
     raise ValueError(f"Workbook validation failed: {message}")
+
+
+def catalogue_region_keys() -> tuple[str, ...]:
+    return tuple(path.parent.name for path in sorted((CATALOGUES / "regions").glob("*/catalogue.yaml")))
 
 
 def write_json_atomically(path: Path, data: object) -> None:
@@ -74,17 +77,20 @@ def load_workbook_content(workbook_path: Path) -> tuple[dict, dict, dict]:
     if missing:
         fail(f"missing sheet(s): {', '.join(sorted(missing))}")
 
+    regions = catalogue_region_keys()
+    if not regions:
+        fail("no regional catalogue sources are installed")
     global_taxa = {
         entry["taxon_id"]: entry
         for entry in json.loads((CATALOGUES / "taxa.yaml").read_text(encoding="utf-8"))["taxa"]
     }
     catalogue_by_region: dict[str, dict] = {}
-    seen_taxa: dict[str, set[int]] = {region: set() for region in PILOTS}
+    seen_taxa: dict[str, set[int]] = {region: set() for region in regions}
     for index, row in enumerate(rows(workbook["Catalogue"]), start=2):
         if not nonempty(row):
             continue
         region, version, taxon_id, _, _, rarity, _, seasonality, provenance = row[:9]
-        if region not in PILOTS:
+        if region not in regions:
             fail(f"Catalogue row {index} has an unsupported region")
         if not isinstance(version, str) or not version.strip():
             fail(f"Catalogue row {index} needs a catalogue version")
@@ -108,17 +114,17 @@ def load_workbook_content(workbook_path: Path) -> tuple[dict, dict, dict]:
             "seasonality": {"en": seasonality.strip()},
             "inclusion_provenance": provenance.strip(),
         })
-    if set(catalogue_by_region) != set(PILOTS):
-        fail("Catalogue must retain at least one entry for every pilot region")
+    if set(catalogue_by_region) != set(regions):
+        fail("Catalogue must retain at least one entry for every installed regional source")
 
     checklists: dict[str, dict[str, list[tuple[int, int]]]] = {
-        region: {"essential": [], "icon": []} for region in PILOTS
+        region: {"essential": [], "icon": []} for region in regions
     }
     for index, row in enumerate(rows(workbook["Checklists"]), start=2):
         if not nonempty(row):
             continue
         region, kind, position, taxon_id = row[:4]
-        if region not in PILOTS or kind not in {"essential", "icon"}:
+        if region not in regions or kind not in {"essential", "icon"}:
             fail(f"Checklist row {index} has an unsupported region or list")
         position = positive_int(position, f"Checklist row {index} position")
         taxon_id = positive_int(taxon_id, f"Checklist row {index} taxon ID")
@@ -151,6 +157,15 @@ def load_workbook_content(workbook_path: Path) -> tuple[dict, dict, dict]:
     values = {str(row[0]).strip(): row[1:3] for row in config_rows if row[0] not in (None, "")}
     if "rules_version" not in values or not isinstance(values["rules_version"][0], str):
         fail("XP and levels needs a rules_version")
+    # Older content workbooks may predate a game event that already exists in the versioned
+    # progression source. Preserve that source value so checklist-only edits remain possible.
+    existing_progression = json.loads(
+        (CATALOGUES / "progression.yaml").read_text(encoding="utf-8")
+    )
+    for key in set(EVENT_KEYS).difference(values):
+        existing = existing_progression.get("events", {}).get(key)
+        if existing is not None:
+            values[key] = (existing.get("xp"), existing.get("enabled"))
     missing_events = set(EVENT_KEYS).difference(values)
     if missing_events:
         fail(f"XP and levels is missing {', '.join(sorted(missing_events))}")
@@ -177,7 +192,7 @@ def load_workbook_content(workbook_path: Path) -> tuple[dict, dict, dict]:
         fail("Levels need unique keys and must start at 0 XP")
     if any(later["threshold_xp"] <= earlier["threshold_xp"] for earlier, later in zip(levels, levels[1:])):
         fail("Level thresholds must strictly increase")
-    existing_levels = json.loads((CATALOGUES / "progression.yaml").read_text(encoding="utf-8")).get("levels", [])
+    existing_levels = existing_progression.get("levels", [])
     removed_level_keys = {level.get("key") for level in existing_levels}.difference(level["key"] for level in levels)
     if removed_level_keys:
         fail(f"Level keys cannot be removed after publication: {', '.join(sorted(removed_level_keys))}")
@@ -217,13 +232,14 @@ def kotlin_config(progression: dict) -> str:
 
 def apply(catalogues: dict, achievements: dict, progression: dict) -> None:
     updates: list[tuple[Path, object]] = []
-    for region in PILOTS:
+    regions = catalogue_region_keys()
+    for region in regions:
         path = CATALOGUES / "regions" / region / "catalogue.yaml"
         current = json.loads(path.read_text(encoding="utf-8"))
         current["catalogue_version"] = catalogues[region]["version"]
         current["taxa"] = catalogues[region]["taxa"]
         updates.append((path, current))
-    updates.append((CATALOGUES / "achievements.yaml", {"schema_version": 1, "achievements": [achievements[region] for region in PILOTS]}))
+    updates.append((CATALOGUES / "achievements.yaml", {"schema_version": 1, "achievements": [achievements[region] for region in regions]}))
     updates.append((CATALOGUES / "progression.yaml", progression))
     for path, data in updates:
         write_json_atomically(path, data)

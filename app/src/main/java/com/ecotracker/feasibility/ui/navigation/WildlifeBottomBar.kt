@@ -48,7 +48,6 @@ import com.wildlife.feasibility.ui.art.NavMark
 import com.wildlife.feasibility.ui.art.NavMarkKind
 import com.wildlife.feasibility.ui.theme.FieldLabelStyle
 import com.wildlife.feasibility.ui.theme.WildlifeBackground
-import com.wildlife.feasibility.ui.theme.WildlifeOliveDark
 import com.wildlife.feasibility.ui.theme.WildlifeOliveStrong
 import com.wildlife.feasibility.ui.theme.WildlifeParchment
 import com.wildlife.feasibility.ui.theme.WildlifeTheme
@@ -140,12 +139,12 @@ private val BlockShape = RoundedCornerShape(9.dp)
 private val MarkSize = 30.dp
 
 /**
- * The capture mark runs larger than the tabs' because it has the block to itself.
+ * The capture mark runs larger than the tabs' because it carries no label.
  *
- * Sized to the space the four named cells give their mark *and* their label together, so
- * the stamp fills its block to the same optical density as its neighbours fill theirs.
+ * It remains unfilled like the surrounding index strip, while its scale makes the action
+ * immediately available without adding another coloured surface to the page.
  */
-private val StampMarkSize = 42.dp
+private val StampMarkSize = 48.dp
 
 /**
  * The journal's field label, tracked in tighter than [FieldLabelStyle].
@@ -269,17 +268,12 @@ private fun IndexCell(
 }
 
 /**
- * Capture: the same block, stamped in olive instead of printed in cream.
- *
- * It is always filled, because the one action in the row should never be the quietest thing
- * in it — and being permanently a block is what lets it keep the centre without being
- * lifted out of the strip.
+ * Capture: a larger parchment camera directly on the index strip.
  *
  * It carries **no word**. The four places are named because five marks are not
- * self-evident; the stamp needs no name because it is the only filled olive thing in the
- * app and the only one that is not a place. Dropping the label lets the mark run larger and
- * sit centred in its block, which is what makes it read as a stamp rather than as a fifth
- * tab that happens to be coloured in.
+ * self-evident; the capture action needs no visible name because it is the only oversized
+ * mark and the only one that is not a place. Dropping the label lets the mark run larger
+ * while retaining the strip's quiet, unfilled ground.
  *
  * The word survives for screen readers as the block's [contentDescription], so nothing is
  * lost to anyone navigating by name.
@@ -305,17 +299,17 @@ private fun StampCell(
             .padding(horizontal = BlockInsetHorizontal, vertical = BlockInsetVertical),
         contentAlignment = Alignment.Center,
     ) {
-        PrintedBlock(
-            fill = WildlifeOliveDark,
-            grain = colors.parchment,
-            border = WildlifeOliveStrong.copy(alpha = 0.55f),
-            modifier = Modifier.fillMaxSize(),
+        // The capture action has no resting fill, but retains contained press feedback so
+        // the full 72dp cell remains discoverable as a button.
+        BlockPress(
+            interaction = interaction,
+            color = colors.parchment,
+            modifier = Modifier.size(56.dp),
         )
-        BlockPress(interaction = interaction, color = colors.parchment)
         NavMark(
             kind = NavMarkKind.CAPTURE,
             assetKey = WildlifeDestination.CAPTURE.route,
-            color = colors.parchment,
+            color = WildlifeOliveStrong,
             modifier = Modifier.size(StampMarkSize),
         )
     }

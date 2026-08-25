@@ -1,61 +1,61 @@
 package com.wildlife.feasibility.ui.screens.shell
 
-import androidx.compose.foundation.BorderStroke
-import androidx.compose.foundation.background
 import androidx.compose.foundation.layout.Arrangement
-import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.PaddingValues
 import androidx.compose.foundation.layout.Row
+import androidx.compose.foundation.layout.Spacer
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
-import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.lazy.LazyColumn
-import androidx.compose.foundation.shape.CircleShape
-import androidx.compose.material.icons.Icons
-import androidx.compose.material.icons.outlined.Biotech
-import androidx.compose.material.icons.outlined.CameraAlt
-import androidx.compose.material.icons.outlined.Explore
-import androidx.compose.material.icons.outlined.Link
-import androidx.compose.material.icons.outlined.Map
-import androidx.compose.material.icons.outlined.NearMe
-import androidx.compose.material3.Button
-import androidx.compose.material3.Card
-import androidx.compose.material3.CardDefaults
-import androidx.compose.material3.Icon
 import androidx.compose.material3.LinearProgressIndicator
 import androidx.compose.material3.MaterialTheme
-import androidx.compose.material3.OutlinedButton
-import androidx.compose.material3.Surface
 import androidx.compose.material3.Text
-import androidx.compose.material3.TextButton
 import androidx.compose.runtime.Composable
-import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
-import androidx.compose.ui.graphics.Brush
-import androidx.compose.ui.graphics.Color
-import androidx.compose.ui.layout.ContentScale
-import androidx.compose.ui.platform.LocalContext
-import androidx.compose.ui.text.font.FontStyle
-import androidx.compose.ui.text.font.FontWeight
-import androidx.compose.ui.text.style.TextOverflow
 import androidx.compose.ui.tooling.preview.Preview
-import androidx.compose.ui.unit.dp
-import coil.compose.AsyncImage
-import coil.request.ImageRequest
 import com.wildlife.feasibility.NearbySpecies
+import com.wildlife.feasibility.ProgressionProjection
+import com.wildlife.feasibility.ProgressionState
 import com.wildlife.feasibility.VerifiedAccount
-import com.wildlife.feasibility.WildlifeNetworkIdentity
-import com.wildlife.feasibility.ui.components.NearbySpeciesRow
+import com.wildlife.feasibility.ui.components.FieldGuidePage
+import com.wildlife.feasibility.ui.components.JournalButton
+import com.wildlife.feasibility.ui.components.Masthead
+import com.wildlife.feasibility.ui.components.NearbyHeaderRow
+import com.wildlife.feasibility.ui.components.NearbySpeciesCarousel
+import com.wildlife.feasibility.ui.components.RecordLine
+import com.wildlife.feasibility.ui.components.SectionRule
+import com.wildlife.feasibility.ui.components.SlipStack
+import com.wildlife.feasibility.ui.components.SpecimenPlate
 import com.wildlife.feasibility.ui.components.WildlifeScaffold
+import com.wildlife.feasibility.ui.components.WildlifeLoadingState
+import com.wildlife.feasibility.ui.components.bleedHorizontally
 import com.wildlife.feasibility.ui.screens.explore.NearbyDiscoveryState
+import com.wildlife.feasibility.ui.theme.FieldStampStyle
 import com.wildlife.feasibility.ui.theme.WildlifeSpacing
 import com.wildlife.feasibility.ui.theme.WildlifeTheme
-import java.text.DateFormat
+import java.text.SimpleDateFormat
 import java.util.Date
+import java.util.Locale
 
+/**
+ * Home: the journal's dated front page.
+ *
+ * It is deliberately **not** a menu. Every card this screen used to carry linked to a
+ * destination already one tap away in the index strip, which left Home with no content of
+ * its own — a portal stacked on top of a portal. What it carries now exists nowhere else:
+ *
+ * - The **ranger**, where Collection carries the region. Lifetime XP and the rank ladder
+ *   live here, which is the measure Collection's regional header explicitly refuses.
+ * - **Today's record** — the most recent confirmed sighting, mounted as a photograph.
+ * - **What is about** — the nearby extract, ruled as a table so the ranking is legible.
+ * - **The desk** — outstanding drafts and handoffs, as a pile of slips.
+ *
+ * Collection is the reference section of the guide; this is the loose dated page at the
+ * front of it. See `ui/components/JournalEntry.kt` for the surfaces that carry that voice.
+ */
 @Composable
 fun HomeScreen(
     state: ShellUiState,
@@ -71,467 +71,402 @@ fun HomeScreen(
     onSeeAllNearby: () -> Unit,
     onLinkAccount: () -> Unit,
     bottomBar: @Composable () -> Unit,
+    /** Overridden by screenshot tests so the dateline does not change under them. */
+    nowMs: Long = System.currentTimeMillis(),
 ) {
-    WildlifeScaffold(title = "Wildlife", bottomBar = bottomBar) { innerPadding ->
-        LazyColumn(
-            modifier = Modifier
-                .fillMaxSize()
-                .padding(innerPadding),
-            contentPadding = PaddingValues(
-                start = WildlifeSpacing.Screen,
-                end = WildlifeSpacing.Screen,
-                bottom = WildlifeSpacing.Section,
-            ),
-            verticalArrangement = Arrangement.spacedBy(WildlifeSpacing.Screen),
-        ) {
-            item { Greeting(state) }
-
-            if (state.account == null) {
-                item { UnlinkedWelcome(onLinkAccount = onLinkAccount, onExplore = onExplore) }
-            } else {
-                val discovery = state.latestDiscovery
-                if (discovery != null) {
-                    item {
-                        LatestDiscoveryHero(
-                            highlight = discovery,
-                            onClick = {
-                                discovery.taxonId?.let(onOpenSpecies) ?: onCollection()
-                            },
-                        )
-                    }
-                    item { FieldRecordCard(state = state, onClick = onCollection) }
-                } else {
-                    item { EmptyCollectionCard(onCapture = onCapture) }
-                }
-            }
-
-            item {
-                NearbyPreviewCard(
-                    nearby = nearby,
-                    onDiscover = onDiscoverNearby,
-                    onOpenTaxon = onOpenSpecies,
-                    onSeeAll = onSeeAllNearby,
-                )
-            }
-
-            if (state.account != null) {
-                item { MyMapCard(mappedObservationCount = mappedObservationCount, onMyMap = onMyMap) }
-            }
-
-            item { ObservationQueueCard(state = state, onReview = onObservations) }
-
-            state.errorMessage?.let { message ->
-                item {
-                    Text(
-                        text = message,
-                        style = MaterialTheme.typography.bodySmall,
-                        color = MaterialTheme.colorScheme.error,
-                    )
-                }
-            }
-        }
-    }
-}
-
-@Composable
-private fun Greeting(state: ShellUiState) {
-    Column(verticalArrangement = Arrangement.spacedBy(WildlifeSpacing.Micro)) {
-        Text(
-            text = state.account?.let { "Welcome back, ${it.login}" }
-                ?: "Your field guide to Catalonia",
-            style = MaterialTheme.typography.titleLarge,
-            color = MaterialTheme.colorScheme.onBackground,
-        )
-        Text(
-            text = if (state.account == null) {
-                "Explore wildlife now. Link iNaturalist when you want a personal collection."
-            } else {
-                "Record one sighting at a time and let iNaturalist remain the scientific record."
-            },
-            style = MaterialTheme.typography.bodyMedium,
-            color = MaterialTheme.colorScheme.onSurfaceVariant,
-        )
-    }
-}
-
-@Composable
-private fun LatestDiscoveryHero(
-    highlight: HomeHighlight,
-    onClick: () -> Unit,
-) {
-    val context = LocalContext.current
-    Card(
-        onClick = onClick,
-        modifier = Modifier.fillMaxWidth(),
-        shape = MaterialTheme.shapes.medium,
-        colors = CardDefaults.cardColors(containerColor = MaterialTheme.colorScheme.surface),
-        border = BorderStroke(1.dp, MaterialTheme.colorScheme.outlineVariant),
-        elevation = CardDefaults.cardElevation(0.dp),
-    ) {
-        Box(
-            modifier = Modifier
-                .fillMaxWidth()
-                .height(208.dp),
-        ) {
-            if (highlight.photoUrl != null) {
-                AsyncImage(
-                    model = ImageRequest.Builder(context)
-                        .data(highlight.photoUrl)
-                        .setHeader("User-Agent", WildlifeNetworkIdentity.REFERENCE_MEDIA_USER_AGENT)
-                        .build(),
-                    contentDescription = "${highlight.label}, your most recent observation photo",
-                    contentScale = ContentScale.Crop,
-                    modifier = Modifier.fillMaxSize(),
-                )
-            } else {
-                Box(
-                    modifier = Modifier
-                        .fillMaxSize()
-                        .background(MaterialTheme.colorScheme.surfaceVariant),
-                    contentAlignment = Alignment.Center,
-                ) {
-                    Text(
-                        text = highlight.label.firstOrNull()?.uppercase() ?: "?",
-                        style = MaterialTheme.typography.displayLarge,
-                        color = WildlifeTheme.colors.silhouette,
-                    )
-                }
-            }
-            Box(
-                modifier = Modifier
-                    .fillMaxSize()
-                    .background(
-                        Brush.verticalGradient(
-                            0f to Color.Transparent,
-                            0.4f to Color.Transparent,
-                            1f to Color(0xE6080B09),
-                        ),
-                    ),
-            )
-            if (highlight.researchGrade) {
-                Surface(
-                    shape = CircleShape,
-                    color = WildlifeTheme.colors.confirmed.copy(alpha = 0.94f),
-                    modifier = Modifier
-                        .align(Alignment.TopEnd)
-                        .padding(WildlifeSpacing.Small)
-                        .size(30.dp),
-                ) {
-                    Box(contentAlignment = Alignment.Center) {
-                        Icon(
-                            imageVector = Icons.Outlined.Biotech,
-                            contentDescription = "Research grade",
-                            tint = MaterialTheme.colorScheme.onPrimaryContainer,
-                            modifier = Modifier.size(19.dp),
-                        )
-                    }
-                }
-            }
-            Column(
-                modifier = Modifier
-                    .align(Alignment.BottomStart)
-                    .fillMaxWidth()
-                    .padding(WildlifeSpacing.Card),
-                verticalArrangement = Arrangement.spacedBy(2.dp),
+    // The masthead carries the title, so the app bar would print the name twice.
+    WildlifeScaffold(title = "Wildlife", bottomBar = bottomBar, showTopBar = false) { innerPadding ->
+        FieldGuidePage {
+            if (state.isLoading && state.latestDiscovery == null && state.account == null &&
+                state.catalogueSpecies == 0 && state.regionalProgress == null
             ) {
-                Text(
-                    text = "Latest discovery",
-                    style = MaterialTheme.typography.labelMedium,
-                    color = WildlifeTheme.colors.oliveStrong,
-                    fontWeight = FontWeight.SemiBold,
+                WildlifeLoadingState(
+                    label = "Opening your field journal…",
+                    modifier = Modifier.padding(innerPadding),
                 )
-                Text(
-                    text = highlight.label,
-                    style = MaterialTheme.typography.titleLarge,
-                    color = MaterialTheme.colorScheme.onBackground,
-                    maxLines = 1,
-                    overflow = TextOverflow.Ellipsis,
-                )
-                Text(
-                    text = latestDiscoverySupport(highlight),
-                    style = MaterialTheme.typography.labelMedium,
-                    fontStyle = if (highlight.awaitingSpeciesIdentification) {
-                        FontStyle.Italic
-                    } else {
-                        FontStyle.Normal
-                    },
-                    color = MaterialTheme.colorScheme.onSurfaceVariant,
-                )
+                return@FieldGuidePage
             }
-        }
-    }
-}
+            LazyColumn(
+                modifier = Modifier.fillMaxSize().padding(innerPadding),
+                contentPadding = PaddingValues(
+                    start = WildlifeSpacing.Screen,
+                    end = WildlifeSpacing.Screen,
+                    bottom = WildlifeSpacing.Section,
+                ),
+                verticalArrangement = Arrangement.spacedBy(WildlifeSpacing.Section),
+            ) {
+                item("masthead") {
+                    HomeMasthead(
+                        state = state,
+                        nowMs = nowMs,
+                        modifier = Modifier.bleedHorizontally(WildlifeSpacing.Screen),
+                    )
+                }
 
-private fun latestDiscoverySupport(highlight: HomeHighlight): String {
-    val date = DateFormat.getDateInstance(DateFormat.MEDIUM).format(Date(highlight.observedAtMs))
-    val count = if (highlight.observationCount == 1) {
-        "1 observation"
-    } else {
-        "${highlight.observationCount} observations"
-    }
-    return if (highlight.awaitingSpeciesIdentification) {
-        "Awaiting species ID · $date"
-    } else {
-        "$date · $count"
-    }
-}
-
-@Composable
-private fun FieldRecordCard(state: ShellUiState, onClick: () -> Unit) {
-    Card(
-        onClick = onClick,
-        modifier = Modifier.fillMaxWidth(),
-        colors = CardDefaults.cardColors(containerColor = MaterialTheme.colorScheme.surface),
-        border = BorderStroke(1.dp, MaterialTheme.colorScheme.outlineVariant),
-        elevation = CardDefaults.cardElevation(0.dp),
-    ) {
-        Column(
-            modifier = Modifier.padding(WildlifeSpacing.Card),
-            verticalArrangement = Arrangement.spacedBy(WildlifeSpacing.Card),
-        ) {
-            Text("Field record", style = MaterialTheme.typography.titleMedium)
-            // Counts live on Collection and XP on Profile; Home carries only the regional teaser.
-            state.regionalProgress?.let { progress ->
-                Text(
-                    text = "${progress.displayName} · ${progress.observedSpecies} / ${progress.totalSpecies}",
-                    style = MaterialTheme.typography.titleLarge,
-                    color = WildlifeTheme.colors.oliveStrong,
-                    fontWeight = FontWeight.SemiBold,
-                )
-            }
-            Text(
-                text = state.regionalProgress?.let { progress ->
-                    "Essentials ${progress.essentialsObserved}/${progress.essentialsTotal} · " +
-                        "Icons ${progress.iconsObserved}/${progress.iconsTotal}"
-                } ?: if (state.catalogueSpecies > 0) {
-                    "${state.catalogueSpecies} species available in the provisional Catalonia guide"
-                } else {
-                    "Catalonia guide not downloaded yet"
-                },
-                style = MaterialTheme.typography.labelMedium,
-                color = WildlifeTheme.colors.mutedText,
-            )
-        }
-    }
-}
-
-@Composable
-private fun EmptyCollectionCard(onCapture: () -> Unit) {
-    Card(
-        modifier = Modifier.fillMaxWidth(),
-        colors = CardDefaults.cardColors(containerColor = MaterialTheme.colorScheme.surface),
-        border = BorderStroke(1.dp, MaterialTheme.colorScheme.outlineVariant),
-        elevation = CardDefaults.cardElevation(0.dp),
-    ) {
-        Column(
-            modifier = Modifier.padding(WildlifeSpacing.Card),
-            verticalArrangement = Arrangement.spacedBy(WildlifeSpacing.Small),
-        ) {
-            Text("Start your collection", style = MaterialTheme.typography.titleMedium)
-            Text(
-                text = "Record your first sighting and it will appear here once iNaturalist confirms it.",
-                style = MaterialTheme.typography.bodyMedium,
-                color = MaterialTheme.colorScheme.onSurfaceVariant,
-            )
-            OutlinedButton(onClick = onCapture) {
-                Icon(Icons.Outlined.CameraAlt, contentDescription = null)
-                Text("Record a sighting", Modifier.padding(start = WildlifeSpacing.Small))
-            }
-        }
-    }
-}
-
-@Composable
-private fun ObservationQueueCard(state: ShellUiState, onReview: () -> Unit) {
-    Card(
-        colors = CardDefaults.cardColors(containerColor = MaterialTheme.colorScheme.surfaceVariant),
-        border = BorderStroke(1.dp, MaterialTheme.colorScheme.outlineVariant),
-        elevation = CardDefaults.cardElevation(0.dp),
-    ) {
-        Column(
-            modifier = Modifier.padding(WildlifeSpacing.Card),
-            verticalArrangement = Arrangement.spacedBy(WildlifeSpacing.Micro),
-        ) {
-            Text("Your observations", style = MaterialTheme.typography.titleMedium)
-            Text(
+                val discovery = state.latestDiscovery
                 when {
-                    state.account == null -> "Review Wildlife drafts and link iNaturalist to check public submissions."
-                    state.draftObservations > 0 || state.pendingHandoffs > 0 ->
-                        "${state.draftObservations} draft · ${state.pendingHandoffs} awaiting iNaturalist"
-                    else -> "Review your public observation history and local map visibility."
-                },
-                style = MaterialTheme.typography.bodySmall,
-                color = MaterialTheme.colorScheme.onSurfaceVariant,
-            )
-            if (state.pendingMatchesReady > 0) {
-                Text(
-                    "${state.pendingMatchesReady} ready to inspect and confirm",
-                    style = MaterialTheme.typography.bodySmall,
-                    color = MaterialTheme.colorScheme.secondary,
-                )
+                    state.account == null -> item("unlinked") {
+                        UnlinkedInvitation(onExplore = onExplore, onLinkAccount = onLinkAccount)
+                    }
+
+                    discovery != null -> item("specimen") {
+                        Column {
+                            SectionRule("Latest record")
+                            Spacer(Modifier.height(WildlifeSpacing.Card))
+                            SpecimenPlate(
+                                label = discovery.label,
+                                scientificName = null,
+                                caption = discoveryCaption(discovery),
+                                photoUrl = discovery.photoUrl,
+                                photoDescription =
+                                    "${discovery.label}, your most recent observation photo",
+                                onClick = { discovery.taxonId?.let(onOpenSpecies) ?: onCollection() },
+                                stampLabel = if (discovery.researchGrade) "RESEARCH" else null,
+                                stampTint = WildlifeTheme.colors.confirmed,
+                            )
+                        }
+                    }
+
+                    else -> item("first-entry") { FirstEntryNote(onCapture = onCapture) }
+                }
+
+                item("nearby") {
+                    Column {
+                        SectionRule("Reported nearby")
+                        Spacer(Modifier.height(WildlifeSpacing.Small))
+                        NearbySection(
+                            nearby = nearby,
+                            onDiscover = onDiscoverNearby,
+                            onOpenTaxon = onOpenSpecies,
+                            onSeeAll = onSeeAllNearby,
+                            nowMs = nowMs,
+                        )
+                    }
+                }
+
+                // Hidden when there is genuinely nothing on it. A visitor who has never
+                // recorded anything was being shown a pile of slips reading 0, 0, 0, 0 —
+                // the emptiest possible thing the page could say about them.
+                if (state.hasDeskContents(mappedObservationCount)) {
+                    item("desk") {
+                        Column {
+                            SectionRule("The desk")
+                            Spacer(Modifier.height(WildlifeSpacing.Card))
+                            DeskSlips(
+                                state = state,
+                                mappedObservationCount = mappedObservationCount,
+                                onReview = onObservations,
+                                onMyMap = onMyMap,
+                            )
+                        }
+                    }
+                }
+
+                state.errorMessage?.let { message ->
+                    item("error") {
+                        Text(
+                            text = message,
+                            style = MaterialTheme.typography.bodySmall,
+                            color = MaterialTheme.colorScheme.error,
+                        )
+                    }
+                }
             }
-            OutlinedButton(
-                onClick = onReview,
-                modifier = Modifier.padding(top = WildlifeSpacing.Micro),
-            ) { Text("Open observations") }
+        }
+    }
+}
+
+// region — masthead
+
+@Composable
+private fun HomeMasthead(state: ShellUiState, nowMs: Long, modifier: Modifier = Modifier) {
+    // Unlinked users have no XP account yet, so fall back to the projected entry level —
+    // the masthead is never blank, it just opens at the bottom of the ladder.
+    val levels: ProgressionState = state.progression ?: ProgressionProjection.project(state.totalXp)
+    val title = levels.selectedTitle
+    val next = levels.nextLevel
+    Masthead(
+        dateline = dateline(nowMs, state.regionalProgress?.displayName),
+        levelKey = title.key,
+        levelName = title.displayName,
+        subtitle = state.account?.login?.let { "@$it" } ?: "No account linked",
+        // The bar counts the ladder, not a region. Naming the next rank on it is what keeps
+        // it from being read as regional completion, which is Collection's measure.
+        progressLabel = next?.let { "XP to ${it.displayName}" } ?: "Ladder complete",
+        progressTrailing = levels.xpToNextLevel?.let { "$it XP" } ?: "${levels.totalXp} XP",
+        progressFraction = if (next == null) 1f else levels.progressFraction,
+        modifier = modifier,
+    )
+}
+
+/**
+ * "SUNDAY · 23 AUGUST · MEDITERRANEAN EUROPE".
+ *
+ * The region is appended only when one is installed — a trailing separator with nothing
+ * after it is the sort of detail that makes a printed line look generated.
+ */
+private fun dateline(nowMs: Long, regionName: String?): String {
+    val format = SimpleDateFormat("EEEE · d MMMM", Locale.getDefault())
+    val date = format.format(Date(nowMs))
+    return if (regionName.isNullOrBlank()) date else "$date · $regionName"
+}
+
+private fun discoveryCaption(highlight: HomeHighlight): String {
+    val date = SimpleDateFormat("d MMM yyyy", Locale.getDefault())
+        .format(Date(highlight.observedAtMs))
+    return when {
+        highlight.awaitingSpeciesIdentification -> "Awaiting species ID · $date"
+        highlight.observationCount == 1 -> "$date · 1 observation"
+        else -> "$date · ${highlight.observationCount} observations"
+    }
+}
+
+// endregion
+
+// region — sections
+
+/**
+ * The nearby extract, ruled as a table.
+ *
+ * Every state states the same caveat in the same words as Explore's full section: these are
+ * *reports*, ordered by reporting frequency, and the location is sampled once.
+ */
+@Composable
+private fun NearbySection(
+    nearby: NearbyDiscoveryState,
+    onDiscover: () -> Unit,
+    onOpenTaxon: (Long) -> Unit,
+    onSeeAll: () -> Unit,
+    nowMs: Long,
+) {
+    val shelf = nearby.species.take(NEARBY_SHELF_LIMIT)
+    Column(verticalArrangement = Arrangement.spacedBy(WildlifeSpacing.Small)) {
+        when {
+            // A refresh over a restored answer keeps the shelf on screen and says so, rather
+            // than replacing content the user was already reading with a spinner.
+            nearby.loading && shelf.isNotEmpty() -> {
+                NearbyHeader(shelf, nearby, checkedLabel = "again now", onSeeAll = onSeeAll)
+                NearbySpeciesCarousel(species = shelf, onOpenTaxon = onOpenTaxon)
+            }
+
+            nearby.loading -> {
+                PrintedNote("Checking what has been reported within ${nearby.radiusKm} km…")
+                LinearProgressIndicator(Modifier.fillMaxWidth())
+            }
+
+            // Likewise for a failed refresh: the previous answer is still the best one there
+            // is, so the error annotates it instead of replacing it.
+            nearby.errorMessage != null && shelf.isNotEmpty() -> {
+                Text(
+                    text = nearby.errorMessage,
+                    style = MaterialTheme.typography.bodySmall,
+                    color = MaterialTheme.colorScheme.error,
+                )
+                NearbyHeader(shelf, nearby, checkedAgo(nearby.fetchedAtMs, nowMs), onSeeAll)
+                NearbySpeciesCarousel(species = shelf, onOpenTaxon = onOpenTaxon)
+            }
+
+            nearby.errorMessage != null -> {
+                Text(
+                    text = nearby.errorMessage,
+                    style = MaterialTheme.typography.bodySmall,
+                    color = MaterialTheme.colorScheme.error,
+                )
+                JournalButton("Try again", onDiscover)
+            }
+
+            !nearby.requested -> {
+                PrintedNote(
+                    "Check which species from your regional guide have been reported within " +
+                        "${nearby.radiusKm} km this month.",
+                )
+                Text(
+                    "Your location is sampled once. Only a rounded position is kept, so the " +
+                        "app can tell when you have moved far enough to look again.",
+                    style = FieldStampStyle,
+                    color = WildlifeTheme.colors.parchmentFaint,
+                )
+                JournalButton("Check near me", onDiscover, primary = true)
+            }
+
+            shelf.isEmpty() -> {
+                PrintedNote(
+                    "No species from your regional guide were reported in this area for this " +
+                        "calendar month.",
+                )
+                JournalButton("Check again", onDiscover)
+            }
+
+            else -> {
+                NearbyHeader(shelf, nearby, checkedAgo(nearby.fetchedAtMs, nowMs), onSeeAll)
+                NearbySpeciesCarousel(species = shelf, onOpenTaxon = onOpenTaxon)
+            }
         }
     }
 }
 
 /**
- * Home-sized preview of Explore's Near me discovery: the same one-shot request, but only the
- * strongest few results. The full ordered list stays on Explore behind "See all".
+ * The footnote and, beside it, "See all" when the shelf is not showing every result.
+ *
+ * A row rather than the button sitting under the full-width carousel: the footnote is short
+ * enough to leave room beside it, and stacking them cost a line for no reason.
  */
 @Composable
-private fun NearbyPreviewCard(
+private fun NearbyHeader(
+    shelf: List<NearbySpecies>,
     nearby: NearbyDiscoveryState,
-    onDiscover: () -> Unit,
-    onOpenTaxon: (Long) -> Unit,
+    checkedLabel: String?,
     onSeeAll: () -> Unit,
 ) {
-    val preview = nearby.species.take(NEARBY_PREVIEW_LIMIT)
-    Card(
-        colors = CardDefaults.cardColors(containerColor = MaterialTheme.colorScheme.surface),
-        border = BorderStroke(1.dp, MaterialTheme.colorScheme.outlineVariant),
-        elevation = CardDefaults.cardElevation(0.dp),
-    ) {
+    NearbyHeaderRow(
+        total = nearby.species.size,
+        checkedLabel = checkedLabel,
+        seeAllLabel = "See all ${nearby.species.size} in Explore".takeIf {
+            nearby.species.size > shelf.size
+        },
+        onSeeAll = onSeeAll,
+    )
+}
+
+/**
+ * "2 hours ago" as a stamped phrase, or null when the answer has no timestamp.
+ *
+ * Coarse on purpose: the exact minute of a search is neither interesting nor something the
+ * page should imply it is tracking.
+ */
+private fun checkedAgo(fetchedAtMs: Long?, nowMs: Long): String? {
+    if (fetchedAtMs == null || fetchedAtMs <= 0L) return null
+    val elapsed = nowMs - fetchedAtMs
+    if (elapsed < 0) return null
+    val minutes = elapsed / 60_000
+    val hours = minutes / 60
+    val days = hours / 24
+    return when {
+        minutes < 2 -> "just now"
+        minutes < 60 -> "$minutes min ago"
+        hours < 24 -> if (hours == 1L) "1 hour ago" else "$hours hours ago"
+        days == 1L -> "yesterday"
+        else -> "$days days ago"
+    }
+}
+
+/** Whether the desk has anything on it worth printing a section for. */
+private fun ShellUiState.hasDeskContents(mapped: Int): Boolean =
+    account != null || draftObservations > 0 || pendingHandoffs > 0 ||
+        pendingMatchesReady > 0 || mapped > 0
+
+/**
+ * The ranger's desk: what is outstanding, and what has been filed.
+ *
+ * Presented as the top of a pile of slips, and the pile's depth is felt before any number
+ * is read — which is the point: a draft is a thing you have to come back to, and a flat
+ * card said that far too politely. Only *outstanding* items add depth; a mapped observation
+ * is filed, so it is listed but does not deepen the pile.
+ *
+ * The section is called the desk rather than "Unfiled" because it carries both. A mapped
+ * observation is the opposite of unfiled, and listing it under that heading was the one
+ * line on the page that contradicted its own label.
+ */
+@Composable
+private fun DeskSlips(
+    state: ShellUiState,
+    mappedObservationCount: Int,
+    onReview: () -> Unit,
+    onMyMap: () -> Unit,
+) {
+    val colors = WildlifeTheme.colors
+    // One slip per kind of outstanding thing, so the pile grows with the actual backlog.
+    val outstanding = listOf(
+        state.draftObservations,
+        state.pendingHandoffs,
+        state.pendingMatchesReady,
+    ).count { it > 0 }
+    SlipStack(depth = outstanding.coerceAtLeast(1)) {
         Column(
-            modifier = Modifier.padding(WildlifeSpacing.Card),
+            Modifier.padding(WildlifeSpacing.Card),
             verticalArrangement = Arrangement.spacedBy(WildlifeSpacing.Small),
         ) {
-            Row(horizontalArrangement = Arrangement.spacedBy(WildlifeSpacing.Small)) {
-                Icon(Icons.Outlined.NearMe, contentDescription = null)
-                Text("Near me", style = MaterialTheme.typography.titleMedium)
-            }
-
-            when {
-                nearby.loading -> {
-                    Text(
-                        text = "Checking what has been reported within ${nearby.radiusKm} km…",
-                        style = MaterialTheme.typography.bodySmall,
-                        color = MaterialTheme.colorScheme.onSurfaceVariant,
-                    )
-                    LinearProgressIndicator(Modifier.fillMaxWidth())
-                }
-
-                nearby.errorMessage != null -> {
-                    Text(
-                        text = nearby.errorMessage,
-                        style = MaterialTheme.typography.bodySmall,
-                        color = MaterialTheme.colorScheme.error,
-                    )
-                    OutlinedButton(onClick = onDiscover) { Text("Try again") }
-                }
-
-                !nearby.requested -> {
-                    Text(
-                        text = "Check which species from your regional guide have been reported " +
-                            "within ${nearby.radiusKm} km this month.",
-                        style = MaterialTheme.typography.bodySmall,
-                        color = MaterialTheme.colorScheme.onSurfaceVariant,
-                    )
-                    Text(
-                        text = "Your location is sampled once and is not stored.",
-                        style = MaterialTheme.typography.labelMedium,
-                        color = WildlifeTheme.colors.mutedText,
-                    )
-                    OutlinedButton(onClick = onDiscover) { Text("Check near me") }
-                }
-
-                preview.isEmpty() -> {
-                    Text(
-                        text = "No species from your regional guide were reported in this area " +
-                            "for this calendar month.",
-                        style = MaterialTheme.typography.bodySmall,
-                        color = MaterialTheme.colorScheme.onSurfaceVariant,
-                    )
-                    OutlinedButton(onClick = onDiscover) { Text("Check again") }
-                }
-
-                else -> {
-                    Text(
-                        text = "${nearby.species.size} reported species, most frequently reported first",
-                        style = MaterialTheme.typography.bodySmall,
-                        color = MaterialTheme.colorScheme.onSurfaceVariant,
-                    )
-                    preview.forEach { species ->
-                        NearbySpeciesRow(species = species, onOpenTaxon = onOpenTaxon)
-                    }
-                    TextButton(onClick = onSeeAll) {
-                        Text("See all ${nearby.species.size} in Explore")
-                    }
-                }
-            }
-        }
-    }
-}
-
-private const val NEARBY_PREVIEW_LIMIT = 5
-
-@Composable
-private fun MyMapCard(mappedObservationCount: Int, onMyMap: () -> Unit) {
-    Card(
-        colors = CardDefaults.cardColors(containerColor = MaterialTheme.colorScheme.surface),
-        border = BorderStroke(1.dp, MaterialTheme.colorScheme.outlineVariant),
-        elevation = CardDefaults.cardElevation(0.dp),
-    ) {
-        Column(
-            modifier = Modifier.padding(WildlifeSpacing.Card),
-            verticalArrangement = Arrangement.spacedBy(WildlifeSpacing.Micro),
-        ) {
-            Row(horizontalArrangement = Arrangement.spacedBy(WildlifeSpacing.Small)) {
-                Icon(Icons.Outlined.Map, contentDescription = null)
-                Text("My observation map", style = MaterialTheme.typography.titleMedium)
-            }
-            Text(
-                if (mappedObservationCount > 0) {
-                    "$mappedObservationCount public observations mapped in privacy-safe areas"
-                } else {
-                    "Your public observation history will appear here when locations are available"
-                },
-                style = MaterialTheme.typography.bodySmall,
-                color = MaterialTheme.colorScheme.onSurfaceVariant,
+            RecordLine("Drafts", state.draftObservations.toString())
+            RecordLine("Awaiting iNaturalist", state.pendingHandoffs.toString())
+            RecordLine(
+                label = "Ready to confirm",
+                value = state.pendingMatchesReady.toString(),
+                // The one actionable number in the pile, so it is the one that takes colour.
+                valueTint = if (state.pendingMatchesReady > 0) colors.gold else null,
             )
-            OutlinedButton(
-                onClick = onMyMap,
-                modifier = Modifier.padding(top = WildlifeSpacing.Micro),
-            ) { Text("Open my map") }
+            RecordLine("Mapped", mappedObservationCount.toString())
+            Spacer(Modifier.height(WildlifeSpacing.Micro))
+            Row(horizontalArrangement = Arrangement.spacedBy(WildlifeSpacing.Small)) {
+                JournalButton(
+                    label = "Open observations",
+                    onClick = onReview,
+                    primary = state.pendingMatchesReady > 0,
+                )
+                if (state.account != null) {
+                    JournalButton("My map", onMyMap)
+                }
+            }
         }
     }
 }
 
+/** Shown in place of the specimen plate when a linked account has recorded nothing yet. */
 @Composable
-private fun UnlinkedWelcome(onLinkAccount: () -> Unit, onExplore: () -> Unit) {
-    Card(
-        modifier = Modifier.fillMaxWidth(),
-        colors = CardDefaults.cardColors(containerColor = MaterialTheme.colorScheme.surface),
-        border = BorderStroke(1.dp, MaterialTheme.colorScheme.outlineVariant),
-        elevation = CardDefaults.cardElevation(0.dp),
-    ) {
-        Column(
-            modifier = Modifier.padding(WildlifeSpacing.Card),
-            verticalArrangement = Arrangement.spacedBy(WildlifeSpacing.Small),
-        ) {
-            Text("Browse the regional field guide", style = MaterialTheme.typography.titleMedium)
-            Text(
-                text = "The Catalonia species guide and \"what can I see here\" work right away. " +
-                    "Link an iNaturalist account when you want to build a personal collection.",
-                style = MaterialTheme.typography.bodyMedium,
-                color = MaterialTheme.colorScheme.onSurfaceVariant,
-            )
-            Button(onClick = onExplore, modifier = Modifier.fillMaxWidth()) {
-                Icon(Icons.Outlined.Explore, contentDescription = null)
-                Text("Explore Catalonia", Modifier.padding(start = WildlifeSpacing.Small))
-            }
-            OutlinedButton(onClick = onLinkAccount, modifier = Modifier.fillMaxWidth()) {
-                Icon(Icons.Outlined.Link, contentDescription = null)
-                Text("Link iNaturalist", Modifier.padding(start = WildlifeSpacing.Small))
-            }
+private fun FirstEntryNote(onCapture: () -> Unit) {
+    Column(verticalArrangement = Arrangement.spacedBy(WildlifeSpacing.Card)) {
+        SectionRule("Latest record")
+        PrintedNote(
+            "This page fills in from the top. Record a sighting and it is mounted here once " +
+                "iNaturalist confirms it.",
+        )
+        JournalButton("Record a sighting", onCapture, primary = true)
+    }
+}
+
+/** Shown to an unlinked visitor: the guide works, the personal record does not exist yet. */
+@Composable
+private fun UnlinkedInvitation(onExplore: () -> Unit, onLinkAccount: () -> Unit) {
+    Column(verticalArrangement = Arrangement.spacedBy(WildlifeSpacing.Card)) {
+        SectionRule("Unregistered")
+        PrintedNote(
+            "The regional guide and \"what is reported here\" work right away. Link an " +
+                "iNaturalist account when you want this page to start keeping your record.",
+        )
+        Row(horizontalArrangement = Arrangement.spacedBy(WildlifeSpacing.Small)) {
+            JournalButton("Open the guide", onExplore, primary = true)
+            JournalButton("Link iNaturalist", onLinkAccount)
         }
     }
 }
 
-@Preview(showBackground = true, backgroundColor = 0xFF080B09, widthDp = 390, heightDp = 820)
+/** Body copy printed straight onto the page, with no card under it. */
+@Composable
+private fun PrintedNote(text: String, modifier: Modifier = Modifier) {
+    Text(
+        text = text,
+        style = MaterialTheme.typography.bodyMedium,
+        color = WildlifeTheme.colors.parchmentDim,
+        modifier = modifier,
+    )
+}
+
+/**
+ * How many plates the shelf carries.
+ *
+ * A carousel costs one screen width whatever its length, so the old three-item cap existed
+ * only because a vertical list of them cost real page. Twelve is roughly five screens of
+ * swiping, past which "See all in Explore" is the better affordance than more swiping.
+ */
+private const val NEARBY_SHELF_LIMIT = 12
+
+// endregion
+
+// region — previews
+
+/** A fixed instant, so previews and screenshots do not shift with the calendar. */
+private const val PREVIEW_NOW_MS = 1_755_900_000_000L
+
+@Preview(showBackground = true, backgroundColor = 0xFF080B09, widthDp = 390, heightDp = 900)
 @Composable
 private fun HomePreview() {
     WildlifeTheme {
@@ -543,7 +478,18 @@ private fun HomePreview() {
                 totalXp = 510,
                 catalogueSpecies = 568,
                 pendingHandoffs = 1,
+                draftObservations = 2,
+                pendingMatchesReady = 1,
                 account = VerifiedAccount(1, "naturalist", 0),
+                regionalProgress = RegionalHomeProgress(
+                    displayName = "Mediterranean Europe",
+                    observedSpecies = 57,
+                    totalSpecies = 240,
+                    essentialsObserved = 4,
+                    essentialsTotal = 10,
+                    iconsObserved = 1,
+                    iconsTotal = 5,
+                ),
                 latestDiscovery = HomeHighlight(
                     taxonId = 42,
                     label = "European robin",
@@ -559,17 +505,20 @@ private fun HomePreview() {
             nearby = NearbyDiscoveryState(
                 requested = true,
                 species = listOf(
-                    NearbySpecies(1, "European robin", "Erithacus rubecula", "Aves", 412),
-                    NearbySpecies(2, "Common kingfisher", "Alcedo atthis", "Aves", 96),
+                    NearbySpecies(1, "European robin", "Erithacus rubecula", "birds", 412),
+                    NearbySpecies(2, "Common kingfisher", "Alcedo atthis", "birds", 96),
+                    NearbySpecies(3, "Red fox", "Vulpes vulpes", "mammals", 54),
+                    NearbySpecies(4, "Fire salamander", "Salamandra salamandra", "amphibians", 12),
                 ),
             ),
             onDiscoverNearby = {}, onSeeAllNearby = {}, onLinkAccount = {},
             bottomBar = {},
+            nowMs = PREVIEW_NOW_MS,
         )
     }
 }
 
-@Preview(showBackground = true, backgroundColor = 0xFF080B09, widthDp = 390, heightDp = 720)
+@Preview(showBackground = true, backgroundColor = 0xFF080B09, widthDp = 390, heightDp = 820)
 @Composable
 private fun HomeUnlinkedPreview() {
     WildlifeTheme {
@@ -580,6 +529,9 @@ private fun HomeUnlinkedPreview() {
             nearby = NearbyDiscoveryState(),
             onDiscoverNearby = {}, onSeeAllNearby = {}, onLinkAccount = {},
             bottomBar = {},
+            nowMs = PREVIEW_NOW_MS,
         )
     }
 }
+
+// endregion

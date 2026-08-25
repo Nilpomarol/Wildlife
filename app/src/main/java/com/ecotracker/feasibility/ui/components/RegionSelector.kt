@@ -75,9 +75,8 @@ fun RegionGlyph(visual: RegionVisual, size: Int = 26, regionKey: String? = null)
 }
 
 /**
- * Chooses the active regional catalogue. This lives on Explore rather than Collection because
- * Explore is the surface that works without a linked account, so the choice stays reachable for
- * every user. Never performs continuous location tracking; the choice is always manual.
+ * Chooses the guide being browsed in Explore. It never changes the location-derived current
+ * region, regional progress, or full-region background preparation.
  */
 @Composable
 fun RegionSelector(
@@ -95,7 +94,7 @@ fun RegionSelector(
     WildlifeDropdown(
         selected = selected,
         options = catalogues,
-        label = InstalledRegionalCatalogue::displayName,
+        label = { "Browse · ${it.displayName}" },
         onSelected = { onSelectRegion(it.regionKey) },
         accent = visual.accent,
         leading = { RegionGlyph(regionVisual(it.regionKey), regionKey = it.regionKey) },
@@ -103,7 +102,7 @@ fun RegionSelector(
     )
 }
 
-/** Read-only counterpart for screens that show the active region but do not own the choice. */
+/** Read-only counterpart for screens that show the location-derived current region. */
 @Composable
 fun RegionPill(
     selected: InstalledRegionalCatalogue,
@@ -112,7 +111,7 @@ fun RegionPill(
     val visual = regionVisual(selected.regionKey)
     Surface(
         modifier = modifier.clearAndSetSemantics {
-            contentDescription = "Active region: ${selected.displayName}"
+            contentDescription = "Current region: ${selected.displayName}"
         },
         shape = CircleShape,
         color = visual.accent.copy(alpha = 0.14f),

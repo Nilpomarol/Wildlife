@@ -1,17 +1,29 @@
 {
-  "schema_version": 1,
+  "schema_version": 3,
   "release_ready": false,
-  "source_digest": "76466663789d7e0d50909d7e72b915ff6c9c5fba6bc473ddf78fafeec8d21c6f",
+  "source_digest": "6f20459c56c08695f235ce3219179d4abe1ccdc3ff9ee2624d3db4e944670bb6",
   "pack": {
     "present": true,
-    "valid": true,
+    "valid": false,
     "source_digest_matches": true
+  },
+  "content_checks": {
+    "content_schema_v3": false,
+    "achievement_direct_media_complete": true
+  },
+  "content_coverage": {
+    "published_taxa": 2419,
+    "missing_descriptions": 226,
+    "missing_conservation": 2064,
+    "taxa_with_photos": 381,
+    "taxa_with_curated_silhouettes": 0,
+    "taxa_using_group_silhouettes": 2419
   },
   "regions": [
     {
-      "region": "mediterranean_europe",
-      "catalogue_version": "mediterranean-europe-broad-draft-1",
-      "taxa": 800,
+      "region": "caribbean",
+      "catalogue_version": "caribbean-broad-draft-1",
+      "taxa": 813,
       "unknown_rarity": 0,
       "checks": {
         "catalogue_frozen": false,
@@ -20,6 +32,7 @@
         "five_icons": true,
         "checklists_in_catalogue": true,
         "achievement_media_licenced": true,
+        "achievement_media_direct_variants": true,
         "iNaturalist_evidence_present": true,
         "no_unknown_rarity": true
       }
@@ -36,14 +49,15 @@
         "five_icons": true,
         "checklists_in_catalogue": true,
         "achievement_media_licenced": true,
+        "achievement_media_direct_variants": true,
         "iNaturalist_evidence_present": true,
         "no_unknown_rarity": true
       }
     },
     {
-      "region": "caribbean",
-      "catalogue_version": "caribbean-broad-draft-1",
-      "taxa": 813,
+      "region": "mediterranean_europe",
+      "catalogue_version": "mediterranean-europe-broad-draft-1",
+      "taxa": 800,
       "unknown_rarity": 0,
       "checks": {
         "catalogue_frozen": false,
@@ -52,6 +66,7 @@
         "five_icons": true,
         "checklists_in_catalogue": true,
         "achievement_media_licenced": true,
+        "achievement_media_direct_variants": true,
         "iNaturalist_evidence_present": true,
         "no_unknown_rarity": true
       }
@@ -59,21 +74,21 @@
   ],
   "blockers": [
     {
-      "region": "mediterranean_europe",
+      "region": "regional_catalogues",
       "checks": [
-        "catalogue_frozen"
+        "at_least_one_frozen_catalogue"
       ]
     },
     {
-      "region": "east_africa",
+      "region": "generated_pack",
       "checks": [
-        "catalogue_frozen"
+        "valid_pack_matching_current_sources"
       ]
     },
     {
-      "region": "caribbean",
+      "region": "published_content",
       "checks": [
-        "catalogue_frozen"
+        "content_schema_v3"
       ]
     }
   ]

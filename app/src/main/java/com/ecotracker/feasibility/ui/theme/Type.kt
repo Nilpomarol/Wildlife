@@ -10,15 +10,23 @@ import androidx.compose.ui.unit.sp
 import com.wildlife.feasibility.R
 
 /**
- * Two families, and only two.
+ * Three families, and only three.
  *
  * Eczar is the display serif: titles, species identity, stat numbers and level moments.
  * Barlow is the sans: body copy, metadata, controls and every small-caps field label.
+ * IBM Plex Mono is the *record* voice, and it is the narrowest of the three in scope:
+ * datelines, coordinates, tallies and stamps — text a ranger would have typed onto a form
+ * rather than written into a sentence. It exists because Home is a dated entry and the
+ * small-caps sans label could not distinguish "SUNDAY 23 AUGUST" from a section heading.
+ *
  * Lora and Baloo 2 were removed — Lora duplicated the display serif at one size, and
  * Baloo's chunky "game" voice belonged to the earlier gamified direction rather than to
  * Ranger's Journal.
  *
- * Both faces are bundled under the SIL Open Font License (see `docs/licenses/`).
+ * The mono is deliberately *not* a handwriting face. A script would read as scrapbook,
+ * which `style.md` §25 prohibits; a typewriter reads as record, which is the brief.
+ *
+ * All three faces are bundled under the SIL Open Font License (see `docs/licenses/`).
  */
 
 /**
@@ -57,8 +65,21 @@ private val Barlow = FontFamily(
     Font(R.font.barlow_italic, weight = FontWeight.Normal, style = FontStyle.Italic),
 )
 
+/**
+ * The record voice. Three static weights, no italic: nothing stamped on a form is italic,
+ * and the family is Latin-only as shipped, so no subsetting step is needed.
+ */
+private val PlexMono = FontFamily(
+    Font(R.font.ibm_plex_mono_regular, weight = FontWeight.Normal),
+    Font(R.font.ibm_plex_mono_medium, weight = FontWeight.Medium),
+    Font(R.font.ibm_plex_mono_semibold, weight = FontWeight.SemiBold),
+)
+
 /** The app's sans, declared once so the face is a single decision. */
 val BodyFontFamily = Barlow
+
+/** The app's mono, for stamped records only — never body copy, never a heading. */
+val MonoFontFamily = PlexMono
 
 val DisplayFontFamily = Eczar
 
@@ -136,6 +157,34 @@ val FieldLabelStyle = TextStyle(
     fontSize = 10.sp,
     lineHeight = 13.sp,
     letterSpacing = 1.3.sp,
+)
+
+/**
+ * The dateline stamp: what a ranger types at the head of an entry.
+ *
+ * Tracked wide because mono at 10sp with no tracking reads as code rather than as a
+ * stamped field. Uppercase is applied at the call site, as with [FieldLabelStyle].
+ */
+val FieldStampStyle = TextStyle(
+    fontFamily = MonoFontFamily,
+    fontWeight = FontWeight.Medium,
+    fontSize = 10.sp,
+    lineHeight = 14.sp,
+    letterSpacing = 1.1.sp,
+)
+
+/**
+ * A stamped tally: the numerals in a record line, one step up from [FieldStampStyle].
+ *
+ * Mono rather than Eczar because these are counts *read off a form* — XP remaining, report
+ * counts, slip totals. Eczar numerals stay with identity and achievement.
+ */
+val FieldTallyStyle = TextStyle(
+    fontFamily = MonoFontFamily,
+    fontWeight = FontWeight.SemiBold,
+    fontSize = 13.sp,
+    lineHeight = 17.sp,
+    letterSpacing = 0.4.sp,
 )
 
 val ScientificNameStyle = TextStyle(

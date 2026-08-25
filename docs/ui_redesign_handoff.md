@@ -1,8 +1,8 @@
 # Wildlife — UI Redesign Handoff
 
-**Date:** 13 August 2026
+**Date:** 13 August 2026; pipeline pause reopened after the 24 August 2026 post-cutover audit
 **Scope:** Product-facing UI lift toward a bolder, gamified *Field Guide Classic*.
-**Status:** Historical implementation handoff. Home + Collection landed; the active continuation is the regional roadmap dated 21 August 2026.
+**Status:** **READY TO RESUME.** The post-cutover remediation gate in `species_content_pipeline_plan.md` closed on 24 August 2026.
 **Authoritative style:** [`style.md`](style.md) (see the new §28) › [`ui_architecture.md`](ui_architecture.md) › product truth in [`Wildlife_prd.md`](Wildlife_prd.md).
 
 ---
@@ -59,14 +59,21 @@ Rebuilt from a button-menu into an **image-led dashboard**:
   ./gradlew assembleDebug
   ```
 - Compile-only check: `./gradlew compileDebugKotlin`.
-- **No emulator/AVD or device was available** during this work, so verification was via full `assembleDebug` (green). There are no screenshot/render tests configured; if automated previews are wanted, wire up Roborazzi. Otherwise run on a device/Android Studio to eyeball.
+- On 24 August 2026, the current remediation build passed the debug build and 189 unit tests,
+  installed on one connected device, and cold-started without a crash. After moving projections
+  and startup maintenance off the UI thread, three cold starts measured 1,238 ms, 1,039 ms and
+  970 ms versus the previous 6,003 ms baseline. A rapid Collection/Explore/Profile/Home navigation
+  and scrolling pass produced no crash or ANR; modern frame metrics reported 8.68% janky frames,
+  so this remains a smoke check rather than the representative-device performance gate.
 - Debug APK output: `app/build/outputs/apk/debug/app-debug.apk`.
 
 ---
 
-## 4. Superseded continuation
+## 4. Continuation status
 
-Further UI work follows [`Wildlife_roadmap.md`](Wildlife_roadmap.md): observation-management separation first, then shared regional components and vertical slices. Do not continue the old screen-by-screen rarity placeholder rollout.
+All five remediation items are complete: shared bounded content reads, demand/state separation, asynchronous projections, a transactional due-time-driven media queue, and schema-v3 sequence-based publication validation with a production-path 25-region gate. Broad UI work may resume.
+
+Continue from the shared UI consolidation path. Pilot content promotion, coverage expansion and the representative-device release matrix remain separate work; do not revive the old screen-by-screen rarity placeholder rollout.
 
 ---
 

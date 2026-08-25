@@ -19,8 +19,11 @@ from pathlib import Path
 ROOT = Path(__file__).resolve().parents[1]
 CATALOGUES = ROOT / "catalogues"
 REVIEW = CATALOGUES / "review"
-PILOTS = ("mediterranean_europe", "east_africa", "caribbean")
 MODEL_VERSION = "inaturalist-regional-frequency-v1"
+
+
+def catalogue_region_keys() -> tuple[str, ...]:
+    return tuple(path.parent.name for path in sorted((CATALOGUES / "regions").glob("*/catalogue.yaml")))
 
 
 def proposed_rarity(percentile: float) -> str:
@@ -125,8 +128,9 @@ def write_evidence(region: str) -> Path:
 
 
 def main() -> None:
+    available_regions = catalogue_region_keys()
     parser = argparse.ArgumentParser(description="Refresh non-destructive iNaturalist catalogue evidence.")
-    parser.add_argument("regions", nargs="*", choices=PILOTS)
+    parser.add_argument("regions", nargs="*", choices=available_regions)
     parser.add_argument("--pages", type=int, default=2, help="200-result pages per animal group")
     parser.add_argument("--refresh", action="store_true", help="Re-fetch cached public iNaturalist pages")
     parser.add_argument("--offline", action="store_true", help="Use the existing candidate CSVs without network requests")
@@ -136,7 +140,7 @@ def main() -> None:
         parser.error("--pages must be positive")
     if args.offline and args.refresh:
         parser.error("--offline and --refresh cannot be combined")
-    regions = args.regions or PILOTS
+    regions = args.regions or available_regions
     for region in regions:
         if not args.offline:
             refresh_candidates(region, args.pages, args.refresh, args.delay)

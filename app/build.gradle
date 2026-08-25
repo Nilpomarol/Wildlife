@@ -3,6 +3,9 @@ apply plugin: 'org.jetbrains.kotlin.android'
 apply plugin: 'org.jetbrains.kotlin.plugin.compose'
 apply plugin: 'io.github.takahirom.roborazzi'
 
+import groovy.json.JsonSlurper
+import java.security.MessageDigest
+
 android {
     namespace 'com.wildlife.feasibility'
     compileSdk 35
@@ -74,3 +77,49 @@ dependencies {
     testImplementation 'io.github.takahirom.roborazzi:roborazzi:1.32.2'
     testImplementation 'io.github.takahirom.roborazzi:roborazzi-compose:1.32.2'
 }
+
+tasks.register('verifyCatalogueContent') {
+    group = 'verification'
+    description = 'Fails when bundled catalogue assets do not match their reviewed sources.'
+    doLast {
+        def generated = rootProject.file('catalogues/generated/catalogue-inputs.json')
+        if (!generated.isFile()) {
+            throw new GradleException(
+                'Catalogue build manifest is missing. Run .\\catalogue.ps1 build before building Android.'
+            )
+        }
+        def manifest = new JsonSlurper().parse(generated)
+        def sha256 = { File file ->
+            def digest = MessageDigest.getInstance('SHA-256')
+            file.withInputStream { stream ->
+                byte[] buffer = new byte[1024 * 1024]
+                int read
+                while ((read = stream.read(buffer)) != -1) {
+                    digest.update(buffer, 0, read)
+                }
+            }
+            digest.digest().collect { String.format('%02x', it & 0xff) }.join()
+        }
+        def stale = []
+        manifest.files.each { relative, expected ->
+            def source = rootProject.file(relative)
+            if (!source.isFile() || sha256(source) != expected) {
+                stale.add(relative)
+            }
+        }
+        manifest.android_assets.each { name, expected ->
+            def asset = file("src/main/assets/catalogues/${name}")
+            if (!asset.isFile() || sha256(asset) != expected) {
+                stale.add("app asset ${name}")
+            }
+        }
+        if (!stale.isEmpty()) {
+            throw new GradleException(
+                'Bundled catalogue is stale: ' + stale.join(', ') +
+                '. Run .\\catalogue.ps1 build and commit the generated files.'
+            )
+        }
+    }
+}
+
+tasks.named('preBuild').configure { dependsOn('verifyCatalogueContent') }

@@ -1,0 +1,2854 @@
+{
+  "conservation": [
+    {
+      "authority": "IUCN Red List",
+      "retrieved_at": "2026-08-25",
+      "source_revision": "inaturalist-taxon:53:unknown",
+      "source_url": "https://www.inaturalist.org/taxa/53",
+      "status": "EN",
+      "taxon_id": 53
+    },
+    {
+      "authority": "IUCN Red List",
+      "retrieved_at": "2026-08-25",
+      "source_revision": "inaturalist-taxon:77:unknown",
+      "source_url": "https://www.inaturalist.org/taxa/77",
+      "status": "EN",
+      "taxon_id": 77
+    },
+    {
+      "authority": "IUCN Red List",
+      "retrieved_at": "2026-08-25",
+      "source_revision": "inaturalist-taxon:115:unknown",
+      "source_url": "https://www.inaturalist.org/taxa/115",
+      "status": "NT",
+      "taxon_id": 115
+    },
+    {
+      "authority": "IUCN Red List",
+      "retrieved_at": "2026-08-25",
+      "source_revision": "inaturalist-taxon:132:unknown",
+      "source_url": "https://www.inaturalist.org/taxa/132",
+      "status": "NT",
+      "taxon_id": 132
+    },
+    {
+      "authority": "IUCN Red List",
+      "retrieved_at": "2026-08-25",
+      "source_revision": "inaturalist-taxon:863:unknown",
+      "source_url": "https://www.inaturalist.org/taxa/863",
+      "status": "NT",
+      "taxon_id": 863
+    },
+    {
+      "authority": "IUCN Red List",
+      "retrieved_at": "2026-08-25",
+      "source_revision": "inaturalist-taxon:867:unknown",
+      "source_url": "https://www.inaturalist.org/taxa/867",
+      "status": "NT",
+      "taxon_id": 867
+    },
+    {
+      "authority": "IUCN Red List",
+      "retrieved_at": "2026-08-25",
+      "source_revision": "inaturalist-taxon:2938:unknown",
+      "source_url": "https://www.inaturalist.org/taxa/2938",
+      "status": "VU",
+      "taxon_id": 2938
+    },
+    {
+      "authority": "IUCN Red List",
+      "retrieved_at": "2026-08-25",
+      "source_revision": "inaturalist-taxon:3092:unknown",
+      "source_url": "https://www.inaturalist.org/taxa/3092",
+      "status": "VU",
+      "taxon_id": 3092
+    },
+    {
+      "authority": "IUCN Red List",
+      "retrieved_at": "2026-08-25",
+      "source_revision": "inaturalist-taxon:3093:unknown",
+      "source_url": "https://www.inaturalist.org/taxa/3093",
+      "status": "NT",
+      "taxon_id": 3093
+    },
+    {
+      "authority": "IUCN Red List",
+      "retrieved_at": "2026-08-25",
+      "source_revision": "inaturalist-taxon:3128:unknown",
+      "source_url": "https://www.inaturalist.org/taxa/3128",
+      "status": "NT",
+      "taxon_id": 3128
+    },
+    {
+      "authority": "IUCN Red List",
+      "retrieved_at": "2026-08-25",
+      "source_revision": "inaturalist-taxon:3515:unknown",
+      "source_url": "https://www.inaturalist.org/taxa/3515",
+      "status": "NT",
+      "taxon_id": 3515
+    },
+    {
+      "authority": "IUCN Red List",
+      "retrieved_at": "2026-08-25",
+      "source_revision": "inaturalist-taxon:3656:unknown",
+      "source_url": "https://www.inaturalist.org/taxa/3656",
+      "status": "EN",
+      "taxon_id": 3656
+    },
+    {
+      "authority": "IUCN Red List",
+      "retrieved_at": "2026-08-25",
+      "source_revision": "inaturalist-taxon:3753:unknown",
+      "source_url": "https://www.inaturalist.org/taxa/3753",
+      "status": "EN",
+      "taxon_id": 3753
+    },
+    {
+      "authority": "IUCN Red List",
+      "retrieved_at": "2026-08-25",
+      "source_revision": "inaturalist-taxon:3845:unknown",
+      "source_url": "https://www.inaturalist.org/taxa/3845",
+      "status": "NT",
+      "taxon_id": 3845
+    },
+    {
+      "authority": "IUCN Red List",
+      "retrieved_at": "2026-08-25",
+      "source_revision": "inaturalist-taxon:3850:unknown",
+      "source_url": "https://www.inaturalist.org/taxa/3850",
+      "status": "NT",
+      "taxon_id": 3850
+    },
+    {
+      "authority": "IUCN Red List",
+      "retrieved_at": "2026-08-25",
+      "source_revision": "inaturalist-taxon:3857:unknown",
+      "source_url": "https://www.inaturalist.org/taxa/3857",
+      "status": "NT",
+      "taxon_id": 3857
+    },
+    {
+      "authority": "IUCN Red List",
+      "retrieved_at": "2026-08-25",
+      "source_revision": "inaturalist-taxon:3862:unknown",
+      "source_url": "https://www.inaturalist.org/taxa/3862",
+      "status": "NT",
+      "taxon_id": 3862
+    },
+    {
+      "authority": "IUCN Red List",
+      "retrieved_at": "2026-08-25",
+      "source_revision": "inaturalist-taxon:3863:unknown",
+      "source_url": "https://www.inaturalist.org/taxa/3863",
+      "status": "VU",
+      "taxon_id": 3863
+    },
+    {
+      "authority": "IUCN Red List",
+      "retrieved_at": "2026-08-25",
+      "source_revision": "inaturalist-taxon:3864:unknown",
+      "source_url": "https://www.inaturalist.org/taxa/3864",
+      "status": "NT",
+      "taxon_id": 3864
+    },
+    {
+      "authority": "IUCN Red List",
+      "retrieved_at": "2026-08-25",
+      "source_revision": "inaturalist-taxon:3866:unknown",
+      "source_url": "https://www.inaturalist.org/taxa/3866",
+      "status": "VU",
+      "taxon_id": 3866
+    },
+    {
+      "authority": "IUCN Red List",
+      "retrieved_at": "2026-08-25",
+      "source_revision": "inaturalist-taxon:3869:unknown",
+      "source_url": "https://www.inaturalist.org/taxa/3869",
+      "status": "VU",
+      "taxon_id": 3869
+    },
+    {
+      "authority": "IUCN Red List",
+      "retrieved_at": "2026-08-25",
+      "source_revision": "inaturalist-taxon:3892:unknown",
+      "source_url": "https://www.inaturalist.org/taxa/3892",
+      "status": "NT",
+      "taxon_id": 3892
+    },
+    {
+      "authority": "IUCN Red List",
+      "retrieved_at": "2026-08-25",
+      "source_revision": "inaturalist-taxon:3893:unknown",
+      "source_url": "https://www.inaturalist.org/taxa/3893",
+      "status": "VU",
+      "taxon_id": 3893
+    },
+    {
+      "authority": "IUCN Red List",
+      "retrieved_at": "2026-08-25",
+      "source_revision": "inaturalist-taxon:3896:unknown",
+      "source_url": "https://www.inaturalist.org/taxa/3896",
+      "status": "NT",
+      "taxon_id": 3896
+    },
+    {
+      "authority": "IUCN Red List",
+      "retrieved_at": "2026-08-25",
+      "source_revision": "inaturalist-taxon:3938:unknown",
+      "source_url": "https://www.inaturalist.org/taxa/3938",
+      "status": "NT",
+      "taxon_id": 3938
+    },
+    {
+      "authority": "IUCN Red List",
+      "retrieved_at": "2026-08-25",
+      "source_revision": "inaturalist-taxon:3947:unknown",
+      "source_url": "https://www.inaturalist.org/taxa/3947",
+      "status": "NT",
+      "taxon_id": 3947
+    },
+    {
+      "authority": "IUCN Red List",
+      "retrieved_at": "2026-08-25",
+      "source_revision": "inaturalist-taxon:3951:unknown",
+      "source_url": "https://www.inaturalist.org/taxa/3951",
+      "status": "NT",
+      "taxon_id": 3951
+    },
+    {
+      "authority": "IUCN Red List",
+      "retrieved_at": "2026-08-25",
+      "source_revision": "inaturalist-taxon:4109:unknown",
+      "source_url": "https://www.inaturalist.org/taxa/4109",
+      "status": "VU",
+      "taxon_id": 4109
+    },
+    {
+      "authority": "IUCN Red List",
+      "retrieved_at": "2026-08-25",
+      "source_revision": "inaturalist-taxon:4259:unknown",
+      "source_url": "https://www.inaturalist.org/taxa/4259",
+      "status": "NT",
+      "taxon_id": 4259
+    },
+    {
+      "authority": "IUCN Red List",
+      "retrieved_at": "2026-08-25",
+      "source_revision": "inaturalist-taxon:4333:unknown",
+      "source_url": "https://www.inaturalist.org/taxa/4333",
+      "status": "NT",
+      "taxon_id": 4333
+    },
+    {
+      "authority": "IUCN Red List",
+      "retrieved_at": "2026-08-25",
+      "source_revision": "inaturalist-taxon:4338:unknown",
+      "source_url": "https://www.inaturalist.org/taxa/4338",
+      "status": "VU",
+      "taxon_id": 4338
+    },
+    {
+      "authority": "IUCN Red List",
+      "retrieved_at": "2026-08-25",
+      "source_revision": "inaturalist-taxon:4494:unknown",
+      "source_url": "https://www.inaturalist.org/taxa/4494",
+      "status": "VU",
+      "taxon_id": 4494
+    },
+    {
+      "authority": "IUCN Red List",
+      "retrieved_at": "2026-08-25",
+      "source_revision": "inaturalist-taxon:4504:unknown",
+      "source_url": "https://www.inaturalist.org/taxa/4504",
+      "status": "VU",
+      "taxon_id": 4504
+    },
+    {
+      "authority": "IUCN Red List",
+      "retrieved_at": "2026-08-25",
+      "source_revision": "inaturalist-taxon:4641:unknown",
+      "source_url": "https://www.inaturalist.org/taxa/4641",
+      "status": "VU",
+      "taxon_id": 4641
+    },
+    {
+      "authority": "Красная книга Нижегородской области",
+      "retrieved_at": "2026-08-25",
+      "source_revision": "inaturalist-taxon:4736:unknown",
+      "source_url": "https://www.inaturalist.org/taxa/4736",
+      "status": "1-И-II",
+      "taxon_id": 4736
+    },
+    {
+      "authority": "IUCN Red List",
+      "retrieved_at": "2026-08-25",
+      "source_revision": "inaturalist-taxon:4754:unknown",
+      "source_url": "https://www.inaturalist.org/taxa/4754",
+      "status": "NT",
+      "taxon_id": 4754
+    },
+    {
+      "authority": "IUCN Red List",
+      "retrieved_at": "2026-08-25",
+      "source_revision": "inaturalist-taxon:4793:unknown",
+      "source_url": "https://www.inaturalist.org/taxa/4793",
+      "status": "NT",
+      "taxon_id": 4793
+    },
+    {
+      "authority": "IUCN Red List",
+      "retrieved_at": "2026-08-25",
+      "source_revision": "inaturalist-taxon:4798:unknown",
+      "source_url": "https://www.inaturalist.org/taxa/4798",
+      "status": "NT",
+      "taxon_id": 4798
+    },
+    {
+      "authority": "IUCN Red List",
+      "retrieved_at": "2026-08-25",
+      "source_revision": "inaturalist-taxon:4843:unknown",
+      "source_url": "https://www.inaturalist.org/taxa/4843",
+      "status": "NT",
+      "taxon_id": 4843
+    },
+    {
+      "authority": "IUCN Red List",
+      "retrieved_at": "2026-08-25",
+      "source_revision": "inaturalist-taxon:4857:unknown",
+      "source_url": "https://www.inaturalist.org/taxa/4857",
+      "status": "NT",
+      "taxon_id": 4857
+    },
+    {
+      "authority": "IUCN Red List",
+      "retrieved_at": "2026-08-25",
+      "source_revision": "inaturalist-taxon:4892:unknown",
+      "source_url": "https://www.inaturalist.org/taxa/4892",
+      "status": "VU",
+      "taxon_id": 4892
+    },
+    {
+      "authority": "IUCN Red List",
+      "retrieved_at": "2026-08-25",
+      "source_revision": "inaturalist-taxon:4948:unknown",
+      "source_url": "https://www.inaturalist.org/taxa/4948",
+      "status": "NT",
+      "taxon_id": 4948
+    },
+    {
+      "authority": "NatureServe",
+      "retrieved_at": "2026-08-25",
+      "source_revision": "inaturalist-taxon:5020:unknown",
+      "source_url": "https://www.inaturalist.org/taxa/5020",
+      "status": "G4",
+      "taxon_id": 5020
+    },
+    {
+      "authority": "IUCN Red List",
+      "retrieved_at": "2026-08-25",
+      "source_revision": "inaturalist-taxon:5079:unknown",
+      "source_url": "https://www.inaturalist.org/taxa/5079",
+      "status": "VU",
+      "taxon_id": 5079
+    },
+    {
+      "authority": "IUCN Red List",
+      "retrieved_at": "2026-08-25",
+      "source_revision": "inaturalist-taxon:5081:unknown",
+      "source_url": "https://www.inaturalist.org/taxa/5081",
+      "status": "VU",
+      "taxon_id": 5081
+    },
+    {
+      "authority": "IUCN Red List",
+      "retrieved_at": "2026-08-25",
+      "source_revision": "inaturalist-taxon:5083:unknown",
+      "source_url": "https://www.inaturalist.org/taxa/5083",
+      "status": "EN",
+      "taxon_id": 5083
+    },
+    {
+      "authority": "IUCN Red List",
+      "retrieved_at": "2026-08-25",
+      "source_revision": "inaturalist-taxon:5178:unknown",
+      "source_url": "https://www.inaturalist.org/taxa/5178",
+      "status": "NT",
+      "taxon_id": 5178
+    },
+    {
+      "authority": "IUCN Red List",
+      "retrieved_at": "2026-08-25",
+      "source_revision": "inaturalist-taxon:5197:unknown",
+      "source_url": "https://www.inaturalist.org/taxa/5197",
+      "status": "CR",
+      "taxon_id": 5197
+    },
+    {
+      "authority": "IUCN Red List",
+      "retrieved_at": "2026-08-25",
+      "source_revision": "inaturalist-taxon:5231:unknown",
+      "source_url": "https://www.inaturalist.org/taxa/5231",
+      "status": "EN",
+      "taxon_id": 5231
+    },
+    {
+      "authority": "IUCN Red List",
+      "retrieved_at": "2026-08-25",
+      "source_revision": "inaturalist-taxon:5323:unknown",
+      "source_url": "https://www.inaturalist.org/taxa/5323",
+      "status": "NT",
+      "taxon_id": 5323
+    },
+    {
+      "authority": "IUCN Red List",
+      "retrieved_at": "2026-08-25",
+      "source_revision": "inaturalist-taxon:5344:unknown",
+      "source_url": "https://www.inaturalist.org/taxa/5344",
+      "status": "EN",
+      "taxon_id": 5344
+    },
+    {
+      "authority": "IUCN Red List",
+      "retrieved_at": "2026-08-25",
+      "source_revision": "inaturalist-taxon:5361:unknown",
+      "source_url": "https://www.inaturalist.org/taxa/5361",
+      "status": "EN",
+      "taxon_id": 5361
+    },
+    {
+      "authority": "IUCN Red List",
+      "retrieved_at": "2026-08-25",
+      "source_revision": "inaturalist-taxon:5363:unknown",
+      "source_url": "https://www.inaturalist.org/taxa/5363",
+      "status": "CR",
+      "taxon_id": 5363
+    },
+    {
+      "authority": "IUCN Red List",
+      "retrieved_at": "2026-08-25",
+      "source_revision": "inaturalist-taxon:5379:unknown",
+      "source_url": "https://www.inaturalist.org/taxa/5379",
+      "status": "NT",
+      "taxon_id": 5379
+    },
+    {
+      "authority": "IUCN Red List",
+      "retrieved_at": "2026-08-25",
+      "source_revision": "inaturalist-taxon:5382:unknown",
+      "source_url": "https://www.inaturalist.org/taxa/5382",
+      "status": "NT",
+      "taxon_id": 5382
+    },
+    {
+      "authority": "IUCN Red List",
+      "retrieved_at": "2026-08-25",
+      "source_revision": "inaturalist-taxon:5392:unknown",
+      "source_url": "https://www.inaturalist.org/taxa/5392",
+      "status": "CR",
+      "taxon_id": 5392
+    },
+    {
+      "authority": "IUCN Red List",
+      "retrieved_at": "2026-08-25",
+      "source_revision": "inaturalist-taxon:5401:unknown",
+      "source_url": "https://www.inaturalist.org/taxa/5401",
+      "status": "EN",
+      "taxon_id": 5401
+    },
+    {
+      "authority": "IUCN Red List",
+      "retrieved_at": "2026-08-25",
+      "source_revision": "inaturalist-taxon:5426:unknown",
+      "source_url": "https://www.inaturalist.org/taxa/5426",
+      "status": "CR",
+      "taxon_id": 5426
+    },
+    {
+      "authority": "IUCN Red List",
+      "retrieved_at": "2026-08-25",
+      "source_revision": "inaturalist-taxon:5437:unknown",
+      "source_url": "https://www.inaturalist.org/taxa/5437",
+      "status": "VU",
+      "taxon_id": 5437
+    },
+    {
+      "authority": "IUCN Red List",
+      "retrieved_at": "2026-08-25",
+      "source_revision": "inaturalist-taxon:6425:unknown",
+      "source_url": "https://www.inaturalist.org/taxa/6425",
+      "status": "NT",
+      "taxon_id": 6425
+    },
+    {
+      "authority": "IUCN Red List",
+      "retrieved_at": "2026-08-25",
+      "source_revision": "inaturalist-taxon:6892:unknown",
+      "source_url": "https://www.inaturalist.org/taxa/6892",
+      "status": "NT",
+      "taxon_id": 6892
+    },
+    {
+      "authority": "IUCN Red List",
+      "retrieved_at": "2026-08-25",
+      "source_revision": "inaturalist-taxon:7024:unknown",
+      "source_url": "https://www.inaturalist.org/taxa/7024",
+      "status": "NT",
+      "taxon_id": 7024
+    },
+    {
+      "authority": "IUCN Red List",
+      "retrieved_at": "2026-08-25",
+      "source_revision": "inaturalist-taxon:7045:unknown",
+      "source_url": "https://www.inaturalist.org/taxa/7045",
+      "status": "VU",
+      "taxon_id": 7045
+    },
+    {
+      "authority": "IUCN Red List",
+      "retrieved_at": "2026-08-25",
+      "source_revision": "inaturalist-taxon:7055:unknown",
+      "source_url": "https://www.inaturalist.org/taxa/7055",
+      "status": "NT",
+      "taxon_id": 7055
+    },
+    {
+      "authority": "IUCN Red List",
+      "retrieved_at": "2026-08-25",
+      "source_revision": "inaturalist-taxon:7081:unknown",
+      "source_url": "https://www.inaturalist.org/taxa/7081",
+      "status": "EN",
+      "taxon_id": 7081
+    },
+    {
+      "authority": "IUCN Red List",
+      "retrieved_at": "2026-08-25",
+      "source_revision": "inaturalist-taxon:7139:unknown",
+      "source_url": "https://www.inaturalist.org/taxa/7139",
+      "status": "NT",
+      "taxon_id": 7139
+    },
+    {
+      "authority": "IUCN Red List",
+      "retrieved_at": "2026-08-25",
+      "source_revision": "inaturalist-taxon:7610:unknown",
+      "source_url": "https://www.inaturalist.org/taxa/7610",
+      "status": "EN",
+      "taxon_id": 7610
+    },
+    {
+      "authority": "U.S. Fish & Wildlife Service",
+      "retrieved_at": "2026-08-25",
+      "source_revision": "inaturalist-taxon:8033:unknown",
+      "source_url": "https://www.inaturalist.org/taxa/8033",
+      "status": "E",
+      "taxon_id": 8033
+    },
+    {
+      "authority": "IUCN Red List",
+      "retrieved_at": "2026-08-25",
+      "source_revision": "inaturalist-taxon:8053:unknown",
+      "source_url": "https://www.inaturalist.org/taxa/8053",
+      "status": "NT",
+      "taxon_id": 8053
+    },
+    {
+      "authority": "IUCN Red List",
+      "retrieved_at": "2026-08-25",
+      "source_revision": "inaturalist-taxon:9327:unknown",
+      "source_url": "https://www.inaturalist.org/taxa/9327",
+      "status": "VU",
+      "taxon_id": 9327
+    },
+    {
+      "authority": "IUCN Red List",
+      "retrieved_at": "2026-08-25",
+      "source_revision": "inaturalist-taxon:9528:unknown",
+      "source_url": "https://www.inaturalist.org/taxa/9528",
+      "status": "NT",
+      "taxon_id": 9528
+    },
+    {
+      "authority": "IUCN Red List",
+      "retrieved_at": "2026-08-25",
+      "source_revision": "inaturalist-taxon:9764:unknown",
+      "source_url": "https://www.inaturalist.org/taxa/9764",
+      "status": "EN",
+      "taxon_id": 9764
+    },
+    {
+      "authority": "IUCN Red List",
+      "retrieved_at": "2026-08-25",
+      "source_revision": "inaturalist-taxon:9929:unknown",
+      "source_url": "https://www.inaturalist.org/taxa/9929",
+      "status": "VU",
+      "taxon_id": 9929
+    },
+    {
+      "authority": "IUCN Red List",
+      "retrieved_at": "2026-08-25",
+      "source_revision": "inaturalist-taxon:10266:unknown",
+      "source_url": "https://www.inaturalist.org/taxa/10266",
+      "status": "NT",
+      "taxon_id": 10266
+    },
+    {
+      "authority": "IUCN Red List",
+      "retrieved_at": "2026-08-25",
+      "source_revision": "inaturalist-taxon:10422:unknown",
+      "source_url": "https://www.inaturalist.org/taxa/10422",
+      "status": "EN",
+      "taxon_id": 10422
+    },
+    {
+      "authority": "IUCN Red List",
+      "retrieved_at": "2026-08-25",
+      "source_revision": "inaturalist-taxon:10576:unknown",
+      "source_url": "https://www.inaturalist.org/taxa/10576",
+      "status": "VU",
+      "taxon_id": 10576
+    },
+    {
+      "authority": "IUCN Red List",
+      "retrieved_at": "2026-08-25",
+      "source_revision": "inaturalist-taxon:10619:unknown",
+      "source_url": "https://www.inaturalist.org/taxa/10619",
+      "status": "EN",
+      "taxon_id": 10619
+    },
+    {
+      "authority": "IUCN Red List",
+      "retrieved_at": "2026-08-25",
+      "source_revision": "inaturalist-taxon:10645:unknown",
+      "source_url": "https://www.inaturalist.org/taxa/10645",
+      "status": "NT",
+      "taxon_id": 10645
+    },
+    {
+      "authority": "IUCN Red List",
+      "retrieved_at": "2026-08-25",
+      "source_revision": "inaturalist-taxon:12039:unknown",
+      "source_url": "https://www.inaturalist.org/taxa/12039",
+      "status": "NT",
+      "taxon_id": 12039
+    },
+    {
+      "authority": "IUCN Red List",
+      "retrieved_at": "2026-08-25",
+      "source_revision": "inaturalist-taxon:12913:unknown",
+      "source_url": "https://www.inaturalist.org/taxa/12913",
+      "status": "NT",
+      "taxon_id": 12913
+    },
+    {
+      "authority": "IUCN Red List",
+      "retrieved_at": "2026-08-25",
+      "source_revision": "inaturalist-taxon:15047:unknown",
+      "source_url": "https://www.inaturalist.org/taxa/15047",
+      "status": "EN",
+      "taxon_id": 15047
+    },
+    {
+      "authority": "IUCN Red List",
+      "retrieved_at": "2026-08-25",
+      "source_revision": "inaturalist-taxon:16801:unknown",
+      "source_url": "https://www.inaturalist.org/taxa/16801",
+      "status": "EN",
+      "taxon_id": 16801
+    },
+    {
+      "authority": "IUCN Red List",
+      "retrieved_at": "2026-08-25",
+      "source_revision": "inaturalist-taxon:17387:unknown",
+      "source_url": "https://www.inaturalist.org/taxa/17387",
+      "status": "NT",
+      "taxon_id": 17387
+    },
+    {
+      "authority": "IUCN Red List",
+      "retrieved_at": "2026-08-25",
+      "source_revision": "inaturalist-taxon:18235:unknown",
+      "source_url": "https://www.inaturalist.org/taxa/18235",
+      "status": "EN",
+      "taxon_id": 18235
+    },
+    {
+      "authority": "IUCN Red List",
+      "retrieved_at": "2026-08-25",
+      "source_revision": "inaturalist-taxon:18979:unknown",
+      "source_url": "https://www.inaturalist.org/taxa/18979",
+      "status": "VU",
+      "taxon_id": 18979
+    },
+    {
+      "authority": "IUCN Red List",
+      "retrieved_at": "2026-08-25",
+      "source_revision": "inaturalist-taxon:18983:unknown",
+      "source_url": "https://www.inaturalist.org/taxa/18983",
+      "status": "VU",
+      "taxon_id": 18983
+    },
+    {
+      "authority": "IUCN Red List",
+      "retrieved_at": "2026-08-25",
+      "source_revision": "inaturalist-taxon:18988:unknown",
+      "source_url": "https://www.inaturalist.org/taxa/18988",
+      "status": "NT",
+      "taxon_id": 18988
+    },
+    {
+      "authority": "IUCN Red List",
+      "retrieved_at": "2026-08-25",
+      "source_revision": "inaturalist-taxon:18989:unknown",
+      "source_url": "https://www.inaturalist.org/taxa/18989",
+      "status": "EN",
+      "taxon_id": 18989
+    },
+    {
+      "authority": "IUCN Red List",
+      "retrieved_at": "2026-08-25",
+      "source_revision": "inaturalist-taxon:19006:unknown",
+      "source_url": "https://www.inaturalist.org/taxa/19006",
+      "status": "CR",
+      "taxon_id": 19006
+    },
+    {
+      "authority": "IUCN Red List",
+      "retrieved_at": "2026-08-25",
+      "source_revision": "inaturalist-taxon:19075:unknown",
+      "source_url": "https://www.inaturalist.org/taxa/19075",
+      "status": "NT",
+      "taxon_id": 19075
+    },
+    {
+      "authority": "CITES",
+      "retrieved_at": "2026-08-25",
+      "source_revision": "inaturalist-taxon:19210:unknown",
+      "source_url": "https://www.inaturalist.org/taxa/19210",
+      "status": "Appendix II",
+      "taxon_id": 19210
+    },
+    {
+      "authority": "IUCN Red List",
+      "retrieved_at": "2026-08-25",
+      "source_revision": "inaturalist-taxon:19482:unknown",
+      "source_url": "https://www.inaturalist.org/taxa/19482",
+      "status": "NT",
+      "taxon_id": 19482
+    },
+    {
+      "authority": "IUCN Red List",
+      "retrieved_at": "2026-08-25",
+      "source_revision": "inaturalist-taxon:22190:unknown",
+      "source_url": "https://www.inaturalist.org/taxa/22190",
+      "status": "CR",
+      "taxon_id": 22190
+    },
+    {
+      "authority": "IUCN Red List",
+      "retrieved_at": "2026-08-25",
+      "source_revision": "inaturalist-taxon:22236:unknown",
+      "source_url": "https://www.inaturalist.org/taxa/22236",
+      "status": "EN",
+      "taxon_id": 22236
+    },
+    {
+      "authority": "IUCN Red List",
+      "retrieved_at": "2026-08-25",
+      "source_revision": "inaturalist-taxon:22285:unknown",
+      "source_url": "https://www.inaturalist.org/taxa/22285",
+      "status": "EN",
+      "taxon_id": 22285
+    },
+    {
+      "authority": "IUCN Red List",
+      "retrieved_at": "2026-08-25",
+      "source_revision": "inaturalist-taxon:22302:unknown",
+      "source_url": "https://www.inaturalist.org/taxa/22302",
+      "status": "NT",
+      "taxon_id": 22302
+    },
+    {
+      "authority": "IUCN Red List",
+      "retrieved_at": "2026-08-25",
+      "source_revision": "inaturalist-taxon:22337:unknown",
+      "source_url": "https://www.inaturalist.org/taxa/22337",
+      "status": "EN",
+      "taxon_id": 22337
+    },
+    {
+      "authority": "U.S. Fish & Wildlife Service",
+      "retrieved_at": "2026-08-25",
+      "source_revision": "inaturalist-taxon:22369:unknown",
+      "source_url": "https://www.inaturalist.org/taxa/22369",
+      "status": "T",
+      "taxon_id": 22369
+    },
+    {
+      "authority": "IUCN Red List",
+      "retrieved_at": "2026-08-25",
+      "source_revision": "inaturalist-taxon:22374:unknown",
+      "source_url": "https://www.inaturalist.org/taxa/22374",
+      "status": "EN",
+      "taxon_id": 22374
+    },
+    {
+      "authority": "IUCN Red List",
+      "retrieved_at": "2026-08-25",
+      "source_revision": "inaturalist-taxon:22375:unknown",
+      "source_url": "https://www.inaturalist.org/taxa/22375",
+      "status": "VU",
+      "taxon_id": 22375
+    },
+    {
+      "authority": "IUCN Red List",
+      "retrieved_at": "2026-08-25",
+      "source_revision": "inaturalist-taxon:22376:unknown",
+      "source_url": "https://www.inaturalist.org/taxa/22376",
+      "status": "VU",
+      "taxon_id": 22376
+    },
+    {
+      "authority": "IUCN Red List",
+      "retrieved_at": "2026-08-25",
+      "source_revision": "inaturalist-taxon:22384:unknown",
+      "source_url": "https://www.inaturalist.org/taxa/22384",
+      "status": "EN",
+      "taxon_id": 22384
+    },
+    {
+      "authority": "IUCN Red List",
+      "retrieved_at": "2026-08-25",
+      "source_revision": "inaturalist-taxon:22408:unknown",
+      "source_url": "https://www.inaturalist.org/taxa/22408",
+      "status": "EN",
+      "taxon_id": 22408
+    },
+    {
+      "authority": "IUCN Red List",
+      "retrieved_at": "2026-08-25",
+      "source_revision": "inaturalist-taxon:22411:unknown",
+      "source_url": "https://www.inaturalist.org/taxa/22411",
+      "status": "EN",
+      "taxon_id": 22411
+    },
+    {
+      "authority": "IUCN Red List",
+      "retrieved_at": "2026-08-25",
+      "source_revision": "inaturalist-taxon:22413:unknown",
+      "source_url": "https://www.inaturalist.org/taxa/22413",
+      "status": "EN",
+      "taxon_id": 22413
+    },
+    {
+      "authority": "IUCN Red List",
+      "retrieved_at": "2026-08-25",
+      "source_revision": "inaturalist-taxon:22417:unknown",
+      "source_url": "https://www.inaturalist.org/taxa/22417",
+      "status": "CR",
+      "taxon_id": 22417
+    },
+    {
+      "authority": "IUCN Red List",
+      "retrieved_at": "2026-08-25",
+      "source_revision": "inaturalist-taxon:22423:unknown",
+      "source_url": "https://www.inaturalist.org/taxa/22423",
+      "status": "EN",
+      "taxon_id": 22423
+    },
+    {
+      "authority": "IUCN Red List",
+      "retrieved_at": "2026-08-25",
+      "source_revision": "inaturalist-taxon:22440:unknown",
+      "source_url": "https://www.inaturalist.org/taxa/22440",
+      "status": "VU",
+      "taxon_id": 22440
+    },
+    {
+      "authority": "IUCN Red List",
+      "retrieved_at": "2026-08-25",
+      "source_revision": "inaturalist-taxon:22445:unknown",
+      "source_url": "https://www.inaturalist.org/taxa/22445",
+      "status": "NT",
+      "taxon_id": 22445
+    },
+    {
+      "authority": "IUCN Red List",
+      "retrieved_at": "2026-08-25",
+      "source_revision": "inaturalist-taxon:22446:unknown",
+      "source_url": "https://www.inaturalist.org/taxa/22446",
+      "status": "EN",
+      "taxon_id": 22446
+    },
+    {
+      "authority": "IUCN Red List",
+      "retrieved_at": "2026-08-25",
+      "source_revision": "inaturalist-taxon:22453:unknown",
+      "source_url": "https://www.inaturalist.org/taxa/22453",
+      "status": "VU",
+      "taxon_id": 22453
+    },
+    {
+      "authority": "IUCN Red List",
+      "retrieved_at": "2026-08-25",
+      "source_revision": "inaturalist-taxon:22456:unknown",
+      "source_url": "https://www.inaturalist.org/taxa/22456",
+      "status": "VU",
+      "taxon_id": 22456
+    },
+    {
+      "authority": "IUCN Red List",
+      "retrieved_at": "2026-08-25",
+      "source_revision": "inaturalist-taxon:22478:unknown",
+      "source_url": "https://www.inaturalist.org/taxa/22478",
+      "status": "EN",
+      "taxon_id": 22478
+    },
+    {
+      "authority": "IUCN Red List",
+      "retrieved_at": "2026-08-25",
+      "source_revision": "inaturalist-taxon:22488:unknown",
+      "source_url": "https://www.inaturalist.org/taxa/22488",
+      "status": "EN",
+      "taxon_id": 22488
+    },
+    {
+      "authority": "IUCN Red List",
+      "retrieved_at": "2026-08-25",
+      "source_revision": "inaturalist-taxon:22496:unknown",
+      "source_url": "https://www.inaturalist.org/taxa/22496",
+      "status": "EN",
+      "taxon_id": 22496
+    },
+    {
+      "authority": "IUCN Red List",
+      "retrieved_at": "2026-08-25",
+      "source_revision": "inaturalist-taxon:22612:unknown",
+      "source_url": "https://www.inaturalist.org/taxa/22612",
+      "status": "EN",
+      "taxon_id": 22612
+    },
+    {
+      "authority": "IUCN Red List",
+      "retrieved_at": "2026-08-25",
+      "source_revision": "inaturalist-taxon:22614:unknown",
+      "source_url": "https://www.inaturalist.org/taxa/22614",
+      "status": "VU",
+      "taxon_id": 22614
+    },
+    {
+      "authority": "IUCN Red List",
+      "retrieved_at": "2026-08-25",
+      "source_revision": "inaturalist-taxon:22617:unknown",
+      "source_url": "https://www.inaturalist.org/taxa/22617",
+      "status": "EN",
+      "taxon_id": 22617
+    },
+    {
+      "authority": "IUCN Red List",
+      "retrieved_at": "2026-08-25",
+      "source_revision": "inaturalist-taxon:22619:unknown",
+      "source_url": "https://www.inaturalist.org/taxa/22619",
+      "status": "EN",
+      "taxon_id": 22619
+    },
+    {
+      "authority": "IUCN Red List",
+      "retrieved_at": "2026-08-25",
+      "source_revision": "inaturalist-taxon:22635:unknown",
+      "source_url": "https://www.inaturalist.org/taxa/22635",
+      "status": "VU",
+      "taxon_id": 22635
+    },
+    {
+      "authority": "IUCN Red List",
+      "retrieved_at": "2026-08-25",
+      "source_revision": "inaturalist-taxon:22663:unknown",
+      "source_url": "https://www.inaturalist.org/taxa/22663",
+      "status": "VU",
+      "taxon_id": 22663
+    },
+    {
+      "authority": "IUCN Red List",
+      "retrieved_at": "2026-08-25",
+      "source_revision": "inaturalist-taxon:22718:unknown",
+      "source_url": "https://www.inaturalist.org/taxa/22718",
+      "status": "EN",
+      "taxon_id": 22718
+    },
+    {
+      "authority": "IUCN Red List",
+      "retrieved_at": "2026-08-25",
+      "source_revision": "inaturalist-taxon:22739:unknown",
+      "source_url": "https://www.inaturalist.org/taxa/22739",
+      "status": "NT",
+      "taxon_id": 22739
+    },
+    {
+      "authority": "IUCN Red List",
+      "retrieved_at": "2026-08-25",
+      "source_revision": "inaturalist-taxon:22745:unknown",
+      "source_url": "https://www.inaturalist.org/taxa/22745",
+      "status": "CR",
+      "taxon_id": 22745
+    },
+    {
+      "authority": "IUCN Red List",
+      "retrieved_at": "2026-08-25",
+      "source_revision": "inaturalist-taxon:22752:unknown",
+      "source_url": "https://www.inaturalist.org/taxa/22752",
+      "status": "VU",
+      "taxon_id": 22752
+    },
+    {
+      "authority": "IUCN Red List",
+      "retrieved_at": "2026-08-25",
+      "source_revision": "inaturalist-taxon:23286:unknown",
+      "source_url": "https://www.inaturalist.org/taxa/23286",
+      "status": "EN",
+      "taxon_id": 23286
+    },
+    {
+      "authority": "IUCN Red List",
+      "retrieved_at": "2026-08-25",
+      "source_revision": "inaturalist-taxon:23288:unknown",
+      "source_url": "https://www.inaturalist.org/taxa/23288",
+      "status": "EN",
+      "taxon_id": 23288
+    },
+    {
+      "authority": "IUCN Red List",
+      "retrieved_at": "2026-08-25",
+      "source_revision": "inaturalist-taxon:23411:unknown",
+      "source_url": "https://www.inaturalist.org/taxa/23411",
+      "status": "NT",
+      "taxon_id": 23411
+    },
+    {
+      "authority": "IUCN Red List",
+      "retrieved_at": "2026-08-25",
+      "source_revision": "inaturalist-taxon:23412:unknown",
+      "source_url": "https://www.inaturalist.org/taxa/23412",
+      "status": "EN",
+      "taxon_id": 23412
+    },
+    {
+      "authority": "IUCN Red List",
+      "retrieved_at": "2026-08-25",
+      "source_revision": "inaturalist-taxon:23413:unknown",
+      "source_url": "https://www.inaturalist.org/taxa/23413",
+      "status": "EN",
+      "taxon_id": 23413
+    },
+    {
+      "authority": "IUCN Red List",
+      "retrieved_at": "2026-08-25",
+      "source_revision": "inaturalist-taxon:24375:unknown",
+      "source_url": "https://www.inaturalist.org/taxa/24375",
+      "status": "VU",
+      "taxon_id": 24375
+    },
+    {
+      "authority": "IUCN Red List",
+      "retrieved_at": "2026-08-25",
+      "source_revision": "inaturalist-taxon:24376:unknown",
+      "source_url": "https://www.inaturalist.org/taxa/24376",
+      "status": "VU",
+      "taxon_id": 24376
+    },
+    {
+      "authority": "IUCN Red List",
+      "retrieved_at": "2026-08-25",
+      "source_revision": "inaturalist-taxon:24378:unknown",
+      "source_url": "https://www.inaturalist.org/taxa/24378",
+      "status": "NT",
+      "taxon_id": 24378
+    },
+    {
+      "authority": "IUCN Red List",
+      "retrieved_at": "2026-08-25",
+      "source_revision": "inaturalist-taxon:24380:unknown",
+      "source_url": "https://www.inaturalist.org/taxa/24380",
+      "status": "VU",
+      "taxon_id": 24380
+    },
+    {
+      "authority": "IUCN Red List",
+      "retrieved_at": "2026-08-25",
+      "source_revision": "inaturalist-taxon:24474:unknown",
+      "source_url": "https://www.inaturalist.org/taxa/24474",
+      "status": "EN",
+      "taxon_id": 24474
+    },
+    {
+      "authority": "IUCN Red List",
+      "retrieved_at": "2026-08-25",
+      "source_revision": "inaturalist-taxon:25311:unknown",
+      "source_url": "https://www.inaturalist.org/taxa/25311",
+      "status": "VU",
+      "taxon_id": 25311
+    },
+    {
+      "authority": "IUCN Red List",
+      "retrieved_at": "2026-08-25",
+      "source_revision": "inaturalist-taxon:25660:unknown",
+      "source_url": "https://www.inaturalist.org/taxa/25660",
+      "status": "EN",
+      "taxon_id": 25660
+    },
+    {
+      "authority": "IUCN Red List",
+      "retrieved_at": "2026-08-25",
+      "source_revision": "inaturalist-taxon:25664:unknown",
+      "source_url": "https://www.inaturalist.org/taxa/25664",
+      "status": "VU",
+      "taxon_id": 25664
+    },
+    {
+      "authority": "IUCN Red List",
+      "retrieved_at": "2026-08-25",
+      "source_revision": "inaturalist-taxon:25665:unknown",
+      "source_url": "https://www.inaturalist.org/taxa/25665",
+      "status": "VU",
+      "taxon_id": 25665
+    },
+    {
+      "authority": "IUCN Red List",
+      "retrieved_at": "2026-08-25",
+      "source_revision": "inaturalist-taxon:25762:unknown",
+      "source_url": "https://www.inaturalist.org/taxa/25762",
+      "status": "NT",
+      "taxon_id": 25762
+    },
+    {
+      "authority": "IUCN Red List",
+      "retrieved_at": "2026-08-25",
+      "source_revision": "inaturalist-taxon:26061:unknown",
+      "source_url": "https://www.inaturalist.org/taxa/26061",
+      "status": "CR",
+      "taxon_id": 26061
+    },
+    {
+      "authority": "IUCN Red List",
+      "retrieved_at": "2026-08-25",
+      "source_revision": "inaturalist-taxon:26085:unknown",
+      "source_url": "https://www.inaturalist.org/taxa/26085",
+      "status": "VU",
+      "taxon_id": 26085
+    },
+    {
+      "authority": "IUCN Red List",
+      "retrieved_at": "2026-08-25",
+      "source_revision": "inaturalist-taxon:27514:unknown",
+      "source_url": "https://www.inaturalist.org/taxa/27514",
+      "status": "CR",
+      "taxon_id": 27514
+    },
+    {
+      "authority": "IUCN Red List",
+      "retrieved_at": "2026-08-25",
+      "source_revision": "inaturalist-taxon:27517:unknown",
+      "source_url": "https://www.inaturalist.org/taxa/27517",
+      "status": "EN",
+      "taxon_id": 27517
+    },
+    {
+      "authority": "IUCN Red List",
+      "retrieved_at": "2026-08-25",
+      "source_revision": "inaturalist-taxon:27519:unknown",
+      "source_url": "https://www.inaturalist.org/taxa/27519",
+      "status": "EN",
+      "taxon_id": 27519
+    },
+    {
+      "authority": "IUCN Red List",
+      "retrieved_at": "2026-08-25",
+      "source_revision": "inaturalist-taxon:27712:unknown",
+      "source_url": "https://www.inaturalist.org/taxa/27712",
+      "status": "VU",
+      "taxon_id": 27712
+    },
+    {
+      "authority": "IUCN Red List",
+      "retrieved_at": "2026-08-25",
+      "source_revision": "inaturalist-taxon:27717:unknown",
+      "source_url": "https://www.inaturalist.org/taxa/27717",
+      "status": "VU",
+      "taxon_id": 27717
+    },
+    {
+      "authority": "IUCN Red List",
+      "retrieved_at": "2026-08-25",
+      "source_revision": "inaturalist-taxon:27719:unknown",
+      "source_url": "https://www.inaturalist.org/taxa/27719",
+      "status": "NT",
+      "taxon_id": 27719
+    },
+    {
+      "authority": "IUCN Red List",
+      "retrieved_at": "2026-08-25",
+      "source_revision": "inaturalist-taxon:27726:unknown",
+      "source_url": "https://www.inaturalist.org/taxa/27726",
+      "status": "VU",
+      "taxon_id": 27726
+    },
+    {
+      "authority": "IUCN Red List",
+      "retrieved_at": "2026-08-25",
+      "source_revision": "inaturalist-taxon:27732:unknown",
+      "source_url": "https://www.inaturalist.org/taxa/27732",
+      "status": "CR",
+      "taxon_id": 27732
+    },
+    {
+      "authority": "IUCN Red List",
+      "retrieved_at": "2026-08-25",
+      "source_revision": "inaturalist-taxon:27844:unknown",
+      "source_url": "https://www.inaturalist.org/taxa/27844",
+      "status": "NT",
+      "taxon_id": 27844
+    },
+    {
+      "authority": "IUCN Red List",
+      "retrieved_at": "2026-08-25",
+      "source_revision": "inaturalist-taxon:27904:unknown",
+      "source_url": "https://www.inaturalist.org/taxa/27904",
+      "status": "EN",
+      "taxon_id": 27904
+    },
+    {
+      "authority": "IUCN Red List",
+      "retrieved_at": "2026-08-25",
+      "source_revision": "inaturalist-taxon:28333:unknown",
+      "source_url": "https://www.inaturalist.org/taxa/28333",
+      "status": "VU",
+      "taxon_id": 28333
+    },
+    {
+      "authority": "IUCN Red List",
+      "retrieved_at": "2026-08-25",
+      "source_revision": "inaturalist-taxon:30853:unknown",
+      "source_url": "https://www.inaturalist.org/taxa/30853",
+      "status": "VU",
+      "taxon_id": 30853
+    },
+    {
+      "authority": "IUCN Red List",
+      "retrieved_at": "2026-08-25",
+      "source_revision": "inaturalist-taxon:30855:unknown",
+      "source_url": "https://www.inaturalist.org/taxa/30855",
+      "status": "VU",
+      "taxon_id": 30855
+    },
+    {
+      "authority": "IUCN Red List",
+      "retrieved_at": "2026-08-25",
+      "source_revision": "inaturalist-taxon:30917:unknown",
+      "source_url": "https://www.inaturalist.org/taxa/30917",
+      "status": "NT",
+      "taxon_id": 30917
+    },
+    {
+      "authority": "IUCN Red List",
+      "retrieved_at": "2026-08-25",
+      "source_revision": "inaturalist-taxon:30924:unknown",
+      "source_url": "https://www.inaturalist.org/taxa/30924",
+      "status": "VU",
+      "taxon_id": 30924
+    },
+    {
+      "authority": "IUCN Red List",
+      "retrieved_at": "2026-08-25",
+      "source_revision": "inaturalist-taxon:30929:unknown",
+      "source_url": "https://www.inaturalist.org/taxa/30929",
+      "status": "VU",
+      "taxon_id": 30929
+    },
+    {
+      "authority": "IUCN Red List",
+      "retrieved_at": "2026-08-25",
+      "source_revision": "inaturalist-taxon:32152:unknown",
+      "source_url": "https://www.inaturalist.org/taxa/32152",
+      "status": "NT",
+      "taxon_id": 32152
+    },
+    {
+      "authority": "IUCN Red List",
+      "retrieved_at": "2026-08-25",
+      "source_revision": "inaturalist-taxon:32319:unknown",
+      "source_url": "https://www.inaturalist.org/taxa/32319",
+      "status": "NT",
+      "taxon_id": 32319
+    },
+    {
+      "authority": "IUCN Red List",
+      "retrieved_at": "2026-08-25",
+      "source_revision": "inaturalist-taxon:32819:unknown",
+      "source_url": "https://www.inaturalist.org/taxa/32819",
+      "status": "NT",
+      "taxon_id": 32819
+    },
+    {
+      "authority": "IUCN Red List",
+      "retrieved_at": "2026-08-25",
+      "source_revision": "inaturalist-taxon:32947:unknown",
+      "source_url": "https://www.inaturalist.org/taxa/32947",
+      "status": "EN",
+      "taxon_id": 32947
+    },
+    {
+      "authority": "IUCN Red List",
+      "retrieved_at": "2026-08-25",
+      "source_revision": "inaturalist-taxon:32949:unknown",
+      "source_url": "https://www.inaturalist.org/taxa/32949",
+      "status": "NT",
+      "taxon_id": 32949
+    },
+    {
+      "authority": "IUCN Red List",
+      "retrieved_at": "2026-08-25",
+      "source_revision": "inaturalist-taxon:32950:unknown",
+      "source_url": "https://www.inaturalist.org/taxa/32950",
+      "status": "NT",
+      "taxon_id": 32950
+    },
+    {
+      "authority": "IUCN Red List",
+      "retrieved_at": "2026-08-25",
+      "source_revision": "inaturalist-taxon:32977:unknown",
+      "source_url": "https://www.inaturalist.org/taxa/32977",
+      "status": "EN",
+      "taxon_id": 32977
+    },
+    {
+      "authority": "IUCN Red List",
+      "retrieved_at": "2026-08-25",
+      "source_revision": "inaturalist-taxon:32983:unknown",
+      "source_url": "https://www.inaturalist.org/taxa/32983",
+      "status": "EN",
+      "taxon_id": 32983
+    },
+    {
+      "authority": "IUCN Red List",
+      "retrieved_at": "2026-08-25",
+      "source_revision": "inaturalist-taxon:33563:unknown",
+      "source_url": "https://www.inaturalist.org/taxa/33563",
+      "status": "NT",
+      "taxon_id": 33563
+    },
+    {
+      "authority": "IUCN Red List",
+      "retrieved_at": "2026-08-25",
+      "source_revision": "inaturalist-taxon:33768:unknown",
+      "source_url": "https://www.inaturalist.org/taxa/33768",
+      "status": "NT",
+      "taxon_id": 33768
+    },
+    {
+      "authority": "IUCN Red List",
+      "retrieved_at": "2026-08-25",
+      "source_revision": "inaturalist-taxon:35290:unknown",
+      "source_url": "https://www.inaturalist.org/taxa/35290",
+      "status": "VU",
+      "taxon_id": 35290
+    },
+    {
+      "authority": "IUCN Red List",
+      "retrieved_at": "2026-08-25",
+      "source_revision": "inaturalist-taxon:35298:unknown",
+      "source_url": "https://www.inaturalist.org/taxa/35298",
+      "status": "CR",
+      "taxon_id": 35298
+    },
+    {
+      "authority": "IUCN Red List",
+      "retrieved_at": "2026-08-25",
+      "source_revision": "inaturalist-taxon:35345:unknown",
+      "source_url": "https://www.inaturalist.org/taxa/35345",
+      "status": "CR",
+      "taxon_id": 35345
+    },
+    {
+      "authority": "IUCN Red List",
+      "retrieved_at": "2026-08-25",
+      "source_revision": "inaturalist-taxon:35597:unknown",
+      "source_url": "https://www.inaturalist.org/taxa/35597",
+      "status": "EN",
+      "taxon_id": 35597
+    },
+    {
+      "authority": "IUCN Red List",
+      "retrieved_at": "2026-08-25",
+      "source_revision": "inaturalist-taxon:35637:unknown",
+      "source_url": "https://www.inaturalist.org/taxa/35637",
+      "status": "NT",
+      "taxon_id": 35637
+    },
+    {
+      "authority": "IUCN Red List",
+      "retrieved_at": "2026-08-25",
+      "source_revision": "inaturalist-taxon:35707:unknown",
+      "source_url": "https://www.inaturalist.org/taxa/35707",
+      "status": "VU",
+      "taxon_id": 35707
+    },
+    {
+      "authority": "IUCN Red List",
+      "retrieved_at": "2026-08-25",
+      "source_revision": "inaturalist-taxon:35990:unknown",
+      "source_url": "https://www.inaturalist.org/taxa/35990",
+      "status": "CR",
+      "taxon_id": 35990
+    },
+    {
+      "authority": "UICN Comité Français",
+      "retrieved_at": "2026-08-25",
+      "source_revision": "inaturalist-taxon:36441:unknown",
+      "source_url": "https://www.inaturalist.org/taxa/36441",
+      "status": "NT",
+      "taxon_id": 36441
+    },
+    {
+      "authority": "IUCN Red List",
+      "retrieved_at": "2026-08-25",
+      "source_revision": "inaturalist-taxon:36448:unknown",
+      "source_url": "https://www.inaturalist.org/taxa/36448",
+      "status": "VU",
+      "taxon_id": 36448
+    },
+    {
+      "authority": "IUCN Red List",
+      "retrieved_at": "2026-08-25",
+      "source_revision": "inaturalist-taxon:36491:unknown",
+      "source_url": "https://www.inaturalist.org/taxa/36491",
+      "status": "EN",
+      "taxon_id": 36491
+    },
+    {
+      "authority": "IUCN Red List",
+      "retrieved_at": "2026-08-25",
+      "source_revision": "inaturalist-taxon:36503:unknown",
+      "source_url": "https://www.inaturalist.org/taxa/36503",
+      "status": "NT",
+      "taxon_id": 36503
+    },
+    {
+      "authority": "IUCN Red List",
+      "retrieved_at": "2026-08-25",
+      "source_revision": "inaturalist-taxon:36607:unknown",
+      "source_url": "https://www.inaturalist.org/taxa/36607",
+      "status": "EN",
+      "taxon_id": 36607
+    },
+    {
+      "authority": "IUCN Red List",
+      "retrieved_at": "2026-08-25",
+      "source_revision": "inaturalist-taxon:36616:unknown",
+      "source_url": "https://www.inaturalist.org/taxa/36616",
+      "status": "NT",
+      "taxon_id": 36616
+    },
+    {
+      "authority": "IUCN Red List",
+      "retrieved_at": "2026-08-25",
+      "source_revision": "inaturalist-taxon:36621:unknown",
+      "source_url": "https://www.inaturalist.org/taxa/36621",
+      "status": "NT",
+      "taxon_id": 36621
+    },
+    {
+      "authority": "U.S. Fish & Wildlife Service",
+      "retrieved_at": "2026-08-25",
+      "source_revision": "inaturalist-taxon:39659:unknown",
+      "source_url": "https://www.inaturalist.org/taxa/39659",
+      "status": "T",
+      "taxon_id": 39659
+    },
+    {
+      "authority": "IUCN Red List",
+      "retrieved_at": "2026-08-25",
+      "source_revision": "inaturalist-taxon:39665:unknown",
+      "source_url": "https://www.inaturalist.org/taxa/39665",
+      "status": "VU",
+      "taxon_id": 39665
+    },
+    {
+      "authority": "IUCN Red List",
+      "retrieved_at": "2026-08-25",
+      "source_revision": "inaturalist-taxon:39672:unknown",
+      "source_url": "https://www.inaturalist.org/taxa/39672",
+      "status": "CR",
+      "taxon_id": 39672
+    },
+    {
+      "authority": "IUCN Red List",
+      "retrieved_at": "2026-08-25",
+      "source_revision": "inaturalist-taxon:39677:unknown",
+      "source_url": "https://www.inaturalist.org/taxa/39677",
+      "status": "VU",
+      "taxon_id": 39677
+    },
+    {
+      "authority": "IUCN Red List",
+      "retrieved_at": "2026-08-25",
+      "source_revision": "inaturalist-taxon:39777:unknown",
+      "source_url": "https://www.inaturalist.org/taxa/39777",
+      "status": "VU",
+      "taxon_id": 39777
+    },
+    {
+      "authority": "IUCN Red List",
+      "retrieved_at": "2026-08-25",
+      "source_revision": "inaturalist-taxon:39778:unknown",
+      "source_url": "https://www.inaturalist.org/taxa/39778",
+      "status": "NT",
+      "taxon_id": 39778
+    },
+    {
+      "authority": "IUCN Red List",
+      "retrieved_at": "2026-08-25",
+      "source_revision": "inaturalist-taxon:39867:unknown",
+      "source_url": "https://www.inaturalist.org/taxa/39867",
+      "status": "NT",
+      "taxon_id": 39867
+    },
+    {
+      "authority": "IUCN Red List",
+      "retrieved_at": "2026-08-25",
+      "source_revision": "inaturalist-taxon:40023:unknown",
+      "source_url": "https://www.inaturalist.org/taxa/40023",
+      "status": "VU",
+      "taxon_id": 40023
+    },
+    {
+      "authority": "IUCN Red List",
+      "retrieved_at": "2026-08-25",
+      "source_revision": "inaturalist-taxon:40063:unknown",
+      "source_url": "https://www.inaturalist.org/taxa/40063",
+      "status": "CR",
+      "taxon_id": 40063
+    },
+    {
+      "authority": "IUCN Red List",
+      "retrieved_at": "2026-08-25",
+      "source_revision": "inaturalist-taxon:40273:unknown",
+      "source_url": "https://www.inaturalist.org/taxa/40273",
+      "status": "NT",
+      "taxon_id": 40273
+    },
+    {
+      "authority": "IUCN Red List",
+      "retrieved_at": "2026-08-25",
+      "source_revision": "inaturalist-taxon:40321:unknown",
+      "source_url": "https://www.inaturalist.org/taxa/40321",
+      "status": "VU",
+      "taxon_id": 40321
+    },
+    {
+      "authority": "IUCN Red List",
+      "retrieved_at": "2026-08-25",
+      "source_revision": "inaturalist-taxon:40415:unknown",
+      "source_url": "https://www.inaturalist.org/taxa/40415",
+      "status": "NT",
+      "taxon_id": 40415
+    },
+    {
+      "authority": "IUCN Red List",
+      "retrieved_at": "2026-08-25",
+      "source_revision": "inaturalist-taxon:40519:unknown",
+      "source_url": "https://www.inaturalist.org/taxa/40519",
+      "status": "VU",
+      "taxon_id": 40519
+    },
+    {
+      "authority": "IUCN Red List",
+      "retrieved_at": "2026-08-25",
+      "source_revision": "inaturalist-taxon:40574:unknown",
+      "source_url": "https://www.inaturalist.org/taxa/40574",
+      "status": "VU",
+      "taxon_id": 40574
+    },
+    {
+      "authority": "IUCN Red List",
+      "retrieved_at": "2026-08-25",
+      "source_revision": "inaturalist-taxon:40581:unknown",
+      "source_url": "https://www.inaturalist.org/taxa/40581",
+      "status": "NT",
+      "taxon_id": 40581
+    },
+    {
+      "authority": "IUCN Red List",
+      "retrieved_at": "2026-08-25",
+      "source_revision": "inaturalist-taxon:40677:unknown",
+      "source_url": "https://www.inaturalist.org/taxa/40677",
+      "status": "NT",
+      "taxon_id": 40677
+    },
+    {
+      "authority": "IUCN Red List",
+      "retrieved_at": "2026-08-25",
+      "source_revision": "inaturalist-taxon:40827:unknown",
+      "source_url": "https://www.inaturalist.org/taxa/40827",
+      "status": "NT",
+      "taxon_id": 40827
+    },
+    {
+      "authority": "IUCN Red List",
+      "retrieved_at": "2026-08-25",
+      "source_revision": "inaturalist-taxon:40901:unknown",
+      "source_url": "https://www.inaturalist.org/taxa/40901",
+      "status": "VU",
+      "taxon_id": 40901
+    },
+    {
+      "authority": "IUCN Red List",
+      "retrieved_at": "2026-08-25",
+      "source_revision": "inaturalist-taxon:41011:unknown",
+      "source_url": "https://www.inaturalist.org/taxa/41011",
+      "status": "EN",
+      "taxon_id": 41011
+    },
+    {
+      "authority": "IUCN Red List",
+      "retrieved_at": "2026-08-25",
+      "source_revision": "inaturalist-taxon:41130:unknown",
+      "source_url": "https://www.inaturalist.org/taxa/41130",
+      "status": "CR",
+      "taxon_id": 41130
+    },
+    {
+      "authority": "IUCN Red List",
+      "retrieved_at": "2026-08-25",
+      "source_revision": "inaturalist-taxon:41173:unknown",
+      "source_url": "https://www.inaturalist.org/taxa/41173",
+      "status": "NT",
+      "taxon_id": 41173
+    },
+    {
+      "authority": "IUCN Red List",
+      "retrieved_at": "2026-08-25",
+      "source_revision": "inaturalist-taxon:41481:unknown",
+      "source_url": "https://www.inaturalist.org/taxa/41481",
+      "status": "NT",
+      "taxon_id": 41481
+    },
+    {
+      "authority": "IUCN Red List",
+      "retrieved_at": "2026-08-25",
+      "source_revision": "inaturalist-taxon:41539:unknown",
+      "source_url": "https://www.inaturalist.org/taxa/41539",
+      "status": "NT",
+      "taxon_id": 41539
+    },
+    {
+      "authority": "IUCN Red List",
+      "retrieved_at": "2026-08-25",
+      "source_revision": "inaturalist-taxon:41559:unknown",
+      "source_url": "https://www.inaturalist.org/taxa/41559",
+      "status": "EN",
+      "taxon_id": 41559
+    },
+    {
+      "authority": "IUCN Red List",
+      "retrieved_at": "2026-08-25",
+      "source_revision": "inaturalist-taxon:41562:unknown",
+      "source_url": "https://www.inaturalist.org/taxa/41562",
+      "status": "VU",
+      "taxon_id": 41562
+    },
+    {
+      "authority": "IUCN Red List",
+      "retrieved_at": "2026-08-25",
+      "source_revision": "inaturalist-taxon:41716:unknown",
+      "source_url": "https://www.inaturalist.org/taxa/41716",
+      "status": "VU",
+      "taxon_id": 41716
+    },
+    {
+      "authority": "IUCN Red List",
+      "retrieved_at": "2026-08-25",
+      "source_revision": "inaturalist-taxon:41850:unknown",
+      "source_url": "https://www.inaturalist.org/taxa/41850",
+      "status": "NT",
+      "taxon_id": 41850
+    },
+    {
+      "authority": "IUCN Red List",
+      "retrieved_at": "2026-08-25",
+      "source_revision": "inaturalist-taxon:41888:unknown",
+      "source_url": "https://www.inaturalist.org/taxa/41888",
+      "status": "NT",
+      "taxon_id": 41888
+    },
+    {
+      "authority": "IUCN Red List",
+      "retrieved_at": "2026-08-25",
+      "source_revision": "inaturalist-taxon:41955:unknown",
+      "source_url": "https://www.inaturalist.org/taxa/41955",
+      "status": "VU",
+      "taxon_id": 41955
+    },
+    {
+      "authority": "IUCN Red List",
+      "retrieved_at": "2026-08-25",
+      "source_revision": "inaturalist-taxon:41963:unknown",
+      "source_url": "https://www.inaturalist.org/taxa/41963",
+      "status": "VU",
+      "taxon_id": 41963
+    },
+    {
+      "authority": "IUCN Red List",
+      "retrieved_at": "2026-08-25",
+      "source_revision": "inaturalist-taxon:41964:unknown",
+      "source_url": "https://www.inaturalist.org/taxa/41964",
+      "status": "VU",
+      "taxon_id": 41964
+    },
+    {
+      "authority": "IUCN Red List",
+      "retrieved_at": "2026-08-25",
+      "source_revision": "inaturalist-taxon:41975:unknown",
+      "source_url": "https://www.inaturalist.org/taxa/41975",
+      "status": "VU",
+      "taxon_id": 41975
+    },
+    {
+      "authority": "IUCN Red List",
+      "retrieved_at": "2026-08-25",
+      "source_revision": "inaturalist-taxon:42045:unknown",
+      "source_url": "https://www.inaturalist.org/taxa/42045",
+      "status": "EN",
+      "taxon_id": 42045
+    },
+    {
+      "authority": "IUCN Red List",
+      "retrieved_at": "2026-08-25",
+      "source_revision": "inaturalist-taxon:42093:unknown",
+      "source_url": "https://www.inaturalist.org/taxa/42093",
+      "status": "EN",
+      "taxon_id": 42093
+    },
+    {
+      "authority": "IUCN Red List",
+      "retrieved_at": "2026-08-25",
+      "source_revision": "inaturalist-taxon:42149:unknown",
+      "source_url": "https://www.inaturalist.org/taxa/42149",
+      "status": "VU",
+      "taxon_id": 42149
+    },
+    {
+      "authority": "IUCN Red List",
+      "retrieved_at": "2026-08-25",
+      "source_revision": "inaturalist-taxon:42157:unknown",
+      "source_url": "https://www.inaturalist.org/taxa/42157",
+      "status": "VU",
+      "taxon_id": 42157
+    },
+    {
+      "authority": "IUCN Red List",
+      "retrieved_at": "2026-08-25",
+      "source_revision": "inaturalist-taxon:42340:unknown",
+      "source_url": "https://www.inaturalist.org/taxa/42340",
+      "status": "NT",
+      "taxon_id": 42340
+    },
+    {
+      "authority": "IUCN Red List",
+      "retrieved_at": "2026-08-25",
+      "source_revision": "inaturalist-taxon:42343:unknown",
+      "source_url": "https://www.inaturalist.org/taxa/42343",
+      "status": "EN",
+      "taxon_id": 42343
+    },
+    {
+      "authority": "IUCN Red List",
+      "retrieved_at": "2026-08-25",
+      "source_revision": "inaturalist-taxon:42354:unknown",
+      "source_url": "https://www.inaturalist.org/taxa/42354",
+      "status": "CR",
+      "taxon_id": 42354
+    },
+    {
+      "authority": "IUCN Red List",
+      "retrieved_at": "2026-08-25",
+      "source_revision": "inaturalist-taxon:42364:unknown",
+      "source_url": "https://www.inaturalist.org/taxa/42364",
+      "status": "NT",
+      "taxon_id": 42364
+    },
+    {
+      "authority": "IUCN Red List",
+      "retrieved_at": "2026-08-25",
+      "source_revision": "inaturalist-taxon:42405:unknown",
+      "source_url": "https://www.inaturalist.org/taxa/42405",
+      "status": "NT",
+      "taxon_id": 42405
+    },
+    {
+      "authority": "IUCN Red List",
+      "retrieved_at": "2026-08-25",
+      "source_revision": "inaturalist-taxon:42422:unknown",
+      "source_url": "https://www.inaturalist.org/taxa/42422",
+      "status": "VU",
+      "taxon_id": 42422
+    },
+    {
+      "authority": "IUCN Red List",
+      "retrieved_at": "2026-08-25",
+      "source_revision": "inaturalist-taxon:43042:unknown",
+      "source_url": "https://www.inaturalist.org/taxa/43042",
+      "status": "NT",
+      "taxon_id": 43042
+    },
+    {
+      "authority": "IUCN Red List",
+      "retrieved_at": "2026-08-25",
+      "source_revision": "inaturalist-taxon:43118:unknown",
+      "source_url": "https://www.inaturalist.org/taxa/43118",
+      "status": "VU",
+      "taxon_id": 43118
+    },
+    {
+      "authority": "IUCN Red List",
+      "retrieved_at": "2026-08-25",
+      "source_revision": "inaturalist-taxon:43143:unknown",
+      "source_url": "https://www.inaturalist.org/taxa/43143",
+      "status": "VU",
+      "taxon_id": 43143
+    },
+    {
+      "authority": "IUCN Red List",
+      "retrieved_at": "2026-08-25",
+      "source_revision": "inaturalist-taxon:43222:unknown",
+      "source_url": "https://www.inaturalist.org/taxa/43222",
+      "status": "EN",
+      "taxon_id": 43222
+    },
+    {
+      "authority": "IUCN Red List",
+      "retrieved_at": "2026-08-25",
+      "source_revision": "inaturalist-taxon:43335:unknown",
+      "source_url": "https://www.inaturalist.org/taxa/43335",
+      "status": "NT",
+      "taxon_id": 43335
+    },
+    {
+      "authority": "IUCN Red List",
+      "retrieved_at": "2026-08-25",
+      "source_revision": "inaturalist-taxon:43339:unknown",
+      "source_url": "https://www.inaturalist.org/taxa/43339",
+      "status": "EN",
+      "taxon_id": 43339
+    },
+    {
+      "authority": "IUCN Red List",
+      "retrieved_at": "2026-08-25",
+      "source_revision": "inaturalist-taxon:43348:unknown",
+      "source_url": "https://www.inaturalist.org/taxa/43348",
+      "status": "NT",
+      "taxon_id": 43348
+    },
+    {
+      "authority": "IUCN Red List",
+      "retrieved_at": "2026-08-25",
+      "source_revision": "inaturalist-taxon:43350:unknown",
+      "source_url": "https://www.inaturalist.org/taxa/43350",
+      "status": "CR",
+      "taxon_id": 43350
+    },
+    {
+      "authority": "IUCN Red List",
+      "retrieved_at": "2026-08-25",
+      "source_revision": "inaturalist-taxon:43462:unknown",
+      "source_url": "https://www.inaturalist.org/taxa/43462",
+      "status": "NT",
+      "taxon_id": 43462
+    },
+    {
+      "authority": "IUCN Red List",
+      "retrieved_at": "2026-08-25",
+      "source_revision": "inaturalist-taxon:43468:unknown",
+      "source_url": "https://www.inaturalist.org/taxa/43468",
+      "status": "CR",
+      "taxon_id": 43468
+    },
+    {
+      "authority": "IUCN Red List",
+      "retrieved_at": "2026-08-25",
+      "source_revision": "inaturalist-taxon:43525:unknown",
+      "source_url": "https://www.inaturalist.org/taxa/43525",
+      "status": "VU",
+      "taxon_id": 43525
+    },
+    {
+      "authority": "IUCN Red List",
+      "retrieved_at": "2026-08-25",
+      "source_revision": "inaturalist-taxon:43694:unknown",
+      "source_url": "https://www.inaturalist.org/taxa/43694",
+      "status": "EN",
+      "taxon_id": 43694
+    },
+    {
+      "authority": "IUCN Red List",
+      "retrieved_at": "2026-08-25",
+      "source_revision": "inaturalist-taxon:43778:unknown",
+      "source_url": "https://www.inaturalist.org/taxa/43778",
+      "status": "EN",
+      "taxon_id": 43778
+    },
+    {
+      "authority": "IUCN Red List",
+      "retrieved_at": "2026-08-25",
+      "source_revision": "inaturalist-taxon:43779:unknown",
+      "source_url": "https://www.inaturalist.org/taxa/43779",
+      "status": "CR",
+      "taxon_id": 43779
+    },
+    {
+      "authority": "IUCN Red List",
+      "retrieved_at": "2026-08-25",
+      "source_revision": "inaturalist-taxon:43781:unknown",
+      "source_url": "https://www.inaturalist.org/taxa/43781",
+      "status": "NT",
+      "taxon_id": 43781
+    },
+    {
+      "authority": "IUCN Red List",
+      "retrieved_at": "2026-08-25",
+      "source_revision": "inaturalist-taxon:43789:unknown",
+      "source_url": "https://www.inaturalist.org/taxa/43789",
+      "status": "EX",
+      "taxon_id": 43789
+    },
+    {
+      "authority": "IUCN Red List",
+      "retrieved_at": "2026-08-25",
+      "source_revision": "inaturalist-taxon:44990:unknown",
+      "source_url": "https://www.inaturalist.org/taxa/44990",
+      "status": "EN",
+      "taxon_id": 44990
+    },
+    {
+      "authority": "IUCN Red List",
+      "retrieved_at": "2026-08-25",
+      "source_revision": "inaturalist-taxon:45669:unknown",
+      "source_url": "https://www.inaturalist.org/taxa/45669",
+      "status": "NT",
+      "taxon_id": 45669
+    },
+    {
+      "authority": "IUCN Red List",
+      "retrieved_at": "2026-08-25",
+      "source_revision": "inaturalist-taxon:45748:unknown",
+      "source_url": "https://www.inaturalist.org/taxa/45748",
+      "status": "NT",
+      "taxon_id": 45748
+    },
+    {
+      "authority": "IUCN Red List",
+      "retrieved_at": "2026-08-25",
+      "source_revision": "inaturalist-taxon:45863:unknown",
+      "source_url": "https://www.inaturalist.org/taxa/45863",
+      "status": "VU",
+      "taxon_id": 45863
+    },
+    {
+      "authority": "IUCN Red List",
+      "retrieved_at": "2026-08-25",
+      "source_revision": "inaturalist-taxon:46037:unknown",
+      "source_url": "https://www.inaturalist.org/taxa/46037",
+      "status": "EN",
+      "taxon_id": 46037
+    },
+    {
+      "authority": "IUCN Red List",
+      "retrieved_at": "2026-08-25",
+      "source_revision": "inaturalist-taxon:46316:unknown",
+      "source_url": "https://www.inaturalist.org/taxa/46316",
+      "status": "VU",
+      "taxon_id": 46316
+    },
+    {
+      "authority": "IUCN Red List",
+      "retrieved_at": "2026-08-25",
+      "source_revision": "inaturalist-taxon:46412:unknown",
+      "source_url": "https://www.inaturalist.org/taxa/46412",
+      "status": "NT",
+      "taxon_id": 46412
+    },
+    {
+      "authority": "IUCN Red List",
+      "retrieved_at": "2026-08-25",
+      "source_revision": "inaturalist-taxon:47238:unknown",
+      "source_url": "https://www.inaturalist.org/taxa/47238",
+      "status": "NT",
+      "taxon_id": 47238
+    },
+    {
+      "authority": "IUCN Red List",
+      "retrieved_at": "2026-08-25",
+      "source_revision": "inaturalist-taxon:47761:unknown",
+      "source_url": "https://www.inaturalist.org/taxa/47761",
+      "status": "NT",
+      "taxon_id": 47761
+    },
+    {
+      "authority": "IUCN Red List",
+      "retrieved_at": "2026-08-25",
+      "source_revision": "inaturalist-taxon:49432:unknown",
+      "source_url": "https://www.inaturalist.org/taxa/49432",
+      "status": "VU",
+      "taxon_id": 49432
+    },
+    {
+      "authority": "IUCN Red List",
+      "retrieved_at": "2026-08-25",
+      "source_revision": "inaturalist-taxon:49606:unknown",
+      "source_url": "https://www.inaturalist.org/taxa/49606",
+      "status": "VU",
+      "taxon_id": 49606
+    },
+    {
+      "authority": "IUCN Red List",
+      "retrieved_at": "2026-08-25",
+      "source_revision": "inaturalist-taxon:49746:unknown",
+      "source_url": "https://www.inaturalist.org/taxa/49746",
+      "status": "CR",
+      "taxon_id": 49746
+    },
+    {
+      "authority": "IUCN Red List",
+      "retrieved_at": "2026-08-25",
+      "source_revision": "inaturalist-taxon:51402:unknown",
+      "source_url": "https://www.inaturalist.org/taxa/51402",
+      "status": "VU",
+      "taxon_id": 51402
+    },
+    {
+      "authority": "IUCN Red List",
+      "retrieved_at": "2026-08-25",
+      "source_revision": "inaturalist-taxon:56559:unknown",
+      "source_url": "https://www.inaturalist.org/taxa/56559",
+      "status": "VU",
+      "taxon_id": 56559
+    },
+    {
+      "authority": "IUCN Red List",
+      "retrieved_at": "2026-08-25",
+      "source_revision": "inaturalist-taxon:57534:unknown",
+      "source_url": "https://www.inaturalist.org/taxa/57534",
+      "status": "VU",
+      "taxon_id": 57534
+    },
+    {
+      "authority": "IUCN Red List",
+      "retrieved_at": "2026-08-25",
+      "source_revision": "inaturalist-taxon:63418:unknown",
+      "source_url": "https://www.inaturalist.org/taxa/63418",
+      "status": "VU",
+      "taxon_id": 63418
+    },
+    {
+      "authority": "IUCN Red List",
+      "retrieved_at": "2026-08-25",
+      "source_revision": "inaturalist-taxon:63718:unknown",
+      "source_url": "https://www.inaturalist.org/taxa/63718",
+      "status": "NT",
+      "taxon_id": 63718
+    },
+    {
+      "authority": "IUCN Red List",
+      "retrieved_at": "2026-08-25",
+      "source_revision": "inaturalist-taxon:64384:unknown",
+      "source_url": "https://www.inaturalist.org/taxa/64384",
+      "status": "EN",
+      "taxon_id": 64384
+    },
+    {
+      "authority": "IUCN Red List",
+      "retrieved_at": "2026-08-25",
+      "source_revision": "inaturalist-taxon:64833:unknown",
+      "source_url": "https://www.inaturalist.org/taxa/64833",
+      "status": "EN",
+      "taxon_id": 64833
+    },
+    {
+      "authority": "IUCN Red List",
+      "retrieved_at": "2026-08-25",
+      "source_revision": "inaturalist-taxon:64834:unknown",
+      "source_url": "https://www.inaturalist.org/taxa/64834",
+      "status": "EN",
+      "taxon_id": 64834
+    },
+    {
+      "authority": "IUCN Red List",
+      "retrieved_at": "2026-08-25",
+      "source_revision": "inaturalist-taxon:66319:unknown",
+      "source_url": "https://www.inaturalist.org/taxa/66319",
+      "status": "EN",
+      "taxon_id": 66319
+    },
+    {
+      "authority": "IUCN Red List",
+      "retrieved_at": "2026-08-25",
+      "source_revision": "inaturalist-taxon:66321:unknown",
+      "source_url": "https://www.inaturalist.org/taxa/66321",
+      "status": "NT",
+      "taxon_id": 66321
+    },
+    {
+      "authority": "IUCN Red List",
+      "retrieved_at": "2026-08-25",
+      "source_revision": "inaturalist-taxon:66341:unknown",
+      "source_url": "https://www.inaturalist.org/taxa/66341",
+      "status": "EN",
+      "taxon_id": 66341
+    },
+    {
+      "authority": "IUCN Red List",
+      "retrieved_at": "2026-08-25",
+      "source_revision": "inaturalist-taxon:66347:unknown",
+      "source_url": "https://www.inaturalist.org/taxa/66347",
+      "status": "EN",
+      "taxon_id": 66347
+    },
+    {
+      "authority": "IUCN Red List",
+      "retrieved_at": "2026-08-25",
+      "source_revision": "inaturalist-taxon:66425:unknown",
+      "source_url": "https://www.inaturalist.org/taxa/66425",
+      "status": "EN",
+      "taxon_id": 66425
+    },
+    {
+      "authority": "IUCN Red List",
+      "retrieved_at": "2026-08-25",
+      "source_revision": "inaturalist-taxon:70617:unknown",
+      "source_url": "https://www.inaturalist.org/taxa/70617",
+      "status": "NT",
+      "taxon_id": 70617
+    },
+    {
+      "authority": "IUCN Red List",
+      "retrieved_at": "2026-08-25",
+      "source_revision": "inaturalist-taxon:71212:unknown",
+      "source_url": "https://www.inaturalist.org/taxa/71212",
+      "status": "VU",
+      "taxon_id": 71212
+    },
+    {
+      "authority": "IUCN Red List",
+      "retrieved_at": "2026-08-25",
+      "source_revision": "inaturalist-taxon:72578:unknown",
+      "source_url": "https://www.inaturalist.org/taxa/72578",
+      "status": "NT",
+      "taxon_id": 72578
+    },
+    {
+      "authority": "IUCN Red List",
+      "retrieved_at": "2026-08-25",
+      "source_revision": "inaturalist-taxon:72745:unknown",
+      "source_url": "https://www.inaturalist.org/taxa/72745",
+      "status": "EN",
+      "taxon_id": 72745
+    },
+    {
+      "authority": "IUCN Red List",
+      "retrieved_at": "2026-08-25",
+      "source_revision": "inaturalist-taxon:72951:unknown",
+      "source_url": "https://www.inaturalist.org/taxa/72951",
+      "status": "EN",
+      "taxon_id": 72951
+    },
+    {
+      "authority": "IUCN Red List",
+      "retrieved_at": "2026-08-25",
+      "source_revision": "inaturalist-taxon:73315:unknown",
+      "source_url": "https://www.inaturalist.org/taxa/73315",
+      "status": "CR",
+      "taxon_id": 73315
+    },
+    {
+      "authority": "IUCN Red List",
+      "retrieved_at": "2026-08-25",
+      "source_revision": "inaturalist-taxon:74108:unknown",
+      "source_url": "https://www.inaturalist.org/taxa/74108",
+      "status": "CR",
+      "taxon_id": 74108
+    },
+    {
+      "authority": "IUCN Red List",
+      "retrieved_at": "2026-08-25",
+      "source_revision": "inaturalist-taxon:74183:unknown",
+      "source_url": "https://www.inaturalist.org/taxa/74183",
+      "status": "VU",
+      "taxon_id": 74183
+    },
+    {
+      "authority": "IUCN Red List",
+      "retrieved_at": "2026-08-25",
+      "source_revision": "inaturalist-taxon:74184:unknown",
+      "source_url": "https://www.inaturalist.org/taxa/74184",
+      "status": "NT",
+      "taxon_id": 74184
+    },
+    {
+      "authority": "IUCN Red List",
+      "retrieved_at": "2026-08-25",
+      "source_revision": "inaturalist-taxon:74725:unknown",
+      "source_url": "https://www.inaturalist.org/taxa/74725",
+      "status": "VU",
+      "taxon_id": 74725
+    },
+    {
+      "authority": "IUCN Red List",
+      "retrieved_at": "2026-08-25",
+      "source_revision": "inaturalist-taxon:74795:unknown",
+      "source_url": "https://www.inaturalist.org/taxa/74795",
+      "status": "NT",
+      "taxon_id": 74795
+    },
+    {
+      "authority": "IUCN Red List",
+      "retrieved_at": "2026-08-25",
+      "source_revision": "inaturalist-taxon:74866:unknown",
+      "source_url": "https://www.inaturalist.org/taxa/74866",
+      "status": "EN",
+      "taxon_id": 74866
+    },
+    {
+      "authority": "IUCN Red List",
+      "retrieved_at": "2026-08-25",
+      "source_revision": "inaturalist-taxon:74890:unknown",
+      "source_url": "https://www.inaturalist.org/taxa/74890",
+      "status": "VU",
+      "taxon_id": 74890
+    },
+    {
+      "authority": "IUCN Red List",
+      "retrieved_at": "2026-08-25",
+      "source_revision": "inaturalist-taxon:81525:unknown",
+      "source_url": "https://www.inaturalist.org/taxa/81525",
+      "status": "VU",
+      "taxon_id": 81525
+    },
+    {
+      "authority": "IUCN Red List",
+      "retrieved_at": "2026-08-25",
+      "source_revision": "inaturalist-taxon:82355:unknown",
+      "source_url": "https://www.inaturalist.org/taxa/82355",
+      "status": "EN",
+      "taxon_id": 82355
+    },
+    {
+      "authority": "CITES",
+      "retrieved_at": "2026-08-25",
+      "source_revision": "inaturalist-taxon:84969:unknown",
+      "source_url": "https://www.inaturalist.org/taxa/84969",
+      "status": "Appendix II",
+      "taxon_id": 84969
+    },
+    {
+      "authority": "CITES",
+      "retrieved_at": "2026-08-25",
+      "source_revision": "inaturalist-taxon:84970:unknown",
+      "source_url": "https://www.inaturalist.org/taxa/84970",
+      "status": "Appendix II",
+      "taxon_id": 84970
+    },
+    {
+      "authority": "IUCN Red List",
+      "retrieved_at": "2026-08-25",
+      "source_revision": "inaturalist-taxon:94105:unknown",
+      "source_url": "https://www.inaturalist.org/taxa/94105",
+      "status": "CR",
+      "taxon_id": 94105
+    },
+    {
+      "authority": "IUCN Red List",
+      "retrieved_at": "2026-08-25",
+      "source_revision": "inaturalist-taxon:94180:unknown",
+      "source_url": "https://www.inaturalist.org/taxa/94180",
+      "status": "EN",
+      "taxon_id": 94180
+    },
+    {
+      "authority": "IUCN Red List",
+      "retrieved_at": "2026-08-25",
+      "source_revision": "inaturalist-taxon:95066:unknown",
+      "source_url": "https://www.inaturalist.org/taxa/95066",
+      "status": "NT",
+      "taxon_id": 95066
+    },
+    {
+      "authority": "IUCN Red List",
+      "retrieved_at": "2026-08-25",
+      "source_revision": "inaturalist-taxon:97207:unknown",
+      "source_url": "https://www.inaturalist.org/taxa/97207",
+      "status": "NT",
+      "taxon_id": 97207
+    },
+    {
+      "authority": "IUCN Red List",
+      "retrieved_at": "2026-08-25",
+      "source_revision": "inaturalist-taxon:97345:unknown",
+      "source_url": "https://www.inaturalist.org/taxa/97345",
+      "status": "NT",
+      "taxon_id": 97345
+    },
+    {
+      "authority": "IUCN Red List",
+      "retrieved_at": "2026-08-25",
+      "source_revision": "inaturalist-taxon:99269:unknown",
+      "source_url": "https://www.inaturalist.org/taxa/99269",
+      "status": "NT",
+      "taxon_id": 99269
+    },
+    {
+      "authority": "IUCN Red List",
+      "retrieved_at": "2026-08-25",
+      "source_revision": "inaturalist-taxon:100119:unknown",
+      "source_url": "https://www.inaturalist.org/taxa/100119",
+      "status": "VU",
+      "taxon_id": 100119
+    },
+    {
+      "authority": "IUCN Red List",
+      "retrieved_at": "2026-08-25",
+      "source_revision": "inaturalist-taxon:102809:unknown",
+      "source_url": "https://www.inaturalist.org/taxa/102809",
+      "status": "VU",
+      "taxon_id": 102809
+    },
+    {
+      "authority": "IUCN Red List",
+      "retrieved_at": "2026-08-25",
+      "source_revision": "inaturalist-taxon:102821:unknown",
+      "source_url": "https://www.inaturalist.org/taxa/102821",
+      "status": "NT",
+      "taxon_id": 102821
+    },
+    {
+      "authority": "IUCN Red List",
+      "retrieved_at": "2026-08-25",
+      "source_revision": "inaturalist-taxon:102823:unknown",
+      "source_url": "https://www.inaturalist.org/taxa/102823",
+      "status": "VU",
+      "taxon_id": 102823
+    },
+    {
+      "authority": "IUCN Red List",
+      "retrieved_at": "2026-08-25",
+      "source_revision": "inaturalist-taxon:102831:unknown",
+      "source_url": "https://www.inaturalist.org/taxa/102831",
+      "status": "NT",
+      "taxon_id": 102831
+    },
+    {
+      "authority": "IUCN Red List",
+      "retrieved_at": "2026-08-25",
+      "source_revision": "inaturalist-taxon:103682:unknown",
+      "source_url": "https://www.inaturalist.org/taxa/103682",
+      "status": "EN",
+      "taxon_id": 103682
+    },
+    {
+      "authority": "IUCN Red List",
+      "retrieved_at": "2026-08-25",
+      "source_revision": "inaturalist-taxon:104834:unknown",
+      "source_url": "https://www.inaturalist.org/taxa/104834",
+      "status": "NT",
+      "taxon_id": 104834
+    },
+    {
+      "authority": "IUCN Red List",
+      "retrieved_at": "2026-08-25",
+      "source_revision": "inaturalist-taxon:104853:unknown",
+      "source_url": "https://www.inaturalist.org/taxa/104853",
+      "status": "NT",
+      "taxon_id": 104853
+    },
+    {
+      "authority": "IUCN Red List",
+      "retrieved_at": "2026-08-25",
+      "source_revision": "inaturalist-taxon:106306:unknown",
+      "source_url": "https://www.inaturalist.org/taxa/106306",
+      "status": "VU",
+      "taxon_id": 106306
+    },
+    {
+      "authority": "IUCN Red List",
+      "retrieved_at": "2026-08-25",
+      "source_revision": "inaturalist-taxon:107889:unknown",
+      "source_url": "https://www.inaturalist.org/taxa/107889",
+      "status": "VU",
+      "taxon_id": 107889
+    },
+    {
+      "authority": "IUCN Red List",
+      "retrieved_at": "2026-08-25",
+      "source_revision": "inaturalist-taxon:117214:unknown",
+      "source_url": "https://www.inaturalist.org/taxa/117214",
+      "status": "EN",
+      "taxon_id": 117214
+    },
+    {
+      "authority": "IUCN Red List",
+      "retrieved_at": "2026-08-25",
+      "source_revision": "inaturalist-taxon:118654:unknown",
+      "source_url": "https://www.inaturalist.org/taxa/118654",
+      "status": "VU",
+      "taxon_id": 118654
+    },
+    {
+      "authority": "IUCN Red List",
+      "retrieved_at": "2026-08-25",
+      "source_revision": "inaturalist-taxon:118683:unknown",
+      "source_url": "https://www.inaturalist.org/taxa/118683",
+      "status": "NT",
+      "taxon_id": 118683
+    },
+    {
+      "authority": "IUCN Red List",
+      "retrieved_at": "2026-08-25",
+      "source_revision": "inaturalist-taxon:131530:unknown",
+      "source_url": "https://www.inaturalist.org/taxa/131530",
+      "status": "NT",
+      "taxon_id": 131530
+    },
+    {
+      "authority": "IUCN Red List",
+      "retrieved_at": "2026-08-25",
+      "source_revision": "inaturalist-taxon:144281:unknown",
+      "source_url": "https://www.inaturalist.org/taxa/144281",
+      "status": "VU",
+      "taxon_id": 144281
+    },
+    {
+      "authority": "IUCN Red List",
+      "retrieved_at": "2026-08-25",
+      "source_revision": "inaturalist-taxon:144522:unknown",
+      "source_url": "https://www.inaturalist.org/taxa/144522",
+      "status": "VU",
+      "taxon_id": 144522
+    },
+    {
+      "authority": "IUCN Red List",
+      "retrieved_at": "2026-08-25",
+      "source_revision": "inaturalist-taxon:144554:unknown",
+      "source_url": "https://www.inaturalist.org/taxa/144554",
+      "status": "EN",
+      "taxon_id": 144554
+    },
+    {
+      "authority": "IUCN Red List",
+      "retrieved_at": "2026-08-25",
+      "source_revision": "inaturalist-taxon:145227:unknown",
+      "source_url": "https://www.inaturalist.org/taxa/145227",
+      "status": "EN",
+      "taxon_id": 145227
+    },
+    {
+      "authority": "IUCN Red List",
+      "retrieved_at": "2026-08-25",
+      "source_revision": "inaturalist-taxon:145240:unknown",
+      "source_url": "https://www.inaturalist.org/taxa/145240",
+      "status": "NT",
+      "taxon_id": 145240
+    },
+    {
+      "authority": "IUCN Red List",
+      "retrieved_at": "2026-08-25",
+      "source_revision": "inaturalist-taxon:145279:unknown",
+      "source_url": "https://www.inaturalist.org/taxa/145279",
+      "status": "VU",
+      "taxon_id": 145279
+    },
+    {
+      "authority": "IUCN Red List",
+      "retrieved_at": "2026-08-25",
+      "source_revision": "inaturalist-taxon:146059:unknown",
+      "source_url": "https://www.inaturalist.org/taxa/146059",
+      "status": "EN",
+      "taxon_id": 146059
+    },
+    {
+      "authority": "IUCN Red List",
+      "retrieved_at": "2026-08-25",
+      "source_revision": "inaturalist-taxon:146451:unknown",
+      "source_url": "https://www.inaturalist.org/taxa/146451",
+      "status": "EN",
+      "taxon_id": 146451
+    },
+    {
+      "authority": "IUCN Red List",
+      "retrieved_at": "2026-08-25",
+      "source_revision": "inaturalist-taxon:146565:unknown",
+      "source_url": "https://www.inaturalist.org/taxa/146565",
+      "status": "EN",
+      "taxon_id": 146565
+    },
+    {
+      "authority": "IUCN Red List",
+      "retrieved_at": "2026-08-25",
+      "source_revision": "inaturalist-taxon:147661:unknown",
+      "source_url": "https://www.inaturalist.org/taxa/147661",
+      "status": "EN",
+      "taxon_id": 147661
+    },
+    {
+      "authority": "IUCN Red List",
+      "retrieved_at": "2026-08-25",
+      "source_revision": "inaturalist-taxon:188767:unknown",
+      "source_url": "https://www.inaturalist.org/taxa/188767",
+      "status": "EN",
+      "taxon_id": 188767
+    },
+    {
+      "authority": "IUCN Red List",
+      "retrieved_at": "2026-08-25",
+      "source_revision": "inaturalist-taxon:192655:unknown",
+      "source_url": "https://www.inaturalist.org/taxa/192655",
+      "status": "VU",
+      "taxon_id": 192655
+    },
+    {
+      "authority": "IUCN Red List",
+      "retrieved_at": "2026-08-25",
+      "source_revision": "inaturalist-taxon:201035:unknown",
+      "source_url": "https://www.inaturalist.org/taxa/201035",
+      "status": "VU",
+      "taxon_id": 201035
+    },
+    {
+      "authority": "U.S. Fish & Wildlife Service",
+      "retrieved_at": "2026-08-25",
+      "source_revision": "inaturalist-taxon:201070:unknown",
+      "source_url": "https://www.inaturalist.org/taxa/201070",
+      "status": "E",
+      "taxon_id": 201070
+    },
+    {
+      "authority": "IUCN Red List",
+      "retrieved_at": "2026-08-25",
+      "source_revision": "inaturalist-taxon:201233:unknown",
+      "source_url": "https://www.inaturalist.org/taxa/201233",
+      "status": "VU",
+      "taxon_id": 201233
+    },
+    {
+      "authority": "IUCN Red List",
+      "retrieved_at": "2026-08-25",
+      "source_revision": "inaturalist-taxon:204515:unknown",
+      "source_url": "https://www.inaturalist.org/taxa/204515",
+      "status": "VU",
+      "taxon_id": 204515
+    },
+    {
+      "authority": "IUCN Red List",
+      "retrieved_at": "2026-08-25",
+      "source_revision": "inaturalist-taxon:272548:unknown",
+      "source_url": "https://www.inaturalist.org/taxa/272548",
+      "status": "VU",
+      "taxon_id": 272548
+    },
+    {
+      "authority": "IUCN Red List",
+      "retrieved_at": "2026-08-25",
+      "source_revision": "inaturalist-taxon:326023:unknown",
+      "source_url": "https://www.inaturalist.org/taxa/326023",
+      "status": "VU",
+      "taxon_id": 326023
+    },
+    {
+      "authority": "IUCN Red List",
+      "retrieved_at": "2026-08-25",
+      "source_revision": "inaturalist-taxon:326032:unknown",
+      "source_url": "https://www.inaturalist.org/taxa/326032",
+      "status": "EN",
+      "taxon_id": 326032
+    },
+    {
+      "authority": "IUCN Red List",
+      "retrieved_at": "2026-08-25",
+      "source_revision": "inaturalist-taxon:327608:unknown",
+      "source_url": "https://www.inaturalist.org/taxa/327608",
+      "status": "CR",
+      "taxon_id": 327608
+    },
+    {
+      "authority": "IUCN Red List",
+      "retrieved_at": "2026-08-25",
+      "source_revision": "inaturalist-taxon:367556:unknown",
+      "source_url": "https://www.inaturalist.org/taxa/367556",
+      "status": "NT",
+      "taxon_id": 367556
+    },
+    {
+      "authority": "IUCN Red List",
+      "retrieved_at": "2026-08-25",
+      "source_revision": "inaturalist-taxon:367558:unknown",
+      "source_url": "https://www.inaturalist.org/taxa/367558",
+      "status": "VU",
+      "taxon_id": 367558
+    },
+    {
+      "authority": "IUCN Red List",
+      "retrieved_at": "2026-08-25",
+      "source_revision": "inaturalist-taxon:367574:unknown",
+      "source_url": "https://www.inaturalist.org/taxa/367574",
+      "status": "VU",
+      "taxon_id": 367574
+    },
+    {
+      "authority": "IUCN Red List",
+      "retrieved_at": "2026-08-25",
+      "source_revision": "inaturalist-taxon:367575:unknown",
+      "source_url": "https://www.inaturalist.org/taxa/367575",
+      "status": "VU",
+      "taxon_id": 367575
+    },
+    {
+      "authority": "CITES",
+      "retrieved_at": "2026-08-25",
+      "source_revision": "inaturalist-taxon:371414:unknown",
+      "source_url": "https://www.inaturalist.org/taxa/371414",
+      "status": "Appendix II",
+      "taxon_id": 371414
+    },
+    {
+      "authority": "IUCN Red List",
+      "retrieved_at": "2026-08-25",
+      "source_revision": "inaturalist-taxon:417389:unknown",
+      "source_url": "https://www.inaturalist.org/taxa/417389",
+      "status": "NT",
+      "taxon_id": 417389
+    },
+    {
+      "authority": "IUCN Red List",
+      "retrieved_at": "2026-08-25",
+      "source_revision": "inaturalist-taxon:446641:unknown",
+      "source_url": "https://www.inaturalist.org/taxa/446641",
+      "status": "EX",
+      "taxon_id": 446641
+    },
+    {
+      "authority": "IUCN Red List",
+      "retrieved_at": "2026-08-25",
+      "source_revision": "inaturalist-taxon:469961:unknown",
+      "source_url": "https://www.inaturalist.org/taxa/469961",
+      "status": "EN",
+      "taxon_id": 469961
+    },
+    {
+      "authority": "IUCN Red List",
+      "retrieved_at": "2026-08-25",
+      "source_revision": "inaturalist-taxon:472777:unknown",
+      "source_url": "https://www.inaturalist.org/taxa/472777",
+      "status": "VU",
+      "taxon_id": 472777
+    },
+    {
+      "authority": "IUCN Red List",
+      "retrieved_at": "2026-08-25",
+      "source_revision": "inaturalist-taxon:476257:unknown",
+      "source_url": "https://www.inaturalist.org/taxa/476257",
+      "status": "VU",
+      "taxon_id": 476257
+    },
+    {
+      "authority": "IUCN Red List",
+      "retrieved_at": "2026-08-25",
+      "source_revision": "inaturalist-taxon:476938:unknown",
+      "source_url": "https://www.inaturalist.org/taxa/476938",
+      "status": "VU",
+      "taxon_id": 476938
+    },
+    {
+      "authority": "IUCN Red List",
+      "retrieved_at": "2026-08-25",
+      "source_revision": "inaturalist-taxon:500328:unknown",
+      "source_url": "https://www.inaturalist.org/taxa/500328",
+      "status": "VU",
+      "taxon_id": 500328
+    },
+    {
+      "authority": "IUCN Red List",
+      "retrieved_at": "2026-08-25",
+      "source_revision": "inaturalist-taxon:502997:unknown",
+      "source_url": "https://www.inaturalist.org/taxa/502997",
+      "status": "EN",
+      "taxon_id": 502997
+    },
+    {
+      "authority": "IUCN Red List",
+      "retrieved_at": "2026-08-25",
+      "source_revision": "inaturalist-taxon:520070:unknown",
+      "source_url": "https://www.inaturalist.org/taxa/520070",
+      "status": "CR",
+      "taxon_id": 520070
+    },
+    {
+      "authority": "IUCN",
+      "retrieved_at": "2026-08-25",
+      "source_revision": "inaturalist-taxon:533979:unknown",
+      "source_url": "https://www.inaturalist.org/taxa/533979",
+      "status": "NT",
+      "taxon_id": 533979
+    },
+    {
+      "authority": "IUCN Red List",
+      "retrieved_at": "2026-08-25",
+      "source_revision": "inaturalist-taxon:540069:unknown",
+      "source_url": "https://www.inaturalist.org/taxa/540069",
+      "status": "EN",
+      "taxon_id": 540069
+    },
+    {
+      "authority": "IUCN Red List",
+      "retrieved_at": "2026-08-25",
+      "source_revision": "inaturalist-taxon:540082:unknown",
+      "source_url": "https://www.inaturalist.org/taxa/540082",
+      "status": "VU",
+      "taxon_id": 540082
+    },
+    {
+      "authority": "IUCN Red List",
+      "retrieved_at": "2026-08-25",
+      "source_revision": "inaturalist-taxon:555111:unknown",
+      "source_url": "https://www.inaturalist.org/taxa/555111",
+      "status": "VU",
+      "taxon_id": 555111
+    },
+    {
+      "authority": "IUCN Red List",
+      "retrieved_at": "2026-08-25",
+      "source_revision": "inaturalist-taxon:566540:unknown",
+      "source_url": "https://www.inaturalist.org/taxa/566540",
+      "status": "VU",
+      "taxon_id": 566540
+    },
+    {
+      "authority": "IUCN Red List",
+      "retrieved_at": "2026-08-25",
+      "source_revision": "inaturalist-taxon:607152:unknown",
+      "source_url": "https://www.inaturalist.org/taxa/607152",
+      "status": "EN",
+      "taxon_id": 607152
+    },
+    {
+      "authority": "IUCN Red List",
+      "retrieved_at": "2026-08-25",
+      "source_revision": "inaturalist-taxon:793273:unknown",
+      "source_url": "https://www.inaturalist.org/taxa/793273",
+      "status": "VU",
+      "taxon_id": 793273
+    },
+    {
+      "authority": "IUCN Red List",
+      "retrieved_at": "2026-08-25",
+      "source_revision": "inaturalist-taxon:906982:unknown",
+      "source_url": "https://www.inaturalist.org/taxa/906982",
+      "status": "VU",
+      "taxon_id": 906982
+    },
+    {
+      "authority": "IUCN Red List",
+      "retrieved_at": "2026-08-25",
+      "source_revision": "inaturalist-taxon:979721:unknown",
+      "source_url": "https://www.inaturalist.org/taxa/979721",
+      "status": "NT",
+      "taxon_id": 979721
+    },
+    {
+      "authority": "IUCN Red List",
+      "retrieved_at": "2026-08-25",
+      "source_revision": "inaturalist-taxon:991929:unknown",
+      "source_url": "https://www.inaturalist.org/taxa/991929",
+      "status": "NT",
+      "taxon_id": 991929
+    },
+    {
+      "authority": "IUCN Red List",
+      "retrieved_at": "2026-08-25",
+      "source_revision": "inaturalist-taxon:1067746:unknown",
+      "source_url": "https://www.inaturalist.org/taxa/1067746",
+      "status": "NT",
+      "taxon_id": 1067746
+    },
+    {
+      "authority": "IUCN Red List",
+      "retrieved_at": "2026-08-25",
+      "source_revision": "inaturalist-taxon:1075512:unknown",
+      "source_url": "https://www.inaturalist.org/taxa/1075512",
+      "status": "VU",
+      "taxon_id": 1075512
+    },
+    {
+      "authority": "IUCN Red List",
+      "retrieved_at": "2026-08-25",
+      "source_revision": "inaturalist-taxon:1177489:unknown",
+      "source_url": "https://www.inaturalist.org/taxa/1177489",
+      "status": "NT",
+      "taxon_id": 1177489
+    },
+    {
+      "authority": "IUCN Red List",
+      "retrieved_at": "2026-08-25",
+      "source_revision": "inaturalist-taxon:1289467:unknown",
+      "source_url": "https://www.inaturalist.org/taxa/1289467",
+      "status": "NT",
+      "taxon_id": 1289467
+    },
+    {
+      "authority": "IUCN Red List",
+      "retrieved_at": "2026-08-25",
+      "source_revision": "inaturalist-taxon:1289678:unknown",
+      "source_url": "https://www.inaturalist.org/taxa/1289678",
+      "status": "NT",
+      "taxon_id": 1289678
+    },
+    {
+      "authority": "IUCN Red List",
+      "retrieved_at": "2026-08-25",
+      "source_revision": "inaturalist-taxon:1369296:unknown",
+      "source_url": "https://www.inaturalist.org/taxa/1369296",
+      "status": "VU",
+      "taxon_id": 1369296
+    },
+    {
+      "authority": "IUCN Red List",
+      "retrieved_at": "2026-08-25",
+      "source_revision": "inaturalist-taxon:1430973:unknown",
+      "source_url": "https://www.inaturalist.org/taxa/1430973",
+      "status": "VU",
+      "taxon_id": 1430973
+    },
+    {
+      "authority": "IUCN Red List",
+      "retrieved_at": "2026-08-25",
+      "source_revision": "inaturalist-taxon:1505663:unknown",
+      "source_url": "https://www.inaturalist.org/taxa/1505663",
+      "status": "NT",
+      "taxon_id": 1505663
+    },
+    {
+      "authority": "IUCN Red List",
+      "retrieved_at": "2026-08-25",
+      "source_revision": "inaturalist-taxon:1510573:unknown",
+      "source_url": "https://www.inaturalist.org/taxa/1510573",
+      "status": "EN",
+      "taxon_id": 1510573
+    },
+    {
+      "authority": "IUCN Red List",
+      "retrieved_at": "2026-08-25",
+      "source_revision": "inaturalist-taxon:1579014:unknown",
+      "source_url": "https://www.inaturalist.org/taxa/1579014",
+      "status": "EN",
+      "taxon_id": 1579014
+    }
+  ],
+  "schema_version": 1,
+  "waivers": []
+}

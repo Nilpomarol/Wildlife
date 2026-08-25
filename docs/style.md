@@ -191,7 +191,8 @@ UI / body / labels: Barlow (bundled OFL)
 Scientific names:   Barlow Italic
 ```
 
-**Two families, and only two.** Eczar carries the display moments — screen titles, species
+**Three families, and only three** (§30 adds IBM Plex Mono as the record voice; the rule
+below is otherwise unchanged). Eczar carries the display moments — screen titles, species
 identity, stat numbers and level moments. It replaced Newsreader, which was easy to read
 but too neutral to be the app's voice, which in turn replaced Fraunces. Eczar's weight is
 the point: the display face has to hold its own against large marks and a painted
@@ -1003,10 +1004,10 @@ What to take, in rough order of how much it matters:
    with per-axis accents, and a filter sheet for anything that will not fit inline.
 4. **The plates** — square `SpeciesCard` tiles, caption over the artwork, neutral ground,
    marks large enough to be scanned rather than read.
-5. **The type and palette** — Eczar and Barlow, and the tokens in `ui/theme/Color.kt`. Never
-   a raw colour or `FontFamily` at a call site.
+5. **The type and palette** — Eczar, Barlow and IBM Plex Mono, and the tokens in
+   `ui/theme/Color.kt`. Never a raw colour or `FontFamily` at a call site.
 
-Screens still to bring across: **Explore, Home, Observations, Profile, SpeciesDetail**. They
+Screens still to bring across: **Explore, Observations, Profile, SpeciesDetail**. They
 inherit the tokens, the card and the type already, but keep bespoke headers and furniture.
 
 Two things on this screen are deliberately not general rules:
@@ -1015,6 +1016,42 @@ Two things on this screen are deliberately not general rules:
   meaningful axis should use one selector, not a sheet.
 - **The Icon beacon** is specific to regional standing. It is not a pattern for drawing
   attention to arbitrary items.
+
+### Two voices: the reference and the dated entry
+
+Collection is the guide's **reference section** — plates in a grid, browsed by narrowing.
+Home is the **loose dated page** at the front, where a ranger records what happened today.
+Both sit on the same ground, palette and type; what differs is the furniture.
+
+The reference voice is in `ui/components/FieldGuide.kt`: the ranger header, section rules,
+plate surfaces, field-mark pills. The dated-entry voice is in `ui/components/JournalEntry.kt`:
+
+- **`Masthead`** — Home's header. It carries the *ranger*, where `RangerHeader` carries the
+  *region*. Lifetime XP and the rank ladder live here and nowhere else, which is the exact
+  measure Collection's regional header refuses; the two never appear on one screen.
+- **`SpecimenPlate`** — a photograph held onto the page by drawn corner mounts, with its
+  caption printed *below* the image rather than scrimmed over it. A plate is not obscured by
+  its own description.
+- **`SlipStack`** — outstanding paperwork as a pile of loose slips, depth saturating at
+  three. The quantity is felt before a number is read.
+- **`FieldStamp`**, **`RecordLine`**, **`JournalButton`** — struck stamps, ruled form lines
+  with dot leaders, and stamped-word actions in place of Material buttons.
+
+**Home is not a menu.** Every card it used to carry linked to a destination already one tap
+away in the index strip. A screen whose whole content is links to other tabs has no content.
+
+### The third face
+
+**IBM Plex Mono** is the *record* voice, added with Home and scoped narrowly: datelines,
+coordinates, tallies and stamps — text a ranger would have typed onto a form rather than
+written into a sentence. `FieldStampStyle` for labels, `FieldTallyStyle` for the numerals.
+
+It is never body copy and never a heading. Eczar numerals stay with **identity and
+achievement**; mono numerals are things **read off a record** — XP remaining, report counts,
+slip totals. A number's face says which kind it is before it is read.
+
+It is deliberately **not a handwriting face**. A script would read as scrapbook, which §25
+prohibits; a typewriter reads as record, which is the brief.
 
 ### The ground
 
@@ -1305,10 +1342,9 @@ What carries the strip instead:
 - **Selection is an inversion.** The current destination is a block of cream stock carrying
   dark ink — the printed tab of a thumb-indexed guide. It is the only light thing on the
   screen, so it needs no accent, underline or outline to be found.
-- **Capture is the same block stamped in olive**, one material apart from its cream
-  neighbour: the row reads as one set while the action stays distinct from the four places.
-  It carries no word, because it is the only filled olive thing in the app; the word
-  survives as its `contentDescription`.
+- **Capture is a larger olive camera directly on the strip**, with no filled green
+  block behind it. Its scale separates the action from the four destinations without adding
+  a competing surface. It carries no word; the word survives as its `contentDescription`.
 
 The nav inset is **absorbed into the bar's height**, not padded around it, so the printed
 ground reaches the screen edge instead of stopping above the gesture pill.

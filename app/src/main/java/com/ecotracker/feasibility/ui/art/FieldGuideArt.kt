@@ -18,6 +18,7 @@ import androidx.compose.ui.geometry.Size
 import androidx.compose.ui.geometry.CornerRadius
 import androidx.compose.ui.graphics.Brush
 import androidx.compose.ui.graphics.Color
+import androidx.compose.ui.graphics.lerp
 import androidx.compose.ui.graphics.Path
 import androidx.compose.ui.graphics.StrokeCap
 import androidx.compose.ui.graphics.drawscope.DrawScope
@@ -482,4 +483,123 @@ internal fun DrawScope.drawFourPointStar(color: Color, center: Offset, outer: Fl
     }
     p.close()
     drawPath(p, color)
+}
+
+// ---------------------------------------------------------------- the dated entry
+
+/**
+ * Photo corners, as a print is mounted into an album page.
+ *
+ * Four filled triangles with their hypotenuse facing inward, drawn *over* the artwork so
+ * the photograph reads as held onto the page rather than printed into it. This is the one
+ * ornament that says "someone put this here", which is the whole premise of Home.
+ *
+ * [inset] keeps them clear of a rounded frame; [leg] is the length of each right-angle
+ * side, so the corners stay a constant size whatever the plate measures.
+ *
+ * [edge] strokes the hypotenuse. Without it a mount is only visible where the photograph
+ * behind it is lighter than the mount — against a dark specimen, or against the contoured
+ * placeholder used when there is no photograph at all, the triangles disappear entirely.
+ * The lit edge is also what a real paper corner has, so this is not just a legibility patch.
+ */
+fun DrawScope.drawCornerMounts(color: Color, inset: Float, leg: Float, edge: Color) {
+    val l = inset
+    val t = inset
+    val r = size.width - inset
+    val b = size.height - inset
+    // x/y sign per corner: which way the two legs run from the corner point.
+    listOf(
+        Triple(Offset(l, t), 1f, 1f),
+        Triple(Offset(r, t), -1f, 1f),
+        Triple(Offset(r, b), -1f, -1f),
+        Triple(Offset(l, b), 1f, -1f),
+    ).forEach { (corner, sx, sy) ->
+        val path = Path()
+        path.moveTo(corner.x, corner.y)
+        path.lineTo(corner.x + sx * leg, corner.y)
+        path.lineTo(corner.x, corner.y + sy * leg)
+        path.close()
+        drawPath(path, color)
+        drawLine(
+            edge,
+            Offset(corner.x + sx * leg, corner.y),
+            Offset(corner.x, corner.y + sy * leg),
+            strokeWidth = 1f,
+        )
+    }
+}
+
+/**
+ * A rubber stamp's double ring: struck slightly off-square, as a hand stamp lands.
+ *
+ * The rotation is the point. A perfectly upright ring reads as a UI badge; a few degrees
+ * off reads as ink pressed onto paper. The ring is left open at the top and bottom so a
+ * word can sit across it without the stroke running through the letters.
+ */
+fun DrawScope.drawStampRing(color: Color, rotationDegrees: Float = -7f) {
+    withTransform({ rotate(rotationDegrees, center) }) {
+        val radius = minOf(size.width, size.height) / 2f
+        drawCircle(
+            color = color,
+            radius = radius - radius * 0.06f,
+            style = Stroke(width = radius * 0.13f),
+        )
+        drawCircle(
+            color = color,
+            radius = radius * 0.74f,
+            style = Stroke(width = radius * 0.05f),
+        )
+    }
+}
+
+@Composable
+fun StampRing(color: Color, modifier: Modifier = Modifier, rotationDegrees: Float = -7f) {
+    Canvas(modifier) { drawStampRing(color, rotationDegrees) }
+}
+
+/**
+ * The peeking edges of a stack of loose slips, drawn behind whatever sits on top.
+ *
+ * Each slip below the top one is inset horizontally and lifted, so only its top edge and
+ * shoulders show — the way a pile of forms looks when the top one is square to you.
+ *
+ * A deeper slip is *darkened toward* [shadow], not faded toward transparent. Fading was the
+ * first attempt and it does not work on this page: a translucent slip over a dark painted
+ * ground loses its outline at the same rate as its fill, so the pile read as one card with a
+ * smudge above it. Mixing toward the page's own dark keeps every edge at full strength while
+ * still putting the lower slips further into shadow, which is what the eye reads as depth.
+ *
+ * The canvas must extend above the top slip by [rise] * ([count] - 1) for the edges to
+ * have anywhere to show.
+ */
+fun DrawScope.drawSlipEdges(
+    fill: Color,
+    stroke: Color,
+    shadow: Color,
+    count: Int,
+    rise: Float,
+    inset: Float,
+    corner: Float,
+) {
+    // Back to front, so each slip overlaps the one behind it.
+    for (depth in (count - 1) downTo 1) {
+        val dx = inset * depth
+        val dy = rise * (count - 1 - depth)
+        val shade = 0.30f * depth
+        val topLeft = Offset(dx, dy)
+        val slipSize = Size(size.width - dx * 2f, size.height - dy)
+        drawRoundRect(
+            color = lerp(fill, shadow, shade),
+            topLeft = topLeft,
+            size = slipSize,
+            cornerRadius = CornerRadius(corner, corner),
+        )
+        drawRoundRect(
+            color = lerp(stroke, shadow, shade * 0.5f),
+            topLeft = topLeft,
+            size = slipSize,
+            cornerRadius = CornerRadius(corner, corner),
+            style = Stroke(width = 1f),
+        )
+    }
 }

@@ -283,8 +283,25 @@ private fun DiagnosticsAndDataCard(
             )
             DiagnosticRow(
                 "Reference media",
-                "${data.referenceMediaFiles} · ${formatBytes(data.referenceMediaBytes)}",
+                "${data.referenceMediaFiles} · ${formatBytes(data.referenceMediaBytes)} / ${formatBytes(data.referenceMediaCapacityBytes)} · ${data.referenceMediaPinnedFiles} pinned",
             )
+            DiagnosticRow(
+                "Media queue",
+                "${data.mediaPrefetchQueued} queued · ${data.mediaPrefetchRunning} active · ${data.mediaPrefetchFailed} failed",
+            )
+            DiagnosticRow(
+                "Open detail media",
+                "${data.mediaDetailQueued} queued · ${data.mediaDetailRunning} active",
+            )
+            data.mediaNextRetryAtMs?.let { retryAt ->
+                DiagnosticRow("Next media retry", DateFormat.getDateTimeInstance().format(Date(retryAt)))
+            }
+            if (data.mediaFailureCodes.isNotEmpty()) {
+                DiagnosticRow(
+                    "Media failures",
+                    data.mediaFailureCodes.entries.joinToString { "${it.key} ${it.value}" },
+                )
+            }
             OutlinedButton(
                 onClick = {
                     onCopyTestReport(

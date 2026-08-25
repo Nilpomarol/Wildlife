@@ -47,6 +47,7 @@ import com.wildlife.feasibility.MarkerState
 import com.wildlife.feasibility.MatchProposal
 import com.wildlife.feasibility.WildlifeNetworkIdentity
 import com.wildlife.feasibility.ui.components.WildlifeScaffold
+import com.wildlife.feasibility.ui.components.WildlifeLoadingState
 import com.wildlife.feasibility.ui.theme.DisplayFontFamily
 import com.wildlife.feasibility.ui.theme.WildlifeSpacing
 import com.wildlife.feasibility.ui.theme.WildlifeTheme
@@ -88,6 +89,13 @@ fun ObservationsScreen(
         },
         bottomBar = bottomBar,
     ) { padding ->
+        if (state.isLoading && state.managed.isEmpty() && state.publicObservations.isEmpty()) {
+            WildlifeLoadingState(
+                label = "Opening your observation records…",
+                modifier = Modifier.padding(padding),
+            )
+            return@WildlifeScaffold
+        }
         LazyColumn(
             modifier = Modifier
                 .fillMaxSize()

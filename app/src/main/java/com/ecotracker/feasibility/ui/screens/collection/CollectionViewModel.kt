@@ -5,41 +5,48 @@ import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.setValue
 import androidx.lifecycle.AndroidViewModel
+import androidx.lifecycle.Observer
 import androidx.lifecycle.viewModelScope
+import androidx.work.WorkInfo
 import com.wildlife.feasibility.AccountStore
 import com.wildlife.feasibility.CollectionProjection
 import com.wildlife.feasibility.CollectionSpecies
 import com.wildlife.feasibility.ObservationStore
 import com.wildlife.feasibility.SyncedObservation
-import com.wildlife.feasibility.ActiveCatalogueStore
+import com.wildlife.feasibility.RegionContextStore
+import com.wildlife.feasibility.CurrentRegionSource
 import com.wildlife.feasibility.InstalledRegionalCatalogue
-import com.wildlife.feasibility.RegionalCatalogueAssetStore
+import com.wildlife.feasibility.PublishedContentRepositories
 import com.wildlife.feasibility.InstalledRegionalAchievement
-import com.wildlife.feasibility.CatalogueStore
-import com.wildlife.feasibility.OnDeviceWildlifeRepository
 import com.wildlife.feasibility.ProgressionProjection
 import com.wildlife.feasibility.ProgressionState
 import com.wildlife.feasibility.ProgressionStore
-import com.wildlife.feasibility.RegionalSilhouetteCandidate
+import com.wildlife.feasibility.taxonGroupForClass
+import com.wildlife.feasibility.toLocalTaxonDetails
+import com.wildlife.feasibility.LocalMediaStore
+import com.wildlife.feasibility.MediaPrefetchStore
+import com.wildlife.feasibility.MediaPrefetchSummary
+import com.wildlife.feasibility.MediaPrefetchScheduler
+import com.wildlife.feasibility.ui.ProjectionLoadGate
 import kotlinx.coroutines.Dispatchers
+import kotlinx.coroutines.Job
 import kotlinx.coroutines.launch
 import kotlinx.coroutines.withContext
 
-/** Maps a Linnaean class from the frozen catalogue to a normalized, filterable group key. */
-internal fun taxonGroupFor(taxonClass: String): String? = when (taxonClass) {
-    "Mammalia" -> "mammals"
-    "Aves" -> "birds"
-    "Reptilia" -> "reptiles"
-    "Amphibia" -> "amphibians"
-    "Actinopterygii", "Chondrichthyes", "Myxini", "Petromyzonti" -> "fish"
-    else -> null
-}
+/**
+ * Maps a Linnaean class from the frozen catalogue to a normalized, filterable group key.
+ *
+ * Delegates to [taxonGroupForClass]: the API client needs the same mapping and cannot call
+ * into the UI layer, so the table itself lives beside the models.
+ */
+internal fun taxonGroupFor(taxonClass: String): String? = taxonGroupForClass(taxonClass)
 
 data class CollectionUiState(
     val linked: Boolean,
     val entries: List<CollectionSpecies>,
     val observationCount: Int,
     val totalXp: Int,
+    val isLoading: Boolean = false,
     val lastSyncedAtMs: Long? = null,
     val errorMessage: String? = null,
     val selectedCatalogue: InstalledRegionalCatalogue? = null,
@@ -51,6 +58,8 @@ data class CollectionUiState(
      * collection-local rank ladder, so one vocabulary of titles exists app-wide.
      */
     val progression: ProgressionState? = null,
+    val mediaPrefetch: MediaPrefetchSummary = MediaPrefetchSummary(0, 0, 0, 0),
+    val currentRegionSource: CurrentRegionSource = CurrentRegionSource.UNAVAILABLE,
 ) {
     val awaitingIdentificationCount: Int
         get() = entries.count(CollectionSpecies::awaitingSpeciesIdentification)
@@ -60,23 +69,54 @@ data class CollectionUiState(
 }
 
 class CollectionViewModel(application: Application) : AndroidViewModel(application) {
-    var uiState by mutableStateOf(load())
+    private val mediaWork = MediaPrefetchScheduler.workInfos(application)
+    private val mediaObserver = Observer<List<WorkInfo>> { refreshMediaProgress() }
+    private var mediaSummaryJob: Job? = null
+    private var loadJob: Job? = null
+    private val loadGate = ProjectionLoadGate()
+    var uiState by mutableStateOf(
+        CollectionUiState(
+            linked = false,
+            entries = emptyList(),
+            observationCount = 0,
+            totalXp = 0,
+            isLoading = true,
+        ),
+    )
         private set
-    private var silhouetteEnrichmentInFlight = false
-    private var silhouetteBatchesRemaining = SILHOUETTE_BATCHES_PER_SESSION
-
     init {
-        enrichSilhouettesIfNeeded()
+        mediaWork.observeForever(mediaObserver)
+        refresh()
     }
 
     fun refresh() {
-        uiState = load()
-        enrichSilhouettesIfNeeded()
+        val revision = loadGate.next()
+        loadJob?.cancel()
+        uiState = uiState.copy(isLoading = true, errorMessage = null)
+        loadJob = viewModelScope.launch {
+            val loaded = withContext(Dispatchers.IO) { load() }
+            if (loadGate.isLatest(revision)) uiState = loaded.copy(isLoading = false)
+        }
     }
 
-    fun selectRegion(regionKey: String) {
-        ActiveCatalogueStore(getApplication()).selectRegion(regionKey)
-        refresh()
+    private fun refreshMediaProgress() {
+        val regionKey = uiState.selectedCatalogue?.regionKey ?: return
+        mediaSummaryJob?.cancel()
+        mediaSummaryJob = viewModelScope.launch {
+            val summary = runCatching {
+                withContext(Dispatchers.IO) {
+                    val context = getApplication<Application>()
+                    val generation = PublishedContentRepositories.application(context)
+                        .generation().generationId
+                    MediaPrefetchStore(context).use { it.summary(generation, regionKey) }
+                }
+            }.getOrNull() ?: return@launch
+            if (uiState.selectedCatalogue?.regionKey == regionKey &&
+                uiState.mediaPrefetch != summary
+            ) {
+                uiState = uiState.copy(mediaPrefetch = summary)
+            }
+        }
     }
 
     private fun load(): CollectionUiState {
@@ -85,11 +125,21 @@ class CollectionViewModel(application: Application) : AndroidViewModel(applicati
         // observation layer is missing, so the screen no longer replaces itself with a wall.
         val account = AccountStore(context).verified()
         return runCatching {
-            val content = RegionalCatalogueAssetStore(context)
+            val content = PublishedContentRepositories.application(context)
             val catalogues = content.catalogues()
-            val selectedKey = ActiveCatalogueStore(context).selectedRegionKey()
-                .takeIf { selected -> catalogues.any { it.regionKey == selected } }
-                ?: catalogues.first().regionKey
+            val regionStore = RegionContextStore(context)
+            val regionContext = regionStore.currentRegion()
+            val selectedKey = regionStore.currentRegionKey(
+                catalogues.mapTo(mutableSetOf()) { it.regionKey },
+            ) ?: return@runCatching CollectionUiState(
+                linked = account != null,
+                entries = emptyList(),
+                observationCount = 0,
+                totalXp = 0,
+                installedCatalogues = catalogues,
+                currentRegionSource = regionContext.source,
+                errorMessage = "Current region unavailable. Allow location from Check near me, or browse another guide in Explore.",
+            )
             val selected = catalogues.first { it.regionKey == selectedKey }
             val (observations, summary) = if (account == null) {
                 emptyList<SyncedObservation>() to null
@@ -108,12 +158,14 @@ class CollectionViewModel(application: Application) : AndroidViewModel(applicati
             val achievementTypesByTaxon = content.achievements(selectedKey)
                 .flatMap { achievement -> achievement.taxonIds.map { it to achievement.label } }
                 .groupBy({ it.first }, { it.second })
-            val silhouetteDetails = CatalogueStore(context).use { it.loadTaxonDetails() }
+            val publishedByTaxon = content.taxaContent(selectedKey)
+            val mediaStore = LocalMediaStore(context)
             val entries = content.taxa(selectedKey).map { taxon ->
                 val sightings = observationsByTaxon[taxon.taxonId].orEmpty()
                 val latest = sightings.maxByOrNull { it.observedAtMs }
-                val silhouette = silhouetteDetails[taxon.taxonId]
-                val silhouetteUrl = silhouette?.silhouetteLocalUri ?: silhouette?.silhouetteUrl
+                val published = publishedByTaxon[taxon.taxonId]
+                val details = published?.toLocalTaxonDetails(mediaStore)
+                val silhouetteUrl = details?.silhouetteLocalUri
                 CollectionSpecies(
                     key = "taxon:${taxon.taxonId}", taxonId = taxon.taxonId,
                     label = taxon.commonName, observationCount = sightings.size,
@@ -125,8 +177,8 @@ class CollectionViewModel(application: Application) : AndroidViewModel(applicati
                     awaitingSpeciesIdentification = false,
                     photoUrl = sightings.firstNotNullOfOrNull { it.photoUrl },
                     silhouetteUrl = silhouetteUrl,
-                    silhouetteFallbackUrl = silhouette?.silhouetteUrl?.takeIf { it != silhouetteUrl },
-                    silhouetteMatchRank = silhouette?.silhouetteMatchRank,
+                    silhouetteFallbackUrl = details?.silhouetteFallbackUrl,
+                    silhouetteMatchRank = details?.silhouetteMatchRank,
                     regionalEssential = "essentials" in achievementTypesByTaxon[taxon.taxonId].orEmpty(),
                     regionalIcon = "icons" in achievementTypesByTaxon[taxon.taxonId].orEmpty(),
                     scientificName = taxon.scientificName,
@@ -153,6 +205,10 @@ class CollectionViewModel(application: Application) : AndroidViewModel(applicati
                         highestLevelKey = store.highestLevelKey(it.userId),
                     )
                 },
+                mediaPrefetch = MediaPrefetchStore(context).use {
+                    it.summary(content.generation().generationId, selectedKey)
+                },
+                currentRegionSource = regionContext.source,
             )
         }.getOrElse { error ->
             CollectionUiState(
@@ -165,34 +221,9 @@ class CollectionViewModel(application: Application) : AndroidViewModel(applicati
         }
     }
 
-    private fun enrichSilhouettesIfNeeded() {
-        if (silhouetteEnrichmentInFlight || silhouetteBatchesRemaining <= 0) return
-        val candidates = uiState.entries.mapNotNull { entry ->
-            entry.taxonId?.let { taxonId ->
-                entry.scientificName?.let { name ->
-                    RegionalSilhouetteCandidate(taxonId, name, entry.taxonGroup)
-                }
-            }
-        }
-        if (candidates.isEmpty()) return
-        silhouetteEnrichmentInFlight = true
-        viewModelScope.launch {
-            val changed = withContext(Dispatchers.IO) {
-                OnDeviceWildlifeRepository(getApplication()).use {
-                    it.enrichRegionalSilhouettes(candidates)
-                }
-            }
-            silhouetteEnrichmentInFlight = false
-            if (changed) {
-                uiState = load()
-                silhouetteBatchesRemaining -= 1
-                if (silhouetteBatchesRemaining > 0) enrichSilhouettesIfNeeded()
-            }
-        }
+    override fun onCleared() {
+        mediaWork.removeObserver(mediaObserver)
+        super.onCleared()
     }
 
-    private companion object {
-        /** Keeps the first collection visit responsive while progressively improving visible cards. */
-        const val SILHOUETTE_BATCHES_PER_SESSION = 3
-    }
 }

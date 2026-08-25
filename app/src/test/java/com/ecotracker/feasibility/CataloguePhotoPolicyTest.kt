@@ -7,21 +7,24 @@ import org.junit.Test
 class CataloguePhotoPolicyTest {
     @Test
     fun `cc0 photo without a creator is not reusable`() {
-        val species = species(licence = "cc0", attribution = null)
+        val details = details(licence = "cc0", attribution = null)
 
-        assertNull(CataloguePhotoPolicy.cardUrl(species))
-        assertNull(CataloguePhotoPolicy.detailUrl(species))
-        assertNull(CataloguePhotoPolicy.attribution(species))
+        assertNull(CataloguePhotoPolicy.cardUrl(details.photoUrl, details.photoAttribution, details.photoLicenseCode))
+        assertNull(CataloguePhotoPolicy.detailUrl(details))
+        assertNull(CataloguePhotoPolicy.attribution(details))
     }
 
     @Test
     fun `attributed cc0 photo remains reusable`() {
-        val species = species(licence = "cc0", attribution = "Open photographer")
+        val details = details(licence = "cc0", attribution = "Open photographer")
 
-        assertEquals("https://example.test/photo.jpg", CataloguePhotoPolicy.cardUrl(species))
+        assertEquals(
+            "https://example.test/photo.jpg",
+            CataloguePhotoPolicy.cardUrl(details.photoUrl, details.photoAttribution, details.photoLicenseCode),
+        )
         assertEquals(
             "Open photographer / CC0",
-            CataloguePhotoPolicy.attribution(species),
+            CataloguePhotoPolicy.attribution(details),
         )
     }
 
@@ -35,19 +38,7 @@ class CataloguePhotoPolicyTest {
         )
     }
 
-    private fun species(licence: String, attribution: String?) = CatalogueSpecies(
-        taxonId = 42,
-        scientificName = "Erithacus rubecula",
-        commonName = "European robin",
-        taxonGroup = "Aves",
-        observationCount = 1,
-        position = 1,
-        photoUrl = "https://example.test/photo.jpg",
-        photoAttribution = attribution,
-        photoLicenseCode = licence,
-    )
-
-    private fun details(attribution: String?) = TaxonDetails(
+    private fun details(attribution: String?, licence: String = "cc-by") = TaxonDetails(
         taxonId = 42,
         scientificName = "Erithacus rubecula",
         commonName = "European robin",
@@ -60,7 +51,7 @@ class CataloguePhotoPolicyTest {
         conservationUrl = null,
         photoUrl = "https://example.test/photo.jpg",
         photoAttribution = attribution,
-        photoLicenseCode = "cc-by",
+        photoLicenseCode = licence,
         silhouetteUrl = null,
         silhouetteSourceUrl = null,
         silhouetteAttribution = null,

@@ -1,0 +1,137 @@
+{
+  "build": {
+    "achievement_taxa_without_direct_media": 0,
+    "catalogues": [
+      {
+        "essentials": 10,
+        "icons": 5,
+        "region": "caribbean",
+        "taxa": 813,
+        "version": "caribbean-auto-7ed5999b07"
+      },
+      {
+        "essentials": 10,
+        "icons": 5,
+        "region": "east_africa",
+        "taxa": 931,
+        "version": "east-africa-auto-b9df3159f6"
+      },
+      {
+        "essentials": 10,
+        "icons": 5,
+        "region": "mediterranean_europe",
+        "taxa": 800,
+        "version": "mediterranean-europe-auto-ceeaefe294"
+      }
+    ],
+    "conservation_records": 356,
+    "conservation_waivers": 0,
+    "database_sha256": "61d3b5a4fce692cf832d3c96e05950945ee0687b07a15b53cdb09b5cfbec2c53",
+    "description_waivers": 0,
+    "descriptions": 2196,
+    "generated_at": "2026-08-25T16:27:56Z",
+    "generation_id": "catalogue-v22-20260825T162756Z",
+    "generation_sequence": 22,
+    "global_taxa": 3639,
+    "logical_database_digest": "fa33661f8f874ceaecff5882bc464c2d27e2346ef1495980db0375bfde67069d",
+    "media_direct_taxa": 2260,
+    "media_records": 5884,
+    "media_rejections": 0,
+    "media_waivers": 0,
+    "minimum_app_version": 1,
+    "missing_published_conservation": 2063,
+    "missing_published_descriptions": 226,
+    "published_taxa": 2419,
+    "published_taxa_using_group_silhouettes": 98,
+    "published_taxa_with_curated_silhouettes": 2321,
+    "published_taxa_with_family_silhouettes": 2225,
+    "published_taxa_with_photos": 2259,
+    "published_taxa_with_specific_silhouettes": 1399,
+    "published_taxa_without_common_names": 0,
+    "release_status": "draft",
+    "schema_version": 4,
+    "source_digest": "18974397904c3052513b9ad815d2d550e8e29a3c4b1df53b5dbe5277088f8784"
+  },
+  "completed_at": "2026-08-25T16:27:59Z",
+  "failures": [
+    {
+      "error": "Inactive or non-species candidate requires a future taxon-change migration",
+      "stage": "taxonomy",
+      "taxon_id": 147661
+    },
+    {
+      "error": "Remote payload is not a supported decodable image",
+      "source_url": "https://commons.wikimedia.org/wiki/File:Dwarf_sperm_whales_in_Comoros.gif",
+      "stage": "commons-photo",
+      "taxon_id": 41465
+    },
+    {
+      "error": "Remote payload is not a supported decodable image",
+      "source_url": "https://commons.wikimedia.org/wiki/File:Isolobodon.jpg",
+      "stage": "commons-photo",
+      "taxon_id": 43789
+    },
+    {
+      "error": "Remote payload is not a supported decodable image",
+      "source_url": "https://commons.wikimedia.org/wiki/File:Haitikuckuck_Coccyzus_longirostris.JPG",
+      "stage": "commons-photo",
+      "taxon_id": 72742
+    },
+    {
+      "error": "Expecting value: line 1 column 1 (char 0)",
+      "source_url": "https://commons.wikimedia.org/wiki/File:Thamnolaea_cinnamomeiventris_2016_10_10_11_25_50_7732.jpg",
+      "stage": "commons-photo",
+      "taxon_id": 144298
+    }
+  ],
+  "media": {
+    "family_silhouettes": 2225,
+    "group_fallbacks": 98,
+    "photos": 2260,
+    "published": 2419,
+    "rejected_photo_sources": 0,
+    "silhouettes": 3624,
+    "specific_silhouettes": 1399
+  },
+  "offline": false,
+  "policy_version": "wildlife-catalogue-v1",
+  "provider_io": {
+    "cache_hits": 6816,
+    "network_requests": 680
+  },
+  "published_taxa": 2419,
+  "refresh": false,
+  "region": "all",
+  "schema_version": 1,
+  "stages": [
+    {
+      "name": "regional-candidates",
+      "status": "complete"
+    },
+    {
+      "name": "selection-taxonomy-rarity",
+      "status": "complete"
+    },
+    {
+      "name": "metadata",
+      "status": "complete"
+    },
+    {
+      "name": "photos-silhouettes",
+      "status": "complete"
+    },
+    {
+      "name": "validate-build-publish",
+      "status": "complete"
+    },
+    {
+      "name": "freshness-verification",
+      "status": "complete"
+    }
+  ],
+  "verification": {
+    "generation_id": "catalogue-v22-20260825T162756Z",
+    "generation_sequence": 22,
+    "source_files": 38
+  }
+}
