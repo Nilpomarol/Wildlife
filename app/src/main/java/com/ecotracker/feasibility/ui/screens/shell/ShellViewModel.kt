@@ -10,6 +10,7 @@ import com.wildlife.feasibility.AccountStore
 import com.wildlife.feasibility.RegionContextStore
 import com.wildlife.feasibility.CollectionProjection
 import com.wildlife.feasibility.CollectionSpecies
+import com.wildlife.feasibility.EncounterRarity
 import com.wildlife.feasibility.MarkerState
 import com.wildlife.feasibility.MarkerStore
 import com.wildlife.feasibility.LocalDataInventory
@@ -17,6 +18,7 @@ import com.wildlife.feasibility.LocalDataManager
 import com.wildlife.feasibility.ObservationStore
 import com.wildlife.feasibility.ObservationLifecyclePolicy
 import com.wildlife.feasibility.ObservationQualityTransition
+import com.wildlife.feasibility.ObservationRegionAssignment
 import com.wildlife.feasibility.ProgressionProjection
 import com.wildlife.feasibility.ProgressionState
 import com.wildlife.feasibility.ProgressionStore
@@ -36,6 +38,9 @@ data class HomeHighlight(
     val researchGrade: Boolean,
     val observationCount: Int,
     val awaitingSpeciesIdentification: Boolean,
+    val scientificName: String? = null,
+    val encounterRarity: EncounterRarity? = null,
+    val regionSeenIn: String? = null,
 )
 
 data class RegionalHomeProgress(
@@ -137,10 +142,32 @@ class ShellViewModel(application: Application) : AndroidViewModel(application) {
         val observationStore = account?.let { ObservationStore(context) }
         val observations = account?.let { observationStore?.observations(it.userId) }.orEmpty()
         val collection = CollectionProjection.species(observations)
+        val content = PublishedContentRepositories.application(context)
+        val catalogues = content.catalogues()
         val latestDiscovery = (
             collection.filter { it.photoUrl != null }.maxByOrNull(CollectionSpecies::latestObservedAtMs)
                 ?: collection.maxByOrNull(CollectionSpecies::latestObservedAtMs)
             )?.let { species ->
+            val assignment = account?.let {
+                observationStore?.observationRegion(it.userId, species.latestObservationUuid)
+            }
+            val regionKey = assignment?.regionKey
+            val rarityRegionKey = assignment?.takeIf { it.earnsRegionalProgress }?.regionKey
+            val regionName = when (assignment?.assignment) {
+                ObservationRegionAssignment.LAND_POLYGON,
+                ObservationRegionAssignment.OFFSHORE_BUFFER ->
+                    catalogues.firstOrNull { it.regionKey == regionKey }?.displayName
+                ObservationRegionAssignment.MARINE_WORLDWIDE -> "Marine worldwide"
+                ObservationRegionAssignment.REGION_UNCERTAIN -> "Region uncertain"
+                ObservationRegionAssignment.UNSUPPORTED_LAND -> "Unsupported land"
+                null -> null
+            }
+            val regionalTaxon = if (rarityRegionKey != null && species.taxonId != null) {
+                content.taxa(rarityRegionKey).firstOrNull { it.taxonId == species.taxonId }
+            } else {
+                null
+            }
+            val publishedTaxon = species.taxonId?.let { content.taxon(it) }
             HomeHighlight(
                 taxonId = species.taxonId,
                 label = species.label,
@@ -149,12 +176,13 @@ class ShellViewModel(application: Application) : AndroidViewModel(application) {
                 researchGrade = species.bestQualityGrade == "research",
                 observationCount = species.observationCount,
                 awaitingSpeciesIdentification = species.awaitingSpeciesIdentification,
+                scientificName = regionalTaxon?.scientificName ?: publishedTaxon?.scientificName,
+                encounterRarity = regionalTaxon?.rarity,
+                regionSeenIn = regionName,
             )
         }
         val summary = account?.let { observationStore?.summary(it.userId) }
         val regionalProgress = account?.let { verified ->
-            val content = PublishedContentRepositories.application(context)
-            val catalogues = content.catalogues()
             val selected = RegionContextStore(context).currentRegionKey(
                 catalogues.mapTo(mutableSetOf()) { it.regionKey },
             )

@@ -12,6 +12,7 @@ import androidx.compose.foundation.layout.Spacer
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
+import androidx.compose.foundation.layout.offset
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.shape.RoundedCornerShape
@@ -37,7 +38,6 @@ import com.wildlife.feasibility.ui.art.ContourField
 import com.wildlife.feasibility.ui.art.RankBadgeArt
 import com.wildlife.feasibility.ui.art.RankPatch
 import com.wildlife.feasibility.ui.art.StampRing
-import com.wildlife.feasibility.ui.art.drawCornerMounts
 import com.wildlife.feasibility.ui.art.drawSlipEdges
 import com.wildlife.feasibility.ui.theme.DisplayFontFamily
 import com.wildlife.feasibility.ui.theme.FieldLabelStyle
@@ -88,6 +88,8 @@ fun Masthead(
     subtitle: String,
     progressLabel: String,
     progressTrailing: String?,
+    progressSupporting: String,
+    progressDescription: String,
     progressFraction: Float,
     modifier: Modifier = Modifier,
 ) {
@@ -96,10 +98,28 @@ fun Masthead(
     Box(modifier.fillMaxWidth()) {
         Box(Modifier.matchParentSize().background(headerScrim()))
         Column(Modifier.padding(start = 16.dp, end = 16.dp, top = 14.dp, bottom = 18.dp)) {
-            // The dateline sits above everything, alone on its line, as the head of a form.
-            Text(dateline.uppercase(), style = FieldStampStyle, color = colors.oliveStrong)
-            Spacer(Modifier.height(12.dp))
+            // Use the product's actual launcher artwork here. A second, header-only emblem
+            // makes the masthead look like a related field guide rather than Wildlife.
             Row(verticalAlignment = Alignment.CenterVertically) {
+                WildlifeAppIcon(
+                    size = 40.dp,
+                    contentDescription = "Wildlife",
+                )
+                Spacer(Modifier.size(10.dp))
+                Column(Modifier.weight(1f)) {
+                    Text("WILDLIFE FIELD JOURNAL", style = FieldLabelStyle, color = colors.parchment)
+                    Spacer(Modifier.height(2.dp))
+                    Text(
+                        dateline.uppercase(),
+                        style = FieldStampStyle,
+                        color = colors.oliveStrong,
+                        maxLines = 1,
+                        overflow = TextOverflow.Ellipsis,
+                    )
+                }
+            }
+            Spacer(Modifier.height(15.dp))
+            Row(verticalAlignment = Alignment.Top) {
                 // Larger than Collection's badge: on Home the rank *is* the identity, not
                 // an annotation beside a region name.
                 val badgeSize = 64.dp
@@ -120,47 +140,69 @@ fun Masthead(
                     }
                 }
                 Spacer(Modifier.size(14.dp))
-                Column(Modifier.weight(1f)) {
+                Column(
+                    modifier = Modifier.weight(1f),
+                    verticalArrangement = Arrangement.spacedBy((-10).dp),
+                ) {
+                    Text(
+                        "RANGER RANK",
+                        style = FieldLabelStyle,
+                        color = accent,
+                    )
                     Text(
                         levelName,
                         fontFamily = DisplayFontFamily,
                         fontWeight = FontWeight.SemiBold,
-                        fontSize = 24.sp,
-                        lineHeight = 27.sp,
+                        fontSize = 30.sp,
+                        lineHeight = 30.sp,
                         color = colors.parchment,
                         maxLines = 2,
                         overflow = TextOverflow.Ellipsis,
                     )
-                    Spacer(Modifier.height(3.dp))
                     Text(
                         subtitle,
-                        style = FieldLabelStyle,
-                        color = colors.parchmentDim,
+                        fontWeight = FontWeight.SemiBold,
+                        fontSize = 16.sp,
+                        lineHeight = 16.sp,
+                        color = colors.parchment,
                         maxLines = 1,
                         overflow = TextOverflow.Ellipsis,
                     )
                 }
             }
             Spacer(Modifier.height(16.dp))
-            Row(
-                Modifier.fillMaxWidth(),
-                horizontalArrangement = Arrangement.SpaceBetween,
-                verticalAlignment = Alignment.Bottom,
+            Column(
+                Modifier.semantics(mergeDescendants = true) {
+                    contentDescription = progressDescription
+                },
             ) {
-                Text(
-                    progressLabel.uppercase(),
-                    style = FieldStampStyle,
-                    color = colors.parchmentDim,
-                    modifier = Modifier.padding(bottom = 1.dp),
-                )
-                // Stamped, not lettered: this is a count read off a form, so it takes the
-                // mono tally rather than Eczar. Eczar numerals stay with achievement.
-                if (progressTrailing != null) {
-                    Text(progressTrailing, style = FieldTallyStyle, color = accent)
+                Row(
+                    Modifier.fillMaxWidth(),
+                    horizontalArrangement = Arrangement.SpaceBetween,
+                    verticalAlignment = Alignment.Bottom,
+                ) {
+                    Text(
+                        progressLabel.uppercase(),
+                        style = FieldStampStyle,
+                        color = colors.parchmentDim,
+                        modifier = Modifier.padding(bottom = 1.dp),
+                    )
+                    // Stamped, not lettered: this is a count read off a form, so it takes the
+                    // mono tally rather than Eczar. Eczar numerals stay with achievement.
+                    if (progressTrailing != null) {
+                        Text(progressTrailing, style = FieldTallyStyle, color = accent)
+                    }
                 }
+                Spacer(Modifier.height(6.dp))
+                JournalProgressBar(progressFraction, accent = accent)
+                Spacer(Modifier.height(5.dp))
+                Text(
+                    progressSupporting.uppercase(),
+                    style = FieldStampStyle.copy(fontSize = 9.sp, letterSpacing = 0.7.sp),
+                    color = colors.parchmentFaint,
+                    modifier = Modifier.align(Alignment.End),
+                )
             }
-            Spacer(Modifier.height(6.dp))
-            JournalProgressBar(progressFraction, accent = accent)
         }
         HeaderHairline(Modifier.align(Alignment.BottomCenter))
     }
@@ -169,15 +211,13 @@ fun Masthead(
 // ---------------------------------------------------------------- mounted specimen
 
 /**
- * A photograph mounted onto the page, with its caption printed *below* the image.
+ * Home's latest record as a compact horizontal field note.
  *
- * Both halves of that are deliberate. The corner mounts say a person put this here, which
- * is what separates a journal entry from a feed item. Printing the caption on the page
- * rather than scrimming it over the photograph is the older and better field-guide habit:
- * a plate is not obscured by its own description, and the photograph gets to be a
- * photograph rather than a background for text.
+ * The identity and record metadata sit beside the photograph instead of obscuring it.
+ * Keeping the image square also prevents a missing personal photo from becoming a large
+ * empty hero.
  *
- * [stampLabel] strikes a rubber stamp across the top corner — reserved for a state the
+ * [stampLabel] strikes a rubber stamp over the top corner — reserved for a state the
  * *record* has reached, such as Research Grade, never for rarity or standing.
  */
 @Composable
@@ -185,6 +225,11 @@ fun SpecimenPlate(
     label: String,
     scientificName: String?,
     caption: String,
+    actionLabel: String,
+    rarityLabel: String?,
+    rarityTint: Color,
+    regionLabel: String?,
+    awaitingSpeciesIdentification: Boolean,
     photoUrl: String?,
     photoDescription: String,
     onClick: () -> Unit,
@@ -194,11 +239,19 @@ fun SpecimenPlate(
 ) {
     val colors = WildlifeTheme.colors
     val context = LocalContext.current
-    Column(modifier.fillMaxWidth().clickable(onClick = onClick)) {
+    Row(
+        modifier
+            .fillMaxWidth()
+            .clip(RoundedCornerShape(10.dp))
+            .background(WildlifeSurface.copy(alpha = 0.94f))
+            .border(1.dp, WildlifeOutlineSubtle, RoundedCornerShape(10.dp))
+            .clickable(onClick = onClick)
+            .padding(10.dp),
+        verticalAlignment = Alignment.CenterVertically,
+    ) {
         Box(
             Modifier
-                .fillMaxWidth()
-                .height(232.dp)
+                .size(132.dp)
                 .clip(RoundedCornerShape(4.dp))
                 .background(WildlifePlate)
                 .border(1.dp, WildlifeOutlineSubtle, RoundedCornerShape(4.dp)),
@@ -227,42 +280,68 @@ fun SpecimenPlate(
                     )
                 }
             }
-            // Drawn over the artwork, in the page's own dark, so the corners read as
-            // paper holding the print down rather than as a border on the image. The page
-            // background rather than the surface: the surface is within a few points of
-            // the plate it sits on, so a mount in it vanished on an unphotographed record.
-            Canvas(Modifier.fillMaxSize()) {
-                drawCornerMounts(
-                    color = WildlifeBackground.copy(alpha = 0.94f),
-                    inset = 1.dp.toPx(),
-                    leg = 26.dp.toPx(),
-                    edge = colors.oliveStrong.copy(alpha = 0.30f),
-                )
-            }
             if (stampLabel != null) {
                 FieldStamp(
                     label = stampLabel,
                     tint = stampTint ?: colors.confirmed,
-                    modifier = Modifier.align(Alignment.TopEnd).padding(12.dp),
+                    modifier = Modifier.align(Alignment.TopEnd).padding(7.dp),
+                    size = 48.dp,
                 )
             }
         }
-        Spacer(Modifier.height(10.dp))
-        Text(
-            label,
-            fontFamily = DisplayFontFamily,
-            fontWeight = FontWeight.SemiBold,
-            fontSize = 22.sp,
-            lineHeight = 25.sp,
-            color = colors.parchment,
-            maxLines = 2,
-            overflow = TextOverflow.Ellipsis,
-        )
-        if (scientificName != null) {
-            Text(scientificName, style = ScientificNameStyle, color = colors.parchmentDim)
+        Spacer(Modifier.size(14.dp))
+        Column(Modifier.weight(1f).height(132.dp)) {
+            Row(
+                Modifier.fillMaxWidth(),
+                horizontalArrangement = Arrangement.SpaceBetween,
+                verticalAlignment = Alignment.CenterVertically,
+            ) {
+                Text("FIELD NOTE", style = FieldLabelStyle, color = colors.oliveStrong)
+                Text(
+                    "${actionLabel.uppercase()}  ›",
+                    style = FieldStampStyle,
+                    color = colors.parchment,
+                )
+            }
+            Spacer(Modifier.height(3.dp))
+            Text(
+                label,
+                fontFamily = DisplayFontFamily,
+                fontWeight = FontWeight.SemiBold,
+                fontSize = 23.sp,
+                lineHeight = 25.sp,
+                color = colors.parchment,
+                maxLines = 2,
+                overflow = TextOverflow.Ellipsis,
+            )
+            Column(Modifier.offset(y = (-3).dp)) {
+                if (scientificName != null) {
+                    Text(scientificName, style = ScientificNameStyle, color = colors.parchmentDim)
+                }
+                if (rarityLabel != null) {
+                    Text(rarityLabel.uppercase(), style = FieldStampStyle, color = rarityTint)
+                }
+                if (awaitingSpeciesIdentification) {
+                    Text(
+                        "AWAITING SPECIES ID",
+                        style = FieldStampStyle,
+                        color = colors.gold,
+                        maxLines = 1,
+                    )
+                }
+            }
+            Spacer(Modifier.weight(1f))
+            if (regionLabel != null) {
+                Text(
+                    regionLabel.uppercase(),
+                    style = FieldStampStyle,
+                    color = colors.parchmentFaint,
+                    maxLines = 1,
+                    overflow = TextOverflow.Ellipsis,
+                )
+            }
+            Text(caption.uppercase(), style = FieldStampStyle, color = colors.parchmentFaint)
         }
-        Spacer(Modifier.height(5.dp))
-        Text(caption.uppercase(), style = FieldStampStyle, color = colors.parchmentFaint)
     }
 }
 

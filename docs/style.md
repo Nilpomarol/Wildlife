@@ -1042,10 +1042,16 @@ plate surfaces, field-mark pills. The dated-entry voice is in `ui/components/Jou
 
 - **`Masthead`** — Home's header. It carries the *ranger*, where `RangerHeader` carries the
   *region*. Lifetime XP and the rank ladder live here and nowhere else, which is the exact
-  measure Collection's regional header refuses; the two never appear on one screen.
-- **`SpecimenPlate`** — a photograph held onto the page by drawn corner mounts, with its
-  caption printed *below* the image rather than scrimmed over it. A plate is not obscured by
-  its own description.
+  measure Collection's regional header refuses. Home's current-region projection stays in
+  its own card below the masthead, so regional completion and lifetime progression never
+  share a header or progress system. Its Essential and Icon counts use their owner-supplied
+  standing marks as well as text.
+- **`SpecimenPlate`** — Home's latest record as a compact horizontal field note: a clean
+  square photograph with common name followed immediately by scientific name and known
+  region-scoped encounter rarity. The destination sits at the card's top-right; the plain
+  observation-region name sits directly above the date/count at the bottom. Unknown rarity
+  and unavailable region are omitted rather than presented as values. A plate is not
+  obscured by its own description, and an absent photo does not create a large empty hero.
 - **`SlipStack`** — outstanding paperwork as a pile of loose slips, depth saturating at
   three. The quantity is felt before a number is read.
 - **`FieldStamp`**, **`RecordLine`**, **`JournalButton`** — struck stamps, ruled form lines
@@ -1083,8 +1089,9 @@ where they signal "not yet found" rather than describing the page.
 ### The header
 
 Screens that carry identity open with a **full-bleed header** that sits directly on the page
-painting — it draws no scene of its own, only a ground of its own. The app emblem, region
-name, progression rank patch and a progress measure sit on it.
+painting — it draws no scene of its own, only a ground of its own. Home uses the installed
+app icon as its product mark; regional headers use the region name and emblem alongside the
+progression rank patch and progress measure.
 
 This costs roughly a third of a phone viewport, which is correct for Collection and wrong
 for busier screens — `RangerHeader` therefore has a **compact variant**. Use it anywhere
@@ -1092,10 +1099,10 @@ identity is not the point of the screen.
 
 ### Drawn marks, not icon fonts
 
-Emblems are **drawn as paths**, not taken from Material icons: the app emblem (paw over
-peaks and conifers in a double ring), a **rank patch per progression level** whose mark
-escalates across the ladder, stat glyphs (tick, sparkle, rosette), and the magnifier and
-clear cross that make up the search pill.
+Field-guide marks are **drawn as paths**, not taken from Material icons: a **rank patch per
+progression level** whose mark escalates across the ladder, stat glyphs (tick, sparkle,
+rosette), and the magnifier and clear cross that make up the search pill. Product identity
+is the installed app-icon artwork; do not maintain a second, UI-only app emblem.
 
 Owner-supplied field marks (rarity and regional standing) remain the mark language of §28
 and are unchanged in meaning. They now render by parsing the bundled SVG path rather than
@@ -1109,8 +1116,8 @@ origin). Coil remains for species photography and the map, which are genuinely r
 
 **Region emblems** live in `assets/region_marks/<regionKey>.svg` and are tinted with the
 region accent from `regionVisual()`. `RegionMark` returns false when a region has no
-artwork, and `RegionGlyph` then falls back to the generic icon — regions ship before their
-emblems do, and a missing file must never render an empty circle.
+artwork, and `RegionEmblem` then falls back to the installed app icon — regions ship before
+their emblems do, and a missing file must never render an empty space.
 
 ### Filters are axes, not one list
 

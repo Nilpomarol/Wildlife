@@ -78,18 +78,6 @@ fun DrawScope.drawPine(color: Color, baseCenter: Offset, width: Float, height: F
     }
 }
 
-/** A mountain pair, used inside the app emblem. */
-fun DrawScope.drawPeaks(color: Color, base: Float, width: Float, height: Float, cx: Float) {
-    val p = Path()
-    p.moveTo(cx - width * 0.5f, base)
-    p.lineTo(cx - width * 0.16f, base - height)
-    p.lineTo(cx + width * 0.04f, base - height * 0.55f)
-    p.lineTo(cx + width * 0.22f, base - height * 0.86f)
-    p.lineTo(cx + width * 0.5f, base)
-    p.close()
-    drawPath(p, color)
-}
-
 /** An n-pointed star. */
 fun DrawScope.drawStar(color: Color, center: Offset, outer: Float, points: Int = 5) {
     val inner = outer * 0.44f
@@ -165,42 +153,6 @@ private fun shieldPath(w: Float, h: Float, inset: Float = 0f): Path {
         cubicTo((l + r) / 2f - w * 0.16f, b, l, b - h * 0.12f, l, b - h * 0.34f)
         close()
     }
-}
-
-/** The app emblem: a paw above a ridge of peaks and conifers, inside a double ring. */
-fun DrawScope.drawWildlifeEmblem(ring: Color, field: Color, art: Color, accent: Color) {
-    val r = minOf(size.width, size.height) / 2f
-    val c = Offset(size.width / 2f, size.height / 2f)
-
-    drawCircle(field, radius = r * 0.97f, center = c)
-    drawCircle(ring, radius = r * 0.97f, center = c, style = Stroke(width = r * 0.09f))
-    drawCircle(ring.copy(alpha = 0.55f), radius = r * 0.80f, center = c, style = Stroke(width = r * 0.03f))
-
-    val base = c.y + r * 0.46f
-    drawPeaks(art.copy(alpha = 0.85f), base, r * 1.14f, r * 0.62f, c.x)
-    val treeBase = base + r * 0.02f
-    listOf(-0.62f to 0.52f, -0.30f to 0.40f, 0.30f to 0.42f, 0.64f to 0.54f).forEach { (dx, h) ->
-        drawPine(art, Offset(c.x + r * dx, treeBase), r * 0.30f, r * h)
-    }
-    drawLine(
-        art,
-        Offset(c.x - r * 0.72f, treeBase),
-        Offset(c.x + r * 0.72f, treeBase),
-        strokeWidth = r * 0.05f,
-        cap = StrokeCap.Round,
-    )
-    drawPaw(accent, Offset(c.x, c.y - r * 0.30f), r * 0.40f)
-}
-
-@Composable
-fun WildlifeEmblem(
-    ring: Color,
-    field: Color,
-    art: Color,
-    accent: Color,
-    modifier: Modifier = Modifier,
-) {
-    Canvas(modifier) { drawWildlifeEmblem(ring, field, art, accent) }
 }
 
 /**

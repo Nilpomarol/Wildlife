@@ -1,5 +1,8 @@
 package com.wildlife.feasibility.ui.screens.shell
 
+import androidx.compose.foundation.background
+import androidx.compose.foundation.border
+import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.PaddingValues
@@ -9,33 +12,48 @@ import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
+import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.material3.LinearProgressIndicator
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
+import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.draw.clip
+import androidx.compose.ui.semantics.contentDescription
+import androidx.compose.ui.semantics.semantics
 import androidx.compose.ui.tooling.preview.Preview
+import androidx.compose.ui.unit.dp
+import androidx.compose.ui.unit.sp
 import com.wildlife.feasibility.NearbySpecies
+import com.wildlife.feasibility.EncounterRarity
 import com.wildlife.feasibility.ProgressionProjection
 import com.wildlife.feasibility.ProgressionState
 import com.wildlife.feasibility.VerifiedAccount
 import com.wildlife.feasibility.ui.components.FieldGuidePage
 import com.wildlife.feasibility.ui.components.JournalButton
+import com.wildlife.feasibility.ui.components.JournalProgressBar
 import com.wildlife.feasibility.ui.components.Masthead
 import com.wildlife.feasibility.ui.components.NearbyHeaderRow
 import com.wildlife.feasibility.ui.components.NearbySpeciesCarousel
 import com.wildlife.feasibility.ui.components.RecordLine
+import com.wildlife.feasibility.ui.components.RegionEmblem
 import com.wildlife.feasibility.ui.components.SectionRule
 import com.wildlife.feasibility.ui.components.SlipStack
 import com.wildlife.feasibility.ui.components.SpecimenPlate
 import com.wildlife.feasibility.ui.components.WildlifeScaffold
 import com.wildlife.feasibility.ui.components.WildlifeLoadingState
 import com.wildlife.feasibility.ui.components.bleedHorizontally
+import com.wildlife.feasibility.ui.art.FieldMark
 import com.wildlife.feasibility.ui.screens.explore.NearbyDiscoveryState
+import com.wildlife.feasibility.ui.theme.DisplayFontFamily
+import com.wildlife.feasibility.ui.theme.FieldLabelStyle
 import com.wildlife.feasibility.ui.theme.FieldStampStyle
+import com.wildlife.feasibility.ui.theme.FieldTallyStyle
 import com.wildlife.feasibility.ui.theme.WildlifeSpacing
 import com.wildlife.feasibility.ui.theme.WildlifeTheme
+import java.text.NumberFormat
 import java.text.SimpleDateFormat
 import java.util.Date
 import java.util.Locale
@@ -49,6 +67,7 @@ import java.util.Locale
  *
  * - The **ranger**, where Collection carries the region. Lifetime XP and the rank ladder
  *   live here, which is the measure Collection's regional header explicitly refuses.
+ * - **Current-region progress** — a prominent summary that opens the full regional guide.
  * - **Today's record** — the most recent confirmed sighting, mounted as a photograph.
  * - **What is about** — the nearby extract, ruled as a table so the ranking is legible.
  * - **The desk** — outstanding drafts and handoffs, as a pile of slips.
@@ -103,6 +122,15 @@ fun HomeScreen(
                     )
                 }
 
+                state.regionalProgress?.let { progress ->
+                    item("current-region") {
+                        CurrentRegionCard(
+                            progress = progress,
+                            onOpenCollection = onCollection,
+                        )
+                    }
+                }
+
                 val discovery = state.latestDiscovery
                 when {
                     state.account == null -> item("unlinked") {
@@ -115,8 +143,18 @@ fun HomeScreen(
                             Spacer(Modifier.height(WildlifeSpacing.Card))
                             SpecimenPlate(
                                 label = discovery.label,
-                                scientificName = null,
+                                scientificName = discovery.scientificName,
                                 caption = discoveryCaption(discovery),
+                                actionLabel = if (discovery.taxonId != null) {
+                                    "View species"
+                                } else {
+                                    "Open collection"
+                                },
+                                rarityLabel = rarityLabel(discovery.encounterRarity),
+                                rarityTint = rarityTint(discovery.encounterRarity),
+                                regionLabel = discovery.regionSeenIn,
+                                awaitingSpeciesIdentification =
+                                    discovery.awaitingSpeciesIdentification,
                                 photoUrl = discovery.photoUrl,
                                 photoDescription =
                                     "${discovery.label}, your most recent observation photo",
@@ -179,46 +217,202 @@ fun HomeScreen(
 // region — masthead
 
 @Composable
-private fun HomeMasthead(state: ShellUiState, nowMs: Long, modifier: Modifier = Modifier) {
+private fun HomeMasthead(
+    state: ShellUiState,
+    nowMs: Long,
+    modifier: Modifier = Modifier,
+) {
     // Unlinked users have no XP account yet, so fall back to the projected entry level —
     // the masthead is never blank, it just opens at the bottom of the ladder.
     val levels: ProgressionState = state.progression ?: ProgressionProjection.project(state.totalXp)
     val title = levels.selectedTitle
     val next = levels.nextLevel
+    val number = NumberFormat.getIntegerInstance(Locale.getDefault())
     Masthead(
-        dateline = dateline(nowMs, state.regionalProgress?.displayName),
+        dateline = dateline(nowMs),
         levelKey = title.key,
         levelName = title.displayName,
         subtitle = state.account?.login?.let { "@$it" } ?: "No account linked",
         // The bar counts the ladder, not a region. Naming the next rank on it is what keeps
         // it from being read as regional completion, which is Collection's measure.
-        progressLabel = next?.let { "XP to ${it.displayName}" } ?: "Ladder complete",
-        progressTrailing = levels.xpToNextLevel?.let { "$it XP" } ?: "${levels.totalXp} XP",
-        progressFraction = if (next == null) 1f else levels.progressFraction,
+        progressLabel = next?.let { "Progress to ${it.displayName}" } ?: "Ladder complete",
+        progressTrailing = next?.let {
+            "${number.format(levels.totalXp)} / ${number.format(it.thresholdXp)} XP"
+        } ?: "${number.format(levels.totalXp)} XP",
+        progressSupporting = levels.xpToNextLevel?.let {
+            "${number.format(it)} XP remaining"
+        } ?: "Highest ranger rank reached",
+        progressDescription = next?.let {
+            "${number.format(levels.totalXp)} of ${number.format(it.thresholdXp)} lifetime XP earned toward ${it.displayName}; " +
+                "${number.format(levels.xpToNextLevel)} XP remaining"
+        } ?: "Highest ranger rank reached with ${number.format(levels.totalXp)} lifetime XP",
+        progressFraction = next?.let {
+            levels.totalXp.toFloat() / it.thresholdXp.toFloat()
+        } ?: 1f,
         modifier = modifier,
     )
 }
 
+@Composable
+private fun CurrentRegionCard(
+    progress: RegionalHomeProgress,
+    onOpenCollection: () -> Unit,
+    modifier: Modifier = Modifier,
+) {
+    val colors = WildlifeTheme.colors
+    val fraction = if (progress.totalSpecies > 0) {
+        progress.observedSpecies.toFloat() / progress.totalSpecies.toFloat()
+    } else {
+        0f
+    }
+    Column(
+        modifier
+            .fillMaxWidth()
+            .clip(MaterialTheme.shapes.medium)
+            .background(MaterialTheme.colorScheme.surface.copy(alpha = 0.94f))
+            .border(
+                width = 1.dp,
+                color = colors.oliveStrong.copy(alpha = 0.62f),
+                shape = MaterialTheme.shapes.medium,
+            )
+            .clickable(onClick = onOpenCollection)
+            .semantics(mergeDescendants = true) {
+                contentDescription =
+                    "Current region, ${progress.displayName}. " +
+                    "${progress.observedSpecies} of ${progress.totalSpecies} species. " +
+                    "${progress.essentialsObserved} of ${progress.essentialsTotal} Essentials. " +
+                    "${progress.iconsObserved} of ${progress.iconsTotal} Icons. Open guide."
+            }
+            .padding(WildlifeSpacing.Screen),
+    ) {
+        Row(
+            Modifier.fillMaxWidth(),
+            horizontalArrangement = Arrangement.SpaceBetween,
+            verticalAlignment = Alignment.CenterVertically,
+        ) {
+            Text("CURRENT REGION", style = FieldLabelStyle, color = colors.oliveStrong)
+            Text("OPEN REGIONAL GUIDE  ›", style = FieldStampStyle, color = colors.parchment)
+        }
+        Spacer(Modifier.height(WildlifeSpacing.Small))
+        Row(verticalAlignment = Alignment.CenterVertically) {
+            RegionEmblem(
+                regionKey = progress.regionKey.ifBlank { null },
+                size = 54.dp,
+            )
+            Spacer(Modifier.size(WildlifeSpacing.Card))
+            Column(Modifier.weight(1f)) {
+                Text(
+                    text = progress.displayName,
+                    fontFamily = DisplayFontFamily,
+                    fontWeight = androidx.compose.ui.text.font.FontWeight.SemiBold,
+                    fontSize = 23.sp,
+                    lineHeight = 26.sp,
+                    color = colors.parchment,
+                    maxLines = 2,
+                )
+            }
+            Spacer(Modifier.size(WildlifeSpacing.Small))
+            Column(horizontalAlignment = Alignment.End) {
+                Text(
+                    "${progress.observedSpecies} / ${progress.totalSpecies}",
+                    style = FieldTallyStyle.copy(fontSize = 17.sp, lineHeight = 21.sp),
+                    color = colors.oliveStrong,
+                )
+                Text("SPECIES", style = FieldStampStyle, color = colors.parchmentDim)
+            }
+        }
+        Spacer(Modifier.height(WildlifeSpacing.Card))
+        JournalProgressBar(fraction = fraction, height = 7.dp)
+        Spacer(Modifier.height(WildlifeSpacing.Card))
+        Row(
+            Modifier.fillMaxWidth(),
+            horizontalArrangement = Arrangement.spacedBy(WildlifeSpacing.Screen),
+            verticalAlignment = Alignment.CenterVertically,
+        ) {
+            RegionalStandingProgress(
+                markName = "regional_essential",
+                label = "Essentials",
+                observed = progress.essentialsObserved,
+                total = progress.essentialsTotal,
+                tint = colors.essential,
+                modifier = Modifier.weight(1f),
+            )
+            RegionalStandingProgress(
+                markName = "regional_icon",
+                label = "Icons",
+                observed = progress.iconsObserved,
+                total = progress.iconsTotal,
+                tint = colors.icon,
+                modifier = Modifier.weight(1f),
+            )
+        }
+    }
+}
+
+@Composable
+private fun RegionalStandingProgress(
+    markName: String,
+    label: String,
+    observed: Int,
+    total: Int,
+    tint: androidx.compose.ui.graphics.Color,
+    modifier: Modifier = Modifier,
+) {
+    val colors = WildlifeTheme.colors
+    Row(
+        modifier = modifier,
+        verticalAlignment = Alignment.CenterVertically,
+        horizontalArrangement = Arrangement.spacedBy(WildlifeSpacing.Small),
+    ) {
+        FieldMark(markName, tint, Modifier.size(25.dp))
+        Column {
+            Text(label.uppercase(), style = FieldStampStyle, color = tint)
+            Text(
+                "$observed / $total",
+                style = FieldTallyStyle.copy(fontSize = 15.sp, lineHeight = 18.sp),
+                color = colors.parchment,
+            )
+        }
+    }
+}
+
 /**
- * "SUNDAY · 23 AUGUST · MEDITERRANEAN EUROPE".
- *
- * The region is appended only when one is installed — a trailing separator with nothing
- * after it is the sort of detail that makes a printed line look generated.
+ * "SUNDAY · 23 AUGUST".
  */
-private fun dateline(nowMs: Long, regionName: String?): String {
+private fun dateline(nowMs: Long): String {
     val format = SimpleDateFormat("EEEE · d MMMM", Locale.getDefault())
-    val date = format.format(Date(nowMs))
-    return if (regionName.isNullOrBlank()) date else "$date · $regionName"
+    return format.format(Date(nowMs))
 }
 
 private fun discoveryCaption(highlight: HomeHighlight): String {
     val date = SimpleDateFormat("d MMM yyyy", Locale.getDefault())
         .format(Date(highlight.observedAtMs))
-    return when {
-        highlight.awaitingSpeciesIdentification -> "Awaiting species ID · $date"
-        highlight.observationCount == 1 -> "$date · 1 observation"
-        else -> "$date · ${highlight.observationCount} observations"
+    val observations = if (highlight.observationCount == 1) {
+        "1 observation"
+    } else {
+        "${highlight.observationCount} observations"
     }
+    return "$date · $observations"
+}
+
+@Composable
+private fun rarityTint(rarity: EncounterRarity?): androidx.compose.ui.graphics.Color {
+    val colors = WildlifeTheme.colors
+    return when (rarity) {
+        EncounterRarity.COMMON -> colors.rarityCommon
+        EncounterRarity.UNCOMMON -> colors.rarityUncommon
+        EncounterRarity.RARE -> colors.rarityRare
+        EncounterRarity.VERY_RARE -> colors.rarityVeryRare
+        EncounterRarity.UNKNOWN, null -> colors.parchmentFaint
+    }
+}
+
+private fun rarityLabel(rarity: EncounterRarity?): String? = when (rarity) {
+    EncounterRarity.COMMON -> "Common"
+    EncounterRarity.UNCOMMON -> "Uncommon"
+    EncounterRarity.RARE -> "Rare"
+    EncounterRarity.VERY_RARE -> "Very rare"
+    EncounterRarity.UNKNOWN, null -> null
 }
 
 // endregion
@@ -498,6 +692,9 @@ private fun HomePreview() {
                     researchGrade = true,
                     observationCount = 3,
                     awaitingSpeciesIdentification = false,
+                    scientificName = "Erithacus rubecula",
+                    encounterRarity = EncounterRarity.COMMON,
+                    regionSeenIn = "Mediterranean Europe",
                 ),
             ),
             onCapture = {}, onCollection = {}, onExplore = {}, onMyMap = {}, onObservations = {},

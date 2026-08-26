@@ -7,6 +7,7 @@ import androidx.compose.ui.test.junit4.createComposeRule
 import androidx.compose.ui.test.onRoot
 import com.github.takahirom.roborazzi.captureRoboImage
 import com.wildlife.feasibility.NearbySpecies
+import com.wildlife.feasibility.EncounterRarity
 import com.wildlife.feasibility.VerifiedAccount
 import com.wildlife.feasibility.ui.screens.explore.NearbyDiscoveryState
 import com.wildlife.feasibility.ui.screens.shell.HomeHighlight
@@ -146,6 +147,9 @@ private object HomeScenarios {
                     researchGrade = true,
                     observationCount = 3,
                     awaitingSpeciesIdentification = false,
+                    scientificName = "Erithacus rubecula",
+                    encounterRarity = EncounterRarity.COMMON,
+                    regionSeenIn = "Mediterranean Europe",
                 ),
             ),
             nearby = reported,
@@ -171,6 +175,9 @@ private object HomeScenarios {
                     researchGrade = false,
                     observationCount = 1,
                     awaitingSpeciesIdentification = true,
+                    scientificName = "Lynx pardinus",
+                    encounterRarity = EncounterRarity.VERY_RARE,
+                    regionSeenIn = "Mediterranean Europe",
                 ),
             ),
             nearby = reported,

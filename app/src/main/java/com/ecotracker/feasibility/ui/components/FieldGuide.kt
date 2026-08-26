@@ -43,7 +43,6 @@ import com.wildlife.feasibility.ui.art.Sprig
 import com.wildlife.feasibility.ui.art.StatGlyph
 import com.wildlife.feasibility.ui.art.StatMark
 import com.wildlife.feasibility.ui.art.Vignette
-import com.wildlife.feasibility.ui.art.WildlifeEmblem
 import com.wildlife.feasibility.ui.theme.DisplayFontFamily
 import com.wildlife.feasibility.ui.theme.FieldLabelStyle
 import com.wildlife.feasibility.ui.theme.levelAccent
@@ -79,6 +78,21 @@ fun Modifier.bleedHorizontally(amount: Dp): Modifier = layout { measurable, cons
     layout((placeable.width - extra).coerceAtLeast(0), placeable.height) {
         placeable.place(-amount.roundToPx(), 0)
     }
+}
+
+/** The product identity, sourced from the same artwork as the installed app icon. */
+@Composable
+fun WildlifeAppIcon(
+    size: Dp,
+    modifier: Modifier = Modifier,
+    contentDescription: String? = null,
+) {
+    Image(
+        painter = painterResource(R.drawable.wildlife_app_icon),
+        contentDescription = contentDescription,
+        contentScale = ContentScale.Fit,
+        modifier = modifier.size(size),
+    )
 }
 
 /**
@@ -303,8 +317,8 @@ fun RangerHeader(
 /**
  * The header's identity disc: the region's own emblem in the region's accent.
  *
- * Falls back to the app emblem when a region has no artwork yet, or when no region is
- * selected at all — the badge is never empty.
+ * Falls back to the app icon when a region has no artwork yet, or when no region is
+ * selected at all — the badge is never empty and no second product emblem is introduced.
  */
 @Composable
 fun RegionEmblem(regionKey: String?, size: Dp, modifier: Modifier = Modifier) {
@@ -319,12 +333,9 @@ fun RegionEmblem(regionKey: String?, size: Dp, modifier: Modifier = Modifier) {
             modifier = Modifier.size(size),
         )
         if (!drawn) {
-            WildlifeEmblem(
-                ring = colors.oliveStrong,
-                field = colors.oliveDark,
-                art = colors.parchment,
-                accent = colors.gold,
-                modifier = Modifier.size(size),
+            WildlifeAppIcon(
+                size = size,
+                contentDescription = "Wildlife",
             )
         }
     }
