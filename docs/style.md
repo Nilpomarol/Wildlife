@@ -328,6 +328,20 @@ Apply a subtle dark scrim at the bottom so labels remain readable.
 
 Do not place text inside opaque blocks over the image unless necessary for accessibility.
 
+### Stock/reference photography boundary
+
+Home's **Near me** carousel is the only compact discovery surface that presents licensed
+provider/reference photography directly. It may use any supported reusable licence when the
+creator and licence are printed with the plate. Its order is the validated local catalogue photo,
+an eligible nearby-provider default, the user's regional observation photo, the validated
+catalogue silhouette, then the bundled group mark. An incompatible provider default is never used
+to fill a visual gap.
+
+Collection, Explore (including the full Near me table), achievement grids and other compact
+catalogue surfaces remain personal-photo-or-silhouette views. Species Detail may still lead with
+its explicitly attributed reference hero because it is the source-bearing record for that image,
+not a stock-image grid treatment.
+
 ---
 
 ## 9. Collection Screen

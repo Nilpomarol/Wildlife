@@ -49,6 +49,10 @@ data class ExploreSpecies(
     val scientificName: String,
     val observed: Boolean,
     val card: SpeciesCardModel,
+    /** Validated local catalogue photo reserved for Home Near me and source-bearing Detail. */
+    val localReferencePhotoUrl: String? = null,
+    val localReferencePhotoAttribution: String? = null,
+    val localReferencePhotoLicenseCode: String? = null,
 )
 
 /** The frozen regional content pack currently used by Explore. */
@@ -129,6 +133,9 @@ internal object ExploreProjection {
                     supportingTextItalic = true,
                     status = status,
                 ),
+                localReferencePhotoUrl = details?.photoUrl,
+                localReferencePhotoAttribution = details?.photoAttribution,
+                localReferencePhotoLicenseCode = details?.photoLicenseCode,
             )
         }
     }
@@ -149,8 +156,24 @@ internal object NearbyDiscoveryProjection {
     ): List<NearbySpecies> {
         val cards = catalogue.associateBy(ExploreSpecies::taxonId)
         return nearby.map { species ->
-            val card = cards[species.taxonId]?.card
+            val entry = cards[species.taxonId]
+            val card = entry?.card
+            val localReferencePhotoUrl = entry?.localReferencePhotoUrl
             species.copy(
+                // The API default remains discovery evidence. Home gets the validated local
+                // catalogue asset whenever one is available, avoiding the wall of silhouettes
+                // caused by the mostly non-commercial default-photo licences.
+                photoUrl = localReferencePhotoUrl ?: species.photoUrl,
+                photoAttribution = if (localReferencePhotoUrl != null) {
+                    entry?.localReferencePhotoAttribution
+                } else {
+                    species.photoAttribution
+                },
+                photoLicenseCode = if (localReferencePhotoUrl != null) {
+                    entry?.localReferencePhotoLicenseCode
+                } else {
+                    species.photoLicenseCode
+                },
                 personalPhotoUrl = card?.photoUrl
                     .takeIf { card?.photoKind == SpeciesCardPhotoKind.PERSONAL },
                 silhouetteUrl = card?.silhouetteUrl ?: card?.silhouetteFallbackUrl,

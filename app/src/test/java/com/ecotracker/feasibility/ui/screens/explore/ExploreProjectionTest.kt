@@ -51,9 +51,32 @@ class ExploreProjectionTest {
         ).single()
 
         assertEquals("https://example.test/personal.jpg", observed.personalPhotoUrl)
+        assertEquals("file:///stored/robin.jpg", observed.photoUrl)
+        assertEquals("Test photographer", observed.photoAttribution)
+        assertEquals("cc-by", observed.photoLicenseCode)
         assertEquals("file:///stored/robin.png", observed.silhouetteUrl)
         assertNull(missing.personalPhotoUrl)
+        assertEquals("file:///stored/robin.jpg", missing.photoUrl)
         assertEquals("file:///stored/robin.png", missing.silhouetteUrl)
+    }
+
+    @Test
+    fun `nearby keeps provider photo when no validated local reference is stored`() {
+        val providerPhoto = NearbySpecies(
+            42, "European robin", "Erithacus rubecula", "birds", 12,
+            photoUrl = "https://provider.test/default.jpg",
+            photoAttribution = "Provider photographer",
+            photoLicenseCode = "cc-by",
+        )
+        val catalogue = ExploreProjection.regionalEntries(listOf(taxon()), emptyList())
+
+        val projected = NearbyDiscoveryProjection.withLocalMedia(
+            listOf(providerPhoto), catalogue,
+        ).single()
+
+        assertEquals(providerPhoto.photoUrl, projected.photoUrl)
+        assertEquals(providerPhoto.photoAttribution, projected.photoAttribution)
+        assertEquals(providerPhoto.photoLicenseCode, projected.photoLicenseCode)
     }
 
     @Test

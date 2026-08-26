@@ -38,6 +38,7 @@ import androidx.compose.ui.unit.Dp
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import coil.compose.AsyncImage
+import com.wildlife.feasibility.CataloguePhotoPolicy
 import com.wildlife.feasibility.NearbySpecies
 import com.wildlife.feasibility.WildlifeNetworkIdentity
 import coil.request.ImageRequest
@@ -86,9 +87,10 @@ private val PlateWidth = 132.dp
 private val PlateArtHeight = 108.dp
 
 /**
- * One plate on the shelf: a region-scoped user observation, then the most specific locally
- * validated catalogue silhouette, then the bundled group mark. Nearby provider defaults are
- * discovery evidence only and never become collection artwork.
+ * One plate on Home's shelf. This is the one compact discovery surface allowed to show an
+ * attributed provider photo directly: licensed provider photo, region-scoped user observation,
+ * locally validated catalogue silhouette, then the bundled group mark. Explore's full Near me
+ * table deliberately keeps the collection-style personal-photo/silhouette rule.
  */
 @Composable
 private fun NearbySpeciesPlate(
@@ -98,9 +100,26 @@ private fun NearbySpeciesPlate(
 ) {
     val colors = WildlifeTheme.colors
     val context = LocalContext.current
-    val photoUrl = species.personalPhotoUrl
-    // A local/user image can still disappear; the silhouette chain keeps the plate usable.
-    var imageFailed by remember(photoUrl) { mutableStateOf(photoUrl == null) }
+    val referencePhotoUrl = CataloguePhotoPolicy.creditedUrl(
+        species.photoUrl,
+        species.photoAttribution,
+        species.photoLicenseCode,
+    )
+    var referencePhotoFailed by remember(referencePhotoUrl) {
+        mutableStateOf(referencePhotoUrl == null)
+    }
+    var personalPhotoFailed by remember(species.personalPhotoUrl) {
+        mutableStateOf(species.personalPhotoUrl == null)
+    }
+    val photoUrl = when {
+        !referencePhotoFailed -> referencePhotoUrl
+        !personalPhotoFailed -> species.personalPhotoUrl
+        else -> null
+    }
+    val showingReferencePhoto = photoUrl != null && photoUrl == referencePhotoUrl
+    val referenceCredit = referencePhotoUrl?.takeIf { showingReferencePhoto }?.let {
+        CataloguePhotoPolicy.compactCredit(species.photoAttribution, species.photoLicenseCode)
+    }
     var silhouetteFailed by remember(species.silhouetteUrl) {
         mutableStateOf(species.silhouetteUrl == null)
     }
@@ -115,15 +134,22 @@ private fun NearbySpeciesPlate(
                 .border(1.dp, WildlifeOutlineSubtle, RoundedCornerShape(8.dp)),
             contentAlignment = Alignment.Center,
         ) {
-            if (!imageFailed && photoUrl != null) {
+            if (photoUrl != null) {
                 AsyncImage(
                     model = ImageRequest.Builder(context)
                         .data(photoUrl)
                         .setHeader("User-Agent", WildlifeNetworkIdentity.REFERENCE_MEDIA_USER_AGENT)
                         .build(),
-                    contentDescription = null,
+                    contentDescription = if (showingReferencePhoto) {
+                        "${species.commonName ?: species.scientificName}, attributed reference photo"
+                    } else {
+                        "${species.commonName ?: species.scientificName}, your observation photo"
+                    },
                     contentScale = ContentScale.Crop,
-                    onError = { imageFailed = true },
+                    onError = {
+                        if (showingReferencePhoto) referencePhotoFailed = true
+                        else personalPhotoFailed = true
+                    },
                     modifier = Modifier.fillMaxSize(),
                 )
                 // The tally sits on the artwork, so it needs a foot of shade to stay legible
@@ -188,6 +214,15 @@ private fun NearbySpeciesPlate(
         Text(
             text = if (species.commonName != null) species.scientificName else "",
             style = ScientificNameStyle,
+            color = colors.parchmentFaint,
+            maxLines = 1,
+            overflow = TextOverflow.Ellipsis,
+        )
+        // Keep the creator and licence directly attached to provider artwork. An empty line on
+        // personal-photo and silhouette plates preserves the carousel's shared baseline.
+        Text(
+            text = referenceCredit.orEmpty(),
+            style = MaterialTheme.typography.labelSmall,
             color = colors.parchmentFaint,
             maxLines = 1,
             overflow = TextOverflow.Ellipsis,

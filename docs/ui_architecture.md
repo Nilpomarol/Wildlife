@@ -173,12 +173,19 @@ Until the curated catalogue is frozen, the UI must say **Provisional catalogue**
   - It reads a **single last-known fix**, never a location stream, and never wakes the GPS with `getCurrentLocation`. With no recent fix the cache is judged on age and month alone.
   - It runs **only when a cached answer already exists**, i.e. only after the user has explicitly asked for a nearby search at least once.
 - Staleness lives in `NearbyCachePolicy`, not in the ViewModel, so the thresholds are unit-tested: re-search past **5 km** of movement (a fifth of the 25 km radius), on a **calendar-month change** (the month is part of the query), on a **radius change**, or after **7 days**. A failed or stale re-check leaves the previous answer on screen rather than replacing it with an error.
-- Home renders the extract as a **carousel** of plates and Explore keeps the full ranked table; both share `NearbySpeciesRow`/`NearbySpeciesCarousel` imagery rules and state the reporting-frequency caveat identically.
+- Home renders the extract as a **carousel** of plates and Explore keeps the full ranked table.
+  They share the reporting-frequency caveat, but intentionally not their top artwork source:
+  Home's compact carousel is the only discovery shelf allowed to present a licence-compatible
+  catalogue/provider reference photo directly, with creator and licence printed on the plate.
+  The validated local catalogue asset takes precedence over the nearby API's taxon default, whose
+  licence is often incompatible with distribution. Explore's
+  full Near me rows retain the collection-style personal-photo/silhouette treatment.
 - Nearby results use reporting counts and identity from `species_counts`, but their artwork follows
-  the collection contract: a user observation assigned to the browsed region, then the most
-  specific validated local catalogue silhouette, then its validated family assignment, then the
-  bundled group mark. The provider's
-  taxon-default photo remains discovery evidence and is never shown as collection artwork.
+  two explicit surface contracts. Home uses a validated local catalogue photo, an eligible
+  attributed provider default, a user observation assigned to the browsed region, the most
+  specific validated local catalogue silhouette, its validated family assignment, then the bundled
+  group mark. Explore Near me starts at the user observation and never renders either reference
+  source. Reference photography does not become collection artwork.
   `iconic_taxon_name` is normalized to a group key (`taxonGroupForClass`) at parse time so the
   final offline fallback cannot silently render empty.
 - My Map is Explore's third section rather than a separate route. Home links to it by selecting that section. It is a regional-progress and personal-history surface. It renders all bundled local regional boundaries and exposes installed-catalogue completion plus Essentials/Icons states with an accessible textual legend. Personal history remains a separately toggleable 0.1°-cell layer; it never renders exact pins and retains hidden/unavailable-location disclosure and separate Research Grade meaning.
@@ -264,7 +271,18 @@ selection evidence and content generation
 
 The content-authoring refresh resolves reference photos in this order: reviewed Wikimedia Commons Featured/Quality image associated with the taxon, licensed iNaturalist taxon default, compatible research-grade iNaturalist observation photo, then no reference photo. It resolves PhyloPic into two independent frozen roles for every published taxon: species→genus for the specific role and family→order for the family role. It records each assignment's real matched name even when one provider image is reused by several catalogue taxa. It records selected direct variants and provenance in frozen inputs before the network-independent Android content build. All authored and stored licence codes use exactly `pdm`, `cc0`, `cc-by` or `cc-by-sa`; the licence URL carries the version. Species Detail may repeat only a missing photo/download stage for its one opened taxon; grids and background catalogue loading never run provider discovery.
 
-Explore always shows a licensed broad-group/family silhouette for an unobserved species. Observed Explore cards favour the user's own sighting and use an attributed published reference only when that photo is missing. Collection remains personal. A failed direct image retains the local thumbnail/silhouette and enters persistent targeted repair. Active-region media prefetch is resumable WorkManager work backed by a durable priority queue; it is not an in-memory ViewModel pass. Files use atomic validated writes, deduplication, pinning, storage accounting, LRU eviction and orphan cleanup. Media metadata lives in one application-scoped WAL SQLite index; downloads reserve capacity transactionally but run outside storage locks, while workers use persisted queue due times rather than generic WorkManager retry for normal batching. Do not silently fall back to an unlicensed URL, an AI-generated animal or an unrelated generic animal image. Full ownership and loading rules are in [`species_content_pipeline_plan.md`](species_content_pipeline_plan.md).
+Explore always shows a licensed broad-group/family silhouette for an unobserved species and favours
+the user's own sighting when observed. Collection remains personal. Home Near me is the sole compact
+exception: its carousel may render the nearby response's licence-compatible provider photo when a
+creator and licence are displayed with it. A failed direct image retains the personal-photo or local
+silhouette fallback. Active-region media prefetch is resumable WorkManager work backed by a durable
+priority queue; it is not an in-memory ViewModel pass. Files use atomic validated writes,
+deduplication, pinning, storage accounting, LRU eviction and orphan cleanup. Media metadata lives in
+one application-scoped WAL SQLite index; downloads reserve capacity transactionally but run outside
+storage locks, while workers use persisted queue due times rather than generic WorkManager retry for
+normal batching. Do not silently fall back to an unlicensed URL, an AI-generated animal or an
+unrelated generic animal image. Full ownership and loading rules are in
+[`species_content_pipeline_plan.md`](species_content_pipeline_plan.md).
 
 User observation photos can represent observed cards subject to privacy and local caching rules. Reference catalogue photos and user photos are different sources and must remain distinguishable in data.
 
