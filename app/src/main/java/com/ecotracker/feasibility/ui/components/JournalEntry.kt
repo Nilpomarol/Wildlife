@@ -14,7 +14,9 @@ import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.offset
 import androidx.compose.foundation.layout.padding
+import androidx.compose.foundation.layout.requiredSize
 import androidx.compose.foundation.layout.size
+import androidx.compose.foundation.shape.CircleShape
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
@@ -98,27 +100,45 @@ fun Masthead(
     Box(modifier.fillMaxWidth()) {
         Box(Modifier.matchParentSize().background(headerScrim()))
         Column(Modifier.padding(start = 16.dp, end = 16.dp, top = 14.dp, bottom = 18.dp)) {
-            // Use the product's actual launcher artwork here. A second, header-only emblem
-            // makes the masthead look like a related field guide rather than Wildlife.
-            Row(verticalAlignment = Alignment.CenterVertically) {
-                WildlifeAppIcon(
-                    size = 40.dp,
-                    contentDescription = "Wildlife",
+            // Keep product identity and the dateline on one compact editorial line. The
+            // circular crop lets the launcher artwork behave as a journal seal instead of
+            // introducing a square app-bar tile above the ranger identity.
+            Row(
+                modifier = Modifier.fillMaxWidth(),
+                horizontalArrangement = Arrangement.SpaceBetween,
+                verticalAlignment = Alignment.CenterVertically,
+            ) {
+                Text(
+                    dateline.uppercase(),
+                    style = FieldStampStyle,
+                    color = colors.oliveStrong,
+                    maxLines = 1,
+                    overflow = TextOverflow.Ellipsis,
                 )
-                Spacer(Modifier.size(10.dp))
-                Column(Modifier.weight(1f)) {
-                    Text("WILDLIFE FIELD JOURNAL", style = FieldLabelStyle, color = colors.parchment)
-                    Spacer(Modifier.height(2.dp))
+                Row(verticalAlignment = Alignment.CenterVertically) {
                     Text(
-                        dateline.uppercase(),
-                        style = FieldStampStyle,
-                        color = colors.oliveStrong,
+                        "WILDLIFE",
+                        style = FieldLabelStyle,
+                        color = colors.parchment,
                         maxLines = 1,
-                        overflow = TextOverflow.Ellipsis,
                     )
+                    Spacer(Modifier.size(10.dp))
+                    // The source launcher asset includes transparent inset around its
+                    // rounded-square plate. Enlarge it within the circular viewport so
+                    // the visible cream field, rather than that transparent canvas, is cut.
+                    Box(
+                        modifier = Modifier.size(36.dp).clip(CircleShape),
+                        contentAlignment = Alignment.Center,
+                    ) {
+                        WildlifeAppIcon(
+                            size = 46.dp,
+                            modifier = Modifier.requiredSize(46.dp),
+                            contentDescription = "Wildlife",
+                        )
+                    }
                 }
             }
-            Spacer(Modifier.height(15.dp))
+            Spacer(Modifier.height(12.dp))
             Row(verticalAlignment = Alignment.Top) {
                 // Larger than Collection's badge: on Home the rank *is* the identity, not
                 // an annotation beside a region name.

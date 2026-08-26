@@ -1040,8 +1040,11 @@ Both sit on the same ground, palette and type; what differs is the furniture.
 The reference voice is in `ui/components/FieldGuide.kt`: the ranger header, section rules,
 plate surfaces, field-mark pills. The dated-entry voice is in `ui/components/JournalEntry.kt`:
 
-- **`Masthead`** — Home's header. It carries the *ranger*, where `RangerHeader` carries the
-  *region*. Lifetime XP and the rank ladder live here and nowhere else, which is the exact
+- **`Masthead`** — Home's header. A compact identity line places the dateline on the left
+  and `WILDLIFE` followed by the installed app icon, cropped as a round journal seal, on
+  the right; it must not grow into a second title above the ranger identity. The masthead
+  carries the *ranger*, where `RangerHeader` carries the *region*. Lifetime XP and the rank
+  ladder live here and nowhere else, which is the exact
   measure Collection's regional header refuses. Home's current-region projection stays in
   its own card below the masthead, so regional completion and lifetime progression never
   share a header or progress system. Its Essential and Icon counts use their owner-supplied
