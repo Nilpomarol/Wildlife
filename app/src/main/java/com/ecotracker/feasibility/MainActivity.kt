@@ -284,9 +284,10 @@ class MainActivity : ComponentActivity() {
                         onDeleteLocal = observationsViewModel::deleteLocalGroup,
                         title = "Collection",
                         header = {
-                            CollectionSectionSelector(collectionSection) {
-                                collectionSection = it
-                            }
+                            CollectionSectionSelector(
+                                selected = collectionSection,
+                                onSelected = { collectionSection = it },
+                            )
                         },
                         bottomBar = bottomBar,
                     )

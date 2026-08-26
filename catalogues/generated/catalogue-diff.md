@@ -1,10 +1,10 @@
 # Catalogue source report
 
-Generation: `catalogue-v22-20260825T162756Z`
+Generation: `catalogue-v23-20260826T131752Z`
 
-Source digest: `18974397904c3052513b9ad815d2d550e8e29a3c4b1df53b5dbe5277088f8784`
+Source digest: `5b3f1ffaa82b46f9d88ca2dfec0f7af26e20a5283bc2eca65baa7ce4f2bc839a`
 
-Logical database digest: `fa33661f8f874ceaecff5882bc464c2d27e2346ef1495980db0375bfde67069d`
+Logical database digest: `b70a82e26a31e6a565b8ae9ad985bf9de06c37ae21a840c3e34feb64fd221e46`
 
 Published description gaps: **226**
 

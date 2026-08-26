@@ -1,5 +1,8 @@
 package com.wildlife.feasibility.ui.components
 
+import androidx.compose.animation.core.animateFloatAsState
+import androidx.compose.animation.core.tween
+import androidx.compose.foundation.Canvas
 import androidx.compose.foundation.Image
 import androidx.compose.foundation.background
 import androidx.compose.foundation.border
@@ -9,21 +12,30 @@ import androidx.compose.foundation.layout.BoxScope
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.Spacer
+import androidx.compose.foundation.layout.fillMaxHeight
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
+import androidx.compose.foundation.selection.selectable
+import androidx.compose.foundation.selection.selectableGroup
 import androidx.compose.foundation.shape.CircleShape
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.getValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
 import androidx.compose.ui.layout.ContentScale
 import androidx.compose.ui.res.painterResource
 import com.wildlife.feasibility.R
+import androidx.compose.ui.geometry.Offset
 import androidx.compose.ui.graphics.Brush
+import androidx.compose.ui.graphics.Path
+import androidx.compose.ui.graphics.drawscope.Stroke
+import androidx.compose.ui.graphics.lerp
+import androidx.compose.ui.semantics.Role
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.style.TextOverflow
@@ -47,8 +59,11 @@ import com.wildlife.feasibility.ui.theme.DisplayFontFamily
 import com.wildlife.feasibility.ui.theme.FieldLabelStyle
 import com.wildlife.feasibility.ui.theme.levelAccent
 import com.wildlife.feasibility.ui.theme.WildlifeBackground
+import com.wildlife.feasibility.ui.theme.WildlifeSpacing
 import com.wildlife.feasibility.ui.theme.WildlifeSurface
+import com.wildlife.feasibility.ui.theme.WildlifeSurfaceElevated
 import com.wildlife.feasibility.ui.theme.WildlifeSurfaceWarm
+import com.wildlife.feasibility.ui.theme.WildlifeOutline
 import com.wildlife.feasibility.ui.theme.WildlifeOutlineSubtle
 import com.wildlife.feasibility.ui.theme.WildlifeTheme
 
@@ -416,6 +431,159 @@ fun SectionRule(
         Box(Modifier.weight(1f).height(1.dp).background(WildlifeOutlineSubtle))
     }
 }
+
+/**
+ * The journal's index strip: the thumb-cut tabs at the head of a destination.
+ *
+ * A destination holding several views needs one control to move between them, and the stock
+ * Material tab row is not it — an opaque band with an accent underline is the one shape in
+ * Android that says "this is a Material app", and it stamped itself over the page painting
+ * wherever it appeared.
+ *
+ * What replaces it is printed. The page's rule runs the full width of the margin, and the
+ * open view's tab is a cut of stock that **breaks that rule** and opens into the page below
+ * it. Nothing is tinted, underlined or filled with an accent: the selected tab is simply
+ * continuous with the content, the way a thumb index is continuous with the page it opens.
+ *
+ * The tabs are sized to their words rather than splitting the width evenly, which is what
+ * keeps them reading as an index rather than as a segmented control, and leaves the rule
+ * visible to the right of the last one.
+ *
+ * It is deliberately not the bottom bar's cream-block inversion. That block is the app's one
+ * light object and says where you are in the *app*; this says which view of one destination
+ * is open, and has to sit a step below it.
+ */
+@Composable
+fun JournalTabStrip(
+    labels: List<String>,
+    selectedIndex: Int,
+    onSelected: (Int) -> Unit,
+    modifier: Modifier = Modifier,
+) {
+    val rule = WildlifeOutline
+    Box(
+        modifier
+            .fillMaxWidth()
+            .height(TabStripHeight)
+            .padding(horizontal = WildlifeSpacing.Screen),
+    ) {
+        // One line across the whole margin, drawn behind the tabs. The open tab's stock is
+        // opaque and covers its own segment, so the break needs no measuring of where that
+        // tab happens to fall.
+        Canvas(Modifier.fillMaxSize()) {
+            val hairline = 1.dp.toPx()
+            drawLine(
+                color = rule,
+                start = Offset(0f, size.height - hairline / 2f),
+                end = Offset(size.width, size.height - hairline / 2f),
+                strokeWidth = hairline,
+            )
+        }
+        Row(
+            Modifier
+                .fillMaxSize()
+                .selectableGroup(),
+            horizontalArrangement = Arrangement.spacedBy(TabGap),
+        ) {
+            labels.forEachIndexed { index, label ->
+                JournalIndexTab(
+                    label = label,
+                    selected = index == selectedIndex,
+                    onClick = { onSelected(index) },
+                    // An unfilled weight caps a tab at its equal share without padding it
+                    // out to one: at the default text size every word fits and the tabs
+                    // keep their natural widths, and at large text the longest one gives
+                    // up characters rather than pushing the last tab off the screen.
+                    modifier = Modifier.weight(1f, fill = false),
+                )
+            }
+        }
+    }
+}
+
+private val TabStripHeight = 42.dp
+private val TabCorner = 8.dp
+private val TabGap = 4.dp
+
+/**
+ * One cut tab: stock, edge and ink cross-fading on a single fraction, so moving between
+ * views slides the cut rather than blinking it.
+ */
+@Composable
+private fun JournalIndexTab(
+    label: String,
+    selected: Boolean,
+    onClick: () -> Unit,
+    modifier: Modifier = Modifier,
+) {
+    val colors = WildlifeTheme.colors
+    val presence by animateFloatAsState(
+        targetValue = if (selected) 1f else 0f,
+        animationSpec = tween(durationMillis = 200),
+        label = "tab-presence",
+    )
+    val edge = colors.oliveStrong
+    Box(
+        modifier
+            .fillMaxHeight()
+            .selectable(
+                selected = selected,
+                onClick = onClick,
+                role = Role.Tab,
+            ),
+        contentAlignment = Alignment.Center,
+    ) {
+        if (presence > 0.004f) {
+            // matchParentSize, not fillMaxSize: the tab is sized by its word, and a canvas
+            // that fills the max constraints would stretch it across the whole strip.
+            Canvas(Modifier.matchParentSize()) {
+                val corner = TabCorner.toPx()
+                val hairline = 1.dp.toPx()
+                val inset = hairline / 2f
+                // An "n": up the left edge, over the top, down the right. It has no bottom,
+                // because the bottom is where the tab opens into the page.
+                val cut = Path().apply {
+                    moveTo(inset, size.height)
+                    lineTo(inset, corner)
+                    quadraticTo(inset, inset, corner, inset)
+                    lineTo(size.width - corner, inset)
+                    quadraticTo(size.width - inset, inset, size.width - inset, corner)
+                    lineTo(size.width - inset, size.height)
+                }
+                // Lit from the top, like every other raised surface in the journal, so the
+                // cut reads as stock lying on the page rather than as a hole in it.
+                drawPath(
+                    path = cut,
+                    brush = Brush.verticalGradient(
+                        listOf(WildlifeSurfaceElevated, WildlifeSurface),
+                        endY = size.height,
+                    ),
+                    alpha = presence,
+                )
+                drawPath(
+                    path = cut,
+                    color = edge.copy(alpha = 0.60f * presence),
+                    style = Stroke(width = hairline),
+                )
+            }
+        }
+        Text(
+            text = label.uppercase(),
+            style = TabLabelStyle,
+            color = lerp(colors.parchmentDim, colors.parchment, presence),
+            maxLines = 1,
+            softWrap = false,
+            overflow = TextOverflow.Ellipsis,
+            modifier = Modifier.padding(horizontal = 14.dp),
+        )
+    }
+}
+
+/**
+ * The strip's ink: the field label a step up in size, tracked in so a long view name still
+ * fits beside its peers on a phone at the default text size.
+ */
+private val TabLabelStyle = FieldLabelStyle.copy(fontSize = 11.sp, letterSpacing = 0.7.sp)
 
 /** A filter tab in the journal's tab row. */
 @Composable

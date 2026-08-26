@@ -67,6 +67,7 @@ fun ObservationsScreen(
     onOpenINaturalist: () -> Unit,
     onDeleteLocal: (String) -> Unit,
     title: String = "Observations",
+    /** Pinned under the app bar, above the ledger: Collection's index strip goes here. */
     header: @Composable () -> Unit = {},
     bottomBar: @Composable () -> Unit = {},
 ) {
@@ -91,115 +92,125 @@ fun ObservationsScreen(
         },
         bottomBar = bottomBar,
     ) { padding ->
-        if (state.isLoading && state.managed.isEmpty() && state.publicObservations.isEmpty()) {
-            WildlifeLoadingState(
-                label = "Opening your observation records…",
-                modifier = Modifier.padding(padding),
-            )
-            return@WildlifeScaffold
-        }
-        LazyColumn(
+        Column(
             modifier = Modifier
                 .fillMaxSize()
                 .padding(padding),
-            contentPadding = PaddingValues(
-                start = WildlifeSpacing.Screen,
-                end = WildlifeSpacing.Screen,
-                bottom = WildlifeSpacing.Section,
-            ),
-            verticalArrangement = Arrangement.spacedBy(WildlifeSpacing.Small),
         ) {
-            item(key = "destination-header") { header() }
-            item {
-                Text(
-                    text = "Your Wildlife handoffs and public iNaturalist history. Wildlife never edits or deletes iNaturalist records.",
-                    style = MaterialTheme.typography.bodySmall,
-                    color = WildlifeTheme.colors.mutedText,
-                    modifier = Modifier.padding(bottom = WildlifeSpacing.Micro),
+            // Outside the list's padding and above its scroll, so the strip keeps the same
+            // full-bleed position it holds in Collection's other sections. It is drawn
+            // before the loading branch, so switching section does not blank the strip.
+            header()
+            if (state.isLoading && state.managed.isEmpty() && state.publicObservations.isEmpty()) {
+                WildlifeLoadingState(
+                    label = "Opening your observation records…",
+                    modifier = Modifier.weight(1f),
                 )
+                return@Column
             }
-            state.message?.let { message -> item { MessageBanner(message) } }
-            if (state.account == null) {
+            LazyColumn(
+                modifier = Modifier
+                    .fillMaxWidth()
+                    .weight(1f),
+                contentPadding = PaddingValues(
+                    top = WildlifeSpacing.Card,
+                    start = WildlifeSpacing.Screen,
+                    end = WildlifeSpacing.Screen,
+                    bottom = WildlifeSpacing.Section,
+                ),
+                verticalArrangement = Arrangement.spacedBy(WildlifeSpacing.Small),
+            ) {
                 item {
                     Text(
-                        text = "Link iNaturalist to check submitted handoffs and load your public observations.",
-                        style = MaterialTheme.typography.bodyMedium,
-                        color = MaterialTheme.colorScheme.onSurfaceVariant,
+                        text = "Your Wildlife handoffs and public iNaturalist history. Wildlife never edits or deletes iNaturalist records.",
+                        style = MaterialTheme.typography.bodySmall,
+                        color = WildlifeTheme.colors.mutedText,
+                        modifier = Modifier.padding(bottom = WildlifeSpacing.Micro),
                     )
                 }
-            }
-
-            if (needsAction.isNotEmpty()) {
-                item(key = "header-needs-action") {
-                    SectionHeader(
-                        title = "Needs your action",
-                        count = needsAction.size,
-                        accent = goldAccent,
-                        hint = "Confirm a public match, or record whether you submitted these",
-                    )
-                }
-                items(needsAction, key = { "needs-${it.groupId}" }) { observation ->
-                    ActionObservationRow(observation, state.syncing, onSubmitted, onNotSubmitted, onConfirm, onOpenObservation)
-                }
-            }
-
-            managedSection(
-                title = "Awaiting confirmation",
-                records = awaiting,
-                accent = mutedAccent,
-                hint = "Submitted to iNaturalist — waiting for the public record to appear",
-                onDeleteLocal = onDeleteLocal,
-            ) { observation ->
-                IconButton(onClick = onOpenINaturalist) {
-                    Icon(Icons.AutoMirrored.Outlined.OpenInNew, "Open iNaturalist", tint = MaterialTheme.colorScheme.secondary)
-                }
-            }
-
-            managedSection(
-                title = "Drafts",
-                records = drafts,
-                accent = mutedAccent,
-                hint = "Saved in Wildlife, not yet submitted to iNaturalist",
-                onDeleteLocal = onDeleteLocal,
-            )
-
-            managedSection(
-                title = "In your collection",
-                records = collected,
-                accent = confirmedAccent,
-                hint = "Confirmed sightings linked to your iNaturalist record",
-                onDeleteLocal = onDeleteLocal,
-            ) { observation ->
-                observation.matchedObservationUuid?.let { uuid ->
-                    IconButton(onClick = { onOpenObservation(uuid) }) {
-                        Icon(Icons.AutoMirrored.Outlined.OpenInNew, "Open public record", tint = MaterialTheme.colorScheme.secondary)
+                state.message?.let { message -> item { MessageBanner(message) } }
+                if (state.account == null) {
+                    item {
+                        Text(
+                            text = "Link iNaturalist to check submitted handoffs and load your public observations.",
+                            style = MaterialTheme.typography.bodyMedium,
+                            color = MaterialTheme.colorScheme.onSurfaceVariant,
+                        )
                     }
                 }
-            }
 
-            item {
-                SectionHeader(
-                    title = if (state.taxonFilter == null) "Public observations" else "This species",
-                    count = state.publicObservations.size,
-                    accent = oliveAccent,
-                    hint = if (state.taxonFilter == null) {
-                        "Your iNaturalist history that wasn't recorded through Wildlife"
-                    } else {
-                        "Your public iNaturalist sightings of this species"
-                    },
+                if (needsAction.isNotEmpty()) {
+                    item(key = "header-needs-action") {
+                        SectionHeader(
+                            title = "Needs your action",
+                            count = needsAction.size,
+                            accent = goldAccent,
+                            hint = "Confirm a public match, or record whether you submitted these",
+                        )
+                    }
+                    items(needsAction, key = { "needs-${it.groupId}" }) { observation ->
+                        ActionObservationRow(observation, state.syncing, onSubmitted, onNotSubmitted, onConfirm, onOpenObservation)
+                    }
+                }
+
+                managedSection(
+                    title = "Awaiting confirmation",
+                    records = awaiting,
+                    accent = mutedAccent,
+                    hint = "Submitted to iNaturalist — waiting for the public record to appear",
+                    onDeleteLocal = onDeleteLocal,
+                ) { observation ->
+                    IconButton(onClick = onOpenINaturalist) {
+                        Icon(Icons.AutoMirrored.Outlined.OpenInNew, "Open iNaturalist", tint = MaterialTheme.colorScheme.secondary)
+                    }
+                }
+
+                managedSection(
+                    title = "Drafts",
+                    records = drafts,
+                    accent = mutedAccent,
+                    hint = "Saved in Wildlife, not yet submitted to iNaturalist",
+                    onDeleteLocal = onDeleteLocal,
                 )
-            }
-            if (state.publicObservations.isEmpty()) {
+
+                managedSection(
+                    title = "In your collection",
+                    records = collected,
+                    accent = confirmedAccent,
+                    hint = "Confirmed sightings linked to your iNaturalist record",
+                    onDeleteLocal = onDeleteLocal,
+                ) { observation ->
+                    observation.matchedObservationUuid?.let { uuid ->
+                        IconButton(onClick = { onOpenObservation(uuid) }) {
+                            Icon(Icons.AutoMirrored.Outlined.OpenInNew, "Open public record", tint = MaterialTheme.colorScheme.secondary)
+                        }
+                    }
+                }
+
                 item {
-                    Text(
-                        text = "No stored public observations yet.",
-                        style = MaterialTheme.typography.bodyMedium,
-                        color = MaterialTheme.colorScheme.onSurfaceVariant,
+                    SectionHeader(
+                        title = if (state.taxonFilter == null) "Public observations" else "This species",
+                        count = state.publicObservations.size,
+                        accent = oliveAccent,
+                        hint = if (state.taxonFilter == null) {
+                            "Your iNaturalist history that wasn't recorded through Wildlife"
+                        } else {
+                            "Your public iNaturalist sightings of this species"
+                        },
                     )
                 }
-            } else {
-                items(state.publicObservations, key = { it.uuid }) { observation ->
-                    PublicObservationRow(observation, onOpenObservation)
+                if (state.publicObservations.isEmpty()) {
+                    item {
+                        Text(
+                            text = "No stored public observations yet.",
+                            style = MaterialTheme.typography.bodyMedium,
+                            color = MaterialTheme.colorScheme.onSurfaceVariant,
+                        )
+                    }
+                } else {
+                    items(state.publicObservations, key = { it.uuid }) { observation ->
+                        PublicObservationRow(observation, onOpenObservation)
+                    }
                 }
             }
         }

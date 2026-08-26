@@ -24,9 +24,6 @@ import androidx.compose.material.icons.outlined.Refresh
 import androidx.compose.material3.Button
 import androidx.compose.material3.Card
 import androidx.compose.material3.CardDefaults
-import androidx.compose.material3.ExperimentalMaterial3Api
-import androidx.compose.material3.SecondaryTabRow
-import androidx.compose.material3.Tab
 import androidx.compose.material3.Icon
 import androidx.compose.material3.LinearProgressIndicator
 import androidx.compose.material3.MaterialTheme
@@ -34,6 +31,7 @@ import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
+import androidx.compose.runtime.remember
 import androidx.compose.runtime.saveable.rememberSaveable
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
@@ -57,6 +55,7 @@ import com.wildlife.feasibility.ui.components.SpeciesGrid
 import com.wildlife.feasibility.ui.components.SpeciesCardModel
 import com.wildlife.feasibility.ui.components.SpeciesCardStatus
 import com.wildlife.feasibility.ui.components.TaxonFilterRow
+import com.wildlife.feasibility.ui.components.JournalTabStrip
 import com.wildlife.feasibility.ui.components.WildlifeScaffold
 import com.wildlife.feasibility.ui.components.WildlifeLoadingState
 import com.wildlife.feasibility.ui.components.responsiveSpeciesGridColumns
@@ -223,33 +222,18 @@ fun ExploreScreen(
     }
 }
 
-@OptIn(ExperimentalMaterial3Api::class)
+/** Explore's index strip, in the same printed tabs Collection uses for its sections. */
 @Composable
 private fun ExploreSectionSelector(
     selected: ExploreSection,
     onSelected: (ExploreSection) -> Unit,
 ) {
-    SecondaryTabRow(
-        selectedTabIndex = selected.ordinal,
-        containerColor = MaterialTheme.colorScheme.background,
-        contentColor = WildlifeTheme.colors.oliveStrong,
-    ) {
-        ExploreSection.entries.forEach { section ->
-            Tab(
-                selected = section == selected,
-                onClick = { onSelected(section) },
-                text = {
-                    Text(
-                        text = section.label,
-                        style = MaterialTheme.typography.labelLarge,
-                        maxLines = 1,
-                    )
-                },
-                selectedContentColor = WildlifeTheme.colors.oliveStrong,
-                unselectedContentColor = MaterialTheme.colorScheme.onSurfaceVariant,
-            )
-        }
-    }
+    val labels = remember { ExploreSection.entries.map { it.label } }
+    JournalTabStrip(
+        labels = labels,
+        selectedIndex = selected.ordinal,
+        onSelected = { onSelected(ExploreSection.entries[it]) },
+    )
 }
 
 @Composable

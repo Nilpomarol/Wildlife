@@ -1,13 +1,9 @@
 package com.wildlife.feasibility.ui.screens.collection
 
-import androidx.compose.material3.ExperimentalMaterial3Api
-import androidx.compose.material3.MaterialTheme
-import androidx.compose.material3.SecondaryTabRow
-import androidx.compose.material3.Tab
-import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
-import androidx.compose.ui.text.style.TextOverflow
-import com.wildlife.feasibility.ui.theme.WildlifeTheme
+import androidx.compose.runtime.remember
+import androidx.compose.ui.Modifier
+import com.wildlife.feasibility.ui.components.JournalTabStrip
 
 enum class CollectionSection(val label: String) {
     SPECIES("Species"),
@@ -15,32 +11,25 @@ enum class CollectionSection(val label: String) {
     MAP("Map"),
 }
 
-@OptIn(ExperimentalMaterial3Api::class)
+/**
+ * Collection's index strip.
+ *
+ * The three sections are three views of one personal record, so the strip is pinned
+ * directly under the destination's title on every one of them and never scrolls away with
+ * a section's content: a switch that is in a different place — or gone — depending on
+ * which view is open is a switch the user has to hunt for.
+ */
 @Composable
 fun CollectionSectionSelector(
     selected: CollectionSection,
     onSelected: (CollectionSection) -> Unit,
+    modifier: Modifier = Modifier,
 ) {
-    SecondaryTabRow(
-        selectedTabIndex = selected.ordinal,
-        containerColor = MaterialTheme.colorScheme.background,
-        contentColor = WildlifeTheme.colors.oliveStrong,
-    ) {
-        CollectionSection.entries.forEach { section ->
-            Tab(
-                selected = section == selected,
-                onClick = { onSelected(section) },
-                text = {
-                    Text(
-                        text = section.label,
-                        style = MaterialTheme.typography.labelLarge,
-                        maxLines = 1,
-                        overflow = TextOverflow.Ellipsis,
-                    )
-                },
-                selectedContentColor = WildlifeTheme.colors.oliveStrong,
-                unselectedContentColor = MaterialTheme.colorScheme.onSurfaceVariant,
-            )
-        }
-    }
+    val labels = remember { CollectionSection.entries.map { it.label } }
+    JournalTabStrip(
+        labels = labels,
+        selectedIndex = selected.ordinal,
+        onSelected = { onSelected(CollectionSection.entries[it]) },
+        modifier = modifier,
+    )
 }

@@ -179,69 +179,76 @@ fun CollectionScreen(
         title = "Collection",
         onBack = onBack,
         bottomBar = bottomBar,
-        showTopBar = onBack != null,
     ) { innerPadding ->
       FieldGuidePage {
-        when {
-            state.isLoading && state.entries.isEmpty() -> WildlifeLoadingState(
-                label = "Opening your collection…",
-                modifier = Modifier.padding(innerPadding),
-            )
-            state.errorMessage != null -> CollectionMessage(
-                message = state.errorMessage,
-                actionLabel = "Try again",
-                onAction = onRetry,
-                modifier = Modifier.padding(innerPadding),
-            )
-            else -> SpeciesGrid(
-                entries = filtered,
-                key = CollectionSpecies::key,
-                model = CollectionSpecies::toCardModel,
-                onClick = onOpenSpecies,
-                modifier = Modifier
-                    .fillMaxSize()
-                    .padding(innerPadding),
-                header = {
-                    Column(
-                        modifier = Modifier.padding(top = WildlifeSpacing.Small),
-                        verticalArrangement = Arrangement.spacedBy(WildlifeSpacing.Card),
-                    ) {
-                        CollectionSectionSelector(selectedSection, onSectionChange)
-                        PersonalCollectionHeader(
-                            speciesCount = personalEntries.size,
-                            observationCount = state.observationCount,
-                            researchGradeCount = personalEntries.count {
-                                it.bestQualityGrade == "research"
-                            },
-                        )
-                        if (!state.linked) {
-                            UnlinkedCollectionBanner(onLinkAccount = onLinkAccount)
-                        }
-                        SearchRow(
-                            query = query,
-                            onQueryChange = { query = it },
-                            activeCount = filters.activeCount,
-                            onOpenFilters = { filtersOpen = true },
-                            onClearFilters = { onFilters(CollectionFilters.None) },
-                        )
-                        FilterBar(
-                            filters = filters,
-                            onFilters = onFilters,
-                            sort = sort,
-                            onSort = { sort = it },
-                            count = filtered.size,
-                        )
-                        SectionRule("Recorded species")
-                        if (filtered.isEmpty()) {
-                            if (personalEntries.isEmpty()) {
-                                EmptyCollectionNote()
-                            } else {
-                                EmptyFilterNote(filters.activeLabels())
+        // The index strip is pinned above the grid rather than scrolled with its header:
+        // it belongs to the destination, not to this one section's content.
+        Column(
+            modifier = Modifier
+                .fillMaxSize()
+                .padding(innerPadding),
+        ) {
+            CollectionSectionSelector(selectedSection, onSectionChange)
+            when {
+                state.isLoading && state.entries.isEmpty() -> WildlifeLoadingState(
+                    label = "Opening your collection…",
+                    modifier = Modifier.weight(1f),
+                )
+                state.errorMessage != null -> CollectionMessage(
+                    message = state.errorMessage,
+                    actionLabel = "Try again",
+                    onAction = onRetry,
+                    modifier = Modifier.weight(1f),
+                )
+                else -> SpeciesGrid(
+                    entries = filtered,
+                    key = CollectionSpecies::key,
+                    model = CollectionSpecies::toCardModel,
+                    onClick = onOpenSpecies,
+                    modifier = Modifier
+                        .fillMaxWidth()
+                        .weight(1f),
+                    header = {
+                        Column(
+                            modifier = Modifier.padding(top = WildlifeSpacing.Card),
+                            verticalArrangement = Arrangement.spacedBy(WildlifeSpacing.Card),
+                        ) {
+                            PersonalCollectionHeader(
+                                speciesCount = personalEntries.size,
+                                observationCount = state.observationCount,
+                                researchGradeCount = personalEntries.count {
+                                    it.bestQualityGrade == "research"
+                                },
+                            )
+                            if (!state.linked) {
+                                UnlinkedCollectionBanner(onLinkAccount = onLinkAccount)
+                            }
+                            SearchRow(
+                                query = query,
+                                onQueryChange = { query = it },
+                                activeCount = filters.activeCount,
+                                onOpenFilters = { filtersOpen = true },
+                                onClearFilters = { onFilters(CollectionFilters.None) },
+                            )
+                            FilterBar(
+                                filters = filters,
+                                onFilters = onFilters,
+                                sort = sort,
+                                onSort = { sort = it },
+                                count = filtered.size,
+                            )
+                            SectionRule("Recorded species")
+                            if (filtered.isEmpty()) {
+                                if (personalEntries.isEmpty()) {
+                                    EmptyCollectionNote()
+                                } else {
+                                    EmptyFilterNote(filters.activeLabels())
+                                }
                             }
                         }
-                    }
-                },
-            )
+                    },
+                )
+            }
         }
         if (filtersOpen) {
             CollectionFilterSheet(
@@ -266,19 +273,14 @@ private fun PersonalCollectionHeader(
     researchGradeCount: Int,
 ) {
     Column(
-        modifier = Modifier.padding(horizontal = WildlifeSpacing.Screen),
         verticalArrangement = Arrangement.spacedBy(WildlifeSpacing.Micro),
     ) {
-        Text(
-            text = "My collection",
-            fontFamily = DisplayFontFamily,
-            style = MaterialTheme.typography.headlineMedium,
-            color = WildlifeTheme.colors.parchment,
-        )
+        // No "My collection" heading: the destination's own title says it once already,
+        // and the strip directly above says which of its views this is.
         Text(
             text = "$speciesCount species · $observationCount observations",
             style = MaterialTheme.typography.bodyLarge,
-            color = MaterialTheme.colorScheme.onSurfaceVariant,
+            color = WildlifeTheme.colors.parchment,
         )
         Text(
             text = "$researchGradeCount species with a Research Grade observation",
@@ -294,7 +296,6 @@ private fun EmptyCollectionNote() {
         text = "Your recorded species will appear here after Wildlife finds your public iNaturalist observations.",
         style = MaterialTheme.typography.bodyMedium,
         color = MaterialTheme.colorScheme.onSurfaceVariant,
-        modifier = Modifier.padding(horizontal = WildlifeSpacing.Screen),
     )
 }
 
