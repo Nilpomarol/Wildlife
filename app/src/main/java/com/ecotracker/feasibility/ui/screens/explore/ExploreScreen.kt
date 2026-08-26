@@ -49,7 +49,9 @@ import com.wildlife.feasibility.ui.components.NearbySpeciesRow
 import com.wildlife.feasibility.ui.components.RowRule
 import com.wildlife.feasibility.ui.components.RegionSelector
 import com.wildlife.feasibility.ui.components.MediaPrefetchStatus
-import com.wildlife.feasibility.ui.screens.map.PersonalMapContent
+import com.wildlife.feasibility.CurrentRegionSource
+import com.wildlife.feasibility.EncounterRarity
+import com.wildlife.feasibility.ui.components.RegionalGuideHeader
 import com.wildlife.feasibility.ui.components.SpeciesCard
 import com.wildlife.feasibility.ui.components.SpeciesGrid
 import com.wildlife.feasibility.ui.components.SpeciesCardModel
@@ -75,7 +77,6 @@ enum class ExploreFilter(val label: String, val taxonGroup: String? = null) {
 enum class ExploreSection(val label: String) {
     GUIDE("Species guide"),
     NEARBY("Near me"),
-    MAP("My map"),
 }
 
 @Composable
@@ -86,8 +87,6 @@ fun ExploreScreen(
     onOpenTaxon: (Long) -> Unit,
     onDiscoverNearby: () -> Unit,
     onSelectRegion: (String) -> Unit,
-    onOpenObservation: (String) -> Unit,
-    onMapVisibilityChanged: (String, Boolean) -> Unit,
     onVisibleTaxaChanged: (Set<Long>) -> Unit,
     bottomBar: @Composable () -> Unit = {},
     selectedSection: ExploreSection,
@@ -148,52 +147,69 @@ fun ExploreScreen(
                 modifier = Modifier.weight(1f),
             )
         } else {
-            Column(
-                modifier = Modifier
-                    .fillMaxSize(),
-            ) {
-                ExploreIntro(
-                    catalogue = state.browsedCatalogue,
-                    observedCount = state.observedCount,
-                    errorMessage = state.errorMessage,
-                    modifier = Modifier.padding(horizontal = WildlifeSpacing.Screen),
-                )
-                MediaPrefetchStatus(
-                    state.mediaPrefetch,
-                    Modifier.padding(horizontal = WildlifeSpacing.Screen),
-                )
-                CollectionSearchBar(
-                    query = query,
-                    onQueryChange = { query = it },
-                    placeholder = "Search this regional guide",
-                    modifier = Modifier.padding(
-                        start = WildlifeSpacing.Screen,
-                        end = WildlifeSpacing.Screen,
-                        top = WildlifeSpacing.Small,
-                    ),
-                )
-                TaxonFilterRow(
-                    options = availableFilters,
-                    selected = selectedFilter,
-                    label = ExploreFilter::label,
-                    onSelected = { selectedFilter = it },
-                    modifier = Modifier.padding(
-                        start = WildlifeSpacing.Screen,
-                        top = WildlifeSpacing.Small,
-                        bottom = WildlifeSpacing.Small,
-                    ),
-                )
-                if (filtered.isEmpty()) {
-                    ExploreMessage("No species match this search and filter.")
-                } else {
-                    ExploreGrid(
-                        entries = filtered,
-                        onOpenTaxon = onOpenTaxon,
-                        onVisibleTaxaChanged = onVisibleTaxaChanged,
-                        modifier = Modifier.fillMaxSize(),
-                    )
-                }
+            val selectedCatalogue = state.installedCatalogues.firstOrNull {
+                it.regionKey == state.browsedCatalogue.regionKey
             }
+            ExploreGrid(
+                entries = filtered,
+                onOpenTaxon = onOpenTaxon,
+                onVisibleTaxaChanged = onVisibleTaxaChanged,
+                modifier = Modifier.fillMaxSize(),
+                header = {
+                    Column(verticalArrangement = Arrangement.spacedBy(WildlifeSpacing.Card)) {
+                        RegionalGuideHeader(
+                            collected = state.observedCount,
+                            total = state.entries.size,
+                            commonCount = state.entries.count {
+                                it.observed && it.encounterRarity == EncounterRarity.COMMON
+                            },
+                            uncommonCount = state.entries.count {
+                                it.observed && it.encounterRarity == EncounterRarity.UNCOMMON
+                            },
+                            rareCount = state.entries.count {
+                                it.observed && it.encounterRarity == EncounterRarity.RARE
+                            },
+                            veryRareCount = state.entries.count {
+                                it.observed && it.encounterRarity == EncounterRarity.VERY_RARE
+                            },
+                            xp = state.totalXp,
+                            progression = state.progression,
+                            selectedCatalogue = selectedCatalogue,
+                            currentRegionSource = CurrentRegionSource.CURRENT_FIX,
+                            achievements = state.achievements,
+                            observedTaxa = state.observedRegionalTaxa,
+                        )
+                        ExploreIntro(
+                            catalogue = state.browsedCatalogue,
+                            errorMessage = state.errorMessage,
+                        )
+                        MediaPrefetchStatus(state.mediaPrefetch)
+                        CollectionSearchBar(
+                            query = query,
+                            onQueryChange = { query = it },
+                            placeholder = "Search this regional guide",
+                        )
+                        TaxonFilterRow(
+                            options = availableFilters,
+                            selected = selectedFilter,
+                            label = ExploreFilter::label,
+                            onSelected = { selectedFilter = it },
+                            modifier = Modifier.padding(bottom = WildlifeSpacing.Small),
+                        )
+                        if (filtered.isEmpty()) {
+                            Text(
+                                text = "No species match this search and filter.",
+                                style = MaterialTheme.typography.bodyLarge,
+                                color = MaterialTheme.colorScheme.onSurfaceVariant,
+                                textAlign = TextAlign.Center,
+                                modifier = Modifier
+                                    .fillMaxWidth()
+                                    .padding(WildlifeSpacing.Section),
+                            )
+                        }
+                    }
+                },
+            )
         }
                 ExploreSection.NEARBY -> NearbyDiscoveryContent(
                     state = state.nearby,
@@ -202,14 +218,6 @@ fun ExploreScreen(
                     modifier = Modifier.weight(1f),
                 )
 
-                ExploreSection.MAP -> PersonalMapContent(
-                    accountLinked = state.accountLinked,
-                    map = state.personalMap,
-                    regionalProgress = state.regionalMapProgress,
-                    onOpenObservation = onOpenObservation,
-                    onMapVisibilityChanged = onMapVisibilityChanged,
-                    modifier = Modifier.weight(1f),
-                )
             }
         }
     }
@@ -337,28 +345,10 @@ private fun NearbyDiscoveryContent(
 @Composable
 private fun ExploreIntro(
     catalogue: RegionalExploreCatalogue,
-    observedCount: Int,
     errorMessage: String?,
     modifier: Modifier = Modifier,
 ) {
     Column(modifier, verticalArrangement = Arrangement.spacedBy(4.dp)) {
-        Row(
-            modifier = Modifier.fillMaxWidth(),
-            horizontalArrangement = Arrangement.SpaceBetween,
-            verticalAlignment = Alignment.CenterVertically,
-        ) {
-            Text(
-                text = catalogue.displayName,
-                style = MaterialTheme.typography.labelLarge,
-                color = WildlifeTheme.colors.oliveStrong,
-                fontWeight = FontWeight.SemiBold,
-            )
-            Text(
-                text = "$observedCount discovered",
-                style = MaterialTheme.typography.labelMedium,
-                color = MaterialTheme.colorScheme.onSurfaceVariant,
-            )
-        }
         Text(
             text = "${catalogue.speciesCount} species · catalogue ${catalogue.version}",
             style = MaterialTheme.typography.labelMedium,
@@ -385,10 +375,12 @@ private fun ExploreGrid(
     onOpenTaxon: (Long) -> Unit,
     onVisibleTaxaChanged: (Set<Long>) -> Unit,
     modifier: Modifier = Modifier,
+    header: (@Composable () -> Unit)? = null,
 ) {
     SpeciesGrid(
         entries = entries, key = ExploreSpecies::taxonId, model = ExploreSpecies::card,
         onClick = { onOpenTaxon(it.taxonId) }, modifier = modifier, cardAspectRatio = 0.94f,
+        header = header,
         onVisibleEntriesChanged = { visible ->
             visible.mapTo(linkedSetOf(), ExploreSpecies::taxonId).let(onVisibleTaxaChanged)
         },
@@ -466,8 +458,6 @@ private fun ExplorePreview() {
             onOpenTaxon = {},
             onDiscoverNearby = {},
             onSelectRegion = {},
-            onOpenObservation = {},
-            onMapVisibilityChanged = { _, _ -> },
             onVisibleTaxaChanged = {},
             selectedSection = ExploreSection.GUIDE,
             onSectionChange = {},

@@ -121,8 +121,8 @@ class CollectionViewModel(application: Application) : AndroidViewModel(applicati
 
     private fun load(): CollectionUiState {
         val context = getApplication<Application>()
-        // Unlinked users still see the regional guide as silhouettes; only the personal
-        // observation layer is missing, so the screen no longer replaces itself with a wall.
+        // Collection is personal history. The regional guide, including missing species,
+        // belongs to Explore.
         val account = AccountStore(context).verified()
         return runCatching {
             val content = PublishedContentRepositories.application(context)
@@ -131,59 +131,39 @@ class CollectionViewModel(application: Application) : AndroidViewModel(applicati
             val regionContext = regionStore.currentRegion()
             val selectedKey = regionStore.currentRegionKey(
                 catalogues.mapTo(mutableSetOf()) { it.regionKey },
-            ) ?: return@runCatching CollectionUiState(
-                linked = account != null,
-                entries = emptyList(),
-                observationCount = 0,
-                totalXp = 0,
-                installedCatalogues = catalogues,
-                currentRegionSource = regionContext.source,
-                errorMessage = "Current region unavailable. Allow location from Check near me, or browse another guide in Explore.",
             )
-            val selected = catalogues.first { it.regionKey == selectedKey }
+            val selected = catalogues.firstOrNull { it.regionKey == selectedKey }
             val (observations, summary) = if (account == null) {
                 emptyList<SyncedObservation>() to null
             } else {
                 ObservationStore(context).use { store ->
                     val all = store.observations(account.userId)
-                    val regionalObservations = all.filter { observation ->
-                        store.observationRegion(account.userId, observation.uuid)?.let { assignment ->
-                            assignment.earnsRegionalProgress && assignment.regionKey == selectedKey
-                        } == true
-                    }
-                    regionalObservations to store.summary(account.userId)
+                    all to store.summary(account.userId)
                 }
             }
-            val observationsByTaxon = observations.groupBy { it.collectionTaxonId ?: it.taxonId }
-            val achievementTypesByTaxon = content.achievements(selectedKey)
-                .flatMap { achievement -> achievement.taxonIds.map { it to achievement.label } }
-                .groupBy({ it.first }, { it.second })
-            val publishedByTaxon = content.taxaContent(selectedKey)
+            val catalogueTaxaById = catalogues
+                .flatMap { catalogue -> content.taxa(catalogue.regionKey) }
+                .associateBy { it.taxonId }
+            val publishedByTaxon = catalogues
+                .flatMap { catalogue -> content.taxaContent(catalogue.regionKey).values }
+                .associateBy { it.taxonId }
             val mediaStore = LocalMediaStore(context)
-            val entries = content.taxa(selectedKey).map { taxon ->
-                val sightings = observationsByTaxon[taxon.taxonId].orEmpty()
-                val latest = sightings.maxByOrNull { it.observedAtMs }
-                val published = publishedByTaxon[taxon.taxonId]
+            val entries = CollectionProjection.species(observations).map { collected ->
+                val taxon = collected.taxonId?.let(catalogueTaxaById::get)
+                val published = collected.taxonId?.let(publishedByTaxon::get)
                 val details = published?.toLocalTaxonDetails(mediaStore)
-                val silhouetteUrl = details?.silhouetteLocalUri
-                CollectionSpecies(
-                    key = "taxon:${taxon.taxonId}", taxonId = taxon.taxonId,
-                    label = taxon.commonName, observationCount = sightings.size,
-                    rewardedObservationCount = sightings.count { it.confirmed },
-                    latestObservationUuid = latest?.uuid ?: "regional:${taxon.taxonId}",
-                    latestObservedAtMs = latest?.observedAtMs ?: 0,
-                    bestQualityGrade = sightings.maxByOrNull { if (it.qualityGrade == "research") 2 else 1 }
-                        ?.qualityGrade ?: "",
-                    awaitingSpeciesIdentification = false,
-                    photoUrl = sightings.firstNotNullOfOrNull { it.photoUrl },
-                    silhouetteUrl = silhouetteUrl,
+                collected.copy(
+                    label = taxon?.commonName ?: collected.label,
+                    silhouetteUrl = details?.silhouetteLocalUri,
                     silhouetteFallbackUrl = details?.silhouetteFallbackUrl,
                     silhouetteMatchRank = details?.silhouetteMatchRank,
-                    regionalEssential = "essentials" in achievementTypesByTaxon[taxon.taxonId].orEmpty(),
-                    regionalIcon = "icons" in achievementTypesByTaxon[taxon.taxonId].orEmpty(),
-                    scientificName = taxon.scientificName,
-                    encounterRarity = taxon.rarity,
-                    taxonGroup = taxonGroupFor(taxon.taxonClass),
+                    // Rarity and standing are regional properties and therefore stay on
+                    // Explore's selected guide rather than this all-regions projection.
+                    regionalEssential = false,
+                    regionalIcon = false,
+                    scientificName = taxon?.scientificName,
+                    encounterRarity = null,
+                    taxonGroup = taxon?.let { taxonGroupFor(it.taxonClass) },
                 )
             }
             CollectionUiState(
@@ -194,8 +174,8 @@ class CollectionViewModel(application: Application) : AndroidViewModel(applicati
                 lastSyncedAtMs = summary?.lastSyncedAtMs,
                 selectedCatalogue = selected,
                 installedCatalogues = catalogues,
-                achievements = content.achievements(selectedKey),
-                observedRegionalTaxa = observations.mapNotNull { it.collectionTaxonId ?: it.taxonId }.toSet(),
+                achievements = selectedKey?.let(content::achievements).orEmpty(),
+                observedRegionalTaxa = emptySet(),
                 // Read-only projection: the shell owns recording the highest level reached.
                 progression = account?.let {
                     val store = ProgressionStore(context)
@@ -205,9 +185,11 @@ class CollectionViewModel(application: Application) : AndroidViewModel(applicati
                         highestLevelKey = store.highestLevelKey(it.userId),
                     )
                 },
-                mediaPrefetch = MediaPrefetchStore(context).use {
-                    it.summary(content.generation().generationId, selectedKey)
-                },
+                mediaPrefetch = selectedKey?.let { key ->
+                    MediaPrefetchStore(context).use {
+                        it.summary(content.generation().generationId, key)
+                    }
+                } ?: MediaPrefetchSummary(0, 0, 0, 0),
                 currentRegionSource = regionContext.source,
             )
         }.getOrElse { error ->

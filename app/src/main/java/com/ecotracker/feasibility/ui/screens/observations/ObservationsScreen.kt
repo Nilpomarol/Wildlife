@@ -58,7 +58,7 @@ import kotlin.math.roundToInt
 @Composable
 fun ObservationsScreen(
     state: ObservationsUiState,
-    onBack: () -> Unit,
+    onBack: (() -> Unit)?,
     onSync: () -> Unit,
     onSubmitted: (String) -> Unit,
     onNotSubmitted: (String) -> Unit,
@@ -66,6 +66,8 @@ fun ObservationsScreen(
     onOpenObservation: (String) -> Unit,
     onOpenINaturalist: () -> Unit,
     onDeleteLocal: (String) -> Unit,
+    title: String = "Observations",
+    header: @Composable () -> Unit = {},
     bottomBar: @Composable () -> Unit = {},
 ) {
     val needsAction = state.managed.filter { it.proposals.isNotEmpty() || it.state == MarkerState.HANDED_OFF }
@@ -80,7 +82,7 @@ fun ObservationsScreen(
     val oliveAccent = WildlifeTheme.colors.oliveStrong
 
     WildlifeScaffold(
-        title = "Observations",
+        title = title,
         onBack = onBack,
         actions = {
             IconButton(onClick = onSync, enabled = state.account != null && !state.syncing) {
@@ -107,6 +109,7 @@ fun ObservationsScreen(
             ),
             verticalArrangement = Arrangement.spacedBy(WildlifeSpacing.Small),
         ) {
+            item(key = "destination-header") { header() }
             item {
                 Text(
                     text = "Your Wildlife handoffs and public iNaturalist history. Wildlife never edits or deletes iNaturalist records.",

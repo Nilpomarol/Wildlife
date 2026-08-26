@@ -344,17 +344,27 @@ not a stock-image grid treatment.
 
 ---
 
-## 9. Collection Screen
+## 9. Collection and Explore guide
 
-The collection is the visual core of the product.
+Collection is the user's personal record. Explore's Species guide is the regional
+Pokédex/checklist and inherits the established plate-grid visual identity.
 
 ### Structure
 
 ```text
-Top bar
-Region + completion selector
+Collection top bar
+Species | Observations | Map selector
+Personal species/observation summary
+Recorded-species grid, observation ledger or field atlas
+Bottom navigation
+```
+
+```text
+Explore top bar + browsed-region selector
+Species guide | Near me selector
+Regional identity + completion header
 Taxonomic filter chips
-Compact species grid
+Observed-and-missing species grid
 Bottom navigation
 ```
 
@@ -875,8 +885,8 @@ The intended midpoint is:
 
 ## 26. Reference Screen Character
 
-> **Superseded by §30.** Collection is the reference screen; see "Collection is the
-> reference screen" there. This section is kept for the reasoning behind it.
+> **Superseded by §30.** Explore's Species guide is the reference plate screen; see
+> "The regional guide is the reference screen" there. This section is kept for the reasoning behind it.
 
 ### Collection
 
@@ -993,12 +1003,12 @@ lamplight, not a dark-mode utility.
 It supersedes the parts of §5, §26 and §28 it contradicts. Where this section and an
 earlier one disagree, this section wins.
 
-### Collection is the reference screen
+### The regional guide is the reference screen
 
-**Collection is the canonical implementation of this revision. When this document and the
-Collection screen disagree, the screen wins — and the document is the thing to fix.**
+**Explore's Species guide is the canonical plate-grid implementation of this revision. When
+this document and that screen disagree, the screen wins — and the document is the thing to fix.**
 
-![Collection reference](reference/collection-reference.png)
+![Regional guide reference (historical filename)](reference/collection-reference.png)
 ![Filter sheet](reference/collection-filter-sheet.png)
 
 It supersedes §26 as the reference screen. Those captures are produced by
@@ -1021,7 +1031,8 @@ What to take, in rough order of how much it matters:
 5. **The type and palette** — Eczar, Barlow and IBM Plex Mono, and the tokens in
    `ui/theme/Color.kt`. Never a raw colour or `FontFamily` at a call site.
 
-Screens still to bring across: **Explore, Observations, Profile, SpeciesDetail**. They
+Screens still to bring across fully: **Collection's Observations/Map sections, Profile,
+SpeciesDetail**. They
 inherit the tokens, the card and the type already, but keep bespoke headers and furniture.
 
 Two things on this screen are deliberately not general rules:
@@ -1031,9 +1042,11 @@ Two things on this screen are deliberately not general rules:
 - **The Icon beacon** is specific to regional standing. It is not a pattern for drawing
   attention to arbitrary items.
 
-### Two voices: the reference and the dated entry
+### Three voices: the reference, the personal ledger and the dated entry
 
-Collection is the guide's **reference section** — plates in a grid, browsed by narrowing.
+Explore's Species guide is the guide's **reference section** — regional plates in a grid,
+browsed by narrowing. Collection is the **personal ledger** — recorded species, individual
+observations and the field atlas, with no missing-species silhouettes.
 Home is the **loose dated page** at the front, where a ranger records what happened today.
 Both sit on the same ground, palette and type; what differs is the furniture.
 
@@ -1045,7 +1058,7 @@ plate surfaces, field-mark pills. The dated-entry voice is in `ui/components/Jou
   the right; it must not grow into a second title above the ranger identity. The masthead
   carries the *ranger*, where `RangerHeader` carries the *region*. Lifetime XP and the rank
   ladder live here and nowhere else, which is the exact
-  measure Collection's regional header refuses. Home's current-region projection stays in
+  measure Explore's regional-guide header refuses. Home's current-region projection stays in
   its own card below the masthead, so regional completion and lifetime progression never
   share a header or progress system. Its Essential and Icon counts use their owner-supplied
   standing marks as well as text.

@@ -133,11 +133,11 @@ class ActiveFiltersScreenshotTest {
         }
     }
 
-    /** Drives the Status selector to Missing, the way a user would. */
-    private fun selectMissing() {
+    /** Drives the personal Status selector to Confirmed, the way a user would. */
+    private fun selectConfirmed() {
         composeRule.onNodeWithText("Status").performClick()
         composeRule.waitForIdle()
-        composeRule.onNodeWithText("Missing").performClick()
+        composeRule.onNodeWithText("Confirmed").performClick()
         composeRule.waitForIdle()
     }
 
@@ -145,7 +145,7 @@ class ActiveFiltersScreenshotTest {
     @Test
     fun activeRow() {
         host()
-        selectMissing()
+        selectConfirmed()
         captureScreenRoboImage("build/screenshots/filters-active-row.png")
     }
 
@@ -156,7 +156,7 @@ class ActiveFiltersScreenshotTest {
     @Test
     fun clearFiltersResetsEveryAxis() {
         host()
-        selectMissing()
+        selectConfirmed()
         composeRule.onNodeWithContentDescription("Clear all filters").performClick()
         composeRule.waitForIdle()
 

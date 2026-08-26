@@ -117,8 +117,8 @@ Build only components that recur or carry core identity:
 | `WildlifeScaffold` | Background, safe system insets, top/bottom structure and snackbar host |
 | `WildlifeTopBar` | Serif screen title with restrained Material actions |
 | `WildlifeBottomBar` | Home, Collection, Capture, Explore and Profile; labelled 48dp targets. The four navigating destinations are tabs; Capture is a larger unfilled camera mark that launches an Activity and therefore carries a button role, never an unselectable tab role |
-| `CollectionProgress` | Region, observed/total value and thin olive progress; only after a curated denominator exists |
-| `RegionSelector` | Browsed-guide selection in Explore only. It never changes the location-derived current region, regional progress or full-region prefetch. `RegionPill` is the read-only current-region counterpart |
+| `CollectionProgress` | Regional-guide observed/total value and thin olive progress; only after a curated denominator exists |
+| `RegionSelector` | Browsed-guide selection in Explore only. Collection may later filter personal history by region, but never uses this control. It never changes the location-derived current region, regional progress or full-region prefetch. `RegionPill` is the read-only current-region counterpart |
 | `SpeciesGrid` | Shared responsive grid used by Collection, Explore/Near Me and achievement checklists; its optional viewport callback reports only visible entries and owns no repository or scheduling policy |
 | `CollectionSearchBar` | Primary collection discovery control with compact inline collection/XP stats below it |
 | `TaxonFilterRow` | Horizontally scrolling index-tab filter chips |
@@ -141,22 +141,16 @@ Prefer parameters and slots over visually similar duplicate components.
 
 ### Collection
 
-The first production-style migration target.
+Collection owns the user's personal wildlife history through three explicit sections:
 
-- Displays a frozen catalogue denominator, not the raw regional occurrence pool.
-- Reads the location-derived current regional catalogue. Collection does not manually change it; when no supported fix exists it shows an explicit unavailable state and points to Explore for browsing.
-- Counts only observations assigned to that region under a versioned boundary policy.
-- Uses the same card geometry for observed and missing species.
-- Makes the species photograph or silhouette dominant.
-- Separates observed, research-grade and rarity semantics.
-- Supports search/filtering without turning the screen into a database table.
-- Uses lazy rendering and remains usable offline.
+- **Species** projects unique recorded collection taxa across every stored region. It never pads the personal collection with missing regional-guide entries. Region-specific rarity and standing do not decorate this all-regions projection.
+- **Observations** owns the individual handoff/public-observation ledger, sync retry, candidate confirmation, public-record links and local-only deletion.
+- **Map** owns the privacy-safe personal observation cells and the independently toggleable regional-progress layer.
+- The screen uses one shared section selector and keeps Collection selected in the bottom index strip across all three sections.
+- Search/filtering remains available for recorded species, with photograph or silhouette dominant, lazy rendering and offline behavior.
+- Without a linked account, Collection keeps its structure and shows an inline link prompt or truthful empty state rather than an account wall.
 
-Collection renders the regional guide whether or not an account is linked. Without one it shows
-the guide as silhouettes with an inline prompt to link; it must not replace the whole screen with
-an account wall, because that would also strand any control hosted on it.
-
-Until the curated catalogue is frozen, the UI must say **Provisional catalogue** and must not show a misleading completion percentage.
+A future region control in Collection is a personal-history scope filter (defaulting to all regions), not the location-derived current-region or browsed-guide selector.
 
 ### Catalogue / Explore
 
@@ -166,7 +160,8 @@ Until the curated catalogue is frozen, the UI must say **Provisional catalogue**
 - Shows licence-approved imagery only.
 - Does not label raw observation frequency as biological rarity.
 - Works unlinked and offline after the first snapshot is stored.
-- Provides three explicit sections: the stored Species guide first, one-shot Near me discovery second and My Map third. The guide opens by default because it is the section that works offline and without a permission prompt.
+- Provides two explicit sections: the stored Species guide first and one-shot Near me discovery second. The guide opens by default because it works offline and without a permission prompt.
+- The Species guide owns the regional identity/completion header, observed and missing plates, encounter rarity, Essentials and Icons. Its region selector changes only the guide being browsed.
 - Home carries a preview of Near me: the same one-shot request and a short ranked extract, with a
   "See all" entry that opens Explore's Near me section. Near me is always scoped and decorated from
   the location-derived current catalogue, even while Explore is browsing another guide. The preview
@@ -193,13 +188,13 @@ Until the curated catalogue is frozen, the UI must say **Provisional catalogue**
   source. Reference photography does not become collection artwork.
   `iconic_taxon_name` is normalized to a group key (`taxonGroupForClass`) at parse time so the
   final offline fallback cannot silently render empty.
-- My Map is Explore's third section rather than a separate route. Home links to it by selecting that section. It is a regional-progress and personal-history surface. It renders all bundled local regional boundaries and exposes installed-catalogue completion plus Essentials/Icons states with an accessible textual legend. Personal history remains a separately toggleable 0.1°-cell layer; it never renders exact pins and retains hidden/unavailable-location disclosure and separate Research Grade meaning.
+- Map is Collection's third section rather than an Explore section or separate bottom route. Home links to it by selecting that Collection section. It is a regional-progress and personal-history surface. It renders all bundled local regional boundaries and exposes installed-catalogue completion plus Essentials/Icons states with an accessible textual legend. Personal history remains a separately toggleable 0.1°-cell layer; it never renders exact pins and retains hidden/unavailable-location disclosure and separate Research Grade meaning.
 - Debug builds provide a clearly labelled in-memory map appearance preview with representative coarse cells and pilot-region states. It must never persist, sync or mutate a user's observations, progress or map settings, and is not shown in release builds.
 - My Map embeds MapLibre Native in Compose but uses a Wildlife-owned local style and display-only atlas: warm water, neutral land, opaque olive completion, regional outlines, selection and owner-supplied Essential/Icon sprites. It makes no basemap tile request. The 13.7 MB Natural Earth-derived boundary asset remains the assignment source of truth; a separately generated, dissolved and topology-preserving simplified atlas is used only for display. Region selection and all observation-cell projection remain on device.
 
 ### Observations
 
-- This focused route inside the navigation shell owns long-term observation management; Capture owns only creation of a new draft. It keeps the bottom bar, so it is a place the user can return from rather than a dead end.
+- This is Collection's second section for general long-term observation management; Capture owns only creation of a new draft. A focused route remains for species-filtered/deep-linked entry and keeps the bottom bar.
 - Shows Draft, Pending public confirmation, Candidate ready, Needs ID, Research Grade, unavailable and recoverable-error states.
 - Supports retrying Wildlife sync, explicit candidate confirmation, opening the public iNaturalist record, local map visibility and deletion of Wildlife-owned local state.
 - One observation with several photos is rendered as one observation container with a horizontal photo strip.
@@ -337,16 +332,16 @@ The target product shell uses one Compose `Scaffold` and a bottom bar with Home,
 
 Navigation Compose owns the stable `home`, `collection`, `explore`, `observations` and `profile` routes from `MainActivity`. Every route renders the shared labelled `WildlifeBottomBar`. Capture is deliberately an action rather than a retained tab: the centre button launches the focused Compose `CaptureActivity` and returns to the previously selected shell destination. Because it can never become the selected tab, it carries a button role. Species Detail remains a focused secondary Activity outside the bottom destinations.
 
-Observations is a focused route rather than a sixth bottom destination, but it stays inside the shell and keeps the bottom bar. It is reached from Home, from Profile's sync-status card, from Species Detail filtered to one species, and from Capture after the official-app handoff. `ObservationsViewModel` owns its state so the screen is a route rather than an Activity.
+General Observations and Map are retained sections inside Collection rather than separate bottom destinations. Species Detail and post-handoff deep links may still open the focused observation route with a taxon filter. `ObservationsViewModel` continues to own the ledger state rather than an Activity.
 
 Each destination owns one concept — Observations included, though it is not a bottom destination:
 
 | Destination | Owns |
 |---|---|
 | Home | What is happening now: latest discovery, a Near me preview, map and observation-queue entries |
-| Collection | Personal collection counts and the regional grid; works unlinked as silhouettes |
-| Explore | The world: Species guide, Near me and My Map, plus an independent browsed-guide choice |
-| Observations | Long-term observation management and its sync retry |
+| Collection | My history: recorded Species, individual Observations and the privacy-safe Map |
+| Explore | The world: regional Species guide and Near me, plus an independent browsed-guide choice |
+| Observations focused route | Species-filtered or post-handoff observation management |
 | Profile | Identity, progression/XP, and data & diagnostics |
 
 A number, a control or a status line belongs to exactly one of these. Home may carry a teaser that links to the owner, but not a second copy of it.
@@ -414,7 +409,7 @@ Each step must leave a usable, testable app. Do not block data work on convertin
 - **Complete:** Placeholder progression v0.1 centralizes enabled XP values and level thresholds, migrates existing ledger events without rewriting points, projects lifetime XP into a level, and adds a Profile surface with progress, recent reward sources and selectable earned titles. Rarity, badges and streaks remain disabled. Research Grade XP is enabled only through the idempotent lifecycle transition described below.
 - **Complete:** Foreground observation lifecycle synchronization persists public quality changes, distinguishes Wildlife match confirmation from iNaturalist quality, exposes last checked/stale/syncing/error/retry state, recomputes durable pending handoffs after restart and repairs confirmed ledger writes. A previously known observation that first transitions to Research Grade records one `research_grade:<UUID>` event. The future background policy is per observation: new/Needs ID records remain eligible, Research Grade leaves routine refresh after one confirmation pass, manual and rare reconciliation remain available, and due records are batched rather than fetched one by one. Gate 1 now permits implementing conservative WorkManager batching after the observation-management slice.
 - **Complete:** Explore discovery/map foundation adds an explicit one-shot Near me query. My Map is a field atlas with 24 dissolved display regions, restrained completion fills, owner-supplied Essential/Icon marks, selectable regional status and an accessible legend. The regional-progress and privacy-safe coarse observation layers toggle independently. The local atlas works without external map tiles; accurate assignment continues to use the separate full-resolution versioned boundary asset. Linked, empty/unavailable-location, area-list and content states are represented. A local map-visibility override is stored separately from the replaceable iNaturalist cache, so users can exclude or restore individual observations without changing iNaturalist; obscured, unavailable and user-hidden states remain distinct in the projection and UI.
-- **Complete:** Navigation restructured so each bottom destination owns one concept. `RegionSelector` in the Explore top bar changes only the browsed guide; Collection follows the read-only, location-derived current region. Collection renders the regional guide unlinked as silhouettes with an inline link prompt instead of an account wall. Explore gained a third My Map section and now opens on the Species guide; the separate map route was removed and Home links into the section. Home carries a Near me preview sharing one row component and one discovery call with Explore's section. Observations became an in-shell route backed by `ObservationsViewModel`, keeps the bottom bar, and owns its sync retry while Profile reports status read-only. Duplicated species/observation/XP counts were removed from Home, Profile was split into Account, Progression and Data & diagnostics sections, and the centre Capture item carries a button role rather than an unselectable tab role. The unreachable `UserObservationsActivity` was deleted.
+- **Complete — destination ownership revision, 26 August 2026:** Collection now owns the user's all-regions recorded Species, the Observations ledger and My Map. The former regional Collection header/checklist moved to Explore's Species guide, which retains the independent browsed-guide selector, missing silhouettes, completion, rarity and standing. Explore now contains only Species guide and Near me. Home's map and general-observation links select the corresponding Collection section; focused species/post-handoff observation entry remains available. Collection keeps regional rarity/standing off its all-regions species projection because those claims require a selected regional context.
 - **Complete:** Profile exposes a retained-data inventory and privacy-safe test report using aggregate counts only. The report contract excludes login/user ID, coordinates, species labels, URLs and local paths. Confirmed local deletion clears Wildlife’s account preferences, handoff state/private capture files, observation/progression/map databases, catalogue/reference media and temporary cache, then reloads all shell projections. It does not call an iNaturalist write or deletion path. Structured user-data export remains a later privacy deliverable.
 
 ## 11. UI definition of done

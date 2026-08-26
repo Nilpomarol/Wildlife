@@ -2,6 +2,7 @@ package com.wildlife.feasibility.ui.screens.explore
 
 import com.wildlife.feasibility.EncounterRarity
 import com.wildlife.feasibility.InstalledRegionalTaxon
+import com.wildlife.feasibility.InstalledRegionalAchievement
 import com.wildlife.feasibility.NearbySpecies
 import com.wildlife.feasibility.SyncedObservation
 import com.wildlife.feasibility.TaxonDetails
@@ -90,6 +91,22 @@ class ExploreProjectionTest {
         assertEquals("https://example.test/personal.jpg", entry.card.photoUrl)
         assertEquals(SpeciesCardPhotoKind.PERSONAL, entry.card.photoKind)
         assertNull(entry.card.photoAttribution)
+    }
+
+    @Test
+    fun `regional guide carries rarity and standing moved from collection`() {
+        val entry = ExploreProjection.regionalEntries(
+            taxa = listOf(taxon()),
+            observations = listOf(observation()),
+            achievements = listOf(
+                InstalledRegionalAchievement("essentials", setOf(42L)),
+                InstalledRegionalAchievement("icons", setOf(42L)),
+            ),
+        ).single()
+
+        assertEquals(EncounterRarity.COMMON, entry.encounterRarity)
+        assertEquals(true, entry.card.regionalEssential)
+        assertEquals(true, entry.card.regionalIcon)
     }
 
     @Test

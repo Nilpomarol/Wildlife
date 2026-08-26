@@ -132,6 +132,8 @@ fun CollectionScreen(
     onOpenSpecies: (CollectionSpecies) -> Unit,
     onLinkAccount: () -> Unit,
     onRetry: () -> Unit,
+    selectedSection: CollectionSection = CollectionSection.SPECIES,
+    onSectionChange: (CollectionSection) -> Unit = {},
     bottomBar: @Composable () -> Unit = {},
 ) {
     // The axes are stored separately rather than as one saveable object, so each survives
@@ -144,8 +146,11 @@ fun CollectionScreen(
     var query by rememberSaveable { mutableStateOf("") }
     var filtersOpen by rememberSaveable { mutableStateOf(false) }
 
-    val presentGroups = remember(state.entries) {
-        SpeciesGroup.entries.filter { group -> state.entries.any { it.taxonGroup == group.key } }
+    val personalEntries = remember(state.entries) {
+        state.entries.filter { it.observationCount > 0 }
+    }
+    val presentGroups = remember(personalEntries) {
+        SpeciesGroup.entries.filter { group -> personalEntries.any { it.taxonGroup == group.key } }
     }
     // A region switch can leave a group selected that the new region lacks; fall back to Any.
     if (selectedGroup != null && selectedGroup !in presentGroups) selectedGroup = null
@@ -158,7 +163,7 @@ fun CollectionScreen(
         selectedGroup = it.group
     }
 
-    val filtered = state.entries
+    val filtered = personalEntries
         .filter(filters::matches)
         .filter { entry -> query.isBlank() || entry.label.contains(query, ignoreCase = true) }
         .sortedWith(
@@ -179,7 +184,7 @@ fun CollectionScreen(
       FieldGuidePage {
         when {
             state.isLoading && state.entries.isEmpty() -> WildlifeLoadingState(
-                label = "Opening the regional field guide…",
+                label = "Opening your collection…",
                 modifier = Modifier.padding(innerPadding),
             )
             state.errorMessage != null -> CollectionMessage(
@@ -201,31 +206,13 @@ fun CollectionScreen(
                         modifier = Modifier.padding(top = WildlifeSpacing.Small),
                         verticalArrangement = Arrangement.spacedBy(WildlifeSpacing.Card),
                     ) {
-                        CollectorHeader(
-                            collected = state.entries.count { it.observationCount > 0 },
-                            total = state.entries.size,
-                            commonCount = state.entries.count {
-                                it.observationCount > 0 && it.encounterRarity == EncounterRarity.COMMON
+                        CollectionSectionSelector(selectedSection, onSectionChange)
+                        PersonalCollectionHeader(
+                            speciesCount = personalEntries.size,
+                            observationCount = state.observationCount,
+                            researchGradeCount = personalEntries.count {
+                                it.bestQualityGrade == "research"
                             },
-                            uncommonCount = state.entries.count {
-                                it.observationCount > 0 && it.encounterRarity == EncounterRarity.UNCOMMON
-                            },
-                            rareCount = state.entries.count {
-                                it.observationCount > 0 && it.encounterRarity == EncounterRarity.RARE
-                            },
-                            veryRareCount = state.entries.count {
-                                it.observationCount > 0 && it.encounterRarity == EncounterRarity.VERY_RARE
-                            },
-                            xp = state.totalXp,
-                            progression = state.progression,
-                            selectedCatalogue = state.selectedCatalogue,
-                            currentRegionSource = state.currentRegionSource,
-                            achievements = state.achievements,
-                            observedTaxa = state.observedRegionalTaxa,
-                        )
-                        MediaPrefetchStatus(
-                            state.mediaPrefetch,
-                            Modifier.padding(horizontal = WildlifeSpacing.Screen),
                         )
                         if (!state.linked) {
                             UnlinkedCollectionBanner(onLinkAccount = onLinkAccount)
@@ -244,9 +231,13 @@ fun CollectionScreen(
                             onSort = { sort = it },
                             count = filtered.size,
                         )
-                        SectionRule("The guide")
+                        SectionRule("Recorded species")
                         if (filtered.isEmpty()) {
-                            EmptyFilterNote(filters.activeLabels())
+                            if (personalEntries.isEmpty()) {
+                                EmptyCollectionNote()
+                            } else {
+                                EmptyFilterNote(filters.activeLabels())
+                            }
                         }
                     }
                 },
@@ -258,6 +249,7 @@ fun CollectionScreen(
                 onFilters = onFilters,
                 presentGroups = presentGroups,
                 matchCount = filtered.size,
+                personalOnly = true,
                 onDismiss = { filtersOpen = false },
             )
         }
@@ -268,166 +260,42 @@ fun CollectionScreen(
 // region — Header
 
 @Composable
-private fun CollectorHeader(
-    collected: Int,
-    total: Int,
-    commonCount: Int,
-    uncommonCount: Int,
-    rareCount: Int,
-    veryRareCount: Int,
-    xp: Int,
-    progression: ProgressionState?,
-    selectedCatalogue: InstalledRegionalCatalogue?,
-    currentRegionSource: CurrentRegionSource,
-    achievements: List<InstalledRegionalAchievement>,
-    observedTaxa: Set<Long>,
-    modifier: Modifier = Modifier,
+private fun PersonalCollectionHeader(
+    speciesCount: Int,
+    observationCount: Int,
+    researchGradeCount: Int,
 ) {
-    // Unlinked users have no XP account yet, so fall back to the entry level.
-    val levels = progression ?: ProgressionProjection.project(xp)
-    val title = levels.selectedTitle
-    val completion = if (total == 0) 0f else (collected.toFloat() / total).coerceIn(0f, 1f)
-
-    Column(modifier.fillMaxWidth()) {
-        RangerHeader(
-            regionName = when (currentRegionSource) {
-                CurrentRegionSource.LAST_KNOWN_FIX -> selectedCatalogue?.displayName?.let { "Last known · $it" }
-                CurrentRegionSource.CURRENT_FIX -> selectedCatalogue?.displayName
-                CurrentRegionSource.UNAVAILABLE -> null
-            } ?: "Your collection",
-            regionKey = selectedCatalogue?.regionKey,
-            levelKey = title.key,
-            levelName = title.displayName,
-            // The bar measures this region; the level measures lifetime XP. Labelling the
-            // bar explicitly keeps the two from reading as one number.
-            progressLabel = "$collected OF $total IN THIS REGION",
-            progressTrailing = "${(completion * 100).toInt()}%",
-            progressFraction = completion,
-            // Regional tallies only. XP is lifetime and account-wide, so it never
-            // belonged in a block measuring one region.
-            stats = listOf(
-                RangerStat(
-                    value = commonCount.toString(),
-                    label = "COMMON",
-                    tint = WildlifeTheme.colors.rarityCommon,
-                    mark = StatMark.DOT,
-                ),
-                RangerStat(
-                    value = uncommonCount.toString(),
-                    label = "UNCOMMON",
-                    tint = WildlifeTheme.colors.rarityUncommon,
-                    fieldMark = "rarity_uncommon",
-                ),
-                RangerStat(
-                    value = rareCount.toString(),
-                    label = "RARE",
-                    tint = WildlifeTheme.colors.rarityRare,
-                    fieldMark = "rarity_rare",
-                ),
-                RangerStat(
-                    value = veryRareCount.toString(),
-                    label = "VERY RARE",
-                    tint = WildlifeTheme.colors.rarityVeryRare,
-                    fieldMark = "rarity_very_rare",
-                ),
-            ),
-            // The header is a plate mounted on the page, not the top of it. Its own
-            // ground settles to near-solid while leaving the moon and canopy open at the
-            // top, and the torn edge gives the boundary a hard line to stop at.
-            showBackgroundScrim = true,
-            showBottomEdge = true,
-            modifier = Modifier.bleedHorizontally(WildlifeSpacing.Screen),
-            belowStats = if (achievements.isEmpty()) {
-                null
-            } else {
-                {
-                    Row(
-                        modifier = Modifier.fillMaxWidth(),
-                        horizontalArrangement = Arrangement.spacedBy(WildlifeSpacing.Small),
-                    ) {
-                        achievements.forEach { achievement ->
-                            QuestBadge(
-                                achievement = achievement,
-                                observedTaxa = observedTaxa,
-                                modifier = Modifier.weight(1f),
-                            )
-                        }
-                    }
-                }
-            },
+    Column(
+        modifier = Modifier.padding(horizontal = WildlifeSpacing.Screen),
+        verticalArrangement = Arrangement.spacedBy(WildlifeSpacing.Micro),
+    ) {
+        Text(
+            text = "My collection",
+            fontFamily = DisplayFontFamily,
+            style = MaterialTheme.typography.headlineMedium,
+            color = WildlifeTheme.colors.parchment,
         )
-
+        Text(
+            text = "$speciesCount species · $observationCount observations",
+            style = MaterialTheme.typography.bodyLarge,
+            color = MaterialTheme.colorScheme.onSurfaceVariant,
+        )
+        Text(
+            text = "$researchGradeCount species with a Research Grade observation",
+            style = MaterialTheme.typography.labelMedium,
+            color = WildlifeTheme.colors.mutedText,
+        )
     }
 }
 
 @Composable
-private fun QuestBadge(
-    achievement: InstalledRegionalAchievement,
-    observedTaxa: Set<Long>,
-    modifier: Modifier = Modifier,
-) {
-    val colors = WildlifeTheme.colors
-    val isIcons = achievement.label == "icons"
-    // "Regional" is dropped: these sit inside a header already titled with the region, so
-    // the word did no work and pushed the longer label onto a second line.
-    val title = if (isIcons) "Icons" else "Essentials"
-    // Takes the regional-standing tokens, so a quest is coloured the same as the marks it
-    // asks you to collect rather than by an unrelated gold/olive pair.
-    val accent = if (isIcons) colors.icon else colors.essential
-    val markName = if (isIcons) "regional_icon" else "regional_essential"
-    val done = achievement.taxonIds.count { it in observedTaxa }
-    val goal = achievement.taxonIds.size
-    val complete = goal > 0 && done >= goal
-    val fraction = if (goal == 0) 0f else done.toFloat() / goal
-
-    Column(
-        modifier = modifier
-            .clip(RoundedCornerShape(12.dp))
-            .background(MaterialTheme.colorScheme.surface)
-            .border(
-                width = if (complete) 1.5.dp else 1.dp,
-                color = if (complete) accent else MaterialTheme.colorScheme.outlineVariant,
-                shape = RoundedCornerShape(12.dp),
-            )
-            .padding(11.dp),
-    ) {
-        // Two rows: mark, title and tally on one line; the measure beneath it.
-        Row(
-            verticalAlignment = Alignment.CenterVertically,
-            horizontalArrangement = Arrangement.spacedBy(8.dp),
-        ) {
-            // Drawn bare, not matted: nothing sits behind it here, so the disc that keeps
-            // the mark readable over photography would just be a circle around a circle.
-            FieldMark(markName, accent, Modifier.size(21.dp))
-            Text(
-                text = title.uppercase(),
-                style = FieldLabelStyle,
-                color = colors.parchmentDim,
-                maxLines = 2,
-                overflow = TextOverflow.Ellipsis,
-                modifier = Modifier.weight(1f),
-            )
-            Row(verticalAlignment = Alignment.Bottom) {
-                Text(
-                    text = done.toString(),
-                    fontFamily = DisplayFontFamily,
-                    fontWeight = FontWeight.SemiBold,
-                    fontSize = 19.sp,
-                    color = if (complete) accent else colors.parchment,
-                )
-                Text(
-                    text = "/$goal",
-                    fontFamily = DisplayFontFamily,
-                    fontWeight = FontWeight.Medium,
-                    fontSize = 13.sp,
-                    color = colors.parchmentFaint,
-                    modifier = Modifier.padding(bottom = 1.dp),
-                )
-            }
-        }
-        Spacer(Modifier.height(8.dp))
-        JournalProgressBar(fraction = fraction, height = 4.dp, accent = accent)
-    }
+private fun EmptyCollectionNote() {
+    Text(
+        text = "Your recorded species will appear here after Wildlife finds your public iNaturalist observations.",
+        style = MaterialTheme.typography.bodyMedium,
+        color = MaterialTheme.colorScheme.onSurfaceVariant,
+        modifier = Modifier.padding(horizontal = WildlifeSpacing.Screen),
+    )
 }
 
 /**
@@ -465,9 +333,8 @@ private fun SearchRow(
 /**
  * The axis selectors and sort.
  *
- * Status and Standing are inline because they are the pair the axis split exists to
- * combine — "which Essentials am I still missing?" is answerable here without the sheet.
- * Rarity and Group stay behind the Filters button above.
+ * Collection is an all-regions personal projection, so its visible axes are verification
+ * status and taxonomic group. Regional standing and encounter rarity stay in Explore.
  *
  * The row does not scroll. A control the user has to drag sideways to find is a control
  * most people never find, so everything here is sized to fit a phone at default text size.
@@ -492,7 +359,7 @@ private fun FilterBar(
         ) {
             WildlifeDropdown(
                 selected = filters.status,
-                options = StatusFilter.entries,
+                options = listOf(StatusFilter.ANY, StatusFilter.CONFIRMED, StatusFilter.AWAITING),
                 label = { it.label },
                 onSelected = { onFilters(filters.copy(status = it)) },
                 accent = colors.axisStatus,
@@ -500,17 +367,8 @@ private fun FilterBar(
                 pillLabel = { if (it == StatusFilter.ANY) "Status" else it.label },
             )
             WildlifeDropdown(
-                selected = filters.standing,
-                options = StandingFilter.entries,
-                label = { it.label },
-                onSelected = { onFilters(filters.copy(standing = it)) },
-                accent = colors.axisStanding,
-                leading = { StandingMark(it, colors.axisStanding) },
-                pillLabel = { if (it == StandingFilter.ANY) "Standing" else it.label },
-            )
-            WildlifeDropdown(
                 selected = sort,
-                options = CollectionSort.entries,
+                options = CollectionSort.entries.filter { it != CollectionSort.RARITY },
                 label = { it.label },
                 onSelected = onSort,
                 // Achromatic on purpose: sort never narrows the set, and giving it an axis

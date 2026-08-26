@@ -150,15 +150,16 @@ GET public identification activity, only if the validated API contract supports 
 
 ---
 
-## 6. Collection (the Pokédex)
+## 6. Collection and regional guide
 
-- Unobserved species appear as grey silhouettes; observed species unlock in full colour using the user's own photo as the card image.
-- Browsable by taxonomic group and by region.
-- The current region comes only from a one-shot device location assigned through the bundled boundaries. It is not manually editable. Every fresh app launch starts regional surfaces from that current region. Explore may browse a different guide for the remainder of the app session, but that never changes Home Near me, regional progress or current-region cache priority. Without a usable fix, show unavailable/last-known state rather than silently choosing a region.
-- A species observed in another region does not unlock this region's catalogue entry. Region assignment is persisted against the observation UUID and boundary version.
+- **Collection is the user's history.** It has three explicit views: unique recorded Species across all stored regions, individual Observations and the personal/regional Map. Missing species never appear in Collection.
+- The Collection species view uses the user's own photo when available and remains browsable by taxonomic group and observation state. Region may be added as a scope filter, but it must not masquerade as the location-derived current-region control.
+- **Explore owns the regional guide.** Unobserved guide species appear as grey silhouettes; observed species unlock in full colour using the user's own photo as the card image. The guide carries its region header, completion, rarity, Essentials and Icons.
+- The current region comes only from a one-shot device location assigned through the bundled boundaries. It is not manually editable. Every fresh app launch opens Explore on that current guide. Explore may browse a different guide for the remainder of the app session, but that never changes Home Near me, regional progress or current-region cache priority. Without a usable fix, show unavailable/last-known state rather than silently choosing a region.
+- A species observed in another region remains in the user's Collection but does not unlock this region's Explore guide entry. Region assignment is persisted against the observation UUID and boundary version.
 - **Taxon-counting rule:** collection entries are keyed by the species-level ancestor taxon ID, not the observation's lowest exact taxon ID. Subspecies and varieties unlock and appear under their parent species; their exact identification remains visible in species detail. Genus-only or higher identifications remain as separate "awaiting species identification" entries. Show the overall number as **collection entries**, with identified-species and awaiting-identification subtotals, because iNaturalist's `species_counts` result can include coarser taxa.
 - Cache the observation's exact taxon ID and rank plus its collection taxon ID and rank. Recompute this projection whenever iNaturalist changes an identification so Wildlife follows the semantics of iNaturalist's `species_counts` endpoint.
-- **Verification state is part of the collection UI:** an entry enters as *unverified* and becomes *confirmed* when iNaturalist reaches research grade. Half of all iNat observations are identified within two days, average around 18 days — a naturally paced delayed reward.
+- **Verification state is part of the Collection UI:** an entry enters as *unverified* and becomes *confirmed* when iNaturalist reaches research grade. Half of all iNat observations are identified within two days, average around 18 days — a naturally paced delayed reward.
 - Species detail: scientific data, conservation status, Wikipedia summary, global distribution map versus the user's own points.
 
 ### 6.1 Catalogue asset curation (hidden work — plan for it)

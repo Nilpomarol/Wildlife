@@ -33,6 +33,9 @@ import androidx.core.content.ContextCompat
 import com.wildlife.feasibility.ui.navigation.WildlifeBottomBar
 import com.wildlife.feasibility.ui.navigation.WildlifeDestination
 import com.wildlife.feasibility.ui.screens.collection.CollectionScreen
+import com.wildlife.feasibility.ui.screens.collection.CollectionMapScreen
+import com.wildlife.feasibility.ui.screens.collection.CollectionSection
+import com.wildlife.feasibility.ui.screens.collection.CollectionSectionSelector
 import com.wildlife.feasibility.ui.screens.collection.CollectionViewModel
 import com.wildlife.feasibility.ui.screens.explore.ExploreScreen
 import com.wildlife.feasibility.ui.screens.explore.ExploreSection
@@ -54,6 +57,7 @@ class MainActivity : ComponentActivity() {
     private val observationsViewModel by viewModels<ObservationsViewModel>()
     private var requestedDestination by mutableStateOf(WildlifeDestination.HOME)
     private var exploreSection by mutableStateOf(ExploreSection.GUIDE)
+    private var collectionSection by mutableStateOf(CollectionSection.SPECIES)
     private var observationsRequest by mutableStateOf<ObservationsRequest?>(null)
     private var resumeRevision by mutableStateOf(0)
     private var activeRoute = WildlifeDestination.HOME.route
@@ -164,7 +168,8 @@ class MainActivity : ComponentActivity() {
         val navController = rememberNavController()
         val currentRoute = navController.currentBackStackEntryAsState().value?.destination?.route
         val selected = WildlifeDestination.entries.firstOrNull { it.route == currentRoute }
-            ?: WildlifeDestination.HOME
+            ?: if (currentRoute == OBSERVATIONS_ROUTE) WildlifeDestination.COLLECTION
+            else WildlifeDestination.HOME
         val bottomBar: @Composable () -> Unit = {
             WildlifeBottomBar(selected = selected) { destination ->
                 if (destination == WildlifeDestination.CAPTURE) {
@@ -188,7 +193,11 @@ class MainActivity : ComponentActivity() {
                     shellViewModel.refresh()
                     exploreViewModel.refreshLocal()
                 }
-                WildlifeDestination.COLLECTION.route -> collectionViewModel.refresh()
+                WildlifeDestination.COLLECTION.route -> {
+                    collectionViewModel.refresh()
+                    observationsViewModel.refresh()
+                    exploreViewModel.refreshLocal()
+                }
                 WildlifeDestination.EXPLORE.route -> exploreViewModel.refreshLocal()
                 WildlifeDestination.PROFILE.route -> shellViewModel.refresh()
                 OBSERVATIONS_ROUTE -> observationsViewModel.refresh()
@@ -214,8 +223,8 @@ class MainActivity : ComponentActivity() {
                     onCollection = { navController.openDestination(WildlifeDestination.COLLECTION) },
                     onExplore = { navController.openDestination(WildlifeDestination.EXPLORE) },
                     onMyMap = {
-                        exploreSection = ExploreSection.MAP
-                        navController.openDestination(WildlifeDestination.EXPLORE)
+                        collectionSection = CollectionSection.MAP
+                        navController.openDestination(WildlifeDestination.COLLECTION)
                     },
                     onObservations = { openObservations(navController) },
                     onOpenSpecies = { taxonId ->
@@ -240,25 +249,60 @@ class MainActivity : ComponentActivity() {
                 )
             }
             composable(WildlifeDestination.COLLECTION.route) {
-                CollectionScreen(
-                    state = collectionViewModel.uiState,
-                    onBack = null,
-                    onOpenSpecies = { species ->
-                        species.taxonId?.let { taxonId ->
-                            openSpeciesDetail(
-                                SpeciesDetailActivity.intent(
-                                    this@MainActivity, taxonId, species.label,
-                                    collectionViewModel.uiState.selectedCatalogue?.regionKey,
-                                ),
+                when (collectionSection) {
+                    CollectionSection.SPECIES -> CollectionScreen(
+                        state = collectionViewModel.uiState,
+                        onBack = null,
+                        onOpenSpecies = { species ->
+                            species.taxonId?.let { taxonId ->
+                                openSpeciesDetail(
+                                    SpeciesDetailActivity.intent(
+                                        this@MainActivity, taxonId, species.label, null,
+                                    ),
+                                )
+                            } ?: openExternal(
+                                "https://www.inaturalist.org/observations/${species.latestObservationUuid}",
                             )
-                        } ?: openExternal(
-                            "https://www.inaturalist.org/observations/${species.latestObservationUuid}",
-                        )
-                    },
-                    onLinkAccount = ::openAccountManagement,
-                    onRetry = collectionViewModel::refresh,
-                    bottomBar = bottomBar,
-                )
+                        },
+                        onLinkAccount = ::openAccountManagement,
+                        onRetry = collectionViewModel::refresh,
+                        selectedSection = collectionSection,
+                        onSectionChange = { collectionSection = it },
+                        bottomBar = bottomBar,
+                    )
+                    CollectionSection.OBSERVATIONS -> ObservationsScreen(
+                        state = observationsViewModel.uiState,
+                        onBack = null,
+                        onSync = observationsViewModel::sync,
+                        onSubmitted = observationsViewModel::markSubmitted,
+                        onNotSubmitted = observationsViewModel::markNotSubmitted,
+                        onConfirm = observationsViewModel::confirm,
+                        onOpenObservation = { uuid ->
+                            openExternal("https://www.inaturalist.org/observations/$uuid")
+                        },
+                        onOpenINaturalist = { openExternal("https://www.inaturalist.org") },
+                        onDeleteLocal = observationsViewModel::deleteLocalGroup,
+                        title = "Collection",
+                        header = {
+                            CollectionSectionSelector(collectionSection) {
+                                collectionSection = it
+                            }
+                        },
+                        bottomBar = bottomBar,
+                    )
+                    CollectionSection.MAP -> CollectionMapScreen(
+                        accountLinked = exploreViewModel.uiState.accountLinked,
+                        map = exploreViewModel.uiState.personalMap,
+                        regionalProgress = exploreViewModel.uiState.regionalMapProgress,
+                        onOpenObservation = { uuid ->
+                            openExternal("https://www.inaturalist.org/observations/$uuid")
+                        },
+                        onMapVisibilityChanged = exploreViewModel::setObservationMapVisible,
+                        selectedSection = collectionSection,
+                        onSectionChange = { collectionSection = it },
+                        bottomBar = bottomBar,
+                    )
+                }
             }
             composable(WildlifeDestination.EXPLORE.route) {
                 ExploreScreen(
@@ -280,10 +324,6 @@ class MainActivity : ComponentActivity() {
                     },
                     onDiscoverNearby = ::beginNearbyDiscovery,
                     onSelectRegion = ::selectRegion,
-                    onOpenObservation = { uuid ->
-                        openExternal("https://www.inaturalist.org/observations/$uuid")
-                    },
-                    onMapVisibilityChanged = exploreViewModel::setObservationMapVisible,
                     onVisibleTaxaChanged = exploreViewModel::prioritizeVisibleTaxa,
                     bottomBar = bottomBar,
                     selectedSection = exploreSection,
@@ -331,10 +371,11 @@ class MainActivity : ComponentActivity() {
         }
     }
 
-    /** Observations is a focused route inside the shell, not a sixth bottom destination. */
+    /** General observation management is one of Collection's personal-history views. */
     private fun openObservations(navController: NavHostController) {
         observationsViewModel.setTaxonFilter(null)
-        navController.navigate(OBSERVATIONS_ROUTE) { launchSingleTop = true }
+        collectionSection = CollectionSection.OBSERVATIONS
+        navController.openDestination(WildlifeDestination.COLLECTION)
     }
 
     /** Explore changes only the guide being browsed. */

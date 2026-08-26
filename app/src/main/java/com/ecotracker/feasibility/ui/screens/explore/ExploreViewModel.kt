@@ -25,6 +25,12 @@ import com.wildlife.feasibility.TaxonDetails
 import com.wildlife.feasibility.toLocalTaxonDetails
 import com.wildlife.feasibility.LocalMediaStore
 import com.wildlife.feasibility.MediaPrefetchScheduler
+import com.wildlife.feasibility.InstalledRegionalAchievement
+import com.wildlife.feasibility.ProgressionProjection
+import com.wildlife.feasibility.ProgressionState
+import com.wildlife.feasibility.ProgressionStore
+import com.wildlife.feasibility.EncounterRarity
+import com.wildlife.feasibility.ui.components.SpeciesCardRarity
 import com.wildlife.feasibility.MediaPrefetchStore
 import com.wildlife.feasibility.MediaPrefetchSummary
 import com.wildlife.feasibility.ui.components.SpeciesCardModel
@@ -48,6 +54,7 @@ data class ExploreSpecies(
     val commonName: String?,
     val scientificName: String,
     val observed: Boolean,
+    val encounterRarity: EncounterRarity? = null,
     val card: SpeciesCardModel,
     /** Validated local catalogue photo reserved for Home Near me and source-bearing Detail. */
     val localReferencePhotoUrl: String? = null,
@@ -68,6 +75,10 @@ data class ExploreUiState(
     val browsedCatalogue: RegionalExploreCatalogue? = null,
     val installedCatalogues: List<InstalledRegionalCatalogue> = emptyList(),
     val entries: List<ExploreSpecies> = emptyList(),
+    val achievements: List<InstalledRegionalAchievement> = emptyList(),
+    val observedRegionalTaxa: Set<Long> = emptySet(),
+    val totalXp: Int = 0,
+    val progression: ProgressionState? = null,
     /** Current-region entries used only to scope and decorate Home/Explore Near me results. */
     val nearbyCatalogueEntries: List<ExploreSpecies> = emptyList(),
     val accountLinked: Boolean = false,
@@ -97,10 +108,14 @@ internal object ExploreProjection {
         taxa: List<InstalledRegionalTaxon>,
         observations: List<SyncedObservation>,
         detailsByTaxon: Map<Long, TaxonDetails> = emptyMap(),
+        achievements: List<InstalledRegionalAchievement> = emptyList(),
     ): List<ExploreSpecies> {
         val collectionByTaxon = CollectionProjection.species(observations)
             .mapNotNull { entry -> entry.taxonId?.let { it to entry } }
             .toMap()
+        val achievementTypesByTaxon = achievements
+            .flatMap { achievement -> achievement.taxonIds.map { it to achievement.label } }
+            .groupBy({ it.first }, { it.second })
         return taxa.map { taxon ->
             val collected = collectionByTaxon[taxon.taxonId]
             val details = detailsByTaxon[taxon.taxonId]
@@ -120,6 +135,7 @@ internal object ExploreProjection {
                 commonName = taxon.commonName,
                 scientificName = taxon.scientificName,
                 observed = collected != null,
+                encounterRarity = taxon.rarity,
                 card = SpeciesCardModel(
                     key = "taxon:${taxon.taxonId}",
                     collected = collected != null,
@@ -134,6 +150,15 @@ internal object ExploreProjection {
                     fallbackSilhouetteGroup = taxonGroupFor(taxon.taxonClass),
                     supportingTextItalic = true,
                     status = status,
+                    rarity = when (taxon.rarity) {
+                        EncounterRarity.COMMON -> SpeciesCardRarity.COMMON
+                        EncounterRarity.UNCOMMON -> SpeciesCardRarity.UNCOMMON
+                        EncounterRarity.RARE -> SpeciesCardRarity.RARE
+                        EncounterRarity.VERY_RARE -> SpeciesCardRarity.VERY_RARE
+                        EncounterRarity.UNKNOWN -> null
+                    },
+                    regionalEssential = "essentials" in achievementTypesByTaxon[taxon.taxonId].orEmpty(),
+                    regionalIcon = "icons" in achievementTypesByTaxon[taxon.taxonId].orEmpty(),
                 ),
                 localReferencePhotoUrl = details?.photoUrl,
                 localReferencePhotoAttribution = details?.photoAttribution,
@@ -458,6 +483,7 @@ class ExploreViewModel(application: Application) : AndroidViewModel(application)
         val hiddenObservationUuids = account?.let {
             observationStore?.mapHiddenObservationUuids(it.userId)
         }.orEmpty()
+        val summary = account?.let { observationStore?.summary(it.userId) }
         val regionalMapProgress = RegionalMapProgressProjection.build(
             catalogues = catalogues,
             taxaByRegion = catalogues.associate { catalogue ->
@@ -473,6 +499,7 @@ class ExploreViewModel(application: Application) : AndroidViewModel(application)
         val entries = ExploreProjection.regionalEntries(
             taxa = content.taxa(selectedKey), observations = regionalObservations(selectedKey),
             detailsByTaxon = detailsByTaxon,
+            achievements = content.achievements(selectedKey),
         )
         val nearbyEntries = if (currentKey == selectedKey) {
             entries
@@ -481,6 +508,7 @@ class ExploreViewModel(application: Application) : AndroidViewModel(application)
                 taxa = content.taxa(currentKey),
                 observations = regionalObservations(currentKey),
                 detailsByTaxon = detailsFor(currentKey),
+                achievements = content.achievements(currentKey),
             )
         }
         ExploreUiState(
@@ -492,6 +520,19 @@ class ExploreViewModel(application: Application) : AndroidViewModel(application)
             ),
             installedCatalogues = catalogues,
             entries = entries,
+            achievements = content.achievements(selectedKey),
+            observedRegionalTaxa = regionalObservations(selectedKey)
+                .mapNotNull { it.collectionTaxonId ?: it.taxonId }
+                .toSet(),
+            totalXp = summary?.totalXp ?: 0,
+            progression = account?.let {
+                val store = ProgressionStore(context)
+                ProgressionProjection.project(
+                    totalXp = summary?.totalXp ?: 0,
+                    selectedLevelKey = store.selectedLevelKey(it.userId),
+                    highestLevelKey = store.highestLevelKey(it.userId),
+                )
+            },
             nearbyCatalogueEntries = nearbyEntries,
             accountLinked = account != null,
             personalMap = PersonalObservationMapProjection.build(

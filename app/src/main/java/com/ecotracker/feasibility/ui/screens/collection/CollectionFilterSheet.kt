@@ -58,6 +58,7 @@ fun CollectionFilterSheet(
     onFilters: (CollectionFilters) -> Unit,
     presentGroups: List<SpeciesGroup>,
     matchCount: Int,
+    personalOnly: Boolean = false,
     onDismiss: () -> Unit,
 ) {
     val colors = WildlifeTheme.colors
@@ -96,7 +97,13 @@ fun CollectionFilterSheet(
             // Each axis keeps the accent it carries in the row above, so a chip and the
             // selector it belongs to are recognisably the same control.
             FilterSection("Status", colors.axisStatus) {
-                StatusFilter.entries.forEach { option ->
+                StatusFilter.entries.filter { option ->
+                    !personalOnly || option in listOf(
+                        StatusFilter.ANY,
+                        StatusFilter.CONFIRMED,
+                        StatusFilter.AWAITING,
+                    )
+                }.forEach { option ->
                     FilterChip(
                         label = option.label,
                         selected = filters.status == option,
@@ -107,27 +114,29 @@ fun CollectionFilterSheet(
                 }
             }
 
-            FilterSection("Standing", colors.axisStanding) {
-                StandingFilter.entries.forEach { option ->
-                    FilterChip(
-                        label = option.label,
-                        selected = filters.standing == option,
-                        accent = colors.axisStanding,
-                        onClick = { onFilters(filters.copy(standing = option)) },
-                        mark = { tint -> StandingMark(option, tint) },
-                    )
+            if (!personalOnly) {
+                FilterSection("Standing", colors.axisStanding) {
+                    StandingFilter.entries.forEach { option ->
+                        FilterChip(
+                            label = option.label,
+                            selected = filters.standing == option,
+                            accent = colors.axisStanding,
+                            onClick = { onFilters(filters.copy(standing = option)) },
+                            mark = { tint -> StandingMark(option, tint) },
+                        )
+                    }
                 }
-            }
 
-            FilterSection("Rarity", colors.axisRarity) {
-                RarityFilter.entries.forEach { option ->
-                    FilterChip(
-                        label = option.label,
-                        selected = filters.rarity == option,
-                        accent = colors.axisRarity,
-                        onClick = { onFilters(filters.copy(rarity = option)) },
-                        mark = { tint -> RarityMark(option, tint) },
-                    )
+                FilterSection("Rarity", colors.axisRarity) {
+                    RarityFilter.entries.forEach { option ->
+                        FilterChip(
+                            label = option.label,
+                            selected = filters.rarity == option,
+                            accent = colors.axisRarity,
+                            onClick = { onFilters(filters.copy(rarity = option)) },
+                            mark = { tint -> RarityMark(option, tint) },
+                        )
+                    }
                 }
             }
 
