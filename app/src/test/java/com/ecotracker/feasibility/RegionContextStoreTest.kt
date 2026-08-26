@@ -38,6 +38,17 @@ class RegionContextStoreTest {
         assertEquals("east_africa", store.browsedRegionKey(installed.toList()))
     }
 
+    @Test fun `fresh app launch returns browsing to current region`() {
+        val installed = setOf("mediterranean_europe", "east_africa", "caribbean")
+        store.recordLocation(41.3874, 2.1686, 100, true, installed)
+        store.selectBrowsedRegion("east_africa")
+
+        store.followCurrentRegion()
+
+        assertNull(store.explicitBrowsedRegionKey())
+        assertEquals("mediterranean_europe", store.browsedRegionKey(installed.toList()))
+    }
+
     @Test fun `unsupported location does not silently choose the first guide`() {
         val installed = setOf("mediterranean_europe", "east_africa", "caribbean")
         val current = store.recordLocation(

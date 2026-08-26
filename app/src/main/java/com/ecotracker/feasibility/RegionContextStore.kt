@@ -50,6 +50,11 @@ class RegionContextStore(context: Context) {
         preferences.edit().putString(KEY_BROWSED_REGION, regionKey).apply()
     }
 
+    /** Starts Explore from the location-derived region without changing that region itself. */
+    fun followCurrentRegion() {
+        preferences.edit().remove(KEY_BROWSED_REGION).apply()
+    }
+
     fun markCurrentAsLastKnown(): Boolean {
         val current = currentRegion()
         if (current.regionKey == null || current.source != CurrentRegionSource.CURRENT_FIX) return false

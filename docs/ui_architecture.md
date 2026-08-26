@@ -160,12 +160,17 @@ Until the curated catalogue is frozen, the UI must say **Provisional catalogue**
 
 ### Catalogue / Explore
 
-- Reads the installed regional catalogue being browsed, including its version and curated denominator. This temporary Explore choice is independent from the current region.
+- Opens on the location-derived current regional catalogue at every fresh app launch. The user may
+  browse another installed guide for the rest of that app session; this temporary Explore choice
+  remains independent from current-region progress and background preparation.
 - Shows licence-approved imagery only.
 - Does not label raw observation frequency as biological rarity.
 - Works unlinked and offline after the first snapshot is stored.
 - Provides three explicit sections: the stored Species guide first, one-shot Near me discovery second and My Map third. The guide opens by default because it is the section that works offline and without a permission prompt.
-- Home carries a preview of Near me: the same one-shot request and a short ranked extract, with a "See all" entry that opens Explore's Near me section. The preview and the section share one row component and one discovery call, so the reporting-frequency caveat is stated identically in both.
+- Home carries a preview of Near me: the same one-shot request and a short ranked extract, with a
+  "See all" entry that opens Explore's Near me section. Near me is always scoped and decorated from
+  the location-derived current catalogue, even while Explore is browsing another guide. The preview
+  and section share one discovery call, so the reporting-frequency caveat is stated identically.
 - Near me requests device location only after the user acts **for its first search**, intersects returned taxa with the provisional guide, labels species-count order as reporting frequency rather than rarity and includes loading, permission/location, empty and network-error states.
 - **Near me results are cached** (`NearbyDiscoveryStore`), superseding the earlier rule that the search coordinate and results were never persisted. That rule was written to stop the app becoming a location tracker; re-running the search on every visit to Home turned out to sample location *more* often, not less. The replacement keeps the intent through four constraints, all of which are load-bearing:
   - The stored coordinate is **coarsened to 0.01° (~1 km)** at the store boundary, so nothing finer than a cell ever reaches disk. It exists only to answer "have I moved far enough to re-search?".

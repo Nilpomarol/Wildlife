@@ -73,6 +73,11 @@ class MainActivity : ComponentActivity() {
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
+        if (savedInstanceState == null) {
+            // A guide chosen in Explore is a browsing session, not the app's geographic context.
+            // Every fresh app launch starts all regional surfaces from the current region.
+            RegionContextStore(this).followCurrentRegion()
+        }
         lifecycleScope.launch(Dispatchers.IO) {
             runCatching {
                 val content = PublishedContentRepositories.application(this@MainActivity)
@@ -509,8 +514,10 @@ class MainActivity : ComponentActivity() {
                 MediaPrefetchScheduler.scheduleCurrentRegion(this@MainActivity)
             }
             shellViewModel.refresh()
-            if (activeRoute == WildlifeDestination.COLLECTION.route) {
-                collectionViewModel.refresh()
+            when (activeRoute) {
+                WildlifeDestination.COLLECTION.route -> collectionViewModel.refresh()
+                WildlifeDestination.HOME.route,
+                WildlifeDestination.EXPLORE.route -> exploreViewModel.refreshLocal()
             }
         }
     }

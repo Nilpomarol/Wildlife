@@ -68,6 +68,8 @@ data class ExploreUiState(
     val browsedCatalogue: RegionalExploreCatalogue? = null,
     val installedCatalogues: List<InstalledRegionalCatalogue> = emptyList(),
     val entries: List<ExploreSpecies> = emptyList(),
+    /** Current-region entries used only to scope and decorate Home/Explore Near me results. */
+    val nearbyCatalogueEntries: List<ExploreSpecies> = emptyList(),
     val accountLinked: Boolean = false,
     val personalMap: PersonalObservationMap = PersonalObservationMapProjection.build(emptyList()),
     val regionalMapProgress: List<RegionalMapProgress> = emptyList(),
@@ -368,7 +370,7 @@ class ExploreViewModel(application: Application) : AndroidViewModel(application)
 
     fun discoverNearby(latitude: Double, longitude: Double) {
         nearbyLocationStarted()
-        val catalogue = uiState.entries
+        val catalogue = uiState.nearbyCatalogueEntries.ifEmpty { uiState.entries }
         val radiusKm = uiState.nearby.radiusKm
         viewModelScope.launch {
             val result = runCatching {
@@ -426,13 +428,17 @@ class ExploreViewModel(application: Application) : AndroidViewModel(application)
         val context = getApplication<Application>()
         val content = PublishedContentRepositories.application(context)
         val catalogues = content.catalogues()
-        val selectedKey = RegionContextStore(context).browsedRegionKey(
-            catalogues.map { it.regionKey },
+        val regionStore = RegionContextStore(context)
+        val installedKeys = catalogues.map { it.regionKey }
+        val selectedKey = regionStore.browsedRegionKey(
+            installedKeys,
         ) ?: error("No regional catalogue is installed.")
+        val currentKey = regionStore.currentRegionKey(installedKeys.toSet()) ?: selectedKey
         val selected = catalogues.first { it.regionKey == selectedKey }
         val mediaStore = LocalMediaStore(context)
-        val detailsByTaxon = content.taxaContent(selectedKey)
+        fun detailsFor(regionKey: String) = content.taxaContent(regionKey)
             .mapValues { (_, taxon) -> taxon.toLocalTaxonDetails(mediaStore) }
+        val detailsByTaxon = detailsFor(selectedKey)
         val account = AccountStore(context).verified()
         val observationStore = account?.let { ObservationStore(context) }
         val observations = account?.let { observationStore?.observations(it.userId) }.orEmpty()
@@ -442,10 +448,10 @@ class ExploreViewModel(application: Application) : AndroidViewModel(application)
                     ?.let { assignment -> observation.uuid to assignment }
             }.toMap()
         }.orEmpty()
-        val regionalObservations = account?.let { linkedAccount ->
+        fun regionalObservations(regionKey: String) = account?.let {
             observations.filter { observation ->
                 observationRegionsByUuid[observation.uuid]?.let { assignment ->
-                    assignment.earnsRegionalProgress && assignment.regionKey == selectedKey
+                    assignment.earnsRegionalProgress && assignment.regionKey == regionKey
                 } == true
             }
         }.orEmpty()
@@ -465,9 +471,18 @@ class ExploreViewModel(application: Application) : AndroidViewModel(application)
         )
         observationStore?.close()
         val entries = ExploreProjection.regionalEntries(
-            taxa = content.taxa(selectedKey), observations = regionalObservations,
+            taxa = content.taxa(selectedKey), observations = regionalObservations(selectedKey),
             detailsByTaxon = detailsByTaxon,
         )
+        val nearbyEntries = if (currentKey == selectedKey) {
+            entries
+        } else {
+            ExploreProjection.regionalEntries(
+                taxa = content.taxa(currentKey),
+                observations = regionalObservations(currentKey),
+                detailsByTaxon = detailsFor(currentKey),
+            )
+        }
         ExploreUiState(
             browsedCatalogue = RegionalExploreCatalogue(
                 regionKey = selected.regionKey,
@@ -477,6 +492,7 @@ class ExploreViewModel(application: Application) : AndroidViewModel(application)
             ),
             installedCatalogues = catalogues,
             entries = entries,
+            nearbyCatalogueEntries = nearbyEntries,
             accountLinked = account != null,
             personalMap = PersonalObservationMapProjection.build(
                 observations = observations,
@@ -484,7 +500,7 @@ class ExploreViewModel(application: Application) : AndroidViewModel(application)
             ),
             regionalMapProgress = regionalMapProgress,
             nearby = nearby.copy(
-                species = NearbyDiscoveryProjection.withLocalMedia(nearby.species, entries),
+                species = NearbyDiscoveryProjection.withLocalMedia(nearby.species, nearbyEntries),
             ),
             errorMessage = null,
             mediaPrefetch = MediaPrefetchStore(context).use {
