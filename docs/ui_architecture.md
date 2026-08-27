@@ -174,19 +174,23 @@ A future region control in Collection is a personal-history scope filter (defaul
   - It reads a **single last-known fix**, never a location stream, and never wakes the GPS with `getCurrentLocation`. With no recent fix the cache is judged on age and month alone.
   - It runs **only when a cached answer already exists**, i.e. only after the user has explicitly asked for a nearby search at least once.
 - Staleness lives in `NearbyCachePolicy`, not in the ViewModel, so the thresholds are unit-tested: re-search past **5 km** of movement (a fifth of the 25 km radius), on a **calendar-month change** (the month is part of the query), on a **radius change**, or after **7 days**. A failed or stale re-check leaves the previous answer on screen rather than replacing it with an error.
-- Home renders the extract as a **carousel** of plates and Explore keeps the full ranked table.
+- Home renders the extract as a **carousel** of plates and Explore keeps the full ranked grid.
   They share the reporting-frequency caveat, but intentionally not their top artwork source:
   Home's compact carousel is the only discovery shelf allowed to present a licence-compatible
   catalogue/provider reference photo directly, with creator and licence printed on the plate.
   The validated local catalogue asset takes precedence over the nearby API's taxon default, whose
   licence is often incompatible with distribution. Explore's
-  full Near me rows retain the collection-style personal-photo/silhouette treatment.
+  full Near me grid provides a session-only artwork chooser: silhouettes by default or
+  licence-compatible reference photos with a compact creator-and-licence credit, with a silhouette
+  fallback.
 - Nearby results use reporting counts and identity from `species_counts`, but their artwork follows
   two explicit surface contracts. Home uses a validated local catalogue photo, an eligible
   attributed provider default, a user observation assigned to the browsed region, the most
   specific validated local catalogue silhouette, its validated family assignment, then the bundled
   group mark. Explore Near me starts at the user observation and never renders either reference
-  source. Reference photography does not become collection artwork.
+  source when silhouette artwork is selected. The explicit reference-photo option uses only
+  `CataloguePhotoPolicy.creditedUrl` plus its compact attribution, and does not become collection
+  artwork.
   `iconic_taxon_name` is normalized to a group key (`taxonGroupForClass`) at parse time so the
   final offline fallback cannot silently render empty.
 - Map is Collection's third section rather than an Explore section or separate bottom route. Home links to it by selecting that Collection section. It is a regional-progress and personal-history surface. It renders all bundled local regional boundaries and exposes installed-catalogue completion plus Essentials/Icons states with an accessible textual legend. Personal history remains a separately toggleable 0.1°-cell layer; it never renders exact pins and retains hidden/unavailable-location disclosure and separate Research Grade meaning.

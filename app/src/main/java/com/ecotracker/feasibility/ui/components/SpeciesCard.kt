@@ -321,7 +321,7 @@ fun SpeciesCard(
                     Box(
                         modifier = Modifier
                             .align(Alignment.TopStart)
-                            .padding(top = 34.dp, start = 4.dp)
+                            .padding(WildlifeSpacing.Micro)
                             .background(
                                 MaterialTheme.colorScheme.background.copy(alpha = 0.66f),
                                 MaterialTheme.shapes.extraSmall,

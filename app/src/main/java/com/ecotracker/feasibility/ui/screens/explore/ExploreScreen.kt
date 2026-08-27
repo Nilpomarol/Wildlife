@@ -1,30 +1,19 @@
 package com.wildlife.feasibility.ui.screens.explore
 
 import androidx.compose.foundation.BorderStroke
-import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
-import androidx.compose.foundation.layout.BoxWithConstraints
 import androidx.compose.foundation.layout.Column
-import androidx.compose.foundation.layout.PaddingValues
 import androidx.compose.foundation.layout.Row
-import androidx.compose.foundation.layout.aspectRatio
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
+import androidx.compose.foundation.layout.heightIn
 import androidx.compose.foundation.layout.padding
-import androidx.compose.foundation.layout.size
-import androidx.compose.foundation.lazy.LazyColumn
-import androidx.compose.foundation.lazy.items
-import androidx.compose.foundation.lazy.itemsIndexed
-import androidx.compose.foundation.lazy.grid.GridCells
-import androidx.compose.foundation.lazy.grid.LazyVerticalGrid
-import androidx.compose.foundation.lazy.grid.items
-import androidx.compose.material.icons.Icons
-import androidx.compose.material.icons.outlined.Refresh
+import androidx.compose.foundation.selection.selectable
+import androidx.compose.foundation.selection.selectableGroup
 import androidx.compose.material3.Button
 import androidx.compose.material3.Card
 import androidx.compose.material3.CardDefaults
-import androidx.compose.material3.Icon
 import androidx.compose.material3.LinearProgressIndicator
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Text
@@ -36,28 +25,27 @@ import androidx.compose.runtime.saveable.rememberSaveable
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
-import androidx.compose.ui.platform.LocalDensity
-import androidx.compose.ui.text.font.FontWeight
+import androidx.compose.ui.semantics.contentDescription
+import androidx.compose.ui.semantics.semantics
+import androidx.compose.ui.semantics.Role
 import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import com.wildlife.feasibility.NearbySpecies
-import com.wildlife.feasibility.ui.components.NearbySpeciesRow
-import com.wildlife.feasibility.ui.components.RowRule
 import com.wildlife.feasibility.ui.components.RegionSelector
 import com.wildlife.feasibility.ui.components.MediaPrefetchStatus
 import com.wildlife.feasibility.CurrentRegionSource
 import com.wildlife.feasibility.EncounterRarity
 import com.wildlife.feasibility.ui.components.RegionalGuideHeader
-import com.wildlife.feasibility.ui.components.SpeciesCard
 import com.wildlife.feasibility.ui.components.SpeciesGrid
 import com.wildlife.feasibility.ui.components.SpeciesCardModel
+import com.wildlife.feasibility.ui.components.SpeciesCardPhotoKind
 import com.wildlife.feasibility.ui.components.SpeciesCardStatus
 import com.wildlife.feasibility.ui.components.SpeciesSearchFilterRow
 import com.wildlife.feasibility.ui.components.JournalChapterRail
+import com.wildlife.feasibility.ui.components.JournalTab
 import com.wildlife.feasibility.ui.components.WildlifeScaffold
 import com.wildlife.feasibility.ui.components.WildlifeLoadingState
-import com.wildlife.feasibility.ui.components.responsiveSpeciesGridColumns
 import com.wildlife.feasibility.ui.theme.WildlifeSpacing
 import com.wildlife.feasibility.ui.theme.WildlifeTheme
 import com.wildlife.feasibility.ui.screens.collection.CollectionFilterSheet
@@ -262,87 +250,145 @@ private fun NearbyDiscoveryContent(
     onOpenTaxon: (Long) -> Unit,
     modifier: Modifier = Modifier,
 ) {
-    LazyColumn(
+    var artwork by rememberSaveable { mutableStateOf(NearbyArtwork.SILHOUETTES) }
+    SpeciesGrid(
+        entries = state.species,
+        key = NearbySpecies::taxonId,
+        model = { it.nearbyCard(artwork) },
+        onClick = { onOpenTaxon(it.taxonId) },
         modifier = modifier.fillMaxSize(),
-        contentPadding = PaddingValues(
-            start = WildlifeSpacing.Screen,
-            end = WildlifeSpacing.Screen,
-            bottom = WildlifeSpacing.Section,
-        ),
-        verticalArrangement = Arrangement.spacedBy(WildlifeSpacing.Small),
-    ) {
-        item {
-            Text(
-                text = "What has been seen nearby?",
-                style = MaterialTheme.typography.titleLarge,
-                color = WildlifeTheme.colors.parchment,
-            )
-            Text(
-                text = "Wildlife samples your location once when you ask, then finds species in your selected regional guide reported within ${state.radiusKm} km during this calendar month across available years.",
-                style = MaterialTheme.typography.bodyMedium,
-                color = MaterialTheme.colorScheme.onSurfaceVariant,
-                modifier = Modifier.padding(top = WildlifeSpacing.Micro),
-            )
-            Text(
-                text = "Your location is sent directly to iNaturalist for this request. Wildlife does not track it continuously or store this search.",
-                style = MaterialTheme.typography.labelMedium,
-                color = WildlifeTheme.colors.mutedText,
-                modifier = Modifier.padding(top = WildlifeSpacing.Small),
-            )
-            Button(
-                onClick = onDiscover,
-                enabled = !state.loading,
-                modifier = Modifier.padding(top = WildlifeSpacing.Small),
-            ) {
-                Text(if (state.loading) "Checking nearby…" else "Check near me")
-            }
-        }
-        if (state.loading) {
-            item { LinearProgressIndicator(Modifier.fillMaxWidth()) }
-        }
-        state.errorMessage?.let { message ->
-            item {
-                Text(
-                    text = message,
-                    style = MaterialTheme.typography.bodyMedium,
-                    color = MaterialTheme.colorScheme.error,
-                )
-            }
-        }
-        if (state.requested && !state.loading && state.errorMessage == null) {
-            if (state.species.isEmpty()) {
-                item {
+        header = {
+            Column(verticalArrangement = Arrangement.spacedBy(WildlifeSpacing.Small)) {
+                NearbyDiscoveryHeader(state = state, onDiscover = onDiscover)
+                NearbyArtworkSelector(selected = artwork, onSelected = { artwork = it })
+                if (state.loading) {
+                    LinearProgressIndicator(Modifier.fillMaxWidth())
+                }
+                state.errorMessage?.let { message ->
                     Text(
-                        text = "No species from the selected regional guide appeared in the returned research-grade reports for this area and calendar month.",
+                        text = message,
                         style = MaterialTheme.typography.bodyMedium,
-                        color = MaterialTheme.colorScheme.onSurfaceVariant,
+                        color = MaterialTheme.colorScheme.error,
                     )
                 }
-            } else {
-                item {
+                if (state.requested && !state.loading && state.errorMessage == null) {
+                    if (state.species.isEmpty()) {
+                        Text(
+                            text = "No species from the selected regional guide appeared in the returned research-grade reports for this area and calendar month.",
+                            style = MaterialTheme.typography.bodyMedium,
+                            color = MaterialTheme.colorScheme.onSurfaceVariant,
+                        )
+                    } else {
+                        Text(
+                            text = "${state.species.size} reported species",
+                            style = MaterialTheme.typography.titleMedium,
+                            color = WildlifeTheme.colors.parchment,
+                        )
+                        Text(
+                            text = "Ordered by iNaturalist reporting frequency. This is not rarity or a prediction that a species will be present.",
+                            style = MaterialTheme.typography.labelMedium,
+                            color = WildlifeTheme.colors.mutedText,
+                        )
+                    }
+                }
+            }
+        },
+    )
+}
+
+@Composable
+private fun NearbyDiscoveryHeader(
+    state: NearbyDiscoveryState,
+    onDiscover: () -> Unit,
+) {
+    Card(
+        modifier = Modifier.fillMaxWidth(),
+        shape = MaterialTheme.shapes.medium,
+        colors = CardDefaults.cardColors(containerColor = MaterialTheme.colorScheme.surface),
+        border = BorderStroke(1.dp, MaterialTheme.colorScheme.outlineVariant),
+        elevation = CardDefaults.cardElevation(defaultElevation = 0.dp),
+    ) {
+        Column(
+            modifier = Modifier.padding(WildlifeSpacing.Small),
+            verticalArrangement = Arrangement.spacedBy(WildlifeSpacing.Micro),
+        ) {
+            Row(verticalAlignment = Alignment.CenterVertically) {
+                Column(modifier = Modifier.weight(1f)) {
                     Text(
-                        text = "${state.species.size} reported species",
-                        style = MaterialTheme.typography.titleMedium,
+                        text = "What has been seen nearby?",
+                        style = MaterialTheme.typography.titleSmall,
                         color = WildlifeTheme.colors.parchment,
-                        modifier = Modifier.padding(top = WildlifeSpacing.Small),
                     )
                     Text(
-                        text = "Ordered by iNaturalist reporting frequency. This is not rarity or a prediction that a species will be present.",
+                        text = "${state.radiusKm} km this month · location used once, never tracked.",
                         style = MaterialTheme.typography.labelMedium,
                         color = WildlifeTheme.colors.mutedText,
                     )
                 }
-                // Ruled, like the Home extract: the row is a printed table line now, and
-                // an unruled run of them loses the ranking the ordering exists to show.
-                itemsIndexed(state.species, key = { _, s -> s.taxonId }) { index, species ->
-                    Column {
-                        if (index > 0) RowRule()
-                        NearbySpeciesRow(species, onOpenTaxon)
-                    }
+                Button(
+                    onClick = onDiscover,
+                    enabled = !state.loading,
+                    modifier = Modifier.padding(start = WildlifeSpacing.Small),
+                ) {
+                    Text(if (state.loading) "Checking…" else "Check")
                 }
             }
         }
     }
+}
+
+private enum class NearbyArtwork {
+    SILHOUETTES,
+    REFERENCE_PHOTOS,
+}
+
+@Composable
+private fun NearbyArtworkSelector(
+    selected: NearbyArtwork,
+    onSelected: (NearbyArtwork) -> Unit,
+) {
+    Row(
+        modifier = Modifier
+            .fillMaxWidth()
+            .selectableGroup()
+            .semantics { contentDescription = "Nearby artwork" },
+        horizontalArrangement = Arrangement.spacedBy(WildlifeSpacing.Small),
+    ) {
+        NearbyArtwork.entries.forEach { artwork ->
+            JournalTab(
+                label = when (artwork) {
+                    NearbyArtwork.SILHOUETTES -> "Silhouettes"
+                    NearbyArtwork.REFERENCE_PHOTOS -> "Reference photos"
+                },
+                selected = artwork == selected,
+                modifier = Modifier
+                    .weight(1f)
+                    .heightIn(min = 48.dp)
+                    .selectable(
+                        selected = artwork == selected,
+                        onClick = { onSelected(artwork) },
+                        role = Role.RadioButton,
+                    ),
+            )
+        }
+    }
+}
+
+/** Reference photos use the wider credited-image policy, with the compact credit on the plate. */
+private fun NearbySpecies.nearbyCard(artwork: NearbyArtwork): SpeciesCardModel {
+    val referencePhoto = if (artwork == NearbyArtwork.REFERENCE_PHOTOS) tilePhotoUrl() else null
+    return SpeciesCardModel(
+        key = "nearby:$taxonId",
+        label = commonName ?: scientificName,
+        supportingText = scientificName,
+        photoUrl = referencePhoto,
+        photoKind = referencePhoto?.let { SpeciesCardPhotoKind.REFERENCE },
+        photoAttribution = if (referencePhoto != null) tileAttribution() else null,
+        silhouetteUrl = silhouetteUrl,
+        silhouetteMatchRank = silhouetteMatchRank,
+        fallbackSilhouetteGroup = taxonGroup,
+        supportingTextItalic = true,
+    )
 }
 
 @Composable
