@@ -59,6 +59,7 @@ fun CollectionFilterSheet(
     presentGroups: List<SpeciesGroup>,
     matchCount: Int,
     personalOnly: Boolean = false,
+    statusOptions: List<StatusFilter> = StatusFilter.entries,
     onDismiss: () -> Unit,
 ) {
     val colors = WildlifeTheme.colors
@@ -97,7 +98,7 @@ fun CollectionFilterSheet(
             // Each axis keeps the accent it carries in the row above, so a chip and the
             // selector it belongs to are recognisably the same control.
             FilterSection("Status", colors.axisStatus) {
-                StatusFilter.entries.filter { option ->
+                statusOptions.filter { option ->
                     !personalOnly || option in listOf(
                         StatusFilter.ANY,
                         StatusFilter.CONFIRMED,

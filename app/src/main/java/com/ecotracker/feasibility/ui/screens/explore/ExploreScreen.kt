@@ -42,7 +42,6 @@ import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import com.wildlife.feasibility.NearbySpecies
-import com.wildlife.feasibility.ui.components.CollectionSearchBar
 import com.wildlife.feasibility.ui.components.NearbySpeciesRow
 import com.wildlife.feasibility.ui.components.RowRule
 import com.wildlife.feasibility.ui.components.RegionSelector
@@ -54,24 +53,19 @@ import com.wildlife.feasibility.ui.components.SpeciesCard
 import com.wildlife.feasibility.ui.components.SpeciesGrid
 import com.wildlife.feasibility.ui.components.SpeciesCardModel
 import com.wildlife.feasibility.ui.components.SpeciesCardStatus
-import com.wildlife.feasibility.ui.components.TaxonFilterRow
+import com.wildlife.feasibility.ui.components.SpeciesSearchFilterRow
 import com.wildlife.feasibility.ui.components.JournalChapterRail
 import com.wildlife.feasibility.ui.components.WildlifeScaffold
 import com.wildlife.feasibility.ui.components.WildlifeLoadingState
 import com.wildlife.feasibility.ui.components.responsiveSpeciesGridColumns
 import com.wildlife.feasibility.ui.theme.WildlifeSpacing
 import com.wildlife.feasibility.ui.theme.WildlifeTheme
-
-enum class ExploreFilter(val label: String, val taxonGroup: String? = null) {
-    ALL("All"),
-    OBSERVED("Observed"),
-    MISSING("Not observed"),
-    MAMMALS("Mammals", "mammals"),
-    BIRDS("Birds", "birds"),
-    REPTILES("Reptiles", "reptiles"),
-    AMPHIBIANS("Amphibians", "amphibians"),
-    FISH("Fish", "fish"),
-}
+import com.wildlife.feasibility.ui.screens.collection.CollectionFilterSheet
+import com.wildlife.feasibility.ui.screens.collection.CollectionFilters
+import com.wildlife.feasibility.ui.screens.collection.RarityFilter
+import com.wildlife.feasibility.ui.screens.collection.SpeciesGroup
+import com.wildlife.feasibility.ui.screens.collection.StandingFilter
+import com.wildlife.feasibility.ui.screens.collection.StatusFilter
 
 enum class ExploreSection(val label: String) {
     GUIDE("Species guide"),
@@ -91,18 +85,25 @@ fun ExploreScreen(
     selectedSection: ExploreSection,
     onSectionChange: (ExploreSection) -> Unit,
 ) {
-    var selectedFilter by rememberSaveable { mutableStateOf(ExploreFilter.ALL) }
+    var status by rememberSaveable { mutableStateOf(StatusFilter.ANY) }
+    var standing by rememberSaveable { mutableStateOf(StandingFilter.ANY) }
+    var rarity by rememberSaveable { mutableStateOf(RarityFilter.ANY) }
+    var group by rememberSaveable { mutableStateOf<SpeciesGroup?>(null) }
     var query by rememberSaveable { mutableStateOf("") }
-    val availableFilters = ExploreFilter.entries.filter { filter ->
-        filter.taxonGroup == null || state.entries.any { it.taxonGroup == filter.taxonGroup }
+    var filtersOpen by rememberSaveable { mutableStateOf(false) }
+    val presentGroups = remember(state.entries) {
+        SpeciesGroup.entries.filter { group -> state.entries.any { it.taxonGroup == group.key } }
+    }
+    if (group != null && group !in presentGroups) group = null
+    val filters = CollectionFilters(status, standing, rarity, group)
+    val onFilters: (CollectionFilters) -> Unit = {
+        status = it.status
+        standing = it.standing
+        rarity = it.rarity
+        group = it.group
     }
     val filtered = state.entries.filter { entry ->
-        when (selectedFilter) {
-            ExploreFilter.ALL -> true
-            ExploreFilter.OBSERVED -> entry.observed
-            ExploreFilter.MISSING -> !entry.observed
-            else -> entry.taxonGroup == selectedFilter.taxonGroup
-        }
+        filters.matches(entry)
     }.filter { entry ->
         query.isBlank() || entry.commonName?.contains(query, ignoreCase = true) == true ||
             entry.scientificName.contains(query, ignoreCase = true)
@@ -178,26 +179,29 @@ fun ExploreScreen(
                             achievements = state.achievements,
                             observedTaxa = state.observedRegionalTaxa,
                         )
-                        ExploreIntro(
-                            catalogue = state.browsedCatalogue,
-                            errorMessage = state.errorMessage,
-                        )
                         MediaPrefetchStatus(state.mediaPrefetch)
-                        CollectionSearchBar(
+                        SpeciesSearchFilterRow(
                             query = query,
                             onQueryChange = { query = it },
                             placeholder = "Search this regional guide",
+                            activeCount = filters.activeCount,
+                            onOpenFilters = { filtersOpen = true },
+                            onClearFilters = { onFilters(CollectionFilters.None) },
                         )
-                        TaxonFilterRow(
-                            options = availableFilters,
-                            selected = selectedFilter,
-                            label = ExploreFilter::label,
-                            onSelected = { selectedFilter = it },
-                            modifier = Modifier.padding(bottom = WildlifeSpacing.Small),
-                        )
+                        state.errorMessage?.let { message ->
+                            Text(
+                                text = message,
+                                style = MaterialTheme.typography.labelSmall,
+                                color = MaterialTheme.colorScheme.error,
+                            )
+                        }
                         if (filtered.isEmpty()) {
                             Text(
-                                text = "No species match this search and filter.",
+                                text = if (filters.isActive) {
+                                    "Nothing matches ${filters.activeLabels().joinToString(" · ")} yet."
+                                } else {
+                                    "No species match your search yet."
+                                },
                                 style = MaterialTheme.typography.bodyLarge,
                                 color = MaterialTheme.colorScheme.onSurfaceVariant,
                                 textAlign = TextAlign.Center,
@@ -218,6 +222,21 @@ fun ExploreScreen(
                 )
 
             }
+        }
+        if (filtersOpen && selectedSection == ExploreSection.GUIDE) {
+            CollectionFilterSheet(
+                filters = filters,
+                onFilters = onFilters,
+                presentGroups = presentGroups,
+                matchCount = filtered.size,
+                statusOptions = listOf(
+                    StatusFilter.ANY,
+                    StatusFilter.MISSING,
+                    StatusFilter.RECORDED,
+                    StatusFilter.CONFIRMED,
+                ),
+                onDismiss = { filtersOpen = false },
+            )
         }
     }
 }
@@ -322,33 +341,6 @@ private fun NearbyDiscoveryContent(
                     }
                 }
             }
-        }
-    }
-}
-
-@Composable
-private fun ExploreIntro(
-    catalogue: RegionalExploreCatalogue,
-    errorMessage: String?,
-    modifier: Modifier = Modifier,
-) {
-    Column(modifier, verticalArrangement = Arrangement.spacedBy(4.dp)) {
-        Text(
-            text = "${catalogue.speciesCount} species · catalogue ${catalogue.version}",
-            style = MaterialTheme.typography.labelMedium,
-            color = MaterialTheme.colorScheme.onSurfaceVariant,
-        )
-        Text(
-            text = "A frozen regional catalogue. Encounter rarity is calculated for this region.",
-            style = MaterialTheme.typography.labelSmall,
-            color = WildlifeTheme.colors.mutedText,
-        )
-        if (errorMessage != null) {
-            Text(
-                text = errorMessage,
-                style = MaterialTheme.typography.labelSmall,
-                color = MaterialTheme.colorScheme.error,
-            )
         }
     }
 }
@@ -486,3 +478,18 @@ private fun previewEntry(
         status = if (observed) SpeciesCardStatus.RESEARCH_GRADE else SpeciesCardStatus.NONE,
     ),
 )
+
+/** Applies Collection's filter axes to the regional guide without treating it as personal data. */
+internal fun CollectionFilters.matches(entry: ExploreSpecies): Boolean =
+    when (status) {
+        StatusFilter.ANY -> true
+        StatusFilter.MISSING -> !entry.observed
+        StatusFilter.RECORDED -> entry.observed
+        StatusFilter.CONFIRMED -> entry.observed && entry.card.status == SpeciesCardStatus.RESEARCH_GRADE
+        StatusFilter.AWAITING -> false
+    } && when (standing) {
+        StandingFilter.ANY -> true
+        StandingFilter.ESSENTIALS -> entry.card.regionalEssential
+        StandingFilter.ICONS -> entry.card.regionalIcon
+    } && (rarity.rarity == null || entry.encounterRarity == rarity.rarity) &&
+        (group == null || entry.taxonGroup == group.key)

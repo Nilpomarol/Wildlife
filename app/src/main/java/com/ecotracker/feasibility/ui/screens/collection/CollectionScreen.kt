@@ -75,7 +75,7 @@ import com.wildlife.feasibility.CurrentRegionSource
 import com.wildlife.feasibility.ProgressionLevel
 import com.wildlife.feasibility.ProgressionProjection
 import com.wildlife.feasibility.ProgressionState
-import com.wildlife.feasibility.ui.components.CollectionSearchBar
+import com.wildlife.feasibility.ui.components.SpeciesSearchFilterRow
 import com.wildlife.feasibility.ui.components.regionVisual
 import com.wildlife.feasibility.ui.components.SpeciesCardModel
 import com.wildlife.feasibility.ui.components.SpeciesCardPhotoKind
@@ -223,9 +223,10 @@ fun CollectionScreen(
                             if (!state.linked) {
                                 UnlinkedCollectionBanner(onLinkAccount = onLinkAccount)
                             }
-                            SearchRow(
+                            SpeciesSearchFilterRow(
                                 query = query,
                                 onQueryChange = { query = it },
+                                placeholder = "Search your collection",
                                 activeCount = filters.activeCount,
                                 onOpenFilters = { filtersOpen = true },
                                 onClearFilters = { onFilters(CollectionFilters.None) },
@@ -300,38 +301,6 @@ private fun EmptyCollectionNote() {
 }
 
 /**
- * The search field with the filter sheet's entry point beside it.
- *
- * Filters sits here rather than in the selector row below because the two together are
- * "narrow what you are looking at": typing a name and setting an axis are the same
- * intent, and the pairing leaves the selector row to carry only the axes it shows.
- */
-@Composable
-private fun SearchRow(
-    query: String,
-    onQueryChange: (String) -> Unit,
-    activeCount: Int,
-    onOpenFilters: () -> Unit,
-    onClearFilters: () -> Unit,
-) {
-    Row(
-        modifier = Modifier.fillMaxWidth(),
-        horizontalArrangement = Arrangement.spacedBy(WildlifeSpacing.Small),
-        verticalAlignment = Alignment.CenterVertically,
-    ) {
-        CollectionSearchBar(
-            query = query,
-            onQueryChange = onQueryChange,
-            modifier = Modifier.weight(1f),
-        )
-        FiltersButton(activeCount = activeCount, onClick = onOpenFilters)
-        if (activeCount > 0) {
-            ClearFiltersButton(onClear = onClearFilters)
-        }
-    }
-}
-
-/**
  * The axis selectors and sort.
  *
  * Collection is an all-regions personal projection, so its visible axes are verification
@@ -383,79 +352,6 @@ private fun FilterBar(
             style = MaterialTheme.typography.labelMedium,
             color = colors.mutedText,
         )
-    }
-}
-
-/**
- * Undo every axis at once, immediately beside the Filters button.
- *
- * Clearing used to live only inside the sheet, which meant getting back to the full guide
- * took opening a sheet to press a button and dismissing it again — three actions to undo
- * one. It sits next to Filters rather than under the grid controls because it belongs to
- * the same idea, and because a row of its own would push the grid down whenever a filter
- * was set.
- *
- * It renders only when something is active: a clear control with nothing to clear
- * advertises an action that does nothing.
- */
-@Composable
-private fun ClearFiltersButton(onClear: () -> Unit) {
-    val colors = WildlifeTheme.colors
-    Box(
-        modifier = Modifier
-            .size(44.dp)
-            .clip(CircleShape)
-            .border(1.dp, colors.parchmentDim.copy(alpha = 0.40f), CircleShape)
-            .clickable(onClick = onClear)
-            .semantics { contentDescription = "Clear all filters" },
-        contentAlignment = Alignment.Center,
-    ) {
-        ClearGlyph(colors.parchmentDim, Modifier.size(14.dp))
-    }
-}
-
-/**
- * The sheet entry point: glyph and count only.
- *
- * It carries no label so that the search field beside it keeps a usable width. The count
- * is what carries the state — a filter set on a dismissed sheet is otherwise invisible —
- * so the badge is the one part that must never be dropped for space.
- */
-@Composable
-private fun FiltersButton(activeCount: Int, onClick: () -> Unit) {
-    val colors = WildlifeTheme.colors
-    val active = activeCount > 0
-    // parchmentDim rather than parchmentFaint when inactive: faint put the button close
-    // enough to the background that it read as disabled rather than as merely quiet.
-    val chrome = if (active) colors.parchment else colors.parchmentDim
-    Row(
-        modifier = Modifier
-            .heightIn(min = 44.dp)
-            .clip(CircleShape)
-            .background(if (active) chrome.copy(alpha = 0.12f) else Color.Transparent)
-            .border(
-                width = if (active) 1.5.dp else 1.dp,
-                color = chrome.copy(alpha = if (active) 0.75f else 0.50f),
-                shape = CircleShape,
-            )
-            .clickable(onClick = onClick)
-            .semantics {
-                contentDescription = if (active) "Filters, $activeCount active" else "Filters"
-            }
-            .padding(horizontal = WildlifeSpacing.Card),
-        verticalAlignment = Alignment.CenterVertically,
-        horizontalArrangement = Arrangement.spacedBy(6.dp),
-    ) {
-        FilterGlyph(Icons.Filled.Tune, chrome)
-        if (active) {
-            Text(
-                text = activeCount.toString(),
-                fontFamily = DisplayFontFamily,
-                fontWeight = FontWeight.Bold,
-                fontSize = 13.sp,
-                color = colors.parchment,
-            )
-        }
     }
 }
 
