@@ -1,8 +1,5 @@
 package com.wildlife.feasibility.ui.components
 
-import androidx.compose.animation.core.animateFloatAsState
-import androidx.compose.animation.core.tween
-import androidx.compose.foundation.Canvas
 import androidx.compose.foundation.Image
 import androidx.compose.foundation.background
 import androidx.compose.foundation.border
@@ -10,6 +7,7 @@ import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.BoxScope
 import androidx.compose.foundation.layout.Column
+import androidx.compose.foundation.layout.defaultMinSize
 import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.Spacer
 import androidx.compose.foundation.layout.fillMaxHeight
@@ -30,15 +28,12 @@ import androidx.compose.ui.draw.clip
 import androidx.compose.ui.layout.ContentScale
 import androidx.compose.ui.res.painterResource
 import com.wildlife.feasibility.R
-import androidx.compose.ui.geometry.Offset
 import androidx.compose.ui.graphics.Brush
-import androidx.compose.ui.graphics.Path
-import androidx.compose.ui.graphics.drawscope.Stroke
-import androidx.compose.ui.graphics.lerp
 import androidx.compose.ui.semantics.Role
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.style.TextOverflow
+import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.layout.layout
 import androidx.compose.ui.unit.Constraints
 import androidx.compose.ui.unit.Dp
@@ -57,11 +52,11 @@ import com.wildlife.feasibility.ui.art.StatMark
 import com.wildlife.feasibility.ui.art.Vignette
 import com.wildlife.feasibility.ui.theme.DisplayFontFamily
 import com.wildlife.feasibility.ui.theme.FieldLabelStyle
+import com.wildlife.feasibility.ui.theme.FieldStampStyle
 import com.wildlife.feasibility.ui.theme.levelAccent
 import com.wildlife.feasibility.ui.theme.WildlifeBackground
 import com.wildlife.feasibility.ui.theme.WildlifeSpacing
 import com.wildlife.feasibility.ui.theme.WildlifeSurface
-import com.wildlife.feasibility.ui.theme.WildlifeSurfaceElevated
 import com.wildlife.feasibility.ui.theme.WildlifeSurfaceWarm
 import com.wildlife.feasibility.ui.theme.WildlifeOutline
 import com.wildlife.feasibility.ui.theme.WildlifeOutlineSubtle
@@ -433,157 +428,138 @@ fun SectionRule(
 }
 
 /**
- * The journal's index strip: the thumb-cut tabs at the head of a destination.
+ * The journal's numbered chapter rail.
  *
- * A destination holding several views needs one control to move between them, and the stock
- * Material tab row is not it — an opaque band with an accent underline is the one shape in
- * Android that says "this is a Material app", and it stamped itself over the page painting
- * wherever it appeared.
+ * Collection and Explore each hold several views of one destination. The selector stays
+ * flat on the page: a quiet rule, mono chapter numbers and small-caps names separated by
+ * hairlines. The active chapter gains a physical marker as well as brighter ink, so the
+ * state is not communicated by colour alone.
  *
- * What replaces it is printed. The page's rule runs the full width of the margin, and the
- * open view's tab is a cut of stock that **breaks that rule** and opens into the page below
- * it. Nothing is tinted, underlined or filled with an accent: the selected tab is simply
- * continuous with the content, the way a thumb index is continuous with the page it opens.
- *
- * The tabs are sized to their words rather than splitting the width evenly, which is what
- * keeps them reading as an index rather than as a segmented control, and leaves the rule
- * visible to the right of the last one.
- *
- * It is deliberately not the bottom bar's cream-block inversion. That block is the app's one
- * light object and says where you are in the *app*; this says which view of one destination
- * is open, and has to sit a step below it.
+ * Chapters span the full rail with space between their natural-width targets: the first
+ * chapter sits at the left content edge and the last at the right. The treatment remains
+ * flat page furniture rather than a segmented control because the chapters carry no shared
+ * container, fill or rounded outline. Labels ellipsize when constrained, and every chapter
+ * retains a 48dp-high target.
  */
 @Composable
-fun JournalTabStrip(
+fun JournalChapterRail(
     labels: List<String>,
     selectedIndex: Int,
     onSelected: (Int) -> Unit,
     modifier: Modifier = Modifier,
 ) {
-    val rule = WildlifeOutline
-    Box(
+    Column(
         modifier
             .fillMaxWidth()
-            .height(TabStripHeight)
             .padding(horizontal = WildlifeSpacing.Screen),
     ) {
-        // One line across the whole margin, drawn behind the tabs. The open tab's stock is
-        // opaque and covers its own segment, so the break needs no measuring of where that
-        // tab happens to fall.
-        Canvas(Modifier.fillMaxSize()) {
-            val hairline = 1.dp.toPx()
-            drawLine(
-                color = rule,
-                start = Offset(0f, size.height - hairline / 2f),
-                end = Offset(size.width, size.height - hairline / 2f),
-                strokeWidth = hairline,
-            )
-        }
+        Box(Modifier.fillMaxWidth().height(1.dp).background(WildlifeOutline))
         Row(
             Modifier
-                .fillMaxSize()
+                .fillMaxWidth()
+                .height(ChapterRailHeight)
                 .selectableGroup(),
-            horizontalArrangement = Arrangement.spacedBy(TabGap),
+            horizontalArrangement = Arrangement.SpaceBetween,
+            verticalAlignment = Alignment.CenterVertically,
         ) {
             labels.forEachIndexed { index, label ->
-                JournalIndexTab(
+                if (index > 0) {
+                    Box(
+                        Modifier
+                            .size(width = 1.dp, height = 20.dp)
+                            .background(WildlifeOutlineSubtle),
+                    )
+                }
+                JournalChapter(
+                    number = index + 1,
                     label = label,
                     selected = index == selectedIndex,
                     onClick = { onSelected(index) },
-                    // An unfilled weight caps a tab at its equal share without padding it
-                    // out to one: at the default text size every word fits and the tabs
-                    // keep their natural widths, and at large text the longest one gives
-                    // up characters rather than pushing the last tab off the screen.
-                    modifier = Modifier.weight(1f, fill = false),
                 )
             }
         }
     }
 }
 
-private val TabStripHeight = 42.dp
-private val TabCorner = 8.dp
-private val TabGap = 4.dp
+private val ChapterRailHeight = 48.dp
 
-/**
- * One cut tab: stock, edge and ink cross-fading on a single fraction, so moving between
- * views slides the cut rather than blinking it.
- */
 @Composable
-private fun JournalIndexTab(
+private fun JournalChapter(
+    number: Int,
     label: String,
     selected: Boolean,
     onClick: () -> Unit,
     modifier: Modifier = Modifier,
 ) {
     val colors = WildlifeTheme.colors
-    val presence by animateFloatAsState(
-        targetValue = if (selected) 1f else 0f,
-        animationSpec = tween(durationMillis = 200),
-        label = "tab-presence",
-    )
-    val edge = colors.oliveStrong
-    Box(
+    Row(
         modifier
             .fillMaxHeight()
             .selectable(
                 selected = selected,
                 onClick = onClick,
                 role = Role.Tab,
-            ),
-        contentAlignment = Alignment.Center,
+            )
+            .defaultMinSize(minWidth = 48.dp),
+        horizontalArrangement = Arrangement.Center,
+        verticalAlignment = Alignment.CenterVertically,
     ) {
-        if (presence > 0.004f) {
-            // matchParentSize, not fillMaxSize: the tab is sized by its word, and a canvas
-            // that fills the max constraints would stretch it across the whole strip.
-            Canvas(Modifier.matchParentSize()) {
-                val corner = TabCorner.toPx()
-                val hairline = 1.dp.toPx()
-                val inset = hairline / 2f
-                // An "n": up the left edge, over the top, down the right. It has no bottom,
-                // because the bottom is where the tab opens into the page.
-                val cut = Path().apply {
-                    moveTo(inset, size.height)
-                    lineTo(inset, corner)
-                    quadraticTo(inset, inset, corner, inset)
-                    lineTo(size.width - corner, inset)
-                    quadraticTo(size.width - inset, inset, size.width - inset, corner)
-                    lineTo(size.width - inset, size.height)
-                }
-                // Lit from the top, like every other raised surface in the journal, so the
-                // cut reads as stock lying on the page rather than as a hole in it.
-                drawPath(
-                    path = cut,
-                    brush = Brush.verticalGradient(
-                        listOf(WildlifeSurfaceElevated, WildlifeSurface),
-                        endY = size.height,
-                    ),
-                    alpha = presence,
-                )
-                drawPath(
-                    path = cut,
-                    color = edge.copy(alpha = 0.60f * presence),
-                    style = Stroke(width = hairline),
-                )
-            }
-        }
+        Box(
+            Modifier
+                .size(width = 3.dp, height = 16.dp)
+                .background(if (selected) colors.oliveStrong else Color.Transparent),
+        )
+        Spacer(Modifier.size(WildlifeSpacing.Micro))
+        Text(
+            text = number.toString().padStart(2, '0'),
+            style = FieldStampStyle,
+            color = if (selected) colors.oliveStrong else colors.parchmentFaint,
+            maxLines = 1,
+        )
+        Spacer(Modifier.size(WildlifeSpacing.Micro))
         Text(
             text = label.uppercase(),
-            style = TabLabelStyle,
-            color = lerp(colors.parchmentDim, colors.parchment, presence),
+            style = ChapterLabelStyle.copy(
+                fontWeight = if (selected) FontWeight.Bold else FontWeight.Medium,
+            ),
+            color = if (selected) colors.parchment else colors.parchmentDim,
             maxLines = 1,
             softWrap = false,
             overflow = TextOverflow.Ellipsis,
-            modifier = Modifier.padding(horizontal = 14.dp),
         )
     }
 }
 
 /**
- * The strip's ink: the field label a step up in size, tracked in so a long view name still
- * fits beside its peers on a phone at the default text size.
+ * Chapter names are a step larger and less widely tracked than metadata labels so the
+ * longest destination name remains legible in Collection's three-chapter rail.
  */
-private val TabLabelStyle = FieldLabelStyle.copy(fontSize = 11.sp, letterSpacing = 0.7.sp)
+private val ChapterLabelStyle = FieldLabelStyle.copy(fontSize = 11.sp, letterSpacing = 0.7.sp)
+
+@Preview(showBackground = true, backgroundColor = 0xFF0E1209, widthDp = 411)
+@Preview(
+    name = "Chapter rail large text",
+    showBackground = true,
+    backgroundColor = 0xFF0E1209,
+    widthDp = 411,
+    fontScale = 2f,
+)
+@Composable
+private fun JournalChapterRailPreview() {
+    com.wildlife.feasibility.ui.theme.WildlifeTheme {
+        Column(
+            Modifier
+                .background(WildlifeBackground)
+                .padding(vertical = WildlifeSpacing.Screen),
+        ) {
+            JournalChapterRail(
+                labels = listOf("Species", "Observations", "Map"),
+                selectedIndex = 0,
+                onSelected = {},
+            )
+        }
+    }
+}
 
 /** A filter tab in the journal's tab row. */
 @Composable

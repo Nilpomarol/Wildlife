@@ -117,6 +117,7 @@ Build only components that recur or carry core identity:
 | `WildlifeScaffold` | Background, safe system insets, top/bottom structure and snackbar host |
 | `WildlifeTopBar` | Serif screen title with restrained Material actions |
 | `WildlifeBottomBar` | Home, Collection, Capture, Explore and Profile; labelled 48dp targets. The four navigating destinations are tabs; Capture is a larger unfilled camera mark that launches an Activity and therefore carries a button role, never an unselectable tab role |
+| `JournalChapterRail` | Shared full-width numbered section selector for Collection and Explore: natural-width chapters arranged space-between, flat page rule, mono chapter numbers, non-colour active marker, 48dp tab targets and large-text ellipsis without horizontal scrolling or swipe ownership |
 | `CollectionProgress` | Regional-guide observed/total value and thin olive progress; only after a curated denominator exists |
 | `RegionSelector` | Browsed-guide selection in Explore only. Collection may later filter personal history by region, but never uses this control. It never changes the location-derived current region, regional progress or full-region prefetch. `RegionPill` is the read-only current-region counterpart |
 | `SpeciesGrid` | Shared responsive grid used by Collection, Explore/Near Me and achievement checklists; its optional viewport callback reports only visible entries and owns no repository or scheduling policy |

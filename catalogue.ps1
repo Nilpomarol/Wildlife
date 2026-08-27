@@ -22,12 +22,17 @@ try {
     if ($InputFile) { $arguments += @('--input', $InputFile) }
     if ($Region) { $arguments += @('--region', $Region) }
     $python = Get-Command python -ErrorAction SilentlyContinue
+    $pythonReady = $false
     if ($python) {
+        & $python.Source -c 'from PIL import Image' *> $null
+        $pythonReady = $LASTEXITCODE -eq 0
+    }
+    if ($pythonReady) {
         & $python.Source @arguments
     } else {
         $uv = Get-Command uv -ErrorAction SilentlyContinue
         if (-not $uv) {
-            throw 'Python 3.11+ or uv is required to run the catalogue pipeline.'
+            throw 'Python 3.11+ with tools/requirements-content-refresh.txt installed, or uv, is required to run the catalogue pipeline.'
         }
         & $uv.Source run --with-requirements tools/requirements-content-refresh.txt python @arguments
     }

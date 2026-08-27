@@ -1050,6 +1050,23 @@ observations and the field atlas, with no missing-species silhouettes.
 Home is the **loose dated page** at the front, where a ranger records what happened today.
 Both sit on the same ground, palette and type; what differs is the furniture.
 
+### Destination chapters
+
+Collection's Species, Observations and Map views and Explore's Species guide and Near me
+view use one shared **numbered chapter rail**. It is page furniture, not a segmented control:
+
+- a quiet hairline starts the rail;
+- each chapter pairs a two-digit IBM Plex Mono number with a Barlow small-caps name;
+- fine vertical rules separate adjacent chapters;
+- the selected chapter gains a short physical marker, stronger label weight and brighter ink;
+- no chapter receives a filled card, rounded container, underline or animated cut-tab surface;
+- chapters span the full available width with space between natural-width targets, placing the first at the left content edge and the last at the right;
+- section changes happen by tapping a chapter; the rail does not own a swipe gesture;
+- every chapter remains a 48dp-high accessible tab target.
+
+The rail stays fixed in the same position when its destination changes section. The bottom
+index strip continues to show the owning destination—Collection or Explore—throughout.
+
 The reference voice is in `ui/components/FieldGuide.kt`: the ranger header, section rules,
 plate surfaces, field-mark pills. The dated-entry voice is in `ui/components/JournalEntry.kt`:
 

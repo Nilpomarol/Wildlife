@@ -55,7 +55,7 @@ import com.wildlife.feasibility.ui.components.SpeciesGrid
 import com.wildlife.feasibility.ui.components.SpeciesCardModel
 import com.wildlife.feasibility.ui.components.SpeciesCardStatus
 import com.wildlife.feasibility.ui.components.TaxonFilterRow
-import com.wildlife.feasibility.ui.components.JournalTabStrip
+import com.wildlife.feasibility.ui.components.JournalChapterRail
 import com.wildlife.feasibility.ui.components.WildlifeScaffold
 import com.wildlife.feasibility.ui.components.WildlifeLoadingState
 import com.wildlife.feasibility.ui.components.responsiveSpeciesGridColumns
@@ -222,14 +222,14 @@ fun ExploreScreen(
     }
 }
 
-/** Explore's index strip, in the same printed tabs Collection uses for its sections. */
+/** Explore's chapter rail, shared with Collection's destination sections. */
 @Composable
 private fun ExploreSectionSelector(
     selected: ExploreSection,
     onSelected: (ExploreSection) -> Unit,
 ) {
     val labels = remember { ExploreSection.entries.map { it.label } }
-    JournalTabStrip(
+    JournalChapterRail(
         labels = labels,
         selectedIndex = selected.ordinal,
         onSelected = { onSelected(ExploreSection.entries[it]) },

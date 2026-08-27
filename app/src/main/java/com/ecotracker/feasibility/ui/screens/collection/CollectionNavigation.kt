@@ -3,7 +3,7 @@ package com.wildlife.feasibility.ui.screens.collection
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.remember
 import androidx.compose.ui.Modifier
-import com.wildlife.feasibility.ui.components.JournalTabStrip
+import com.wildlife.feasibility.ui.components.JournalChapterRail
 
 enum class CollectionSection(val label: String) {
     SPECIES("Species"),
@@ -12,7 +12,7 @@ enum class CollectionSection(val label: String) {
 }
 
 /**
- * Collection's index strip.
+ * Collection's chapter rail.
  *
  * The three sections are three views of one personal record, so the strip is pinned
  * directly under the destination's title on every one of them and never scrolls away with
@@ -26,7 +26,7 @@ fun CollectionSectionSelector(
     modifier: Modifier = Modifier,
 ) {
     val labels = remember { CollectionSection.entries.map { it.label } }
-    JournalTabStrip(
+    JournalChapterRail(
         labels = labels,
         selectedIndex = selected.ordinal,
         onSelected = { onSelected(CollectionSection.entries[it]) },

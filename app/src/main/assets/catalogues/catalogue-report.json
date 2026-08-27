@@ -25,14 +25,14 @@
   ],
   "conservation_records": 356,
   "conservation_waivers": 0,
-  "database_sha256": "c54dbab6231381562d5b018f81ad16acf97193e6f76cd4d0b594214bc842d914",
+  "database_sha256": "ae4d0cabac975ac9fc8f828acf7eecebf3d7bad5b018cae714eba372a15be1c4",
   "description_waivers": 0,
   "descriptions": 2196,
-  "generated_at": "2026-08-26T13:17:52Z",
-  "generation_id": "catalogue-v23-20260826T131752Z",
-  "generation_sequence": 23,
+  "generated_at": "2026-08-27T08:58:13Z",
+  "generation_id": "catalogue-v24-20260827T085813Z",
+  "generation_sequence": 24,
   "global_taxa": 3639,
-  "logical_database_digest": "b70a82e26a31e6a565b8ae9ad985bf9de06c37ae21a840c3e34feb64fd221e46",
+  "logical_database_digest": "f57b49a2526522036790bbe5af3a097ab24cd2a94d2c0adf858397bf7aede587",
   "media_direct_taxa": 2260,
   "media_records": 5884,
   "media_rejections": 0,
@@ -49,5 +49,5 @@
   "published_taxa_without_common_names": 0,
   "release_status": "draft",
   "schema_version": 4,
-  "source_digest": "5b3f1ffaa82b46f9d88ca2dfec0f7af26e20a5283bc2eca65baa7ce4f2bc839a"
+  "source_digest": "bcaaea64cfff2a7be3bd3ea03bd1b768a9d7005b393b4e3930c89beba6801317"
 }
