@@ -1,60 +1,70 @@
 package com.wildlife.feasibility.ui.screens.observations
 
-import androidx.compose.foundation.background
-import androidx.compose.foundation.border
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.PaddingValues
 import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.RowScope
+import androidx.compose.foundation.layout.Spacer
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
+import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
-import androidx.compose.foundation.layout.size
+import androidx.compose.foundation.background
+import androidx.compose.foundation.border
 import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.lazy.LazyListScope
 import androidx.compose.foundation.lazy.items
-import androidx.compose.foundation.shape.CircleShape
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.automirrored.outlined.OpenInNew
-import androidx.compose.material.icons.outlined.Biotech
 import androidx.compose.material.icons.outlined.DeleteOutline
-import androidx.compose.material.icons.outlined.Link
 import androidx.compose.material.icons.outlined.Refresh
-import androidx.compose.material.icons.outlined.Public
-import androidx.compose.material3.Button
 import androidx.compose.material3.Icon
 import androidx.compose.material3.IconButton
-import androidx.compose.material3.MaterialTheme
-import androidx.compose.material3.OutlinedButton
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
-import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
 import androidx.compose.ui.graphics.Color
-import androidx.compose.ui.layout.ContentScale
-import androidx.compose.ui.platform.LocalContext
-import androidx.compose.ui.text.font.FontWeight
-import androidx.compose.ui.text.style.TextOverflow
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
-import coil.compose.AsyncImage
-import coil.request.ImageRequest
 import com.wildlife.feasibility.MarkerState
+import com.wildlife.feasibility.MatchBand
 import com.wildlife.feasibility.MatchProposal
-import com.wildlife.feasibility.WildlifeNetworkIdentity
+import com.wildlife.feasibility.MatchReason
+import com.wildlife.feasibility.ObservationCandidate
+import com.wildlife.feasibility.ui.components.FieldGuidePage
+import com.wildlife.feasibility.ui.components.JournalButton
+import com.wildlife.feasibility.ui.components.LedgerHeader
+import com.wildlife.feasibility.ui.components.MatchComparisonPlate
+import com.wildlife.feasibility.ui.components.ObservationRecordLine
+import com.wildlife.feasibility.ui.components.SectionRule
 import com.wildlife.feasibility.ui.components.WildlifeScaffold
 import com.wildlife.feasibility.ui.components.WildlifeLoadingState
-import com.wildlife.feasibility.ui.theme.DisplayFontFamily
+import com.wildlife.feasibility.ui.theme.FieldStampStyle
+import com.wildlife.feasibility.ui.theme.WildlifeOutlineSubtle
+import com.wildlife.feasibility.ui.theme.WildlifeSurface
 import com.wildlife.feasibility.ui.theme.WildlifeSpacing
 import com.wildlife.feasibility.ui.theme.WildlifeTheme
 import java.text.DateFormat
 import java.util.Date
 import kotlin.math.roundToInt
 
+/**
+ * Observations: the ranger's desk.
+ *
+ * The page is ordered by what it asks of the reader, not by the lifecycle of a record.
+ * Matches Wildlife filed on its own lead, because they are the only thing on the page that
+ * happened without the user — they get the photographs at full width and a way out.
+ * Everything the user must answer follows. Drafts, waiting records and settled ones fall
+ * to typed ledger lines, and the public iNaturalist history closes the page as archive.
+ *
+ * The deciding surface is deliberately a *comparison*: the capture beside the public
+ * photograph. The previous screen argued a match entirely in prose — minutes and
+ * kilometres — which is the evidence for a judgement the reader makes by looking.
+ */
 @Composable
 fun ObservationsScreen(
     state: ObservationsUiState,
@@ -63,6 +73,8 @@ fun ObservationsScreen(
     onSubmitted: (String) -> Unit,
     onNotSubmitted: (String) -> Unit,
     onConfirm: (MatchProposal) -> Unit,
+    onKeepAutomatic: (String) -> Unit,
+    onUndoAutomatic: (String) -> Unit,
     onOpenObservation: (String) -> Unit,
     onOpenINaturalist: () -> Unit,
     onDeleteLocal: (String) -> Unit,
@@ -71,184 +83,204 @@ fun ObservationsScreen(
     header: @Composable () -> Unit = {},
     bottomBar: @Composable () -> Unit = {},
 ) {
-    val needsAction = state.managed.filter { it.proposals.isNotEmpty() || it.state == MarkerState.HANDED_OFF }
-    val awaiting = state.managed.filter { it.state == MarkerState.PENDING && it.proposals.isEmpty() }
-    val drafts = state.managed.filter { it.state == MarkerState.CAPTURED }
-    val collected = state.managed.filter { it.state == MarkerState.CONFIRMED && it.proposals.isEmpty() }
-
-    // Semantic accents are read here (composable scope); the LazyListScope builder below is not.
-    val goldAccent = WildlifeTheme.colors.gold
-    val mutedAccent = WildlifeTheme.colors.mutedText
-    val confirmedAccent = WildlifeTheme.colors.confirmed
-    val oliveAccent = WildlifeTheme.colors.oliveStrong
+    // Semantic accents are read in composable scope; the LazyListScope builder below is not.
+    val colors = WildlifeTheme.colors
 
     WildlifeScaffold(
         title = title,
         onBack = onBack,
         actions = {
             IconButton(onClick = onSync, enabled = state.account != null && !state.syncing) {
-                Icon(Icons.Outlined.Refresh, "Sync observations")
+                Icon(Icons.Outlined.Refresh, "Check iNaturalist for matches")
             }
         },
         bottomBar = bottomBar,
     ) { padding ->
-        Column(
-            modifier = Modifier
-                .fillMaxSize()
-                .padding(padding),
-        ) {
-            // Outside the list's padding and above its scroll, so the strip keeps the same
-            // full-bleed position it holds in Collection's other sections. It is drawn
-            // before the loading branch, so switching section does not blank the strip.
-            header()
-            if (state.isLoading && state.managed.isEmpty() && state.publicObservations.isEmpty()) {
-                WildlifeLoadingState(
-                    label = "Opening your observation records…",
-                    modifier = Modifier.weight(1f),
-                )
-                return@Column
-            }
-            LazyColumn(
-                modifier = Modifier
-                    .fillMaxWidth()
-                    .weight(1f),
-                contentPadding = PaddingValues(
-                    top = WildlifeSpacing.Card,
-                    start = WildlifeSpacing.Screen,
-                    end = WildlifeSpacing.Screen,
-                    bottom = WildlifeSpacing.Section,
-                ),
-                verticalArrangement = Arrangement.spacedBy(WildlifeSpacing.Small),
-            ) {
-                item {
-                    Text(
-                        text = "Your Wildlife handoffs and public iNaturalist history. Wildlife never edits or deletes iNaturalist records.",
-                        style = MaterialTheme.typography.bodySmall,
-                        color = WildlifeTheme.colors.mutedText,
-                        modifier = Modifier.padding(bottom = WildlifeSpacing.Micro),
+        FieldGuidePage {
+            Column(Modifier.fillMaxSize().padding(padding)) {
+                // Outside the list's padding and above its scroll, so the strip keeps the
+                // same full-bleed position it holds in Collection's other sections. Drawn
+                // before the loading branch, so switching section does not blank the strip.
+                header()
+                if (state.isLoading && state.managed.isEmpty() && state.publicObservations.isEmpty()) {
+                    WildlifeLoadingState(
+                        label = "Opening your observation records…",
+                        modifier = Modifier.weight(1f),
                     )
+                    return@Column
                 }
-                state.message?.let { message -> item { MessageBanner(message) } }
-                if (state.account == null) {
-                    item {
-                        Text(
-                            text = "Link iNaturalist to check submitted handoffs and load your public observations.",
-                            style = MaterialTheme.typography.bodyMedium,
-                            color = MaterialTheme.colorScheme.onSurfaceVariant,
+                LazyColumn(
+                    modifier = Modifier.fillMaxWidth().weight(1f),
+                    contentPadding = PaddingValues(
+                        top = WildlifeSpacing.Card,
+                        start = WildlifeSpacing.Screen,
+                        end = WildlifeSpacing.Screen,
+                        bottom = WildlifeSpacing.Section,
+                    ),
+                    verticalArrangement = Arrangement.spacedBy(WildlifeSpacing.Small),
+                ) {
+                    if (state.hasLedger) item("ledger-head") {
+                        LedgerHeader(
+                            tallies = listOf(
+                                Triple(state.outstandingCount, "To answer", colors.gold),
+                                Triple(state.awaiting.size, "Awaiting", colors.parchmentDim),
+                                Triple(
+                                    state.filed.size + state.autoFiled.size,
+                                    "Filed",
+                                    colors.confirmed,
+                                ),
+                            ),
+                            note = "Wildlife never edits or deletes an iNaturalist record",
                         )
                     }
-                }
+                    state.message?.let { message -> item("message") { MessageBanner(message) } }
+                    if (state.account == null) {
+                        item("unlinked") {
+                            Note(
+                                "Link iNaturalist to check submitted handoffs and load your " +
+                                    "public observations.",
+                            )
+                        }
+                    }
 
-                if (needsAction.isNotEmpty()) {
-                    item(key = "header-needs-action") {
-                        SectionHeader(
-                            title = "Needs your action",
-                            count = needsAction.size,
-                            accent = goldAccent,
-                            hint = "Confirm a public match, or record whether you submitted these",
+                    if (state.autoFiled.isNotEmpty()) {
+                        item("rule-auto") { Rule("Filed automatically", colors.confirmed) }
+                        items(state.autoFiled, key = { "auto-${it.groupId}" }) { observation ->
+                            AutoFiledPlate(
+                                observation = observation,
+                                onKeep = onKeepAutomatic,
+                                onUndo = onUndoAutomatic,
+                            )
+                        }
+                    }
+
+                    if (state.needsAction.isNotEmpty()) {
+                        item("rule-action") { Rule("Needs your eye", colors.gold) }
+                        items(state.needsAction, key = { "action-${it.groupId}" }) { observation ->
+                            ActionRecord(
+                                observation = observation,
+                                syncing = state.syncing,
+                                onSubmitted = onSubmitted,
+                                onNotSubmitted = onNotSubmitted,
+                                onConfirm = onConfirm,
+                                onOpenObservation = onOpenObservation,
+                            )
+                        }
+                    }
+
+                    managedSection(
+                        title = "Awaiting a public record",
+                        records = state.awaiting,
+                        accent = colors.parchmentDim,
+                        onDeleteLocal = onDeleteLocal,
+                    ) {
+                        IconButton(onClick = onOpenINaturalist) {
+                            Icon(
+                                Icons.AutoMirrored.Outlined.OpenInNew,
+                                "Open iNaturalist",
+                                tint = colors.oliveStrong,
+                            )
+                        }
+                    }
+
+                    managedSection(
+                        title = "Drafts",
+                        records = state.drafts,
+                        accent = colors.parchmentDim,
+                        onDeleteLocal = onDeleteLocal,
+                    )
+
+                    managedSection(
+                        title = "Filed",
+                        records = state.filed,
+                        accent = colors.confirmed,
+                        onDeleteLocal = onDeleteLocal,
+                    ) { observation ->
+                        observation.matchedObservationUuid?.let { uuid ->
+                            IconButton(onClick = { onOpenObservation(uuid) }) {
+                                Icon(
+                                    Icons.AutoMirrored.Outlined.OpenInNew,
+                                    "Open public record",
+                                    tint = colors.oliveStrong,
+                                )
+                            }
+                        }
+                    }
+
+                    item("rule-public") {
+                        Rule(
+                            if (state.taxonFilter == null) "Public history" else "This species",
+                            colors.parchmentFaint,
                         )
                     }
-                    items(needsAction, key = { "needs-${it.groupId}" }) { observation ->
-                        ActionObservationRow(observation, state.syncing, onSubmitted, onNotSubmitted, onConfirm, onOpenObservation)
-                    }
-                }
-
-                managedSection(
-                    title = "Awaiting confirmation",
-                    records = awaiting,
-                    accent = mutedAccent,
-                    hint = "Submitted to iNaturalist — waiting for the public record to appear",
-                    onDeleteLocal = onDeleteLocal,
-                ) { observation ->
-                    IconButton(onClick = onOpenINaturalist) {
-                        Icon(Icons.AutoMirrored.Outlined.OpenInNew, "Open iNaturalist", tint = MaterialTheme.colorScheme.secondary)
-                    }
-                }
-
-                managedSection(
-                    title = "Drafts",
-                    records = drafts,
-                    accent = mutedAccent,
-                    hint = "Saved in Wildlife, not yet submitted to iNaturalist",
-                    onDeleteLocal = onDeleteLocal,
-                )
-
-                managedSection(
-                    title = "In your collection",
-                    records = collected,
-                    accent = confirmedAccent,
-                    hint = "Confirmed sightings linked to your iNaturalist record",
-                    onDeleteLocal = onDeleteLocal,
-                ) { observation ->
-                    observation.matchedObservationUuid?.let { uuid ->
-                        IconButton(onClick = { onOpenObservation(uuid) }) {
-                            Icon(Icons.AutoMirrored.Outlined.OpenInNew, "Open public record", tint = MaterialTheme.colorScheme.secondary)
+                    if (state.publicObservations.isEmpty()) {
+                        item("public-empty") {
+                            Note(
+                                if (state.taxonFilter == null) {
+                                    "No stored public observations yet."
+                                } else {
+                                    "No public sightings of this species yet."
+                                },
+                            )
+                        }
+                    } else {
+                        items(state.publicObservations, key = { it.uuid }) { observation ->
+                            PublicRecordLine(observation, onOpenObservation)
                         }
                     }
                 }
-
-                item {
-                    SectionHeader(
-                        title = if (state.taxonFilter == null) "Public observations" else "This species",
-                        count = state.publicObservations.size,
-                        accent = oliveAccent,
-                        hint = if (state.taxonFilter == null) {
-                            "Your iNaturalist history that wasn't recorded through Wildlife"
-                        } else {
-                            "Your public iNaturalist sightings of this species"
-                        },
-                    )
-                }
-                if (state.publicObservations.isEmpty()) {
-                    item {
-                        Text(
-                            text = "No stored public observations yet.",
-                            style = MaterialTheme.typography.bodyMedium,
-                            color = MaterialTheme.colorScheme.onSurfaceVariant,
-                        )
-                    }
-                } else {
-                    items(state.publicObservations, key = { it.uuid }) { observation ->
-                        PublicObservationRow(observation, onOpenObservation)
-                    }
-                }
             }
         }
     }
 }
 
-/** Adds a header + rows for a managed group with a uniform compact ledger row + trailing actions. */
-private fun LazyListScope.managedSection(
-    title: String,
-    records: List<ManagedObservationUi>,
-    accent: Color,
-    hint: String,
-    onDeleteLocal: (String) -> Unit,
-    trailing: @Composable (RowScope.(ManagedObservationUi) -> Unit) = {},
-) {
-    if (records.isEmpty()) return
-    item(key = "header-$title") { SectionHeader(title, records.size, accent, hint) }
-    items(records, key = { "$title-${it.groupId}" }) { observation ->
-        ObservationCard {
-            IdentityRow(
-                photoModel = observation.photos.firstOrNull()?.imageUri,
-                title = observation.label ?: managedTitle(observation.state),
-                titleIsSpecies = observation.label != null,
-                meta = managedMeta(observation),
-                confirmedBadge = observation.researchGrade,
-                regionalContext = observation.regionalContext,
-            ) {
-                trailing(observation)
-                IconButton(onClick = { onDeleteLocal(observation.groupId) }) {
-                    Icon(Icons.Outlined.DeleteOutline, "Remove from Wildlife", tint = WildlifeTheme.colors.mutedText)
-                }
-            }
-        }
-    }
-}
-
+/**
+ * A match Wildlife made on its own, presented as the comparison that justifies it.
+ *
+ * Keeping and undoing are given equal weight rather than making "keep" the loud one: the
+ * user is being asked to check work they did not commission, and a page that visually
+ * pushes them to agree is not really asking.
+ */
 @Composable
-private fun ActionObservationRow(
+private fun AutoFiledPlate(
+    observation: ManagedObservationUi,
+    onKeep: (String) -> Unit,
+    onUndo: (String) -> Unit,
+) {
+    val colors = WildlifeTheme.colors
+    MatchComparisonPlate(
+        capturePhoto = observation.photos.firstOrNull()?.imageUri,
+        recordPhoto = observation.matchedPhotoUrl,
+        recordLabel = observation.label,
+        // Not "Filed automatically": the rule directly above already says so, and a plate
+        // that repeats its own heading reads as two separate claims about one record.
+        headline = "Matched by Wildlife",
+        evidence = managedMeta(observation),
+        accent = colors.confirmed,
+        actions = {
+            Row(horizontalArrangement = Arrangement.spacedBy(WildlifeSpacing.Small)) {
+                JournalButton(
+                    label = "Not mine",
+                    onClick = { onUndo(observation.groupId) },
+                    modifier = Modifier.weight(1f),
+                )
+                JournalButton(
+                    label = "Keep",
+                    onClick = { onKeep(observation.groupId) },
+                    modifier = Modifier.weight(1f),
+                    primary = true,
+                )
+            }
+        },
+    )
+}
+
+/**
+ * A record the user has to answer: either which public observation it is, or — for a
+ * handoff Wildlife cannot see the outcome of — whether it was submitted at all.
+ */
+@Composable
+private fun ActionRecord(
     observation: ManagedObservationUi,
     syncing: Boolean,
     onSubmitted: (String) -> Unit,
@@ -256,303 +288,174 @@ private fun ActionObservationRow(
     onConfirm: (MatchProposal) -> Unit,
     onOpenObservation: (String) -> Unit,
 ) {
-    ObservationCard {
-        Column(
-            modifier = Modifier.padding(WildlifeSpacing.Card),
-            verticalArrangement = Arrangement.spacedBy(WildlifeSpacing.Card),
-        ) {
-            IdentityRow(
+    val colors = WildlifeTheme.colors
+    if (observation.proposals.isEmpty()) {
+        Column(verticalArrangement = Arrangement.spacedBy(WildlifeSpacing.Small)) {
+            ObservationRecordLine(
                 photoModel = observation.photos.firstOrNull()?.imageUri,
-                title = observation.label ?: managedTitle(observation.state),
-                titleIsSpecies = observation.label != null,
+                title = managedTitle(observation.state),
+                titleIsSpecies = false,
                 meta = managedMeta(observation),
-                padded = false,
-            )
-            if (observation.proposals.isNotEmpty()) {
-                observation.proposals.forEach { match ->
-                    MatchDetail(match)
-                    ActionButtons(
-                        primaryLabel = "Confirm match",
-                        onPrimary = { onConfirm(match.proposal) },
-                        primaryEnabled = !syncing,
-                        secondaryLabel = "Inspect",
-                        onSecondary = { onOpenObservation(match.proposal.candidate.uuid) },
+            ) {
+                Note("Did you submit this to iNaturalist?")
+                Row(horizontalArrangement = Arrangement.spacedBy(WildlifeSpacing.Small)) {
+                    JournalButton(
+                        label = "Not submitted",
+                        onClick = { onNotSubmitted(observation.groupId) },
+                        modifier = Modifier.weight(1f),
+                    )
+                    JournalButton(
+                        label = "Submitted",
+                        onClick = { onSubmitted(observation.groupId) },
+                        modifier = Modifier.weight(1f),
+                        primary = true,
                     )
                 }
-            } else {
-                Text(
-                    text = "Did you submit this to iNaturalist?",
-                    style = MaterialTheme.typography.bodySmall,
-                    color = MaterialTheme.colorScheme.onSurfaceVariant,
-                )
-                ActionButtons(
-                    primaryLabel = "Submitted",
-                    onPrimary = { onSubmitted(observation.groupId) },
-                    primaryEnabled = true,
-                    secondaryLabel = "Not submitted",
-                    onSecondary = { onNotSubmitted(observation.groupId) },
-                )
             }
         }
+        return
     }
-}
-
-/**
- * Explains why a public iNaturalist observation was proposed as the same sighting: when it was
- * recorded, roughly where, and how close it is to the Wildlife capture in time and distance.
- */
-@Composable
-private fun MatchDetail(match: MatchProposalUi) {
-    Column(verticalArrangement = Arrangement.spacedBy(WildlifeSpacing.Micro)) {
-        Row(
-            horizontalArrangement = Arrangement.spacedBy(WildlifeSpacing.Small),
-            verticalAlignment = Alignment.CenterVertically,
-        ) {
-            Icon(
-                Icons.Outlined.Link,
-                contentDescription = null,
-                tint = WildlifeTheme.colors.gold,
-                modifier = Modifier.size(16.dp),
-            )
-            Text(
-                text = if (match.highConfidence) "Strong public match" else "Possible public match",
-                style = MaterialTheme.typography.labelLarge,
-                color = MaterialTheme.colorScheme.onBackground,
-            )
-        }
-        Text(
-            text = matchDetailLine(match),
-            style = MaterialTheme.typography.bodySmall,
-            color = WildlifeTheme.colors.mutedText,
-        )
-        if (!match.highConfidence) {
-            Text(
-                text = "Confirm only if this is your sighting.",
-                style = MaterialTheme.typography.bodySmall,
-                color = MaterialTheme.colorScheme.onSurfaceVariant,
+    Column(verticalArrangement = Arrangement.spacedBy(WildlifeSpacing.Small)) {
+        observation.proposals.forEach { match ->
+            MatchComparisonPlate(
+                capturePhoto = observation.photos.firstOrNull()?.imageUri,
+                recordPhoto = match.photoUrl,
+                recordLabel = match.label,
+                headline = "Possible match",
+                evidence = matchEvidence(match),
+                accent = bandTint(match.band, colors.confirmed, colors.gold, colors.parchmentFaint),
+                confidence = match.confidence.toFloat(),
+                confidenceLabel = bandLabel(match.band),
+                actions = {
+                    Row(horizontalArrangement = Arrangement.spacedBy(WildlifeSpacing.Small)) {
+                        JournalButton(
+                            label = "Inspect",
+                            onClick = { onOpenObservation(match.proposal.candidate.uuid) },
+                            modifier = Modifier.weight(1f),
+                        )
+                        JournalButton(
+                            label = "Confirm",
+                            onClick = { onConfirm(match.proposal) },
+                            modifier = Modifier.weight(1f),
+                            primary = !syncing,
+                        )
+                    }
+                },
             )
         }
     }
 }
 
-@Composable
-private fun ActionButtons(
-    primaryLabel: String,
-    onPrimary: () -> Unit,
-    primaryEnabled: Boolean,
-    secondaryLabel: String,
-    onSecondary: () -> Unit,
+/** Adds a rule plus one ledger line per record, with section-specific trailing actions. */
+private fun LazyListScope.managedSection(
+    title: String,
+    records: List<ManagedObservationUi>,
+    accent: Color,
+    onDeleteLocal: (String) -> Unit,
+    trailing: @Composable (RowScope.(ManagedObservationUi) -> Unit) = {},
 ) {
-    Row(horizontalArrangement = Arrangement.spacedBy(WildlifeSpacing.Small)) {
-        OutlinedButton(onClick = onSecondary, modifier = Modifier.weight(1f)) { Text(secondaryLabel) }
-        Button(onClick = onPrimary, enabled = primaryEnabled, modifier = Modifier.weight(1f)) { Text(primaryLabel) }
+    if (records.isEmpty()) return
+    item("rule-$title") { Rule(title, accent) }
+    items(records, key = { "$title-${it.groupId}" }) { observation ->
+        val colors = WildlifeTheme.colors
+        ObservationRecordLine(
+            photoModel = observation.photos.firstOrNull()?.imageUri,
+            title = observation.label ?: managedTitle(observation.state),
+            titleIsSpecies = observation.label != null,
+            meta = managedMeta(observation),
+            markLabel = if (observation.researchGrade) "Research" else null,
+            markTint = colors.confirmed,
+            contextLabel = observation.regionalContext?.label,
+            contextTint = observation.regionalContext?.let {
+                if (it.countsTowardRegion) colors.oliveStrong else colors.parchmentFaint
+            },
+            // Named, because the record line's trailing lambda is no longer its last
+            // parameter: an unnamed block here would land in the footer slot instead.
+            trailing = {
+                trailing(observation)
+                IconButton(onClick = { onDeleteLocal(observation.groupId) }) {
+                    Icon(
+                        Icons.Outlined.DeleteOutline,
+                        "Remove from Wildlife",
+                        tint = colors.parchmentFaint,
+                    )
+                }
+            },
+        )
     }
 }
 
 @Composable
-private fun PublicObservationRow(
+private fun PublicRecordLine(
     observation: PublicObservationUi,
     onOpenObservation: (String) -> Unit,
 ) {
-    ObservationCard {
-        IdentityRow(
-            photoModel = observation.photoUrl,
-            title = observation.label,
-            titleIsSpecies = true,
-            meta = publicMeta(observation),
-            confirmedBadge = observation.qualityGrade == "research",
-            regionalContext = observation.regionalContext,
-        ) {
-            IconButton(onClick = { onOpenObservation(observation.uuid) }) {
-                Icon(Icons.AutoMirrored.Outlined.OpenInNew, "Open public record", tint = MaterialTheme.colorScheme.secondary)
-            }
-        }
-    }
-}
-
-/** The shared bordered, softly-rounded row container. */
-@Composable
-private fun ObservationCard(content: @Composable () -> Unit) {
-    val shape = RoundedCornerShape(11.dp)
-    Box(
-        modifier = Modifier
-            .fillMaxWidth()
-            .clip(shape)
-            .background(MaterialTheme.colorScheme.surface)
-            .border(1.dp, MaterialTheme.colorScheme.outlineVariant, shape),
-    ) {
-        content()
-    }
+    val colors = WildlifeTheme.colors
+    ObservationRecordLine(
+        photoModel = observation.photoUrl,
+        title = observation.label,
+        titleIsSpecies = true,
+        meta = publicMeta(observation),
+        markLabel = if (observation.qualityGrade == "research") "Research" else null,
+        markTint = colors.confirmed,
+        contextLabel = observation.regionalContext?.label,
+        contextTint = observation.regionalContext?.let {
+            if (it.countsTowardRegion) colors.oliveStrong else colors.parchmentFaint
+        },
+        onClick = { onOpenObservation(observation.uuid) },
+    )
 }
 
 @Composable
-private fun IdentityRow(
-    photoModel: String?,
-    title: String,
-    titleIsSpecies: Boolean,
-    meta: String,
-    confirmedBadge: Boolean = false,
-    regionalContext: RegionalContextUi? = null,
-    padded: Boolean = true,
-    trailing: @Composable RowScope.() -> Unit = {},
-) {
-    Row(
-        modifier = if (padded) Modifier.padding(WildlifeSpacing.Small) else Modifier,
-        horizontalArrangement = Arrangement.spacedBy(WildlifeSpacing.Card),
-        verticalAlignment = Alignment.CenterVertically,
-    ) {
-        RowThumbnail(photoModel, confirmedBadge)
-        Column(
-            modifier = Modifier.weight(1f),
-            verticalArrangement = Arrangement.spacedBy(2.dp),
-        ) {
-            Text(
-                text = title,
-                style = if (titleIsSpecies) {
-                    MaterialTheme.typography.titleMedium.copy(
-                        fontFamily = DisplayFontFamily,
-                        fontWeight = FontWeight.SemiBold,
-                    )
-                } else {
-                    MaterialTheme.typography.titleMedium
-                },
-                color = if (titleIsSpecies) {
-                    MaterialTheme.colorScheme.onBackground
-                } else {
-                    MaterialTheme.colorScheme.onSurfaceVariant
-                },
-                maxLines = 1,
-                overflow = TextOverflow.Ellipsis,
-            )
-            Text(
-                text = meta,
-                style = MaterialTheme.typography.labelMedium,
-                color = WildlifeTheme.colors.mutedText,
-                maxLines = 1,
-                overflow = TextOverflow.Ellipsis,
-            )
-            regionalContext?.let { context ->
-                Row(
-                    horizontalArrangement = Arrangement.spacedBy(WildlifeSpacing.Micro),
-                    verticalAlignment = Alignment.CenterVertically,
-                ) {
-                    Icon(
-                        Icons.Outlined.Public,
-                        contentDescription = null,
-                        tint = if (context.countsTowardRegion) WildlifeTheme.colors.oliveStrong else WildlifeTheme.colors.mutedText,
-                        modifier = Modifier.size(14.dp),
-                    )
-                    Text(
-                        text = context.label,
-                        style = MaterialTheme.typography.labelSmall,
-                        color = if (context.countsTowardRegion) MaterialTheme.colorScheme.onSurfaceVariant else WildlifeTheme.colors.mutedText,
-                        maxLines = 1,
-                        overflow = TextOverflow.Ellipsis,
-                    )
-                }
-            }
-        }
-        trailing()
+private fun Rule(label: String, accent: Color) {
+    Column {
+        Spacer(Modifier.height(WildlifeSpacing.Card))
+        SectionRule(label, accent)
+        Spacer(Modifier.height(WildlifeSpacing.Micro))
     }
 }
 
+/** A stamped aside: guidance and empty states, in the page's record voice. */
 @Composable
-private fun RowThumbnail(model: String?, confirmedBadge: Boolean) {
-    val context = LocalContext.current
-    Box {
-        if (model != null) {
-            AsyncImage(
-                model = ImageRequest.Builder(context)
-                    .data(model)
-                    .crossfade(true)
-                    .setHeader("User-Agent", WildlifeNetworkIdentity.REFERENCE_MEDIA_USER_AGENT)
-                    .build(),
-                contentDescription = null,
-                contentScale = ContentScale.Crop,
-                modifier = Modifier
-                    .size(52.dp)
-                    .clip(RoundedCornerShape(8.dp))
-                    .background(MaterialTheme.colorScheme.surfaceVariant),
-            )
-        } else {
-            Box(
-                modifier = Modifier
-                    .size(52.dp)
-                    .clip(RoundedCornerShape(8.dp))
-                    .background(MaterialTheme.colorScheme.surfaceVariant),
-            )
-        }
-        if (confirmedBadge) {
-            Box(
-                modifier = Modifier
-                    .align(Alignment.TopEnd)
-                    .padding(2.dp)
-                    .size(18.dp)
-                    .background(WildlifeTheme.colors.confirmed, CircleShape),
-                contentAlignment = Alignment.Center,
-            ) {
-                Icon(
-                    Icons.Outlined.Biotech,
-                    contentDescription = "Research grade",
-                    tint = MaterialTheme.colorScheme.onPrimaryContainer,
-                    modifier = Modifier.size(12.dp),
-                )
-            }
-        }
-    }
-}
-
-@Composable
-private fun SectionHeader(title: String, count: Int, accent: Color, hint: String) {
-    Column(
-        modifier = Modifier.padding(top = WildlifeSpacing.Card, bottom = WildlifeSpacing.Micro),
-        verticalArrangement = Arrangement.spacedBy(1.dp),
-    ) {
-        Row(
-            horizontalArrangement = Arrangement.spacedBy(WildlifeSpacing.Small),
-            verticalAlignment = Alignment.CenterVertically,
-        ) {
-            Box(
-                modifier = Modifier
-                    .size(7.dp)
-                    .background(accent, CircleShape),
-            )
-            Text(
-                text = title,
-                style = MaterialTheme.typography.titleLarge,
-                color = MaterialTheme.colorScheme.onBackground,
-            )
-            Text(
-                text = count.toString(),
-                style = MaterialTheme.typography.labelMedium,
-                color = WildlifeTheme.colors.mutedText,
-            )
-        }
-        Text(
-            text = hint,
-            style = MaterialTheme.typography.bodySmall,
-            color = WildlifeTheme.colors.mutedText,
-            modifier = Modifier.padding(start = 15.dp),
-        )
-    }
+private fun Note(text: String) {
+    Text(
+        text.uppercase(),
+        style = FieldStampStyle,
+        color = WildlifeTheme.colors.parchmentDim,
+        modifier = Modifier.padding(horizontal = WildlifeSpacing.Micro),
+    )
 }
 
 @Composable
 private fun MessageBanner(message: String) {
     Box(
-        modifier = Modifier
+        Modifier
             .fillMaxWidth()
-            .background(MaterialTheme.colorScheme.surfaceVariant, RoundedCornerShape(10.dp))
-            .border(1.dp, MaterialTheme.colorScheme.outlineVariant, RoundedCornerShape(10.dp))
+            .clip(RoundedCornerShape(9.dp))
+            .background(WildlifeSurface.copy(alpha = 0.90f))
+            .border(1.dp, WildlifeOutlineSubtle, RoundedCornerShape(9.dp))
             .padding(WildlifeSpacing.Card),
     ) {
         Text(
-            text = message,
-            style = MaterialTheme.typography.bodySmall,
-            color = MaterialTheme.colorScheme.onSurfaceVariant,
+            message.uppercase(),
+            style = FieldStampStyle,
+            color = WildlifeTheme.colors.parchmentDim,
         )
     }
 }
+
+private fun bandLabel(band: MatchBand): String = when (band) {
+    MatchBand.AUTOMATIC -> "Certain"
+    MatchBand.LIKELY -> "Likely"
+    MatchBand.POSSIBLE -> "Possible"
+}
+
+private fun bandTint(band: MatchBand, confirmed: Color, gold: Color, dim: Color): Color =
+    when (band) {
+        MatchBand.AUTOMATIC -> confirmed
+        MatchBand.LIKELY -> gold
+        MatchBand.POSSIBLE -> dim
+    }
 
 private fun managedTitle(state: MarkerState) = when (state) {
     MarkerState.CAPTURED -> "Draft sighting"
@@ -570,16 +473,36 @@ private fun managedMeta(observation: ManagedObservationUi): String = buildList {
 
 private fun publicMeta(observation: PublicObservationUi): String = buildList {
     add(dateMedium(observation.observedAtMs))
-    add(qualityLabel(observation.qualityGrade))
     observation.place?.let { add(if (observation.location?.obscured == true) "$it area" else it) }
 }.joinToString(" · ")
 
-private fun matchDetailLine(match: MatchProposalUi): String = buildList {
-    add("iNat sighting ${dateMedium(match.observedAtMs)}")
+/**
+ * The measurable evidence, then anything that qualifies it.
+ *
+ * The reasons that only restate the numbers are left out — a reader who can see "2 min
+ * apart" does not also need to be told the times align. What survives is what the numbers
+ * cannot say: that the location proves nothing, or that something else fits just as well.
+ */
+private fun matchEvidence(match: MatchProposalUi): String = buildList {
+    add(timeDeltaLabel(match.timeDeltaMinutes) + " apart")
+    if (!match.obscured) match.distanceKm?.let { add(distanceLabel(it)) }
     match.place?.let { add(if (match.obscured) "$it area" else it) }
-    add("${timeDeltaLabel(match.timeDeltaMinutes)} from your capture")
-    match.distanceKm?.let { add(distanceLabel(it)) }
+    add("iNat ${dateMedium(match.observedAtMs)}")
+    match.reasons.mapNotNull(::caveat).distinct().forEach(::add)
 }.joinToString(" · ")
+
+private fun caveat(reason: MatchReason): String? = when (reason) {
+    MatchReason.LOCATION_OBSCURED -> "Location obscured"
+    MatchReason.LOCATION_UNKNOWN -> "No location to compare"
+    MatchReason.CAPTURE_TIME_UNRELIABLE -> "Capture time estimated"
+    MatchReason.COMPETING_CANDIDATES -> "Another record fits too"
+    MatchReason.COMPETING_CAPTURES -> "Another of your captures fits too"
+    // Already carried by the minutes and metres printed beside them.
+    MatchReason.TIME_ALIGNED,
+    MatchReason.TIME_APPROXIMATE,
+    MatchReason.LOCATION_ALIGNED,
+    MatchReason.LOCATION_APPROXIMATE -> null
+}
 
 private fun timeDeltaLabel(minutes: Long): String {
     val m = minutes.coerceAtLeast(0)
@@ -597,54 +520,121 @@ private fun photoCount(count: Int) = if (count == 1) "1 photo" else "$count phot
 
 private fun dateMedium(ms: Long) = DateFormat.getDateInstance(DateFormat.MEDIUM).format(Date(ms))
 
-private fun qualityLabel(quality: String) = if (quality == "research") "Research grade" else "Needs ID"
-
-@Preview(showBackground = true, backgroundColor = 0xFF080B09, widthDp = 390, heightDp = 900)
+@Preview(showBackground = true, backgroundColor = 0xFF0E1209, widthDp = 390, heightDp = 1000)
 @Composable
 private fun ObservationsPreview() = WildlifeTheme {
     ObservationsScreen(
-        state = ObservationsUiState(
-            message = "Possible public match found. Inspect it, then confirm.",
-            managed = listOf(
-                ManagedObservationUi(
-                    groupId = "g1",
-                    state = MarkerState.HANDED_OFF,
-                    label = null,
-                    capturedAtMs = 1_723_000_000_000,
-                    location = null,
-                    place = "Montseny",
-                    researchGrade = false,
-                    photos = listOf(ManagedPhotoUi("m1", ""), ManagedPhotoUi("m2", "")),
-                    proposals = emptyList(),
-                    matchedObservationUuid = null,
-                ),
-                ManagedObservationUi(
-                    groupId = "g2",
-                    state = MarkerState.CONFIRMED,
-                    label = "Common kingfisher",
-                    capturedAtMs = 1_722_000_000_000,
-                    location = null,
-                    place = "Delta de l'Ebre",
-                    researchGrade = true,
-                    photos = listOf(ManagedPhotoUi("m3", "")),
-                    proposals = emptyList(),
-                    matchedObservationUuid = "abc",
-                ),
-            ),
-            publicObservations = listOf(
-                PublicObservationUi(
-                    uuid = "u1",
-                    taxonId = 42,
-                    label = "European robin",
-                    observedAtMs = 1_721_000_000_000,
-                    qualityGrade = "research",
-                    photoUrl = null,
-                    location = null,
-                    place = "Girona",
-                ),
-            ),
-        ),
+        state = previewState(),
         onBack = {}, onSync = {}, onSubmitted = {}, onNotSubmitted = {}, onConfirm = {},
-        onOpenObservation = {}, onOpenINaturalist = {}, onDeleteLocal = {},
+        onKeepAutomatic = {}, onUndoAutomatic = {}, onOpenObservation = {},
+        onOpenINaturalist = {}, onDeleteLocal = {},
     )
 }
+
+@Preview(
+    name = "Large font",
+    showBackground = true,
+    backgroundColor = 0xFF0E1209,
+    widthDp = 390,
+    heightDp = 1000,
+    fontScale = 1.5f,
+)
+@Composable
+private fun ObservationsLargeFontPreview() = WildlifeTheme {
+    ObservationsScreen(
+        state = previewState(),
+        onBack = {}, onSync = {}, onSubmitted = {}, onNotSubmitted = {}, onConfirm = {},
+        onKeepAutomatic = {}, onUndoAutomatic = {}, onOpenObservation = {},
+        onOpenINaturalist = {}, onDeleteLocal = {},
+    )
+}
+
+@Preview(name = "Empty", showBackground = true, backgroundColor = 0xFF0E1209, widthDp = 390)
+@Composable
+private fun ObservationsEmptyPreview() = WildlifeTheme {
+    ObservationsScreen(
+        state = ObservationsUiState(),
+        onBack = {}, onSync = {}, onSubmitted = {}, onNotSubmitted = {}, onConfirm = {},
+        onKeepAutomatic = {}, onUndoAutomatic = {}, onOpenObservation = {},
+        onOpenINaturalist = {}, onDeleteLocal = {},
+    )
+}
+
+private fun previewState() = ObservationsUiState(
+    message = "Filed 1 automatically. 1 still needs your eye.",
+    managed = listOf(
+        ManagedObservationUi(
+            groupId = "g0",
+            state = MarkerState.CONFIRMED,
+            label = "Common kingfisher",
+            capturedAtMs = 1_723_400_000_000,
+            location = null,
+            place = "Delta de l'Ebre",
+            researchGrade = true,
+            photos = listOf(ManagedPhotoUi("m0", "")),
+            proposals = emptyList(),
+            matchedObservationUuid = "abc",
+            autoFiled = true,
+        ),
+        ManagedObservationUi(
+            groupId = "g1",
+            state = MarkerState.PENDING,
+            label = null,
+            capturedAtMs = 1_723_000_000_000,
+            location = null,
+            place = "Montseny",
+            researchGrade = false,
+            photos = listOf(ManagedPhotoUi("m1", ""), ManagedPhotoUi("m2", "")),
+            proposals = listOf(
+                MatchProposalUi(
+                    proposal = MatchProposal(
+                        markerId = "m1",
+                        candidate = ObservationCandidate(
+                            uuid = "cand", observedAtMs = 1_723_000_400_000,
+                            latitude = null, longitude = null, obscured = false,
+                        ),
+                        confidence = 0.78,
+                        band = MatchBand.LIKELY,
+                        timeDeltaMinutes = 7,
+                        distanceKm = 0.4,
+                    ),
+                    observedAtMs = 1_723_000_400_000,
+                    label = "Eurasian jay",
+                    photoUrl = null,
+                    place = "Montseny",
+                    obscured = false,
+                    distanceKm = 0.4,
+                    timeDeltaMinutes = 7,
+                    confidence = 0.78,
+                    band = MatchBand.LIKELY,
+                    reasons = listOf(MatchReason.COMPETING_CANDIDATES),
+                ),
+            ),
+            matchedObservationUuid = null,
+        ),
+        ManagedObservationUi(
+            groupId = "g2",
+            state = MarkerState.CAPTURED,
+            label = null,
+            capturedAtMs = 1_722_000_000_000,
+            location = null,
+            place = "Girona",
+            researchGrade = false,
+            photos = listOf(ManagedPhotoUi("m3", "")),
+            proposals = emptyList(),
+            matchedObservationUuid = null,
+        ),
+    ),
+    publicObservations = listOf(
+        PublicObservationUi(
+            uuid = "u1",
+            taxonId = 42,
+            label = "European robin",
+            observedAtMs = 1_721_000_000_000,
+            qualityGrade = "research",
+            photoUrl = null,
+            location = null,
+            place = "Girona",
+        ),
+    ),
+)

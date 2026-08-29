@@ -37,6 +37,15 @@ data class PendingMarker(
     val handoffId: String? = null,
     val capturedAtReliable: Boolean = true,
     val locationReliable: Boolean = latitude != null && longitude != null,
+    /**
+     * This record was linked to its public observation by the matcher rather than by the
+     * user, and they have not yet responded to that.
+     *
+     * Persisted rather than held in the ViewModel because the offer to undo has to outlive
+     * the sync that made the link — and process death, which is the case where a link the
+     * user never asked for and cannot find would be worst.
+     */
+    val autoMatched: Boolean = false,
 )
 
 enum class MarkerState {

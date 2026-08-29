@@ -1,7 +1,9 @@
 package com.wildlife.feasibility.ui.screens.observations
 
 import com.wildlife.feasibility.MarkerState
+import com.wildlife.feasibility.MatchBand
 import com.wildlife.feasibility.MatchProposal
+import com.wildlife.feasibility.MatchReason
 import com.wildlife.feasibility.ObservationRegion
 import com.wildlife.feasibility.ObservationRegionAssignment
 import com.wildlife.feasibility.PendingMarker
@@ -22,18 +24,27 @@ data class ObservationLocation(
 )
 
 /**
- * A candidate public observation that might be the same sighting as a Wildlife handoff, with the
- * context a person needs to decide: when it was recorded, roughly where, and how close it is to
- * the app record in time and space.
+ * A candidate public observation that might be the same sighting as a Wildlife handoff.
+ *
+ * It carries everything the decision needs in one place: the public record's own
+ * photograph and name, so the two images can be compared side by side; the agreement in
+ * time and space; and the matcher's [confidence] with the [reasons] that produced it. A
+ * proposal a person cannot see the evidence for is a proposal they cannot answer.
  */
 data class MatchProposalUi(
     val proposal: MatchProposal,
     val observedAtMs: Long,
+    /** The public record's species, when it has been identified. Null before that. */
+    val label: String?,
+    /** The public record's own photograph, for comparison against the capture. */
+    val photoUrl: String?,
     val place: String?,
     val obscured: Boolean,
     val distanceKm: Double?,
     val timeDeltaMinutes: Long,
-    val highConfidence: Boolean,
+    val confidence: Double,
+    val band: MatchBand,
+    val reasons: List<MatchReason>,
 )
 
 data class ManagedObservationUi(
@@ -51,6 +62,13 @@ data class ManagedObservationUi(
     val proposals: List<MatchProposalUi>,
     val matchedObservationUuid: String?,
     val regionalContext: RegionalContextUi? = null,
+    /**
+     * Wildlife linked this record itself and the user has not answered yet, so the screen
+     * owes them both the evidence and a way out of it.
+     */
+    val autoFiled: Boolean = false,
+    /** The public photograph of the record it was filed against, for that comparison. */
+    val matchedPhotoUrl: String? = null,
 )
 
 data class PublicObservationUi(
@@ -78,14 +96,56 @@ data class ObservationsUiState(
     val syncing: Boolean = false,
     val message: String? = null,
     val taxonFilter: Long? = null,
-)
+) {
+    /**
+     * The ledger split into the piles the screen draws, in the order it draws them.
+     *
+     * They live here rather than in the composable because which pile a record belongs to
+     * is a product decision about its lifecycle, not a layout one — and because a screen
+     * that re-derives them inline cannot be tested without rendering it.
+     */
+
+    /** Filed by Wildlife, awaiting the user's word. Leads the page: it is news. */
+    val autoFiled: List<ManagedObservationUi> get() = managed.filter { it.autoFiled }
+
+    /** A match to answer, or a handoff whose submission Wildlife cannot see. */
+    val needsAction: List<ManagedObservationUi> get() = managed.filter {
+        !it.autoFiled && (it.proposals.isNotEmpty() || it.state == MarkerState.HANDED_OFF)
+    }
+
+    /** Submitted, with no public record to match against yet. */
+    val awaiting: List<ManagedObservationUi> get() = managed.filter {
+        it.state == MarkerState.PENDING && it.proposals.isEmpty()
+    }
+
+    /** Saved in Wildlife and never handed off. Capture still owns these. */
+    val drafts: List<ManagedObservationUi> get() = managed.filter {
+        it.state == MarkerState.CAPTURED
+    }
+
+    /** Settled: linked, answered, and needing nothing further. */
+    val filed: List<ManagedObservationUi> get() = managed.filter {
+        it.state == MarkerState.CONFIRMED && !it.autoFiled && it.proposals.isEmpty()
+    }
+
+    /** Everything the user is being asked to deal with, for the ledger's tally. */
+    val outstandingCount: Int get() = autoFiled.size + needsAction.size
+
+    /**
+     * Whether there is a ledger to summarise at all.
+     *
+     * A visitor who has recorded nothing was being shown three zeroes over the words that
+     * count them, which is the emptiest possible thing the page can say about them. With
+     * nothing on the desk, the page should ask them to start rather than tally the nothing.
+     */
+    val hasLedger: Boolean get() = managed.isNotEmpty() || publicObservations.isNotEmpty()
+}
 
 internal object ObservationsProjection {
     fun build(
         markers: List<PendingMarker>,
         proposalsByMarker: Map<String, List<MatchProposal>>,
         observations: List<SyncedObservation>,
-        hiddenUuids: Set<String>,
         account: VerifiedAccount?,
         syncing: Boolean,
         message: String?,
@@ -131,17 +191,23 @@ internal object ObservationsProjection {
                             MatchProposalUi(
                                 proposal = proposal,
                                 observedAtMs = proposal.candidate.observedAtMs,
+                                label = proposal.candidate.label,
+                                photoUrl = proposal.candidate.photoUrl,
                                 place = placeFor(candidateLocation),
                                 obscured = proposal.candidate.obscured,
                                 distanceKm = proposal.distanceKm,
                                 timeDeltaMinutes = proposal.timeDeltaMinutes,
-                                highConfidence = proposal.band == com.wildlife.feasibility.MatchBand.AUTOMATIC,
+                                confidence = proposal.confidence,
+                                band = proposal.band,
+                                reasons = proposal.reasons,
                             )
                         },
                         matchedObservationUuid = lead.matchedObservationUuid,
                         regionalContext = lead.matchedObservationUuid
                             ?.let(regionsByObservationUuid::get)
                             ?.toUi(),
+                        autoFiled = lead.autoMatched,
+                        matchedPhotoUrl = matched?.photoUrl,
                     )
                 },
             publicObservations = observations

@@ -277,6 +277,8 @@ class MainActivity : ComponentActivity() {
                         onSubmitted = observationsViewModel::markSubmitted,
                         onNotSubmitted = observationsViewModel::markNotSubmitted,
                         onConfirm = observationsViewModel::confirm,
+                        onKeepAutomatic = observationsViewModel::keepAutomaticMatch,
+                        onUndoAutomatic = observationsViewModel::undoAutomaticMatch,
                         onOpenObservation = { uuid ->
                             openExternal("https://www.inaturalist.org/observations/$uuid")
                         },
@@ -339,6 +341,8 @@ class MainActivity : ComponentActivity() {
                     onSubmitted = observationsViewModel::markSubmitted,
                     onNotSubmitted = observationsViewModel::markNotSubmitted,
                     onConfirm = observationsViewModel::confirm,
+                    onKeepAutomatic = observationsViewModel::keepAutomaticMatch,
+                    onUndoAutomatic = observationsViewModel::undoAutomaticMatch,
                     onOpenObservation = { uuid ->
                         openExternal("https://www.inaturalist.org/observations/$uuid")
                     },

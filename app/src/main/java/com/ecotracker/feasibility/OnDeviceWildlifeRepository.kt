@@ -72,6 +72,12 @@ class OnDeviceWildlifeRepository(context: Context) : Closeable {
         return observations.confirmObservation(account.userId, observationUuid, reward)
     }
 
+    /** Reverses [confirmObservation], including the XP it awarded. See the store for why. */
+    fun unconfirmObservation(
+        account: VerifiedAccount,
+        observationUuid: String,
+    ): CollectionSummary = observations.unconfirmObservation(account.userId, observationUuid)
+
     fun setObservationMapVisible(
         account: VerifiedAccount,
         observationUuid: String,

@@ -132,6 +132,10 @@ Build only components that recur or carry core identity:
 | `SpeciesHero` | Licensed hero image, scrim and navigation actions |
 | `SpeciesFactsGrid` | Compact reusable facts panel; hides unavailable facts rather than inventing them |
 | `ObservationTile` | Image and date for the horizontal personal-history strip |
+| `ObservationRecordLine` | Shared ledger line for one sighting: photograph, identity, stamped metadata, an optional record-state pill and regional context, with slots for trailing utility actions and an in-card footer. Used for managed records and public history alike; a record-state pill, never a rubber stamp, because the stamp's ring cannot hold a word at row size |
+| `MatchComparisonPlate` | The capture and the candidate public photograph side by side, with the species, a confidence meter and the evidence line beneath. Shared because Capture presents the same proposals immediately after a handoff. The meter is omitted once a match is filed: there is no live score left to report |
+| `ConfidenceMeter` | Graded match confidence as a filled measure plus its band word. Shows no percentage — the score orders explanations, it is not a probability |
+| `LedgerHeader` | Outstanding / awaiting / filed tallies over the read-only iNaturalist note. Hidden entirely when the ledger is empty rather than printing three zeroes |
 | `SectionHeader` | Consistent title and optional trailing action |
 | `WildlifeLoadingState` | Shared accessible initial-loading treatment; later refreshes retain existing screen content where available |
 | `CaptureButton` | Olive circular primary capture action with parchment icon |
@@ -202,6 +206,12 @@ A future region control in Collection is a personal-history scope filter (defaul
 - This is Collection's second section for general long-term observation management; Capture owns only creation of a new draft. A focused route remains for species-filtered/deep-linked entry and keeps the bottom bar.
 - Shows Draft, Pending public confirmation, Candidate ready, Needs ID, Research Grade, unavailable and recoverable-error states.
 - Supports retrying Wildlife sync, explicit candidate confirmation, opening the public iNaturalist record, local map visibility and deletion of Wildlife-owned local state.
+- The page is ordered by what it asks of the reader, not by record lifecycle: automatically filed matches, then records needing an answer, then awaiting, drafts, filed and finally the public history as archive. The projection owns which pile a record belongs to; the screen renders the piles it is given.
+- A match is decided by comparison, not by prose. The proposing surface shows the capture beside the candidate's own public photograph with its species, so the reader answers by looking and checks by reading the evidence line.
+- Matching is confidence-graded rather than binary, and every outstanding capture is resolved in one pass so a public record can be claimed only once. See `CandidateMatcher`.
+- A match may be filed without asking only when its confidence clears the automatic bar, the capture vouches for its own time and place, the public coordinate is not obscured, and nothing else explains the pairing nearly as well.
+- Automatic matches are filed only where the user can see it happen — on this screen's own sync. `ObservationSyncWorker` refreshes the cache and never links a record in the background.
+- A filed automatic match leads the page with its comparison and offers Keep and Not mine with equal weight. Undo is a real reversal: the Wildlife link is unpicked and the XP that confirmation awarded is withdrawn, because leaving it would credit a sighting the user has just said was not theirs. Nothing on iNaturalist changes.
 - One observation with several photos is rendered as one observation container with a horizontal photo strip.
 - Home exposes recent/pending observations and a “See all” entry. Profile links to it from the sync-status card. Species Detail opens the route filtered to that species.
 - Sync is an action on this screen, where its results are visible. Profile reports sync status read-only and hands the user here; it does not own the retry.

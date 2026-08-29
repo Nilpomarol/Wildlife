@@ -524,6 +524,85 @@ class ObservationStore(context: Context) : SQLiteOpenHelper(context, DATABASE, n
         }
     }
 
+    /**
+     * Reverses a confirmation, restoring the ledger to what it was before it.
+     *
+     * Undoing an automatic match has to be a real reversal rather than a hidden marker,
+     * because everything downstream — collection count, XP, rank — is recomputed from
+     * `xp_events` and `observations.confirmed`. Leaving the award behind would credit a
+     * sighting the user has just told us was not theirs.
+     *
+     * The two kinds of award unwind differently. `observation:<uuid>` belongs to this
+     * record alone and always goes. The species and regional milestones are keyed by taxon
+     * and region, so they survive as long as *some* confirmed observation still carries
+     * that taxon — they are re-attributed to it rather than deleted, which keeps the
+     * idempotency key that prevents a second award for the same milestone.
+     */
+    fun unconfirmObservation(userId: Long, uuid: String): CollectionSummary {
+        writableDatabase.beginTransaction()
+        try {
+            val taxonId = writableDatabase.rawQuery(
+                """
+                SELECT COALESCE(collection_taxon_id, taxon_id) FROM observations
+                WHERE user_id = ? AND uuid = ? AND confirmed = 1
+                """.trimIndent(),
+                arrayOf(userId.toString(), uuid),
+            ).use { cursor ->
+                if (!cursor.moveToFirst()) return summary(userId)
+                if (cursor.isNull(0)) null else cursor.getLong(0)
+            }
+
+            writableDatabase.update(
+                "observations",
+                ContentValues().apply { put("confirmed", 0) },
+                "user_id = ? AND uuid = ?",
+                arrayOf(userId.toString(), uuid),
+            )
+            writableDatabase.delete(
+                "xp_events",
+                "user_id = ? AND event_key = ?",
+                arrayOf(userId.toString(), "observation:$uuid"),
+            )
+
+            // Now that this record is no longer confirmed, does any other confirmed record
+            // still hold the taxon its milestones were earned for?
+            val heir = taxonId?.let {
+                writableDatabase.rawQuery(
+                    """
+                    SELECT uuid FROM observations
+                    WHERE user_id = ? AND confirmed = 1
+                      AND COALESCE(collection_taxon_id, taxon_id) = ?
+                    ORDER BY observed_at_ms ASC LIMIT 1
+                    """.trimIndent(),
+                    arrayOf(userId.toString(), it.toString()),
+                ).use { cursor -> if (cursor.moveToFirst()) cursor.getString(0) else null }
+            }
+            if (heir != null) {
+                writableDatabase.update(
+                    "xp_events",
+                    ContentValues().apply { put("observation_uuid", heir) },
+                    "user_id = ? AND observation_uuid = ?",
+                    arrayOf(userId.toString(), uuid),
+                )
+            } else {
+                writableDatabase.delete(
+                    "xp_events",
+                    "user_id = ? AND observation_uuid = ?",
+                    arrayOf(userId.toString(), uuid),
+                )
+            }
+
+            val updated = calculatedSummary(
+                userId, writableDatabase, lastSyncedAt(userId, writableDatabase),
+            )
+            saveSummary(userId, updated, writableDatabase)
+            writableDatabase.setTransactionSuccessful()
+            return updated
+        } finally {
+            writableDatabase.endTransaction()
+        }
+    }
+
     fun summary(userId: Long): CollectionSummary {
         val cursor = readableDatabase.query(
             "collection_summary",

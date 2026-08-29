@@ -12,6 +12,7 @@ import com.wildlife.feasibility.CandidateMatcher
 import com.wildlife.feasibility.LocalObservationRecords
 import com.wildlife.feasibility.MarkerState
 import com.wildlife.feasibility.MarkerStore
+import com.wildlife.feasibility.MatchAssignment
 import com.wildlife.feasibility.MatchProposal
 import com.wildlife.feasibility.ObservationRegion
 import com.wildlife.feasibility.ObservationStore
@@ -41,7 +42,6 @@ class ObservationsViewModel(application: Application) : AndroidViewModel(applica
     private var markers: List<PendingMarker> = emptyList()
     private var observations: List<SyncedObservation> = emptyList()
     private var regionsByObservationUuid: Map<String, ObservationRegion> = emptyMap()
-    private var hidden: Set<String> = emptySet()
     private var account: VerifiedAccount? = null
     private var placeNames: Map<String, String> = emptyMap()
     private var proposalsByMarker: Map<String, List<MatchProposal>> = emptyMap()
@@ -93,17 +93,13 @@ class ObservationsViewModel(application: Application) : AndroidViewModel(applica
                         observationStore.observationRegion(linked.userId, observation.uuid)
                     }.associateBy(ObservationRegion::observationUuid)
                 }.orEmpty()
-                val loadedHidden = loadedAccount?.let {
-                    observationStore.mapHiddenObservationUuids(it.userId)
-                }.orEmpty()
                 ObservationReload(
                     markers = loadedMarkers,
                     observations = loadedObservations,
                     regions = loadedRegions,
-                    hidden = loadedHidden,
                     account = loadedAccount,
                     state = ObservationsProjection.build(
-                        loadedMarkers, proposalsSnapshot, loadedObservations, loadedHidden,
+                        loadedMarkers, proposalsSnapshot, loadedObservations,
                         loadedAccount, syncingSnapshot, messageSnapshot, filterSnapshot,
                         placesSnapshot, loadedRegions,
                     ).copy(isLoading = false),
@@ -113,7 +109,6 @@ class ObservationsViewModel(application: Application) : AndroidViewModel(applica
             markers = loaded.markers
             observations = loaded.observations
             regionsByObservationUuid = loaded.regions
-            hidden = loaded.hidden
             account = loaded.account
             uiState = loaded.state
             requestPlaces()
@@ -125,7 +120,6 @@ class ObservationsViewModel(application: Application) : AndroidViewModel(applica
         val markersSnapshot = markers
         val proposalsSnapshot = proposalsByMarker
         val observationsSnapshot = observations
-        val hiddenSnapshot = hidden
         val accountSnapshot = account
         val syncingSnapshot = syncing
         val messageSnapshot = message
@@ -136,7 +130,7 @@ class ObservationsViewModel(application: Application) : AndroidViewModel(applica
         stateJob = viewModelScope.launch {
             val projected = withContext(Dispatchers.Default) {
                 ObservationsProjection.build(
-                    markersSnapshot, proposalsSnapshot, observationsSnapshot, hiddenSnapshot,
+                    markersSnapshot, proposalsSnapshot, observationsSnapshot,
                     accountSnapshot, syncingSnapshot, messageSnapshot, filterSnapshot,
                     placesSnapshot, regionsSnapshot,
                 )
@@ -213,29 +207,66 @@ class ObservationsViewModel(application: Application) : AndroidViewModel(applica
                 withContext(Dispatchers.IO) {
                     OnDeviceWildlifeRepository(getApplication()).use { repository ->
                         repository.syncObservations(verified, force = true)
-                        markers.filter { it.state == MarkerState.CONFIRMED }
+                        val linked = markers.filter { it.state == MarkerState.CONFIRMED }
                             .mapNotNull(PendingMarker::matchedObservationUuid).distinct()
-                            .forEach { repository.confirmObservation(verified, it) }
-                        val candidates = observationStore.candidates(verified.userId)
-                        pending.associate { marker ->
-                            marker.id to CandidateMatcher.proposals(marker, candidates)
+                        linked.forEach { repository.confirmObservation(verified, it) }
+                        // One resolution across every outstanding capture, so a record
+                        // cannot be filed to two of them and a contested pairing is not
+                        // filed at all.
+                        val assignment = CandidateMatcher.assign(
+                            pending, observationStore.candidates(verified.userId), linked.toSet(),
+                        )
+                        assignment.automatic.forEach { proposal ->
+                            repository.confirmObservation(verified, proposal.candidate.uuid)
                         }
+                        assignment
                     }
                 }
-            }.onSuccess { proposals ->
+            }.onSuccess { assignment ->
                 syncing = false
-                proposalsByMarker = proposals
-                message = if (proposals.values.any { it.isNotEmpty() }) {
-                    "Possible public match found. Inspect it, then confirm only if it is your sighting."
-                } else {
-                    "No public match yet. If needed, reopen iNaturalist to finish uploading."
-                }
-                reload()
+                applyAutomaticMatches(assignment)
+                proposalsByMarker = assignment.proposals
+                message = syncMessage(assignment)
+                persist()
             }.onFailure { error ->
                 syncing = false
                 message = "Could not check iNaturalist: ${error.message ?: "try again later"}"
                 reload()
             }
+        }
+    }
+
+    /**
+     * Links every capture the matcher was confident about, marking each one as filed by
+     * Wildlife rather than by the user so the screen can offer to undo it.
+     */
+    private fun applyAutomaticMatches(assignment: MatchAssignment) {
+        if (assignment.automatic.isEmpty()) return
+        val uuidByGroup = assignment.automatic.mapNotNull { proposal ->
+            markers.firstOrNull { it.id == proposal.markerId }
+                ?.let { groupKey(it) to proposal.candidate.uuid }
+        }.toMap()
+        markers = markers.map { marker ->
+            uuidByGroup[groupKey(marker)]?.let { uuid ->
+                marker.copy(
+                    state = MarkerState.CONFIRMED,
+                    matchedObservationUuid = uuid,
+                    autoMatched = true,
+                )
+            } ?: marker
+        }
+    }
+
+    private fun syncMessage(assignment: MatchAssignment): String {
+        val filed = assignment.automatic.size
+        val offered = assignment.proposals.values.count { it.isNotEmpty() }
+        return when {
+            filed > 0 && offered > 0 -> "Filed $filed automatically. $offered still need your eye."
+            filed == 1 -> "One sighting matched and filed. Undo it below if it is not yours."
+            filed > 1 -> "$filed sightings matched and filed. Undo any that are not yours."
+            offered > 0 ->
+                "Possible public match found. Inspect it, then confirm only if it is your sighting."
+            else -> "No public match yet. If needed, reopen iNaturalist to finish uploading."
         }
     }
 
@@ -246,6 +277,7 @@ class ObservationsViewModel(application: Application) : AndroidViewModel(applica
                 marker.copy(
                     state = MarkerState.CONFIRMED,
                     matchedObservationUuid = proposal.candidate.uuid,
+                    autoMatched = false,
                 )
             } else {
                 marker
@@ -280,6 +312,57 @@ class ObservationsViewModel(application: Application) : AndroidViewModel(applica
         }
     }
 
+    /** Accepts an automatic match: the link stays, the offer to undo it goes. */
+    fun keepAutomaticMatch(groupId: String) {
+        if (markers.none { groupKey(it) == groupId && it.autoMatched }) return
+        markers = markers.map { marker ->
+            if (groupKey(marker) == groupId) marker.copy(autoMatched = false) else marker
+        }
+        message = "Match kept."
+        persist()
+    }
+
+    /**
+     * Rejects an automatic match, returning the capture to the queue it came from.
+     *
+     * The public record is untouched — Wildlife has no write access to iNaturalist, and
+     * this unpicks only Wildlife's own link — but the XP that confirmation awarded is
+     * genuinely reversed, because leaving it would credit a sighting the user has just
+     * said was not theirs.
+     */
+    fun undoAutomaticMatch(groupId: String) {
+        val uuid = markers.firstOrNull { groupKey(it) == groupId && it.autoMatched }
+            ?.matchedObservationUuid ?: return
+        markers = markers.map { marker ->
+            if (groupKey(marker) == groupId) {
+                marker.copy(
+                    state = MarkerState.PENDING,
+                    matchedObservationUuid = null,
+                    autoMatched = false,
+                )
+            } else {
+                marker
+            }
+        }
+        persist()
+        val verified = accountStore.verified() ?: return
+        viewModelScope.launch {
+            runCatching {
+                withContext(Dispatchers.IO) {
+                    OnDeviceWildlifeRepository(getApplication()).use {
+                        it.unconfirmObservation(verified, uuid)
+                    }
+                }
+            }.onSuccess {
+                message = "Match undone. Nothing changed on iNaturalist."
+                reload()
+            }.onFailure { error ->
+                message = "Match undone here, but the reward could not be reversed: ${error.message}"
+                reload()
+            }
+        }
+    }
+
     fun deleteLocalGroup(groupId: String) {
         markers.filter { groupKey(it) == groupId }.forEach(::deletePrivatePhotoIfOwned)
         markers = LocalObservationRecords.removeGroup(markers, groupId)
@@ -309,7 +392,6 @@ class ObservationsViewModel(application: Application) : AndroidViewModel(applica
         val markers: List<PendingMarker>,
         val observations: List<SyncedObservation>,
         val regions: Map<String, ObservationRegion>,
-        val hidden: Set<String>,
         val account: VerifiedAccount?,
         val state: ObservationsUiState,
     )

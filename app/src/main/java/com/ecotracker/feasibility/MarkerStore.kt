@@ -39,6 +39,7 @@ class MarkerStore(context: Context) {
         put("handoffId", handoffId ?: JSONObject.NULL)
         put("capturedAtReliable", capturedAtReliable)
         put("locationReliable", locationReliable)
+        put("autoMatched", autoMatched)
     }
 
     private fun JSONObject.toMarker(): PendingMarker {
@@ -63,6 +64,8 @@ class MarkerStore(context: Context) {
         capturedAtReliable = if (has("capturedAtReliable")) optBoolean("capturedAtReliable") else true,
         locationReliable = if (has("locationReliable")) optBoolean("locationReliable")
             else !isNull("latitude") && !isNull("longitude"),
+        // Records written before automatic matching existed were all linked by hand.
+        autoMatched = optBoolean("autoMatched", false),
     )
     }
 
