@@ -312,6 +312,30 @@ class ObservationsViewModel(application: Application) : AndroidViewModel(applica
         }
     }
 
+    /**
+     * Records that a proposed match is not this capture's sighting.
+     *
+     * Nothing is confirmed and nothing is reversed — the record was never linked. The
+     * rejection is remembered against the capture so the next sync does not offer it again,
+     * which is the same memory an undone automatic match writes.
+     */
+    fun rejectMatch(proposal: MatchProposal) {
+        val groupId = markers.firstOrNull { it.id == proposal.markerId }?.let(::groupKey) ?: return
+        val uuid = proposal.candidate.uuid
+        markers = markers.map { marker ->
+            if (groupKey(marker) == groupId) {
+                marker.copy(rejectedObservationUuids = marker.rejectedObservationUuids + uuid)
+            } else {
+                marker
+            }
+        }
+        proposalsByMarker = proposalsByMarker.mapValues { (_, forMarker) ->
+            forMarker.filterNot { it.candidate.uuid == uuid }
+        }
+        message = "Dismissed. Wildlife will not offer that record for this sighting again."
+        persist()
+    }
+
     /** Accepts an automatic match: the link stays, the offer to undo it goes. */
     fun keepAutomaticMatch(groupId: String) {
         if (markers.none { groupKey(it) == groupId && it.autoMatched }) return
@@ -339,6 +363,9 @@ class ObservationsViewModel(application: Application) : AndroidViewModel(applica
                     state = MarkerState.PENDING,
                     matchedObservationUuid = null,
                     autoMatched = false,
+                    // Remembered, or the next sync scores it exactly as well and files it
+                    // straight back — the rejection would last until the user looked away.
+                    rejectedObservationUuids = marker.rejectedObservationUuids + uuid,
                 )
             } else {
                 marker

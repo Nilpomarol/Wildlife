@@ -277,6 +277,7 @@ class MainActivity : ComponentActivity() {
                         onSubmitted = observationsViewModel::markSubmitted,
                         onNotSubmitted = observationsViewModel::markNotSubmitted,
                         onConfirm = observationsViewModel::confirm,
+                        onRejectMatch = observationsViewModel::rejectMatch,
                         onKeepAutomatic = observationsViewModel::keepAutomaticMatch,
                         onUndoAutomatic = observationsViewModel::undoAutomaticMatch,
                         onOpenObservation = { uuid ->
@@ -341,6 +342,7 @@ class MainActivity : ComponentActivity() {
                     onSubmitted = observationsViewModel::markSubmitted,
                     onNotSubmitted = observationsViewModel::markNotSubmitted,
                     onConfirm = observationsViewModel::confirm,
+                    onRejectMatch = observationsViewModel::rejectMatch,
                     onKeepAutomatic = observationsViewModel::keepAutomaticMatch,
                     onUndoAutomatic = observationsViewModel::undoAutomaticMatch,
                     onOpenObservation = { uuid ->

@@ -73,6 +73,7 @@ fun ObservationsScreen(
     onSubmitted: (String) -> Unit,
     onNotSubmitted: (String) -> Unit,
     onConfirm: (MatchProposal) -> Unit,
+    onRejectMatch: (MatchProposal) -> Unit,
     onKeepAutomatic: (String) -> Unit,
     onUndoAutomatic: (String) -> Unit,
     onOpenObservation: (String) -> Unit,
@@ -163,6 +164,7 @@ fun ObservationsScreen(
                                 onSubmitted = onSubmitted,
                                 onNotSubmitted = onNotSubmitted,
                                 onConfirm = onConfirm,
+                                onRejectMatch = onRejectMatch,
                                 onOpenObservation = onOpenObservation,
                             )
                         }
@@ -286,6 +288,7 @@ private fun ActionRecord(
     onSubmitted: (String) -> Unit,
     onNotSubmitted: (String) -> Unit,
     onConfirm: (MatchProposal) -> Unit,
+    onRejectMatch: (MatchProposal) -> Unit,
     onOpenObservation: (String) -> Unit,
 ) {
     val colors = WildlifeTheme.colors
@@ -327,18 +330,31 @@ private fun ActionRecord(
                 confidence = match.confidence.toFloat(),
                 confidenceLabel = bandLabel(match.band),
                 actions = {
-                    Row(horizontalArrangement = Arrangement.spacedBy(WildlifeSpacing.Small)) {
+                    // Inspecting is a lookup, not an answer, so it takes its own line above
+                    // the two that decide. Three across the row put eight mono characters
+                    // into a third of the width, which clips the moment type is scaled up.
+                    Column(verticalArrangement = Arrangement.spacedBy(WildlifeSpacing.Small)) {
                         JournalButton(
-                            label = "Inspect",
+                            label = "Inspect on iNaturalist",
                             onClick = { onOpenObservation(match.proposal.candidate.uuid) },
-                            modifier = Modifier.weight(1f),
+                            modifier = Modifier.fillMaxWidth(),
                         )
-                        JournalButton(
-                            label = "Confirm",
-                            onClick = { onConfirm(match.proposal) },
-                            modifier = Modifier.weight(1f),
-                            primary = !syncing,
-                        )
+                        // Dismissing is as legitimate an outcome as confirming, and carries
+                        // the same weight. A proposal with no way to say no is a dead end:
+                        // it returns on every sync until something untrue is confirmed.
+                        Row(horizontalArrangement = Arrangement.spacedBy(WildlifeSpacing.Small)) {
+                            JournalButton(
+                                label = "Not mine",
+                                onClick = { onRejectMatch(match.proposal) },
+                                modifier = Modifier.weight(1f),
+                            )
+                            JournalButton(
+                                label = "Confirm",
+                                onClick = { onConfirm(match.proposal) },
+                                modifier = Modifier.weight(1f),
+                                primary = !syncing,
+                            )
+                        }
                     }
                 },
             )
@@ -526,7 +542,7 @@ private fun ObservationsPreview() = WildlifeTheme {
     ObservationsScreen(
         state = previewState(),
         onBack = {}, onSync = {}, onSubmitted = {}, onNotSubmitted = {}, onConfirm = {},
-        onKeepAutomatic = {}, onUndoAutomatic = {}, onOpenObservation = {},
+        onRejectMatch = {}, onKeepAutomatic = {}, onUndoAutomatic = {}, onOpenObservation = {},
         onOpenINaturalist = {}, onDeleteLocal = {},
     )
 }
@@ -544,7 +560,7 @@ private fun ObservationsLargeFontPreview() = WildlifeTheme {
     ObservationsScreen(
         state = previewState(),
         onBack = {}, onSync = {}, onSubmitted = {}, onNotSubmitted = {}, onConfirm = {},
-        onKeepAutomatic = {}, onUndoAutomatic = {}, onOpenObservation = {},
+        onRejectMatch = {}, onKeepAutomatic = {}, onUndoAutomatic = {}, onOpenObservation = {},
         onOpenINaturalist = {}, onDeleteLocal = {},
     )
 }
@@ -555,7 +571,7 @@ private fun ObservationsEmptyPreview() = WildlifeTheme {
     ObservationsScreen(
         state = ObservationsUiState(),
         onBack = {}, onSync = {}, onSubmitted = {}, onNotSubmitted = {}, onConfirm = {},
-        onKeepAutomatic = {}, onUndoAutomatic = {}, onOpenObservation = {},
+        onRejectMatch = {}, onKeepAutomatic = {}, onUndoAutomatic = {}, onOpenObservation = {},
         onOpenINaturalist = {}, onDeleteLocal = {},
     )
 }

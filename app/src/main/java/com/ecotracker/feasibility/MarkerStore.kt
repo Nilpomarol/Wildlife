@@ -40,6 +40,9 @@ class MarkerStore(context: Context) {
         put("capturedAtReliable", capturedAtReliable)
         put("locationReliable", locationReliable)
         put("autoMatched", autoMatched)
+        if (rejectedObservationUuids.isNotEmpty()) {
+            put("rejectedObservationUuids", JSONArray(rejectedObservationUuids.toList()))
+        }
     }
 
     private fun JSONObject.toMarker(): PendingMarker {
@@ -66,7 +69,17 @@ class MarkerStore(context: Context) {
             else !isNull("latitude") && !isNull("longitude"),
         // Records written before automatic matching existed were all linked by hand.
         autoMatched = optBoolean("autoMatched", false),
+        rejectedObservationUuids = stringSet("rejectedObservationUuids"),
     )
+    }
+
+    private fun JSONObject.stringSet(key: String): Set<String> {
+        val array = optJSONArray(key) ?: return emptySet()
+        return buildSet {
+            for (index in 0 until array.length()) {
+                array.optString(index).takeIf(String::isNotBlank)?.let(::add)
+            }
+        }
     }
 
     private fun JSONObject.nullableDouble(key: String): Double? =

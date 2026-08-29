@@ -212,6 +212,7 @@ A future region control in Collection is a personal-history scope filter (defaul
 - A match may be filed without asking only when its confidence clears the automatic bar, the capture vouches for its own time and place, the public coordinate is not obscured, and nothing else explains the pairing nearly as well.
 - Automatic matches are filed only where the user can see it happen — on this screen's own sync. `ObservationSyncWorker` refreshes the cache and never links a record in the background.
 - A filed automatic match leads the page with its comparison and offers Keep and Not mine with equal weight. Undo is a real reversal: the Wildlife link is unpicked and the XP that confirmation awarded is withdrawn, because leaving it would credit a sighting the user has just said was not theirs. Nothing on iNaturalist changes.
+- Every proposal can be answered either way. Dismissing carries the same weight as confirming, and the rejection is remembered against that capture so the next sync does not offer the same record again; the record remains available to a different capture.
 - One observation with several photos is rendered as one observation container with a horizontal photo strip.
 - Home exposes recent/pending observations and a “See all” entry. Profile links to it from the sync-status card. Species Detail opens the route filtered to that species.
 - Sync is an action on this screen, where its results are visible. Profile reports sync status read-only and hands the user here; it does not own the retry.

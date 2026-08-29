@@ -298,6 +298,34 @@ class CandidateMatcherTest {
     }
 
     @Test
+    fun aRejectedRecordIsNeverProposedForThatCaptureAgain() {
+        // The pairing that would otherwise file itself, after the user said it was not theirs.
+        val answered = marker.copy(rejectedObservationUuids = setOf("observation"))
+
+        val proposals = CandidateMatcher.proposals(
+            answered,
+            listOf(candidate(time = marker.capturedAtMs + 60_000L)),
+        )
+
+        assertTrue(proposals.isEmpty())
+    }
+
+    @Test
+    fun aRejectionBindsToOneCaptureRatherThanTheRecord() {
+        // The same record may still be the right answer for a different photograph.
+        val answered = marker.copy(rejectedObservationUuids = setOf("observation"))
+        val other = marker.copy(id = "other")
+
+        val assignment = CandidateMatcher.assign(
+            listOf(answered, other),
+            listOf(candidate(time = marker.capturedAtMs + 60_000L)),
+        )
+
+        assertEquals(1, assignment.automatic.size)
+        assertEquals("other", assignment.automatic.single().markerId)
+    }
+
+    @Test
     fun proposalsPerCaptureAreCapped() {
         val crowd = (1..12).map { index ->
             candidate(uuid = "candidate-$index", time = marker.capturedAtMs + index * 60_000L)

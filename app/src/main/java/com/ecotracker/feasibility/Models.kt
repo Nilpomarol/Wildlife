@@ -46,6 +46,15 @@ data class PendingMarker(
      * user never asked for and cannot find would be worst.
      */
     val autoMatched: Boolean = false,
+    /**
+     * Public records this capture is *not* — every one the user has rejected for it.
+     *
+     * Without this, saying "not mine" is undone by the next sync: the record goes back into
+     * the pool, still scores exactly as well as it did, and is filed again. A rejection is
+     * evidence about this pairing, so it is kept against the capture rather than globally;
+     * the same record may still be the right answer for a different photograph.
+     */
+    val rejectedObservationUuids: Set<String> = emptySet(),
 )
 
 enum class MarkerState {

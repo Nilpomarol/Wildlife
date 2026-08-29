@@ -96,6 +96,7 @@ private fun Ledger(state: ObservationsUiState) {
         onSubmitted = {},
         onNotSubmitted = {},
         onConfirm = {},
+        onRejectMatch = {},
         onKeepAutomatic = {},
         onUndoAutomatic = {},
         onOpenObservation = {},

@@ -192,6 +192,8 @@ object CandidateMatcher {
     }
 
     private fun score(marker: PendingMarker, candidate: ObservationCandidate): ScoredPair? {
+        // Already answered for this capture. Re-proposing it would undo the answer.
+        if (candidate.uuid in marker.rejectedObservationUuids) return null
         if (
             marker.sharedAtMs != null && candidate.createdAtMs != null &&
             candidate.createdAtMs < marker.sharedAtMs - CREATION_CLOCK_SKEW_MS
