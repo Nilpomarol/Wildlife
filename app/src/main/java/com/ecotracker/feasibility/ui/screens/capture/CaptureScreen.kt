@@ -61,7 +61,7 @@ import androidx.compose.ui.unit.dp
 import androidx.compose.ui.window.Dialog
 import coil.compose.AsyncImage
 import com.wildlife.feasibility.MarkerState
-import com.wildlife.feasibility.MatchConfidence
+import com.wildlife.feasibility.MatchBand
 import com.wildlife.feasibility.MatchProposal
 import com.wildlife.feasibility.ui.components.WildlifeScaffold
 import com.wildlife.feasibility.ui.theme.WildlifeSpacing
@@ -533,7 +533,7 @@ private fun MatchCandidateCard(
             val distance = proposal.distanceKm?.let { "${(it * 10).roundToInt() / 10.0} km" }
                 ?: "location obscured or unavailable"
             Text(
-                "${confidenceLabel(proposal.confidence)} · ${proposal.timeDeltaMinutes} min · $distance",
+                "${confidenceLabel(proposal.band)} · ${proposal.timeDeltaMinutes} min · $distance",
                 style = MaterialTheme.typography.bodySmall,
                 color = MaterialTheme.colorScheme.onSurfaceVariant,
             )
@@ -678,9 +678,12 @@ private fun stateExplanation(state: MarkerState): String = when (state) {
     MarkerState.CONFIRMED -> "Matched to a public iNaturalist observation."
 }
 
-private fun confidenceLabel(confidence: MatchConfidence): String = when (confidence) {
-    MatchConfidence.HIGH -> "Strong time/location match"
-    MatchConfidence.NEEDS_CONFIRMATION -> "Needs careful confirmation"
+private fun confidenceLabel(band: MatchBand): String = when (band) {
+    // Capture never files automatically, so the strongest band still reads as a proposal
+    // here. Observations is where the same band becomes an action.
+    MatchBand.AUTOMATIC -> "Strong time/location match"
+    MatchBand.LIKELY -> "Likely time/location match"
+    MatchBand.POSSIBLE -> "Needs careful confirmation"
 }
 
 @Preview(showBackground = true, backgroundColor = 0xFF080B09, widthDp = 390, heightDp = 820)

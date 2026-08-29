@@ -46,6 +46,18 @@ enum class MarkerState {
     CONFIRMED,
 }
 
+/**
+ * A public iNaturalist record a Wildlife capture might be the same sighting as.
+ *
+ * It carries identity ([label], [photoUrl]) as well as the time and place the match is
+ * argued from, because a person deciding whether a proposal is theirs looks at the
+ * photograph first and reads the evidence second.
+ *
+ * [positionalAccuracyM] is iNaturalist's own uncertainty radius for the coordinate. It
+ * widens the separation the matcher accepts as "the same place" rather than being
+ * displayed: a record accurate to 800m is not a poorer match at 500m away, it is an exact
+ * one. Null means the record stated no accuracy, not that it is precise.
+ */
 data class ObservationCandidate(
     val uuid: String,
     val observedAtMs: Long,
@@ -53,6 +65,10 @@ data class ObservationCandidate(
     val longitude: Double?,
     val obscured: Boolean,
     val createdAtMs: Long? = null,
+    val label: String? = null,
+    val taxonId: Long? = null,
+    val photoUrl: String? = null,
+    val positionalAccuracyM: Int? = null,
 )
 
 data class SyncedObservation(
@@ -71,6 +87,7 @@ data class SyncedObservation(
     val qualityGrade: String,
     val photoUrl: String?,
     val confirmed: Boolean,
+    val positionalAccuracyM: Int? = null,
 ) {
     fun asCandidate() = ObservationCandidate(
         uuid = uuid,
@@ -79,6 +96,10 @@ data class SyncedObservation(
         longitude = longitude,
         obscured = obscured,
         createdAtMs = createdAtMs,
+        label = label,
+        taxonId = collectionTaxonId ?: taxonId,
+        photoUrl = photoUrl,
+        positionalAccuracyM = positionalAccuracyM,
     )
 }
 
@@ -273,15 +294,94 @@ object CollectionProjection {
         .toSet()
 }
 
-enum class MatchConfidence {
-    HIGH,
-    NEEDS_CONFIRMATION,
+/**
+ * How a proposal is to be acted on, derived from [MatchProposal.confidence] rather than
+ * asserted independently. Bands exist so the UI and the file-automatically decision read
+ * the same threshold; they are not a second opinion about the same evidence.
+ */
+enum class MatchBand {
+    /**
+     * Strong enough to link without asking. Reserved for a capture whose own time and
+     * place are trustworthy, matched to an unobscured record with no near rival.
+     */
+    AUTOMATIC,
+
+    /** The best available explanation, but a person still says yes. */
+    LIKELY,
+
+    /** Plausible on the evidence and not much more than that. */
+    POSSIBLE,
 }
 
+/**
+ * One statement about why a candidate scored as it did, typed rather than pre-formatted so
+ * the screen owns the wording and the matcher owns the finding.
+ */
+enum class MatchReason {
+    /** Recorded within minutes of the capture. */
+    TIME_ALIGNED,
+
+    /** The same outing, but not the same moment. */
+    TIME_APPROXIMATE,
+
+    /** The capture's own timestamp is an import fallback, so the window was widened. */
+    CAPTURE_TIME_UNRELIABLE,
+
+    /** Within the combined uncertainty of both coordinates. */
+    LOCATION_ALIGNED,
+
+    /** Separated, but not so far that it rules the record out. */
+    LOCATION_APPROXIMATE,
+
+    /** iNaturalist randomised the public coordinate, so distance proves nothing. */
+    LOCATION_OBSCURED,
+
+    /** One side has no usable coordinate, so the match rests on time alone. */
+    LOCATION_UNKNOWN,
+
+    /** Another public record explains this capture nearly as well. */
+    COMPETING_CANDIDATES,
+
+    /** Another Wildlife capture explains this public record nearly as well. */
+    COMPETING_CAPTURES,
+}
+
+/**
+ * A proposed link between one Wildlife capture and one public iNaturalist record.
+ *
+ * [confidence] is the whole judgement in one 0..1 number: the agreement of time and place,
+ * reduced by how well the same evidence explains a *different* pairing. [band] is that
+ * number bucketed for action, and [reasons] is the evidence in typed form.
+ */
 data class MatchProposal(
     val markerId: String,
     val candidate: ObservationCandidate,
-    val confidence: MatchConfidence,
+    val confidence: Double,
+    val band: MatchBand,
     val timeDeltaMinutes: Long,
     val distanceKm: Double?,
+    val reasons: List<MatchReason> = emptyList(),
 )
+
+/**
+ * The outcome of matching every outstanding capture against every available record at once.
+ *
+ * Resolving them together is the point: scoring one capture in isolation cannot see that
+ * its best candidate is also the best candidate for the capture below it.
+ */
+data class MatchAssignment(
+    /** Ranked proposals per marker id, best first, with automatically taken records removed. */
+    val proposals: Map<String, List<MatchProposal>>,
+    /** Cleared the automatic bar. At most one per capture and one per public record. */
+    val automatic: List<MatchProposal>,
+) {
+    /**
+     * Every proposal by marker, automatic ones leading, for callers that present matches
+     * rather than act on them. A surface that does not file automatically still has to
+     * show the record that would have been filed.
+     */
+    fun all(): Map<String, List<MatchProposal>> =
+        (automatic.groupBy(MatchProposal::markerId).keys + proposals.keys).associateWith { id ->
+            automatic.filter { it.markerId == id } + proposals[id].orEmpty()
+        }
+}

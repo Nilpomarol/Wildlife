@@ -1,7 +1,7 @@
 package com.wildlife.feasibility.ui.screens.capture
 
 import com.wildlife.feasibility.MarkerState
-import com.wildlife.feasibility.MatchConfidence
+import com.wildlife.feasibility.MatchBand
 import com.wildlife.feasibility.MatchProposal
 import com.wildlife.feasibility.ObservationCandidate
 import com.wildlife.feasibility.PendingMarker
@@ -40,7 +40,8 @@ class CaptureProjectionTest {
         val proposal = MatchProposal(
             markerId = marker.id,
             candidate = ObservationCandidate("uuid", 100, null, null, true, 150),
-            confidence = MatchConfidence.NEEDS_CONFIRMATION,
+            confidence = 0.61,
+            band = MatchBand.POSSIBLE,
             timeDeltaMinutes = 0,
             distanceKm = null,
         )

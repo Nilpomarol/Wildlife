@@ -19,17 +19,17 @@ object ObservationLifecyclePolicy {
             .filter { it.state == MarkerState.CONFIRMED }
             .mapNotNull(PendingMarker::matchedObservationUuid)
             .toSet()
-        val availableCandidates = candidates.filterNot { it.uuid in alreadyMatched }
         val representatives = markers.asSequence()
             .filter { it.state == MarkerState.PENDING }
             .groupBy { it.handoffId ?: it.id }
             .values
             .map { group -> group.minBy(PendingMarker::capturedAtMs) }
+        // Resolved as one set rather than one capture at a time, so two captures competing
+        // for the same record are not both counted as ready.
+        val proposals = CandidateMatcher.assign(representatives, candidates, alreadyMatched).all()
         return PendingHandoffStatus(
             awaitingPublicRecord = representatives.size,
-            readyToReview = representatives.count { marker ->
-                CandidateMatcher.proposals(marker, availableCandidates).isNotEmpty()
-            },
+            readyToReview = representatives.count { !proposals[it.id].isNullOrEmpty() },
         )
     }
 

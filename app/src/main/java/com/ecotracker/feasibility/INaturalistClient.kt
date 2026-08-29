@@ -323,6 +323,9 @@ class INaturalistClient(
                         qualityGrade = raw.optString("quality_grade").ifBlank { "unknown" },
                         photoUrl = photoUrl,
                         confirmed = false,
+                        // Absent, null and a nonsensical negative all mean "not stated".
+                        positionalAccuracyM = raw.optInt("public_positional_accuracy", -1)
+                            .takeIf { it >= 0 },
                     ),
                 )
             }
@@ -391,13 +394,20 @@ class INaturalistClient(
          * load-bearing — they drive the subspecies-to-species collection-taxon rule — and
          * `photos.url` arrives as the `square` variant that the parser rewrites.
          *
+         * `public_positional_accuracy` is the *published* uncertainty radius, which is the
+         * only one an unauthenticated read can see: on an obscured record the private
+         * `positional_accuracy` is withheld, and asking for it would return null while
+         * looking like a measurement of zero uncertainty. The matcher widens its distance
+         * tolerance by this radius rather than displaying it.
+         *
          * This is also the data-minimisation posture the PRD asks for: Wildlife no longer
          * downloads other people's comments and identification threads to discard them.
          */
         private const val OBSERVATION_FIELDS = "id,uuid,observed_on,observed_on_string," +
             "time_observed_at,created_at,quality_grade,species_guess,geoprivacy,obscured," +
             "taxon.id,taxon.name,taxon.rank,taxon.rank_level,taxon.parent_id," +
-            "taxon.preferred_common_name,photos.url,geojson.coordinates"
+            "taxon.preferred_common_name,photos.url,geojson.coordinates," +
+            "public_positional_accuracy"
 
         /** iNaturalist's per-page maximum. Safe now that a page is field-selected. */
         internal const val OBSERVATION_PAGE_SIZE = 200

@@ -135,7 +135,7 @@ internal object ObservationsProjection {
                                 obscured = proposal.candidate.obscured,
                                 distanceKm = proposal.distanceKm,
                                 timeDeltaMinutes = proposal.timeDeltaMinutes,
-                                highConfidence = proposal.confidence == com.wildlife.feasibility.MatchConfidence.HIGH,
+                                highConfidence = proposal.band == com.wildlife.feasibility.MatchBand.AUTOMATIC,
                             )
                         },
                         matchedObservationUuid = lead.matchedObservationUuid,

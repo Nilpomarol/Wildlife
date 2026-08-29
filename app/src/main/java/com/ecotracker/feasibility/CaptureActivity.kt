@@ -387,10 +387,9 @@ class CaptureActivity : ComponentActivity() {
                         .mapNotNull(PendingMarker::matchedObservationUuid)
                         .toSet()
                     val candidates = observationStore.candidates(account.userId)
-                        .filterNot { it.uuid in alreadyMatched }
-                    sync to openMarkers.associate { marker ->
-                        marker.id to CandidateMatcher.proposals(marker, candidates)
-                    }
+                    // Capture presents matches but never files them: the automatic band is
+                    // acted on where a person can see and undo it, which is Observations.
+                    sync to CandidateMatcher.assign(openMarkers, candidates, alreadyMatched).all()
                 }
             }.onSuccess { (sync, proposals) ->
                 runOnUiThread {

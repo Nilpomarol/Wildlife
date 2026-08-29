@@ -40,15 +40,14 @@ internal object BetaMetricsProjection {
             .filter { it.state == MarkerState.CONFIRMED }
             .mapNotNull(PendingMarker::matchedObservationUuid)
             .toSet()
-        val proposals = pending.associateWith { marker ->
-            CandidateMatcher.proposals(marker, candidates.filterNot { it.uuid in matchedElsewhere })
-        }
+        val assignment = CandidateMatcher.assign(pending, candidates, matchedElsewhere)
+        val proposals = assignment.all()
         return BetaMetrics(
             submittedHandoffs = handoffs.size,
             confirmedHandoffs = confirmed,
             pendingHandoffs = pending.size,
-            unmatchedPendingHandoffs = proposals.count { (_, matches) -> matches.isEmpty() },
-            ambiguousPendingHandoffs = proposals.count { (_, matches) -> matches.size > 1 },
+            unmatchedPendingHandoffs = pending.count { proposals[it.id].isNullOrEmpty() },
+            ambiguousPendingHandoffs = pending.count { (proposals[it.id]?.size ?: 0) > 1 },
         )
     }
 }

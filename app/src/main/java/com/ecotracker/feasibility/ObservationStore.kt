@@ -29,6 +29,7 @@ class ObservationStore(context: Context) : SQLiteOpenHelper(context, DATABASE, n
                 quality_grade TEXT NOT NULL,
                 photo_url TEXT,
                 confirmed INTEGER NOT NULL,
+                positional_accuracy_m INTEGER,
                 PRIMARY KEY(user_id, uuid)
             )
             """.trimIndent(),
@@ -116,6 +117,12 @@ class ObservationStore(context: Context) : SQLiteOpenHelper(context, DATABASE, n
                 WHERE event_key LIKE 'regional_legend:%'
                 """.trimIndent(),
             )
+        }
+        if (oldVersion < 9) {
+            // Nullable and never backfilled: the column means "iNaturalist stated this
+            // accuracy", and a row synced before v9 stated nothing. The next full snapshot
+            // replace fills it for records that carry one.
+            database.execSQL("ALTER TABLE observations ADD COLUMN positional_accuracy_m INTEGER")
         }
     }
 
@@ -230,10 +237,20 @@ class ObservationStore(context: Context) : SQLiteOpenHelper(context, DATABASE, n
         } finally { writableDatabase.endTransaction() }
     }
 
+    /**
+     * Every stored record, as something the matcher can both score and show.
+     *
+     * Identity travels with the candidate because a proposal is presented for comparison,
+     * not just for arithmetic: the photograph and the name are how a person recognises
+     * their own sighting, and both are already in this table from the last sync.
+     */
     fun candidates(userId: Long): List<ObservationCandidate> {
         val cursor = readableDatabase.query(
             "observations",
-            arrayOf("uuid", "observed_at_ms", "latitude", "longitude", "obscured", "created_at_ms"),
+            arrayOf(
+                "uuid", "observed_at_ms", "latitude", "longitude", "obscured", "created_at_ms",
+                "label", "collection_taxon_id", "taxon_id", "photo_url", "positional_accuracy_m",
+            ),
             "user_id = ?",
             arrayOf(userId.toString()),
             null,
@@ -251,6 +268,14 @@ class ObservationStore(context: Context) : SQLiteOpenHelper(context, DATABASE, n
                             longitude = if (it.isNull(3)) null else it.getDouble(3),
                             obscured = it.getInt(4) == 1,
                             createdAtMs = if (it.isNull(5)) null else it.getLong(5),
+                            label = if (it.isNull(6)) null else it.getString(6),
+                            taxonId = when {
+                                !it.isNull(7) -> it.getLong(7)
+                                !it.isNull(8) -> it.getLong(8)
+                                else -> null
+                            },
+                            photoUrl = if (it.isNull(9)) null else it.getString(9),
+                            positionalAccuracyM = if (it.isNull(10)) null else it.getInt(10),
                         ),
                     )
                 }
@@ -265,6 +290,7 @@ class ObservationStore(context: Context) : SQLiteOpenHelper(context, DATABASE, n
                 "inat_id", "uuid", "taxon_id", "taxon_rank", "collection_taxon_id",
                 "collection_taxon_rank", "label", "observed_at_ms", "latitude", "longitude",
                 "obscured", "created_at_ms", "quality_grade", "photo_url", "confirmed",
+                "positional_accuracy_m",
             ),
             "user_id = ?",
             arrayOf(userId.toString()),
@@ -292,6 +318,7 @@ class ObservationStore(context: Context) : SQLiteOpenHelper(context, DATABASE, n
                             qualityGrade = it.getString(12),
                             photoUrl = if (it.isNull(13)) null else it.getString(13),
                             confirmed = it.getInt(14) == 1,
+                            positionalAccuracyM = if (it.isNull(15)) null else it.getInt(15),
                         ),
                     )
                 }
@@ -779,6 +806,7 @@ class ObservationStore(context: Context) : SQLiteOpenHelper(context, DATABASE, n
         put("quality_grade", qualityGrade)
         photoUrl?.let { put("photo_url", it) }
         put("confirmed", if (confirmed) 1 else 0)
+        positionalAccuracyM?.let { put("positional_accuracy_m", it) }
     }
 
     private fun ObservationRegion.values(userId: Long) = ContentValues().apply {
@@ -791,7 +819,7 @@ class ObservationStore(context: Context) : SQLiteOpenHelper(context, DATABASE, n
 
     companion object {
         private const val DATABASE = "wildlife_observations.db"
-        private const val VERSION = 8
+        private const val VERSION = 9
         private const val CREATE_XP_EVENTS = """
             CREATE TABLE IF NOT EXISTS xp_events (
                 user_id INTEGER NOT NULL,
