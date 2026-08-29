@@ -4,7 +4,6 @@ import org.json.JSONObject
 import java.net.URL
 import java.text.SimpleDateFormat
 import java.util.Locale
-import java.util.TimeZone
 
 class INaturalistClient(
     private val http: ReadOnlyHttpClient = ReadOnlyHttpClient(),
@@ -20,48 +19,104 @@ class INaturalistClient(
             ?: error("No exact iNaturalist username match was found.")
     }
 
-    fun recentObservations(userId: Long, earliestCaptureMs: Long): List<ObservationCandidate> {
-        val formatter = SimpleDateFormat("yyyy-MM-dd", Locale.US).apply {
-            timeZone = TimeZone.getTimeZone("UTC")
-        }
-        val startDate = formatter.format(earliestCaptureMs - 24L * 60L * 60L * 1_000L)
-        val endpoint = URL(
-            "https://api.inaturalist.org/v1/observations" +
-                "?user_id=$userId&d1=$startDate&order_by=created_at&order=desc&per_page=200",
-        )
-        return parse(getJson(endpoint))
-    }
-
-    fun publicObservations(
+    fun syncedObservations(
         userId: Long,
-        idAbove: Long? = null,
-        perPage: Int = 100,
-    ): PublicObservationPage {
-        val cursor = idAbove?.let { "&id_above=$it" }.orEmpty()
-        val endpoint = URL(
-            "https://api.inaturalist.org/v1/observations" +
-                "?user_id=$userId&order_by=id&order=asc&per_page=$perPage$cursor",
-        )
-        return parsePublicObservationPage(getJson(endpoint))
-    }
-
-    fun syncedObservations(userId: Long): List<SyncedObservation> {
+        pageSize: Int = OBSERVATION_PAGE_SIZE,
+    ): List<SyncedObservation> {
         val observations = mutableListOf<SyncedObservation>()
         var cursor: Long? = null
+        var size = pageSize
         do {
-            val cursorQuery = cursor?.let { "&id_above=$it" }.orEmpty()
-            val root = getJson(
-                URL(
-                    "https://api.inaturalist.org/v1/observations" +
-                        "?user_id=$userId&order_by=id&order=asc&per_page=200$cursorQuery",
-                ),
-            )
-            val page = parseSyncedObservations(root)
-            observations += page
-            val next = page.maxOfOrNull(SyncedObservation::id)
-            cursor = next?.takeIf { page.size == 200 && it != cursor }
+            val page = observationPage(userId, cursor, size)
+            // Keep whatever size actually fit: whatever made one page heavy — a long
+            // identification thread, a record with many photos — tends to affect its
+            // neighbours, and the end-of-walk test below has to use the size that was
+            // really requested.
+            size = page.pageSize
+            observations += parseSyncedObservations(page.root)
+            cursor = nextPageCursor(page.root, cursor, size)
         } while (cursor != null)
         return observations
+    }
+
+    /**
+     * One page, narrowed until it fits.
+     *
+     * Page weight is not under Wildlife's control. The field selection makes a full page
+     * small — around 123 KiB against an 8 MiB ceiling — but that is a measurement, not a
+     * guarantee: field selection bounds the number of fields, not the length of the values
+     * in them. Rather than fail an entire sync on one unusually heavy page, halve the
+     * request and ask again, down to [MINIMUM_OBSERVATION_PAGE_SIZE]; below that the
+     * response is genuinely unreadable and the error stands.
+     *
+     * Narrowing mid-walk is safe precisely because the cursor is `id_above` and not an
+     * offset — a smaller page resumes from the same id and simply returns fewer records.
+     * It would *not* be safe on a single unpaginated request, where a smaller page would
+     * silently drop records instead of deferring them to the next one.
+     */
+    private fun observationPage(userId: Long, cursor: Long?, pageSize: Int): ObservationPage {
+        var size = pageSize
+        while (true) {
+            try {
+                val root = getJson(
+                    observationsUrl(observationPageParameters(userId, cursor, size)),
+                )
+                return ObservationPage(root, size)
+            } catch (oversized: RemoteDataException.ResponseTooLarge) {
+                if (size <= MINIMUM_OBSERVATION_PAGE_SIZE) throw oversized
+                size = (size / 2).coerceAtLeast(MINIMUM_OBSERVATION_PAGE_SIZE)
+            }
+        }
+    }
+
+    /** A fetched page together with the page size that actually fit. */
+    private class ObservationPage(val root: JSONObject, val pageSize: Int)
+
+    /** One ascending id-cursor page of the account's observations. */
+    private fun observationPageParameters(
+        userId: Long,
+        idAbove: Long?,
+        perPage: Int,
+    ): Map<String, String> = buildMap {
+        put("user_id", userId.toString())
+        put("order_by", "id")
+        put("order", "asc")
+        put("per_page", perPage.toString())
+        idAbove?.let { put("id_above", it.toString()) }
+    }
+
+    /**
+     * The observation endpoint, always with the explicit field selection attached.
+     *
+     * Routing every observation read through here is what keeps the v1 full-graph
+     * response from coming back: v2 returns only the fields named in [OBSERVATION_FIELDS].
+     */
+    private fun observationsUrl(parameters: Map<String, String>): URL = urlWithParameters(
+        OBSERVATIONS_ENDPOINT,
+        parameters + ("fields" to OBSERVATION_FIELDS),
+    )
+
+    /**
+     * The next `id_above` cursor, derived from the raw page rather than the parsed list.
+     *
+     * Both the page length and the highest id have to come from the response itself.
+     * [parseSyncedObservations] drops any record it cannot key — iNaturalist permits an
+     * observation with no date — so a full page can parse to fewer rows. Ending
+     * pagination on the parsed count truncated the user's history, and because
+     * `ObservationStore.replaceSnapshot` deletes and rewrites the whole account, every
+     * observation past the short page was then removed from the collection.
+     *
+     * Returns null on the last page, so a partial page ends the walk.
+     */
+    internal fun nextPageCursor(root: JSONObject, current: Long?, pageSize: Int): Long? {
+        val results = root.optJSONArray("results") ?: return null
+        if (results.length() < pageSize) return null
+        var highest = current ?: 0L
+        for (index in 0 until results.length()) {
+            val id = results.optJSONObject(index)?.optLong("id", -1L) ?: -1L
+            if (id > highest) highest = id
+        }
+        return highest.takeIf { it > 0L && it != current }
     }
 
     fun nearbySpecies(
@@ -220,36 +275,6 @@ class INaturalistClient(
         return null
     }
 
-    internal fun parsePublicObservationPage(root: JSONObject): PublicObservationPage {
-        val results = root.optJSONArray("results")
-        val observations = buildList {
-            if (results != null) {
-                for (index in 0 until results.length()) {
-                    val observation = results.optJSONObject(index) ?: continue
-                    val id = observation.optLong("id", -1L)
-                    val uuid = observation.optString("uuid")
-                    if (id <= 0L || uuid.isBlank()) continue
-                    val taxon = observation.optJSONObject("taxon")
-                    val label = observation.optString("species_guess").takeIf(String::isNotBlank)
-                        ?: taxon?.optString("preferred_common_name")?.takeIf(String::isNotBlank)
-                        ?: taxon?.optString("name")?.takeIf(String::isNotBlank)
-                        ?: "Unidentified"
-                    add(
-                        PublicObservation(
-                            id = id,
-                            uuid = uuid,
-                            label = label,
-                            observedOn = observation.optString("observed_on_string")
-                                .ifBlank { observation.optString("observed_on") },
-                            qualityGrade = observation.optString("quality_grade").ifBlank { "unknown" },
-                        ),
-                    )
-                }
-            }
-        }
-        return PublicObservationPage(root.optInt("total_results", observations.size), observations)
-    }
-
     internal fun parseSyncedObservations(root: JSONObject): List<SyncedObservation> {
         val results = root.optJSONArray("results") ?: return emptyList()
         return buildList {
@@ -324,31 +349,6 @@ class INaturalistClient(
         return http.getJson(endpoint, REQUEST_POLICY)
     }
 
-    internal fun parse(root: JSONObject): List<ObservationCandidate> {
-        val results = root.optJSONArray("results") ?: return emptyList()
-        return buildList {
-            for (index in 0 until results.length()) {
-                val observation = results.optJSONObject(index) ?: continue
-                val uuid = observation.optString("uuid").takeIf(String::isNotBlank) ?: continue
-                val observedAt = parseTimestamp(observation.optString("time_observed_at")) ?: continue
-                val createdAt = parseTimestamp(observation.optString("created_at"))
-                val coordinates = observation.optJSONObject("geojson")
-                    ?.optJSONArray("coordinates")
-                add(
-                    ObservationCandidate(
-                        uuid = uuid,
-                        observedAtMs = observedAt,
-                        latitude = coordinates?.optDouble(1)?.takeUnless(Double::isNaN),
-                        longitude = coordinates?.optDouble(0)?.takeUnless(Double::isNaN),
-                        obscured = observation.optBoolean("obscured") ||
-                            observation.optString("geoprivacy") == "obscured",
-                        createdAtMs = createdAt,
-                    ),
-                )
-            }
-        }
-    }
-
     private fun parseTimestamp(raw: String): Long? {
         if (raw.isBlank()) return null
         val formats = listOf(
@@ -367,6 +367,50 @@ class INaturalistClient(
     }
 
     companion object {
+        /**
+         * The observation endpoint. v2 rather than v1 because only v2 honours a field
+         * selection, and the v1 response is not survivable on a phone: it returns the
+         * whole object graph per record — every identification with its own nested taxon,
+         * every comment, `ofvs`, `annotations`, `project_observations`, `taxon.ancestors`.
+         * One 200-record page measured 27.2 MiB against this client's 8 MiB ceiling, so
+         * the sync failed outright for any account past its first page. The same page
+         * under [OBSERVATION_FIELDS] measures ~115 KiB.
+         *
+         * The ceiling is not the thing to raise: 8 MiB of JSON is ~8 MB buffered, a ~16 MB
+         * String and a parse tree several times that, which is an OOM on the low-end
+         * devices in the release matrix rather than a catchable error.
+         */
+        private const val OBSERVATIONS_ENDPOINT = "https://api.inaturalist.org/v2/observations"
+
+        /**
+         * Exactly the fields the three observation parsers read, and nothing else.
+         *
+         * Keep this in step with `parseSyncedObservations`: a field dropped here reads
+         * back as absent rather than as an error, so an omission is silent.
+         * `taxon.parent_id` and `taxon.rank_level` are
+         * load-bearing — they drive the subspecies-to-species collection-taxon rule — and
+         * `photos.url` arrives as the `square` variant that the parser rewrites.
+         *
+         * This is also the data-minimisation posture the PRD asks for: Wildlife no longer
+         * downloads other people's comments and identification threads to discard them.
+         */
+        private const val OBSERVATION_FIELDS = "id,uuid,observed_on,observed_on_string," +
+            "time_observed_at,created_at,quality_grade,species_guess,geoprivacy,obscured," +
+            "taxon.id,taxon.name,taxon.rank,taxon.rank_level,taxon.parent_id," +
+            "taxon.preferred_common_name,photos.url,geojson.coordinates"
+
+        /** iNaturalist's per-page maximum. Safe now that a page is field-selected. */
+        internal const val OBSERVATION_PAGE_SIZE = 200
+
+        /**
+         * The floor the adaptive retry will narrow a page to before giving up.
+         *
+         * Low enough that reaching it means something is genuinely wrong rather than
+         * merely heavy, and high enough that a long history does not turn into hundreds
+         * of paced requests.
+         */
+        internal const val MINIMUM_OBSERVATION_PAGE_SIZE = 25
+
         private val REQUEST_POLICY = ReadOnlyRequestPolicy(
             serviceName = "iNaturalist",
             userAgent = WildlifeNetworkIdentity.BIOLOGICAL_DATA_USER_AGENT,

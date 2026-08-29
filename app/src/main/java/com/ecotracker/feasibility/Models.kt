@@ -24,19 +24,6 @@ data class VerifiedAccount(
     val verifiedAtMs: Long,
 )
 
-data class PublicObservation(
-    val id: Long,
-    val uuid: String,
-    val label: String,
-    val observedOn: String,
-    val qualityGrade: String,
-)
-
-data class PublicObservationPage(
-    val totalResults: Int,
-    val observations: List<PublicObservation>,
-)
-
 data class PendingMarker(
     val id: String,
     val imageUri: String,
