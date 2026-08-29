@@ -1,0 +1,15 @@
+# The catalogue builder writes `catalogues/content_manifest.yaml` through `atomic_json`,
+# which is a binary write, so the bytes it hashes into
+# `catalogues/generated/catalogue-inputs.json` are LF-terminated. With `core.autocrlf`
+# enabled, Git would otherwise materialise the file as CRLF on checkout: the content stays
+# identical but its sha256 changes, and `:app:verifyCatalogueContent` then reports a stale
+# catalogue and blocks every build. Pinning the checkout to LF keeps the file byte-identical
+# to what the builder wrote and hashed.
+#
+# Deliberately scoped to this one file. The other hashed inputs are hand-edited sources
+# whose recorded hashes are their CRLF working-tree form; pinning those to LF would break
+# the same gate in the opposite direction.
+catalogues/content_manifest.yaml text eol=lf
+
+# The generated catalogue is binary and must never be line-ending converted.
+*.sqlite binary
