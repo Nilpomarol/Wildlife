@@ -71,6 +71,30 @@ class ObservationDensityStoreTest {
         assertFalse(persisted.contains("41.3874"))
     }
 
+    @Test fun `the density request names only the two fields it reads`() {
+        var requestedUrl: URL? = null
+        val store = ObservationDensityStore(
+            context,
+            ReadOnlyHttpClient({ url ->
+                requestedUrl = url
+                JsonConnection(url, page(1, listOf(observation(1, 10.1, 20.1))))
+            }),
+            { 1_000L },
+        )
+
+        store.load(42)
+
+        val url = requestedUrl.toString()
+        // v2, because v1 has no field selection and returned the whole observation graph:
+        // 2.0-3.7 MiB per page against this store's 4 MiB ceiling, for two values.
+        assertTrue(url, url.startsWith("https://api.inaturalist.org/v2/observations"))
+        val fields = java.net.URLDecoder.decode(
+            URL(url).query.split("&").first { it.startsWith("fields=") }.removePrefix("fields="),
+            "UTF-8",
+        )
+        assertEquals("id,geojson.coordinates", fields)
+    }
+
     @Test fun `network failure preserves a stale snapshot`() {
         var now = 1_000L
         val successful = ObservationDensityStore(

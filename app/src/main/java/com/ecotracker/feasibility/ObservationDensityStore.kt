@@ -86,6 +86,7 @@ class ObservationDensityStore internal constructor(
                         "page" to page.toString(),
                         "order_by" to "observed_on",
                         "order" to "desc",
+                        "fields" to DENSITY_FIELDS,
                     ),
                 ),
                 REQUEST_POLICY,
@@ -175,7 +176,21 @@ class ObservationDensityStore internal constructor(
 
     private companion object {
         val LOCK = Any()
-        const val API = "https://api.inaturalist.org/v1"
+        /**
+         * v2, because only v2 honours a field selection and this store reads exactly two
+         * values per record. Under v1 the same page carried the whole observation graph —
+         * identifications, comments, `ofvs`, ancestors — which measured 2.0–3.7 MiB against
+         * the 4 MiB ceiling below, so a heavily discussed taxon could fail Species Detail
+         * outright. The field-selected page is ~6.7 KiB.
+         */
+        const val API = "https://api.inaturalist.org/v2"
+
+        /**
+         * Everything this store reads, and nothing else: a coarse 1-degree cell needs only
+         * the coordinate, and the id only to de-duplicate across pages. Both are discarded
+         * before anything reaches disk, which is the privacy contract this store documents.
+         */
+        const val DENSITY_FIELDS = "id,geojson.coordinates"
         const val DIRECTORY = "observation_density_v1"
         const val SCHEMA_VERSION = 1
         const val PAGE_SIZE = 50
