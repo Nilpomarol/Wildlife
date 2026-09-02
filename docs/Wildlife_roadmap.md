@@ -66,6 +66,7 @@ pilot curation and representative-device release checks continue independently.
 
 ### Open product/engineering work
 
+- **Next task:** implement the Extra discovery vertical slice so confirmed off-catalogue species enter Collection, earn normal global first-species XP, retain observation-region/catalogue-version context and appear as a separate regional count/list without changing catalogue completion.
 - The remaining 21 regional catalogues, their reviewed evidence snapshots and final media curation are not yet available.
 - The supplied region groupings do not yet assign every country/territory or marine area unambiguously.
 - Rarity and Essentials/Icons are draft pilot curation; their values need continuing editorial review before release.
