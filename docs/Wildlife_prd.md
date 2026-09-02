@@ -189,7 +189,7 @@ Bird songs require **Xeno-canto** (open API, CC-licensed). Birds only.
 | Event | XP |
 |---|---|
 | Confirmed observation repeats in one ISO week | 10, 5, 5, then 0 |
-| First species globally | +500 |
+| First species globally, including an Extra discovery | +500 |
 | First valid unlock in the containing regional catalogue | +100 |
 | Regional encounter rarity on first unlock | Common +0; Uncommon +50; Rare +150; Very Rare +300 |
 | Regional Icon on first regional unlock | +1,000 |
