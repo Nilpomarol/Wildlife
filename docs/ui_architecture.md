@@ -145,6 +145,7 @@ Prefer parameters and slots over visually similar duplicate components.
 Collection owns the user's personal wildlife history through three explicit sections:
 
 - **Species** projects unique recorded collection taxa across every stored region. It never pads the personal collection with missing regional-guide entries. Region-specific rarity and standing do not decorate this all-regions projection.
+- Confirmed species-level taxa absent from their assigned region's frozen catalogue remain first-class Collection entries. Their projection carries a typed **Extra discovery** state derived from observation region plus catalogue version; this is not rarity, standing or verification. Genus-or-higher records remain awaiting identification until a species-level collection taxon exists.
 - **Observations** owns the individual handoff/public-observation ledger, sync retry, candidate confirmation, public-record links and local-only deletion.
 - **Map** owns the privacy-safe personal observation cells and the independently toggleable regional-progress layer.
 - The screen uses one shared section selector and keeps Collection selected in the bottom index strip across all three sections.
