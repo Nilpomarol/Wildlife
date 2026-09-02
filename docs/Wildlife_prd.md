@@ -343,4 +343,4 @@ If handoff matching remains unreliable after single-observation handoff and manu
 
 ## 16. Current action item
 
-Continue catalogue and media curation region by region, complete the representative-device release matrix, and resume UI consolidation on top of the completed scalable content pipeline in [`species_content_pipeline_plan.md`](species_content_pipeline_plan.md).
+Implement the **Extra discovery** vertical slice first: project confirmed off-catalogue species into Collection, attribute them to their observation region and catalogue version, grant the existing idempotent global first-species XP, and expose a separate regional extra count/list without changing catalogue completion. Then continue catalogue/media curation, representative-device release checks and shared UI consolidation.
