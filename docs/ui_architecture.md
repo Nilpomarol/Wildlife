@@ -164,6 +164,7 @@ A future region control in Collection is a personal-history scope filter (defaul
 - Works unlinked and offline after the first snapshot is stored.
 - Provides two explicit sections: the stored Species guide first and one-shot Near me discovery second. The guide opens by default because it works offline and without a permission prompt.
 - The Species guide owns the regional identity/completion header, observed and missing plates, encounter rarity, Essentials and Icons. Its region selector changes only the guide being browsed.
+- The guide also exposes the selected region's **Extra discoveries** as a separate count and browsable group. These are confirmed personal discoveries absent from that frozen catalogue version. They never enter the guide denominator or inherit catalogue rarity/standing; the UI must state this separation without presenting them as lower-value sightings.
 - Home carries a preview of Near me: the same one-shot request and a short ranked extract, with a
   "See all" entry that opens Explore's Near me section. Near me is always scoped and decorated from
   the location-derived current catalogue, even while Explore is browsing another guide. The preview
