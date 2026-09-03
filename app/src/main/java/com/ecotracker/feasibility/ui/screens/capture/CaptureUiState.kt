@@ -38,17 +38,16 @@ data class CaptureUiState(
     val reward: CaptureRewardUi? = null,
     val handoffUnavailable: Boolean = false,
 ) {
+    val draft: CaptureObservationUi?
+        get() = observations.firstOrNull { it.state == MarkerState.CAPTURED }
+
     val selectedDraftPhotos: Int
-        get() = observations.sumOf { observation ->
-            if (observation.state == MarkerState.CAPTURED) {
-                observation.photos.count(CapturePhotoUi::selected)
-            } else {
-                0
-            }
-        }
+        get() = draft?.photos?.size ?: 0
 }
 
 object CaptureProjection {
+    const val DRAFT_GROUP_ID = "new-observation-draft"
+
     fun build(
         markers: List<PendingMarker>,
         selectedMarkerIds: Set<String>,
@@ -60,14 +59,20 @@ object CaptureProjection {
         handoffUnavailable: Boolean = false,
     ): CaptureUiState {
         val observations = markers
-            .groupBy { marker -> marker.handoffId ?: marker.id }
+            .groupBy { marker ->
+                if (marker.state == MarkerState.CAPTURED) DRAFT_GROUP_ID else marker.handoffId ?: marker.id
+            }
             .values
             .sortedByDescending { group -> group.maxOf(PendingMarker::capturedAtMs) }
             .map { unsortedGroup ->
                 val group = unsortedGroup.sortedBy(PendingMarker::capturedAtMs)
                 val leader = group.first()
                 CaptureObservationUi(
-                    groupId = leader.handoffId ?: leader.id,
+                    groupId = if (leader.state == MarkerState.CAPTURED) {
+                        DRAFT_GROUP_ID
+                    } else {
+                        leader.handoffId ?: leader.id
+                    },
                     state = leader.state,
                     photos = group.map { marker ->
                         CapturePhotoUi(
@@ -78,7 +83,10 @@ object CaptureProjection {
                             longitude = marker.longitude,
                             capturedAtReliable = marker.capturedAtReliable,
                             locationReliable = marker.locationReliable,
-                            selected = marker.id in selectedMarkerIds,
+                            // Capture is one observation workspace. Every photo in the draft is
+                            // included; removing a photo is an explicit destructive action rather
+                            // than a checkbox whose state is lost when the Activity is recreated.
+                            selected = marker.state == MarkerState.CAPTURED || marker.id in selectedMarkerIds,
                         )
                     },
                     proposals = proposalsByMarker[leader.id].orEmpty(),

@@ -30,8 +30,25 @@ class CaptureProjectionTest {
         val state = project(listOf(draft, pending), selected = setOf("draft", "pending"))
 
         assertEquals(1, state.selectedDraftPhotos)
-        assertTrue(state.observations.single { it.groupId == "draft" }.photos.single().selected)
+        assertTrue(
+            state.observations.single { it.groupId == CaptureProjection.DRAFT_GROUP_ID }
+                .photos.single().selected,
+        )
         assertTrue(state.observations.single { it.groupId == "handoff" }.photos.single().selected)
+    }
+
+    @Test
+    fun presentsAllDraftPhotosAsOneObservation() {
+        val first = marker("first", 100, MarkerState.CAPTURED)
+        val second = marker("second", 200, MarkerState.CAPTURED)
+
+        val state = project(listOf(first, second))
+
+        assertEquals(1, state.observations.size)
+        assertEquals(CaptureProjection.DRAFT_GROUP_ID, state.observations.single().groupId)
+        assertEquals(listOf("first", "second"), state.observations.single().photos.map { it.markerId })
+        assertEquals(2, state.selectedDraftPhotos)
+        assertTrue(state.observations.single().photos.all { it.selected })
     }
 
     @Test

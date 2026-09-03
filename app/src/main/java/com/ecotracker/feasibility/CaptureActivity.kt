@@ -91,14 +91,9 @@ class CaptureActivity : ComponentActivity() {
                     onBack = ::finish,
                     onTakePhoto = ::capturePhoto,
                     onChoosePhotos = ::importPhotos,
-                    onTogglePhoto = ::togglePhoto,
                     onContinueInINaturalist = ::shareSelected,
-                    onSubmitted = ::markHandoffSubmitted,
-                    onNotSubmitted = ::markHandoffNotSubmitted,
-                    onCheckNow = ::fetchMatches,
-                    onConfirmMatch = ::confirmMatch,
-                    onOpenObservation = ::openObservation,
-                    onDelete = ::deleteGroup,
+                    onRemovePhoto = ::removeDraftPhoto,
+                    onDiscardDraft = ::discardDraft,
                     onSaveMetadata = ::saveMetadata,
                     onLinkAccount = ::openAccountLink,
                     onDismissReward = {
@@ -209,7 +204,7 @@ class CaptureActivity : ComponentActivity() {
             PhotoMetadataReader.writeCaptureMetadata(file, pendingCaptureTimeMs, location)
         }
         addMarker(uri, "camera", pendingCaptureTimeMs, location)
-        showStatus("Photo added. Add more only if they show the same sighting.")
+        showStatus("Photo added. Add another view only if it shows this same sighting.")
     }
 
     private fun importSelectedUris(data: Intent?) {
@@ -229,7 +224,13 @@ class CaptureActivity : ComponentActivity() {
             }
             addMarker(uri, "import", System.currentTimeMillis(), null)
         }
-        showStatus("Imported ${uris.size} photo(s). Select only photos of the same sighting.")
+        showStatus(
+            if (uris.size == 1) {
+                "Photo added to this observation."
+            } else {
+                "${uris.size} photos added as one observation. Remove any that show a different sighting."
+            },
+        )
     }
 
     private fun addMarker(
@@ -272,7 +273,7 @@ class CaptureActivity : ComponentActivity() {
     }
 
     private fun shareSelected() {
-        val chosen = markers.filter { it.id in selectedMarkerIds && it.state == MarkerState.CAPTURED }
+        val chosen = markers.filter { it.state == MarkerState.CAPTURED }
         ObservationDraftValidator.problem(chosen)?.let {
             showStatus(it)
             return
@@ -304,7 +305,7 @@ class CaptureActivity : ComponentActivity() {
     }
 
     private fun openWebUploader() {
-        val chosen = markers.filter { it.id in selectedMarkerIds && it.state == MarkerState.CAPTURED }
+        val chosen = markers.filter { it.state == MarkerState.CAPTURED }
         ObservationDraftValidator.problem(chosen)?.let {
             handoffUnavailable = false
             showStatus(it)
@@ -513,6 +514,33 @@ class CaptureActivity : ComponentActivity() {
         }
         persistAndRender()
         showStatus("Original observation metadata saved.")
+    }
+
+    private fun removeDraftPhoto(markerId: String) {
+        val marker = markers.firstOrNull {
+            it.id == markerId && it.state == MarkerState.CAPTURED
+        } ?: return
+        deletePrivatePhotoIfOwned(marker)
+        markers = markers.filterNot { it.id == markerId }
+        selectedMarkerIds -= markerId
+        persistAndRender()
+        showStatus(
+            if (markers.any { it.state == MarkerState.CAPTURED }) {
+                "Photo removed from this observation."
+            } else {
+                "Draft cleared. Take a photo to start a new observation."
+            },
+        )
+    }
+
+    private fun discardDraft() {
+        val draft = markers.filter { it.state == MarkerState.CAPTURED }
+        draft.forEach(::deletePrivatePhotoIfOwned)
+        val draftIds = draft.mapTo(hashSetOf()) { it.id }
+        markers = markers.filterNot { it.id in draftIds }
+        selectedMarkerIds.removeAll(draftIds)
+        persistAndRender()
+        showStatus("Draft discarded. Nothing was changed in iNaturalist.")
     }
 
     private fun deleteGroup(groupId: String) {

@@ -4,44 +4,52 @@ import androidx.compose.animation.AnimatedVisibility
 import androidx.compose.animation.fadeIn
 import androidx.compose.animation.scaleIn
 import androidx.compose.foundation.BorderStroke
+import androidx.compose.foundation.background
+import androidx.compose.foundation.border
+import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.PaddingValues
 import androidx.compose.foundation.layout.Row
+import androidx.compose.foundation.layout.Spacer
+import androidx.compose.foundation.layout.WindowInsets
+import androidx.compose.foundation.layout.aspectRatio
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
+import androidx.compose.foundation.layout.navigationBarsPadding
 import androidx.compose.foundation.layout.padding
+import androidx.compose.foundation.layout.safeDrawing
 import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.layout.width
 import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.lazy.LazyRow
-import androidx.compose.foundation.lazy.items
+import androidx.compose.foundation.lazy.itemsIndexed
 import androidx.compose.foundation.shape.CircleShape
+import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material.icons.Icons
+import androidx.compose.material.icons.automirrored.outlined.ArrowBack
 import androidx.compose.material.icons.automirrored.outlined.OpenInNew
-import androidx.compose.material.icons.outlined.CameraAlt
+import androidx.compose.material.icons.outlined.AddAPhoto
+import androidx.compose.material.icons.outlined.CalendarMonth
 import androidx.compose.material.icons.outlined.CheckCircle
-import androidx.compose.material.icons.outlined.CloudSync
 import androidx.compose.material.icons.outlined.DeleteOutline
 import androidx.compose.material.icons.outlined.EditLocationAlt
-import androidx.compose.material.icons.outlined.HourglassTop
 import androidx.compose.material.icons.outlined.Link
+import androidx.compose.material.icons.outlined.LocationOn
 import androidx.compose.material.icons.outlined.PhotoLibrary
 import androidx.compose.material.icons.outlined.Science
+import androidx.compose.material.icons.outlined.WarningAmber
 import androidx.compose.material3.AlertDialog
-import androidx.compose.material3.Button
 import androidx.compose.material3.Card
 import androidx.compose.material3.CardDefaults
-import androidx.compose.material3.Checkbox
-import androidx.compose.material3.HorizontalDivider
 import androidx.compose.material3.Icon
 import androidx.compose.material3.IconButton
 import androidx.compose.material3.LinearProgressIndicator
 import androidx.compose.material3.MaterialTheme
-import androidx.compose.material3.OutlinedButton
 import androidx.compose.material3.OutlinedTextField
+import androidx.compose.material3.Scaffold
 import androidx.compose.material3.Surface
 import androidx.compose.material3.Text
 import androidx.compose.material3.TextButton
@@ -49,43 +57,60 @@ import androidx.compose.runtime.Composable
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
+import androidx.compose.runtime.saveable.rememberSaveable
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
-import androidx.compose.ui.layout.ContentScale
 import androidx.compose.ui.draw.clip
+import androidx.compose.ui.graphics.Brush
+import androidx.compose.ui.graphics.Color
+import androidx.compose.ui.graphics.vector.ImageVector
+import androidx.compose.ui.layout.ContentScale
+import androidx.compose.ui.semantics.Role
+import androidx.compose.ui.semantics.contentDescription
+import androidx.compose.ui.semantics.disabled
+import androidx.compose.ui.semantics.role
+import androidx.compose.ui.semantics.semantics
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.style.TextAlign
+import androidx.compose.ui.text.style.TextOverflow
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
+import androidx.compose.ui.unit.sp
 import androidx.compose.ui.window.Dialog
 import coil.compose.AsyncImage
 import com.wildlife.feasibility.MarkerState
-import com.wildlife.feasibility.MatchBand
-import com.wildlife.feasibility.MatchProposal
-import com.wildlife.feasibility.ui.components.WildlifeScaffold
+import com.wildlife.feasibility.ui.components.FieldGuidePage
+import com.wildlife.feasibility.ui.components.HeaderHairline
+import com.wildlife.feasibility.ui.components.JournalSurface
+import com.wildlife.feasibility.ui.theme.DisplayFontFamily
+import com.wildlife.feasibility.ui.theme.FieldLabelStyle
+import com.wildlife.feasibility.ui.theme.FieldStampStyle
+import com.wildlife.feasibility.ui.theme.WildlifeBackground
+import com.wildlife.feasibility.ui.theme.WildlifeOutlineSubtle
 import com.wildlife.feasibility.ui.theme.WildlifeSpacing
+import com.wildlife.feasibility.ui.theme.WildlifeSurfaceWarm
 import com.wildlife.feasibility.ui.theme.WildlifeTheme
 import java.text.DateFormat
 import java.text.SimpleDateFormat
 import java.util.Date
 import java.util.Locale
-import kotlin.math.roundToInt
 
+/**
+ * The focused workspace for exactly one new observation.
+ *
+ * Every photo in the draft belongs to the same sighting and is included unless the user
+ * explicitly removes it. Submitted and matched records belong to the Observations ledger.
+ */
 @Composable
 fun CaptureScreen(
     state: CaptureUiState,
     onBack: () -> Unit,
     onTakePhoto: () -> Unit,
     onChoosePhotos: () -> Unit,
-    onTogglePhoto: (String, Boolean) -> Unit,
     onContinueInINaturalist: () -> Unit,
-    onSubmitted: (String) -> Unit,
-    onNotSubmitted: (String) -> Unit,
-    onCheckNow: () -> Unit,
-    onConfirmMatch: (MatchProposal) -> Unit,
-    onOpenObservation: (String) -> Unit,
-    onDelete: (String) -> Unit,
+    onRemovePhoto: (String) -> Unit,
+    onDiscardDraft: () -> Unit,
     onSaveMetadata: (String, String, String, String) -> Unit,
     onLinkAccount: () -> Unit,
     onDismissReward: () -> Unit,
@@ -94,142 +119,125 @@ fun CaptureScreen(
     onOpenINaturalistWeb: () -> Unit,
     onOpenINaturalistStore: () -> Unit,
 ) {
-    var deleting by remember { mutableStateOf<CaptureObservationUi?>(null) }
+    val photos = state.draft?.photos.orEmpty()
+    var activePhotoId by rememberSaveable(photos.map(CapturePhotoUi::markerId)) {
+        mutableStateOf(photos.firstOrNull()?.markerId)
+    }
+    val activePhoto = photos.firstOrNull { it.markerId == activePhotoId } ?: photos.firstOrNull()
     var editing by remember { mutableStateOf<CapturePhotoUi?>(null) }
-    WildlifeScaffold(title = "New observation", onBack = onBack) { innerPadding ->
-        LazyColumn(
-            modifier = Modifier
-                .fillMaxSize()
-                .padding(innerPadding),
-            contentPadding = PaddingValues(
-                start = WildlifeSpacing.Screen,
-                end = WildlifeSpacing.Screen,
-                bottom = WildlifeSpacing.Section,
-            ),
-            verticalArrangement = Arrangement.spacedBy(WildlifeSpacing.Screen),
-        ) {
-            if (state.busy) item { LinearProgressIndicator(Modifier.fillMaxWidth()) }
-            item { CaptureGuideCard() }
-            if (state.account == null) {
-                item { UnlinkedCard(onLinkAccount) }
-            }
-            item {
-                Row(
-                    modifier = Modifier.fillMaxWidth(),
-                    horizontalArrangement = Arrangement.spacedBy(WildlifeSpacing.Small),
-                ) {
-                    OutlinedButton(
-                        onClick = onTakePhoto,
-                        modifier = Modifier.weight(1f),
-                        enabled = !state.busy,
-                    ) {
-                        Icon(Icons.Outlined.CameraAlt, contentDescription = null)
-                        Text("Camera", Modifier.padding(start = WildlifeSpacing.Micro))
-                    }
-                    OutlinedButton(
-                        onClick = onChoosePhotos,
-                        modifier = Modifier.weight(1f),
-                        enabled = !state.busy,
-                    ) {
-                        Icon(Icons.Outlined.PhotoLibrary, contentDescription = null)
-                        Text("Gallery", Modifier.padding(start = WildlifeSpacing.Micro))
+    var removing by remember { mutableStateOf<CapturePhotoUi?>(null) }
+    var discardRequested by remember { mutableStateOf(false) }
+    val ready = photos.isNotEmpty() && photos.all(CapturePhotoUi::capturedAtReliable) && !state.busy
+
+    FieldGuidePage {
+        Scaffold(
+            containerColor = Color.Transparent,
+            contentWindowInsets = WindowInsets.safeDrawing,
+            bottomBar = {
+                if (photos.isNotEmpty()) {
+                    CaptureFooter(photos.size, ready, onContinueInINaturalist)
+                }
+            },
+        ) { innerPadding ->
+            LazyColumn(
+                modifier = Modifier.fillMaxSize().padding(innerPadding),
+                contentPadding = PaddingValues(bottom = WildlifeSpacing.Section),
+                verticalArrangement = Arrangement.spacedBy(WildlifeSpacing.Screen),
+            ) {
+                item { CaptureHeader(onBack, photos.isNotEmpty()) }
+                if (state.busy) {
+                    item {
+                        LinearProgressIndicator(
+                            modifier = Modifier.fillMaxWidth().padding(horizontal = WildlifeSpacing.Screen),
+                            color = WildlifeTheme.colors.oliveStrong,
+                            trackColor = WildlifeOutlineSubtle,
+                        )
                     }
                 }
-            }
-            item {
-                Button(
-                    onClick = onContinueInINaturalist,
-                    enabled = state.selectedDraftPhotos > 0 && !state.busy,
-                    modifier = Modifier.fillMaxWidth(),
-                ) {
-                    Icon(Icons.AutoMirrored.Outlined.OpenInNew, contentDescription = null)
-                    Text(
-                        if (state.selectedDraftPhotos == 0) {
-                            "Select photos to continue"
-                        } else {
-                            "Continue one observation in iNaturalist"
-                        },
-                        Modifier.padding(start = WildlifeSpacing.Small),
-                    )
+                if (activePhoto == null) {
+                    item { EmptyPhotoStage(onTakePhoto, onChoosePhotos) }
+                } else {
+                    item {
+                        DraftPhotoStage(
+                            photos = photos,
+                            activePhoto = activePhoto,
+                            onSelectPhoto = { activePhotoId = it.markerId },
+                            onTakePhoto = onTakePhoto,
+                            onChoosePhotos = onChoosePhotos,
+                            onEditMetadata = { editing = activePhoto },
+                            onRemovePhoto = { removing = activePhoto },
+                        )
+                    }
                 }
-            }
-            item {
-                StatusMessage(state.statusMessage)
-            }
-            if (state.observations.isEmpty()) {
-                item { EmptyCaptureState() }
-            } else {
-                items(state.observations, key = CaptureObservationUi::groupId) { observation ->
-                    ObservationCard(
-                        observation = observation,
-                        busy = state.busy,
-                        onTogglePhoto = onTogglePhoto,
-                        onSubmitted = { onSubmitted(observation.groupId) },
-                        onNotSubmitted = { onNotSubmitted(observation.groupId) },
-                        onCheckNow = onCheckNow,
-                        onConfirmMatch = onConfirmMatch,
-                        onOpenObservation = onOpenObservation,
-                        onDelete = { deleting = observation },
-                        onEditMetadata = { editing = it },
-                    )
+                if (state.account == null) item { AccountNote(onLinkAccount) }
+                if (state.statusMessage.isNotBlank() &&
+                    state.statusMessage != "Add photos to start one observation."
+                ) {
+                    item { StatusLine(state.statusMessage) }
+                }
+                if (photos.isNotEmpty()) {
+                    item {
+                        TextButton(
+                            onClick = { discardRequested = true },
+                            modifier = Modifier.padding(horizontal = WildlifeSpacing.Small),
+                        ) {
+                            Icon(Icons.Outlined.DeleteOutline, contentDescription = null)
+                            Text("Discard this draft", Modifier.padding(start = WildlifeSpacing.Micro))
+                        }
+                    }
                 }
             }
         }
     }
 
-    deleting?.let { observation ->
+    editing?.let { photo ->
+        MetadataDialog(photo, { editing = null }) { date, latitude, longitude ->
+            onSaveMetadata(photo.markerId, date, latitude, longitude)
+            editing = null
+        }
+    }
+    removing?.let { photo ->
         AlertDialog(
-            onDismissRequest = { deleting = null },
-            title = { Text("Delete from Wildlife?") },
+            onDismissRequest = { removing = null },
+            title = { Text("Remove this photo?") },
+            text = { Text("It will be removed from this Wildlife draft. Imported originals stay untouched.") },
+            confirmButton = {
+                TextButton(onClick = {
+                    onRemovePhoto(photo.markerId)
+                    removing = null
+                }) { Text("Remove photo") }
+            },
+            dismissButton = { TextButton(onClick = { removing = null }) { Text("Keep") } },
+        )
+    }
+    if (discardRequested) {
+        AlertDialog(
+            onDismissRequest = { discardRequested = false },
+            title = { Text("Discard this observation draft?") },
             text = {
-                Text(
-                    if (observation.state == MarkerState.CONFIRMED) {
-                        "The iNaturalist observation remains online. Wildlife removes only its local record and private camera copies."
-                    } else {
-                        "Matching checks stop. Imported originals remain untouched; Wildlife removes only its local record and private camera copies."
-                    },
-                )
+                Text("Wildlife removes its draft and private camera copies. Gallery originals stay untouched.")
             },
             confirmButton = {
                 TextButton(onClick = {
-                    onDelete(observation.groupId)
-                    deleting = null
-                }) { Text("Delete") }
+                    onDiscardDraft()
+                    discardRequested = false
+                }) { Text("Discard draft") }
             },
-            dismissButton = {
-                TextButton(onClick = { deleting = null }) { Text("Cancel") }
-            },
+            dismissButton = { TextButton(onClick = { discardRequested = false }) { Text("Cancel") } },
         )
     }
-    editing?.let { photo ->
-        MetadataDialog(
-            photo = photo,
-            onDismiss = { editing = null },
-            onSave = { date, latitude, longitude ->
-                onSaveMetadata(photo.markerId, date, latitude, longitude)
-                editing = null
-            },
-        )
-    }
-    state.reward?.let { reward ->
-        RewardDialog(reward, onDismissReward, onOpenCollection)
-    }
+    state.reward?.let { RewardDialog(it, onDismissReward, onOpenCollection) }
     if (state.handoffUnavailable) {
         AlertDialog(
             onDismissRequest = onDismissHandoffUnavailable,
-            title = { Text("iNaturalist app needed") },
+            title = { Text("Continue with iNaturalist") },
             text = {
-                Text(
-                    "Wildlife can only transfer photos directly to the official iNaturalist app. " +
-                        "You can install it, or open the web uploader and add the photos manually.",
-                )
+                Text("The official iNaturalist app provides the smoothest handoff. Install it or use the web uploader.")
             },
-            confirmButton = {
-                TextButton(onClick = onOpenINaturalistStore) { Text("Install app") }
-            },
+            confirmButton = { TextButton(onClick = onOpenINaturalistStore) { Text("Install app") } },
             dismissButton = {
                 Row {
-                    TextButton(onClick = onOpenINaturalistWeb) { Text("Open web") }
+                    TextButton(onClick = onOpenINaturalistWeb) { Text("Use web") }
                     TextButton(onClick = onDismissHandoffUnavailable) { Text("Cancel") }
                 }
             },
@@ -238,276 +246,272 @@ fun CaptureScreen(
 }
 
 @Composable
-private fun CaptureGuideCard() {
-    Card(
-        colors = CardDefaults.cardColors(containerColor = MaterialTheme.colorScheme.surfaceVariant),
-        border = BorderStroke(1.dp, MaterialTheme.colorScheme.outlineVariant),
-        elevation = CardDefaults.cardElevation(0.dp),
-    ) {
-        Column(
-            modifier = Modifier.padding(WildlifeSpacing.Card),
-            verticalArrangement = Arrangement.spacedBy(WildlifeSpacing.Micro),
-        ) {
-            Text("One sighting, one observation", style = MaterialTheme.typography.titleMedium)
-            Text(
-                "Add one or more photos of the same animal at the same place and time. iNaturalist handles identification and submission.",
-                style = MaterialTheme.typography.bodySmall,
-                color = MaterialTheme.colorScheme.onSurfaceVariant,
-            )
-        }
-    }
-}
-
-@Composable
-private fun UnlinkedCard(onLinkAccount: () -> Unit) {
-    Card(
-        colors = CardDefaults.cardColors(containerColor = MaterialTheme.colorScheme.surface),
-        border = BorderStroke(1.dp, MaterialTheme.colorScheme.outlineVariant),
-    ) {
-        Column(
-            modifier = Modifier.padding(WildlifeSpacing.Card),
-            verticalArrangement = Arrangement.spacedBy(WildlifeSpacing.Small),
-        ) {
-            Text("Link required for confirmation", style = MaterialTheme.typography.titleMedium)
-            Text(
-                "You may prepare and submit a sighting, but Wildlife needs your verified public iNaturalist user ID to match it and award XP.",
-                style = MaterialTheme.typography.bodySmall,
-                color = MaterialTheme.colorScheme.onSurfaceVariant,
-            )
-            OutlinedButton(onClick = onLinkAccount) {
-                Icon(Icons.Outlined.Link, contentDescription = null)
-                Text("Link iNaturalist", Modifier.padding(start = WildlifeSpacing.Small))
-            }
-        }
-    }
-}
-
-@Composable
-private fun StatusMessage(message: String) {
-    Surface(
-        color = MaterialTheme.colorScheme.surface,
-        shape = MaterialTheme.shapes.medium,
-        border = BorderStroke(1.dp, MaterialTheme.colorScheme.outlineVariant),
-        modifier = Modifier.fillMaxWidth(),
-    ) {
-        Text(
-            text = message,
-            style = MaterialTheme.typography.bodySmall,
-            color = MaterialTheme.colorScheme.onSurfaceVariant,
-            modifier = Modifier.padding(WildlifeSpacing.Card),
-        )
-    }
-}
-
-@Composable
-private fun EmptyCaptureState() {
-    Column(
-        modifier = Modifier
-            .fillMaxWidth()
-            .padding(vertical = WildlifeSpacing.Large),
-        horizontalAlignment = Alignment.CenterHorizontally,
-        verticalArrangement = Arrangement.spacedBy(WildlifeSpacing.Small),
-    ) {
-        Icon(
-            Icons.Outlined.CameraAlt,
-            contentDescription = null,
-            tint = WildlifeTheme.colors.silhouette,
-            modifier = Modifier.size(52.dp),
-        )
-        Text("No observations yet", style = MaterialTheme.typography.titleMedium)
-        Text(
-            "Take a photo or choose existing photos to create a draft.",
-            style = MaterialTheme.typography.bodySmall,
-            color = MaterialTheme.colorScheme.onSurfaceVariant,
-            textAlign = TextAlign.Center,
-        )
-    }
-}
-
-@Composable
-private fun ObservationCard(
-    observation: CaptureObservationUi,
-    busy: Boolean,
-    onTogglePhoto: (String, Boolean) -> Unit,
-    onSubmitted: () -> Unit,
-    onNotSubmitted: () -> Unit,
-    onCheckNow: () -> Unit,
-    onConfirmMatch: (MatchProposal) -> Unit,
-    onOpenObservation: (String) -> Unit,
-    onDelete: () -> Unit,
-    onEditMetadata: (CapturePhotoUi) -> Unit,
-) {
-    Card(
-        modifier = Modifier.fillMaxWidth(),
-        colors = CardDefaults.cardColors(containerColor = MaterialTheme.colorScheme.surface),
-        border = BorderStroke(1.dp, MaterialTheme.colorScheme.outlineVariant),
-        elevation = CardDefaults.cardElevation(0.dp),
-    ) {
-        Column(
-            modifier = Modifier.padding(WildlifeSpacing.Card),
-            verticalArrangement = Arrangement.spacedBy(WildlifeSpacing.Small),
-        ) {
-            ObservationHeader(observation.state, observation.photos.size)
-            Text(
-                text = stateExplanation(observation.state),
-                style = MaterialTheme.typography.bodySmall,
-                color = MaterialTheme.colorScheme.onSurfaceVariant,
-            )
-            LazyRow(horizontalArrangement = Arrangement.spacedBy(WildlifeSpacing.Small)) {
-                items(observation.photos, key = CapturePhotoUi::markerId) { photo ->
-                    CapturePhotoTile(
-                        photo = photo,
-                        selectable = observation.state == MarkerState.CAPTURED,
-                        onToggle = { onTogglePhoto(photo.markerId, it) },
-                        onEditMetadata = { onEditMetadata(photo) },
-                    )
-                }
-            }
-            when (observation.state) {
-                MarkerState.HANDED_OFF -> {
-                    HorizontalDivider(color = MaterialTheme.colorScheme.outlineVariant)
-                    Text(
-                        "Did you submit this observation in iNaturalist?",
-                        style = MaterialTheme.typography.titleMedium,
-                    )
-                    Button(onClick = onSubmitted, enabled = !busy, modifier = Modifier.fillMaxWidth()) {
-                        Text("Yes, I submitted it")
-                    }
-                    OutlinedButton(
-                        onClick = onNotSubmitted,
-                        enabled = !busy,
-                        modifier = Modifier.fillMaxWidth(),
-                    ) { Text("No, return it to draft") }
-                }
-                MarkerState.PENDING -> {
-                    OutlinedButton(
-                        onClick = onCheckNow,
-                        enabled = !busy,
-                        modifier = Modifier.fillMaxWidth(),
-                    ) {
-                        Icon(Icons.Outlined.CloudSync, contentDescription = null)
-                        Text("Check iNaturalist now", Modifier.padding(start = WildlifeSpacing.Small))
-                    }
-                }
-                else -> Unit
-            }
-            observation.proposals.forEach { proposal ->
-                MatchCandidateCard(proposal, busy, onConfirmMatch, onOpenObservation)
-            }
-            observation.matchedObservationUuid?.let { uuid ->
-                OutlinedButton(onClick = { onOpenObservation(uuid) }, modifier = Modifier.fillMaxWidth()) {
-                    Icon(Icons.AutoMirrored.Outlined.OpenInNew, contentDescription = null)
-                    Text("Open confirmed observation", Modifier.padding(start = WildlifeSpacing.Small))
-                }
-            }
-            TextButton(onClick = onDelete, enabled = !busy) {
-                Icon(Icons.Outlined.DeleteOutline, contentDescription = null)
-                Text("Delete from Wildlife", Modifier.padding(start = WildlifeSpacing.Micro))
-            }
-        }
-    }
-}
-
-@Composable
-private fun ObservationHeader(state: MarkerState, photoCount: Int) {
-    val icon = when (state) {
-        MarkerState.CAPTURED -> Icons.Outlined.CameraAlt
-        MarkerState.HANDED_OFF -> Icons.Outlined.HourglassTop
-        MarkerState.PENDING -> Icons.Outlined.CloudSync
-        MarkerState.CONFIRMED -> Icons.Outlined.CheckCircle
-    }
-    Row(
-        modifier = Modifier.fillMaxWidth(),
-        verticalAlignment = Alignment.CenterVertically,
-        horizontalArrangement = Arrangement.SpaceBetween,
-    ) {
-        Row(
-            verticalAlignment = Alignment.CenterVertically,
-            horizontalArrangement = Arrangement.spacedBy(WildlifeSpacing.Small),
-        ) {
-            Surface(
-                shape = CircleShape,
-                color = if (state == MarkerState.CONFIRMED) {
-                    WildlifeTheme.colors.confirmed
-                } else {
-                    MaterialTheme.colorScheme.surfaceVariant
-                },
-            ) {
-                Icon(icon, contentDescription = null, Modifier.padding(WildlifeSpacing.Small))
-            }
-            Text(friendlyState(state), style = MaterialTheme.typography.titleMedium)
-        }
-        Text(
-            if (photoCount == 1) "1 photo" else "$photoCount photos",
-            style = MaterialTheme.typography.labelMedium,
-            color = MaterialTheme.colorScheme.onSurfaceVariant,
-        )
-    }
-}
-
-@Composable
-private fun CapturePhotoTile(
-    photo: CapturePhotoUi,
-    selectable: Boolean,
-    onToggle: (Boolean) -> Unit,
-    onEditMetadata: () -> Unit,
-) {
-    Card(
-        onClick = { if (selectable) onToggle(!photo.selected) },
-        modifier = Modifier.width(164.dp),
-        colors = CardDefaults.cardColors(containerColor = MaterialTheme.colorScheme.surfaceVariant),
-        border = BorderStroke(
-            1.dp,
-            if (photo.selected && selectable) {
-                WildlifeTheme.colors.oliveStrong
-            } else {
-                MaterialTheme.colorScheme.outlineVariant
-            },
+private fun CaptureHeader(onBack: () -> Unit, hasDraft: Boolean) {
+    val colors = WildlifeTheme.colors
+    Box(
+        Modifier.fillMaxWidth().background(
+            Brush.verticalGradient(
+                0f to WildlifeBackground.copy(alpha = 0.12f),
+                1f to WildlifeBackground.copy(alpha = 0.88f),
+            ),
         ),
     ) {
-        Column {
-            Box(
-                modifier = Modifier
-                    .fillMaxWidth()
-                    .height(116.dp),
+        Column(
+            Modifier.padding(
+                start = WildlifeSpacing.Small,
+                end = WildlifeSpacing.Screen,
+                top = WildlifeSpacing.Small,
+                bottom = WildlifeSpacing.Screen,
+            ),
+        ) {
+            Row(verticalAlignment = Alignment.CenterVertically) {
+                IconButton(onClick = onBack) {
+                    Icon(
+                        Icons.AutoMirrored.Outlined.ArrowBack,
+                        contentDescription = "Back",
+                        tint = colors.parchment,
+                    )
+                }
+                Column(Modifier.padding(start = WildlifeSpacing.Micro)) {
+                    Text(
+                        if (hasDraft) "FIELD RECORD · IN PROGRESS" else "FIELD RECORD · NEW",
+                        style = FieldStampStyle,
+                        color = colors.oliveStrong,
+                    )
+                    Text(
+                        "New observation",
+                        fontFamily = DisplayFontFamily,
+                        fontWeight = FontWeight.SemiBold,
+                        fontSize = 30.sp,
+                        lineHeight = 34.sp,
+                        color = colors.parchment,
+                    )
+                }
+            }
+            Text(
+                "One sighting. One record. Add more photos only when they show the same animal at the same place and time.",
+                style = MaterialTheme.typography.bodyMedium,
+                color = colors.parchmentDim,
+                modifier = Modifier.padding(start = 52.dp, top = WildlifeSpacing.Small),
+            )
+        }
+        HeaderHairline(Modifier.align(Alignment.BottomCenter))
+    }
+}
+
+@Composable
+private fun EmptyPhotoStage(onTakePhoto: () -> Unit, onChoosePhotos: () -> Unit) {
+    val colors = WildlifeTheme.colors
+    Column(
+        modifier = Modifier.padding(horizontal = WildlifeSpacing.Screen),
+        verticalArrangement = Arrangement.spacedBy(WildlifeSpacing.Card),
+    ) {
+        Text("START THE SIGHTING", style = FieldLabelStyle, color = colors.parchmentDim)
+        JournalSurface(
+            Modifier.fillMaxWidth().height(352.dp).semantics(mergeDescendants = true) {
+                contentDescription = "No photo added. Take a photo to start one observation."
+            },
+        ) {
+            Column(
+                modifier = Modifier.fillMaxSize().padding(WildlifeSpacing.Section),
+                horizontalAlignment = Alignment.CenterHorizontally,
+                verticalArrangement = Arrangement.Center,
             ) {
+                Surface(
+                    onClick = onTakePhoto,
+                    shape = CircleShape,
+                    color = colors.oliveDark,
+                    border = BorderStroke(1.5.dp, colors.oliveStrong),
+                    modifier = Modifier.size(88.dp),
+                ) {
+                    Box(contentAlignment = Alignment.Center) {
+                        Icon(
+                            Icons.Outlined.AddAPhoto,
+                            contentDescription = "Take a photo",
+                            tint = colors.parchment,
+                            modifier = Modifier.size(38.dp),
+                        )
+                    }
+                }
+                Spacer(Modifier.height(WildlifeSpacing.Screen))
+                Text("Take a photo", style = MaterialTheme.typography.headlineMedium, color = colors.parchment)
+                Text(
+                    "The first photo starts this observation",
+                    style = MaterialTheme.typography.bodySmall,
+                    color = colors.parchmentDim,
+                )
+                Spacer(Modifier.height(WildlifeSpacing.Section))
+                TextButton(onClick = onChoosePhotos) {
+                    Icon(Icons.Outlined.PhotoLibrary, contentDescription = null)
+                    Text("Choose from gallery", Modifier.padding(start = WildlifeSpacing.Small))
+                }
+            }
+        }
+    }
+}
+
+@Composable
+private fun DraftPhotoStage(
+    photos: List<CapturePhotoUi>,
+    activePhoto: CapturePhotoUi,
+    onSelectPhoto: (CapturePhotoUi) -> Unit,
+    onTakePhoto: () -> Unit,
+    onChoosePhotos: () -> Unit,
+    onEditMetadata: () -> Unit,
+    onRemovePhoto: () -> Unit,
+) {
+    val colors = WildlifeTheme.colors
+    Column(
+        modifier = Modifier.padding(horizontal = WildlifeSpacing.Screen),
+        verticalArrangement = Arrangement.spacedBy(WildlifeSpacing.Card),
+    ) {
+        Row(
+            modifier = Modifier.fillMaxWidth(),
+            horizontalArrangement = Arrangement.SpaceBetween,
+            verticalAlignment = Alignment.Bottom,
+        ) {
+            Column {
+                Text("THIS SIGHTING", style = FieldLabelStyle, color = colors.oliveStrong)
+                Text("1 observation", style = MaterialTheme.typography.headlineMedium, color = colors.parchment)
+            }
+            Text(
+                if (photos.size == 1) "1 PHOTO" else "${photos.size} PHOTOS",
+                style = FieldStampStyle,
+                color = colors.parchmentDim,
+            )
+        }
+        JournalSurface(Modifier.fillMaxWidth()) {
+            Box(Modifier.fillMaxWidth().aspectRatio(4f / 3f)) {
                 AsyncImage(
-                    model = photo.imageUri,
-                    contentDescription = "Observation draft photo",
+                    model = activePhoto.imageUri,
+                    contentDescription = "Selected photo in this observation",
                     contentScale = ContentScale.Crop,
                     modifier = Modifier.fillMaxSize(),
                 )
-                if (selectable) {
-                    Checkbox(
-                        checked = photo.selected,
-                        onCheckedChange = onToggle,
-                        modifier = Modifier.align(Alignment.TopEnd),
-                    )
-                }
+                Box(
+                    Modifier.fillMaxWidth().height(88.dp).align(Alignment.BottomCenter).background(
+                        Brush.verticalGradient(
+                            listOf(
+                                WildlifeBackground.copy(alpha = 0f),
+                                WildlifeBackground.copy(alpha = 0.88f),
+                            ),
+                        ),
+                    ),
+                )
+                Text(
+                    "PHOTO ${photos.indexOf(activePhoto) + 1} OF ${photos.size}",
+                    style = FieldStampStyle,
+                    color = colors.parchment,
+                    modifier = Modifier.align(Alignment.BottomStart).padding(WildlifeSpacing.Card),
+                )
             }
-            Column(
-                modifier = Modifier.padding(WildlifeSpacing.Small),
-                verticalArrangement = Arrangement.spacedBy(WildlifeSpacing.Micro),
+        }
+        LazyRow(horizontalArrangement = Arrangement.spacedBy(WildlifeSpacing.Small)) {
+            itemsIndexed(photos, key = { _, photo -> photo.markerId }) { index, photo ->
+                PhotoThumbnail(
+                    photo = photo,
+                    number = index + 1,
+                    selected = photo.markerId == activePhoto.markerId,
+                    onClick = { onSelectPhoto(photo) },
+                )
+            }
+            item { AddPhotoTile("Camera", Icons.Outlined.AddAPhoto, onTakePhoto) }
+            item { AddPhotoTile("Gallery", Icons.Outlined.PhotoLibrary, onChoosePhotos) }
+        }
+        PhotoDetails(activePhoto, onEditMetadata, onRemovePhoto)
+    }
+}
+
+@Composable
+private fun PhotoThumbnail(
+    photo: CapturePhotoUi,
+    number: Int,
+    selected: Boolean,
+    onClick: () -> Unit,
+) {
+    val colors = WildlifeTheme.colors
+    Box(
+        modifier = Modifier.size(78.dp).clip(RoundedCornerShape(10.dp)).background(colors.plate)
+            .border(
+                if (selected) 2.dp else 1.dp,
+                if (selected) colors.oliveStrong else WildlifeOutlineSubtle,
+                RoundedCornerShape(10.dp),
+            )
+            .clickable(onClick = onClick)
+            .semantics {
+                role = Role.Button
+                contentDescription = "Photo $number of this observation${if (selected) ", selected" else ""}"
+            },
+    ) {
+        AsyncImage(
+            model = photo.imageUri,
+            contentDescription = null,
+            contentScale = ContentScale.Crop,
+            modifier = Modifier.fillMaxSize(),
+        )
+        if (!photo.capturedAtReliable) {
+            Surface(
+                shape = CircleShape,
+                color = WildlifeBackground.copy(alpha = 0.88f),
+                modifier = Modifier.align(Alignment.TopEnd).padding(WildlifeSpacing.Micro),
             ) {
-                Text(
-                    if (photo.capturedAtReliable) {
-                        DateFormat.getDateTimeInstance(DateFormat.SHORT, DateFormat.SHORT)
-                            .format(Date(photo.capturedAtMs))
-                    } else {
-                        "Original time needed"
-                    },
-                    style = MaterialTheme.typography.labelSmall,
+                Icon(
+                    Icons.Outlined.WarningAmber,
+                    contentDescription = "Original time needed",
+                    tint = colors.gold,
+                    modifier = Modifier.padding(4.dp).size(14.dp),
                 )
-                Text(
-                    if (photo.locationReliable) "Location saved" else "Location unavailable",
-                    style = MaterialTheme.typography.labelSmall,
-                    color = MaterialTheme.colorScheme.onSurfaceVariant,
-                )
-                if (selectable && (!photo.capturedAtReliable || !photo.locationReliable)) {
-                    TextButton(onClick = onEditMetadata, contentPadding = PaddingValues(0.dp)) {
-                        Icon(Icons.Outlined.EditLocationAlt, contentDescription = null)
-                        Text("Add metadata")
-                    }
+            }
+        }
+    }
+}
+
+@Composable
+private fun AddPhotoTile(label: String, icon: ImageVector, onClick: () -> Unit) {
+    val colors = WildlifeTheme.colors
+    Column(
+        modifier = Modifier.width(78.dp).height(78.dp).clip(RoundedCornerShape(10.dp))
+            .background(WildlifeSurfaceWarm)
+            .border(1.dp, WildlifeOutlineSubtle, RoundedCornerShape(10.dp))
+            .clickable(onClick = onClick).semantics { role = Role.Button },
+        horizontalAlignment = Alignment.CenterHorizontally,
+        verticalArrangement = Arrangement.Center,
+    ) {
+        Icon(icon, contentDescription = null, tint = colors.oliveStrong, modifier = Modifier.size(24.dp))
+        Text(label.uppercase(), style = FieldStampStyle.copy(fontSize = 8.sp), color = colors.parchmentDim)
+    }
+}
+
+@Composable
+private fun PhotoDetails(photo: CapturePhotoUi, onEdit: () -> Unit, onRemove: () -> Unit) {
+    val colors = WildlifeTheme.colors
+    JournalSurface(Modifier.fillMaxWidth()) {
+        Column(Modifier.padding(WildlifeSpacing.Card)) {
+            Text("PHOTO DETAILS", style = FieldLabelStyle, color = colors.parchmentDim)
+            Spacer(Modifier.height(WildlifeSpacing.Small))
+            DetailRow(
+                Icons.Outlined.CalendarMonth,
+                "Observed",
+                if (photo.capturedAtReliable) formattedDate(photo.capturedAtMs) else "Original time needed",
+                photo.capturedAtReliable,
+            )
+            DetailRow(
+                Icons.Outlined.LocationOn,
+                "Location",
+                if (photo.locationReliable) "Saved with photo" else "Not available · optional",
+                photo.locationReliable,
+            )
+            Row(
+                modifier = Modifier.fillMaxWidth().padding(top = WildlifeSpacing.Small),
+                horizontalArrangement = Arrangement.SpaceBetween,
+            ) {
+                TextButton(onClick = onEdit) {
+                    Icon(Icons.Outlined.EditLocationAlt, contentDescription = null)
+                    Text("Edit details", Modifier.padding(start = WildlifeSpacing.Micro))
+                }
+                TextButton(onClick = onRemove) {
+                    Icon(Icons.Outlined.DeleteOutline, contentDescription = null)
+                    Text("Remove", Modifier.padding(start = WildlifeSpacing.Micro))
                 }
             }
         }
@@ -515,40 +519,119 @@ private fun CapturePhotoTile(
 }
 
 @Composable
-private fun MatchCandidateCard(
-    proposal: MatchProposal,
-    busy: Boolean,
-    onConfirmMatch: (MatchProposal) -> Unit,
-    onOpenObservation: (String) -> Unit,
-) {
-    Card(
-        colors = CardDefaults.cardColors(containerColor = MaterialTheme.colorScheme.surfaceVariant),
-        border = BorderStroke(1.dp, MaterialTheme.colorScheme.outlineVariant),
+private fun DetailRow(icon: ImageVector, label: String, value: String, ready: Boolean) {
+    val colors = WildlifeTheme.colors
+    Row(
+        modifier = Modifier.fillMaxWidth().padding(vertical = WildlifeSpacing.Small),
+        verticalAlignment = Alignment.CenterVertically,
     ) {
-        Column(
-            modifier = Modifier.padding(WildlifeSpacing.Card),
-            verticalArrangement = Arrangement.spacedBy(WildlifeSpacing.Small),
+        Icon(
+            if (ready) Icons.Outlined.CheckCircle else icon,
+            contentDescription = null,
+            tint = if (ready) colors.confirmed else colors.gold,
+            modifier = Modifier.size(22.dp),
+        )
+        Column(Modifier.weight(1f).padding(start = WildlifeSpacing.Card)) {
+            Text(label.uppercase(), style = FieldLabelStyle, color = colors.parchmentFaint)
+            Text(value, style = MaterialTheme.typography.bodyMedium, color = colors.parchment)
+        }
+    }
+}
+
+@Composable
+private fun CaptureFooter(photoCount: Int, ready: Boolean, onContinue: () -> Unit) {
+    val colors = WildlifeTheme.colors
+    Column(
+        Modifier.fillMaxWidth().background(WildlifeBackground.copy(alpha = 0.97f)).navigationBarsPadding(),
+    ) {
+        HeaderHairline()
+        Row(
+            Modifier.padding(WildlifeSpacing.Screen),
+            verticalAlignment = Alignment.CenterVertically,
+            horizontalArrangement = Arrangement.spacedBy(WildlifeSpacing.Card),
         ) {
-            Text("Possible public match", style = MaterialTheme.typography.titleMedium)
-            val distance = proposal.distanceKm?.let { "${(it * 10).roundToInt() / 10.0} km" }
-                ?: "location obscured or unavailable"
-            Text(
-                "${confidenceLabel(proposal.band)} · ${proposal.timeDeltaMinutes} min · $distance",
-                style = MaterialTheme.typography.bodySmall,
-                color = MaterialTheme.colorScheme.onSurfaceVariant,
-            )
-            Row(horizontalArrangement = Arrangement.spacedBy(WildlifeSpacing.Small)) {
-                OutlinedButton(
-                    onClick = { onOpenObservation(proposal.candidate.uuid) },
-                    modifier = Modifier.weight(1f),
-                ) { Text("Inspect") }
-                Button(
-                    onClick = { onConfirmMatch(proposal) },
-                    enabled = !busy,
-                    modifier = Modifier.weight(1f),
-                ) { Text("Confirm match") }
+            Column(Modifier.weight(1f)) {
+                Text(
+                    if (photoCount == 1) "1 OBSERVATION · 1 PHOTO" else "1 OBSERVATION · $photoCount PHOTOS",
+                    style = FieldStampStyle,
+                    color = colors.oliveStrong,
+                )
+                Text(
+                    if (ready) "Identify and submit in the official app" else "Add the original time to continue",
+                    style = MaterialTheme.typography.bodySmall,
+                    color = colors.parchmentDim,
+                    maxLines = 2,
+                    overflow = TextOverflow.Ellipsis,
+                )
+            }
+            Box(
+                modifier = Modifier.clip(RoundedCornerShape(9.dp))
+                    .background(if (ready) colors.oliveDark else WildlifeOutlineSubtle)
+                    .border(
+                        1.5.dp,
+                        if (ready) colors.oliveStrong else colors.parchmentFaint.copy(alpha = 0.35f),
+                        RoundedCornerShape(9.dp),
+                    )
+                    .clickable(enabled = ready, onClick = onContinue)
+                    .semantics {
+                        role = Role.Button
+                        contentDescription = "Continue this observation in iNaturalist"
+                        if (!ready) disabled()
+                    }
+                    .padding(horizontal = WildlifeSpacing.Screen, vertical = 13.dp),
+                contentAlignment = Alignment.Center,
+            ) {
+                Row(verticalAlignment = Alignment.CenterVertically) {
+                    Text(
+                        "CONTINUE",
+                        style = FieldStampStyle,
+                        color = if (ready) colors.parchment else colors.parchmentFaint,
+                    )
+                    Icon(
+                        Icons.AutoMirrored.Outlined.OpenInNew,
+                        contentDescription = null,
+                        tint = if (ready) colors.parchment else colors.parchmentFaint,
+                        modifier = Modifier.padding(start = WildlifeSpacing.Small).size(18.dp),
+                    )
+                }
             }
         }
+    }
+}
+
+@Composable
+private fun AccountNote(onLinkAccount: () -> Unit) {
+    val colors = WildlifeTheme.colors
+    JournalSurface(Modifier.fillMaxWidth().padding(horizontal = WildlifeSpacing.Screen)) {
+        Row(Modifier.padding(WildlifeSpacing.Card), verticalAlignment = Alignment.CenterVertically) {
+            Icon(Icons.Outlined.Link, contentDescription = null, tint = colors.gold)
+            Column(Modifier.weight(1f).padding(horizontal = WildlifeSpacing.Card)) {
+                Text("LINK FOR COLLECTION REWARDS", style = FieldLabelStyle, color = colors.gold)
+                Text(
+                    "Take the photo now. Link your public iNaturalist account so Wildlife can find it later.",
+                    style = MaterialTheme.typography.bodySmall,
+                    color = colors.parchmentDim,
+                )
+            }
+            TextButton(onClick = onLinkAccount) { Text("Link") }
+        }
+    }
+}
+
+@Composable
+private fun StatusLine(message: String) {
+    val colors = WildlifeTheme.colors
+    Row(
+        Modifier.fillMaxWidth().padding(horizontal = WildlifeSpacing.Screen),
+        verticalAlignment = Alignment.Top,
+    ) {
+        Box(Modifier.padding(top = 7.dp).size(5.dp).background(colors.oliveStrong, CircleShape))
+        Text(
+            message,
+            style = MaterialTheme.typography.bodySmall,
+            color = colors.parchmentDim,
+            modifier = Modifier.padding(start = WildlifeSpacing.Small),
+        )
     }
 }
 
@@ -570,13 +653,10 @@ private fun MetadataDialog(
     }
     AlertDialog(
         onDismissRequest = onDismiss,
-        title = { Text("Original observation metadata") },
+        title = { Text("When and where was it seen?") },
         text = {
             Column(verticalArrangement = Arrangement.spacedBy(WildlifeSpacing.Small)) {
-                Text(
-                    "Use where and when the photo was taken—not where or when it is uploaded.",
-                    style = MaterialTheme.typography.bodySmall,
-                )
+                Text("Use the moment and place of the sighting—not the upload time.")
                 OutlinedTextField(
                     value = date,
                     onValueChange = { date = it },
@@ -604,11 +684,7 @@ private fun MetadataDialog(
 }
 
 @Composable
-private fun RewardDialog(
-    reward: CaptureRewardUi,
-    onDismiss: () -> Unit,
-    onOpenCollection: () -> Unit,
-) {
+private fun RewardDialog(reward: CaptureRewardUi, onDismiss: () -> Unit, onOpenCollection: () -> Unit) {
     Dialog(onDismissRequest = onDismiss) {
         AnimatedVisibility(visible = true, enter = fadeIn() + scaleIn(initialScale = 0.92f)) {
             Card(
@@ -625,123 +701,88 @@ private fun RewardDialog(
                             model = reward.photoUri,
                             contentDescription = "Confirmed observation photo",
                             contentScale = ContentScale.Crop,
-                            modifier = Modifier
-                                .size(152.dp)
-                                .clip(MaterialTheme.shapes.large),
+                            modifier = Modifier.size(152.dp).clip(MaterialTheme.shapes.large),
                         )
                     } else {
-                        Surface(
-                            shape = CircleShape,
-                            color = WildlifeTheme.colors.confirmed,
-                            modifier = Modifier.size(64.dp),
-                        ) {
-                            Icon(
-                                Icons.Outlined.Science,
-                                contentDescription = null,
-                                modifier = Modifier.padding(WildlifeSpacing.Screen),
-                            )
-                        }
+                        Icon(
+                            Icons.Outlined.Science,
+                            contentDescription = null,
+                            tint = WildlifeTheme.colors.confirmed,
+                            modifier = Modifier.size(56.dp),
+                        )
                     }
                     Text("Observation confirmed", style = MaterialTheme.typography.headlineLarge)
-                    Text(
-                        reward.speciesLabel,
-                        style = MaterialTheme.typography.titleMedium,
-                        textAlign = TextAlign.Center,
-                    )
+                    Text(reward.speciesLabel, textAlign = TextAlign.Center)
                     Text(
                         if (reward.xpAwarded > 0) "+${reward.xpAwarded} XP" else "Already rewarded",
                         style = MaterialTheme.typography.titleLarge,
-                        fontWeight = FontWeight.Bold,
                         color = WildlifeTheme.colors.gold,
                     )
-                    Button(onClick = onOpenCollection, modifier = Modifier.fillMaxWidth()) {
-                        Text("View in collection")
-                    }
-                    TextButton(onClick = onDismiss) { Text("Keep recording") }
+                    TextButton(onClick = onOpenCollection) { Text("View in collection") }
+                    TextButton(onClick = onDismiss) { Text("Close") }
                 }
             }
         }
     }
 }
 
-private fun friendlyState(state: MarkerState): String = when (state) {
-    MarkerState.CAPTURED -> "Draft observation"
-    MarkerState.HANDED_OFF -> "Waiting for your answer"
-    MarkerState.PENDING -> "Checking iNaturalist"
-    MarkerState.CONFIRMED -> "Confirmed"
-}
+private fun formattedDate(timeMs: Long): String =
+    DateFormat.getDateTimeInstance(DateFormat.MEDIUM, DateFormat.SHORT).format(Date(timeMs))
 
-private fun stateExplanation(state: MarkerState): String = when (state) {
-    MarkerState.CAPTURED -> "Select photos from this one sighting, then continue in iNaturalist."
-    MarkerState.HANDED_OFF -> "Tell Wildlife whether you completed the iNaturalist form."
-    MarkerState.PENDING -> "Submitted; waiting for the observation to appear in the public API."
-    MarkerState.CONFIRMED -> "Matched to a public iNaturalist observation."
-}
+private val previewPhoto = CapturePhotoUi(
+    markerId = "photo",
+    imageUri = "",
+    capturedAtMs = 1_786_550_400_000,
+    latitude = 41.38,
+    longitude = 2.17,
+    capturedAtReliable = true,
+    locationReliable = true,
+    selected = true,
+)
 
-private fun confidenceLabel(band: MatchBand): String = when (band) {
-    // Capture never files automatically, so the strongest band still reads as a proposal
-    // here. Observations is where the same band becomes an action.
-    MatchBand.AUTOMATIC -> "Strong time/location match"
-    MatchBand.LIKELY -> "Likely time/location match"
-    MatchBand.POSSIBLE -> "Needs careful confirmation"
-}
-
-@Preview(showBackground = true, backgroundColor = 0xFF080B09, widthDp = 390, heightDp = 820)
+@Preview(showBackground = true, backgroundColor = 0xFF0E1209, widthDp = 390, heightDp = 820)
 @Composable
 private fun CaptureEmptyPreview() {
+    WildlifeTheme { CapturePreview(CaptureUiState()) }
+}
+
+@Preview(showBackground = true, backgroundColor = 0xFF0E1209, widthDp = 390, heightDp = 820)
+@Composable
+private fun CaptureDraftPreview() {
     WildlifeTheme {
-        CaptureScreen(
-            state = CaptureUiState(), onBack = {}, onTakePhoto = {}, onChoosePhotos = {},
-            onTogglePhoto = { _, _ -> }, onContinueInINaturalist = {}, onSubmitted = {},
-            onNotSubmitted = {}, onCheckNow = {}, onConfirmMatch = {}, onOpenObservation = {},
-            onDelete = {}, onSaveMetadata = { _, _, _, _ -> }, onLinkAccount = {},
-            onDismissReward = {}, onOpenCollection = {},
-            onDismissHandoffUnavailable = {}, onOpenINaturalistWeb = {},
-            onOpenINaturalistStore = {},
+        CapturePreview(
+            CaptureUiState(
+                observations = listOf(
+                    CaptureObservationUi(
+                        CaptureProjection.DRAFT_GROUP_ID,
+                        MarkerState.CAPTURED,
+                        listOf(previewPhoto),
+                        emptyList(),
+                        null,
+                    ),
+                ),
+                statusMessage = "Photo added. Add another view only if it shows this same sighting.",
+            ),
         )
     }
 }
 
-@Preview(
-    showBackground = true,
-    backgroundColor = 0xFF080B09,
-    widthDp = 390,
-    heightDp = 820,
-    fontScale = 1.4f,
-)
 @Composable
-private fun CapturePendingLargeFontPreview() {
-    WildlifeTheme {
-        CaptureScreen(
-            state = CaptureUiState(
-                observations = listOf(
-                    CaptureObservationUi(
-                        groupId = "handoff",
-                        state = MarkerState.PENDING,
-                        photos = listOf(
-                            CapturePhotoUi(
-                                markerId = "photo",
-                                imageUri = "",
-                                capturedAtMs = 1_786_550_400_000,
-                                latitude = 41.38,
-                                longitude = 2.17,
-                                capturedAtReliable = true,
-                                locationReliable = true,
-                                selected = false,
-                            ),
-                        ),
-                        proposals = emptyList(),
-                        matchedObservationUuid = null,
-                    ),
-                ),
-                statusMessage = "Submitted; waiting for the public observation.",
-            ),
-            onBack = {}, onTakePhoto = {}, onChoosePhotos = {},
-            onTogglePhoto = { _, _ -> }, onContinueInINaturalist = {}, onSubmitted = {},
-            onNotSubmitted = {}, onCheckNow = {}, onConfirmMatch = {}, onOpenObservation = {},
-            onDelete = {}, onSaveMetadata = { _, _, _, _ -> }, onLinkAccount = {},
-            onDismissReward = {}, onOpenCollection = {}, onDismissHandoffUnavailable = {},
-            onOpenINaturalistWeb = {}, onOpenINaturalistStore = {},
-        )
-    }
+private fun CapturePreview(state: CaptureUiState) {
+    CaptureScreen(
+        state = state,
+        onBack = {},
+        onTakePhoto = {},
+        onChoosePhotos = {},
+        onContinueInINaturalist = {},
+        onRemovePhoto = {},
+        onDiscardDraft = {},
+        onSaveMetadata = { _, _, _, _ -> },
+        onLinkAccount = {},
+        onDismissReward = {},
+        onOpenCollection = {},
+        onDismissHandoffUnavailable = {},
+        onOpenINaturalistWeb = {},
+        onOpenINaturalistStore = {},
+    )
 }
