@@ -65,14 +65,22 @@ import coil.compose.AsyncImage
 import coil.request.ImageRequest
 import com.wildlife.feasibility.WildlifeNetworkIdentity
 import com.wildlife.feasibility.ui.components.EncounterTrace
+import com.wildlife.feasibility.ui.components.FieldGuidePage
+import com.wildlife.feasibility.ui.components.FieldMarkPill
+import com.wildlife.feasibility.ui.components.PlateSurface
 import com.wildlife.feasibility.ui.components.RegionalCollectionMark
 import com.wildlife.feasibility.ui.components.RegionalCollectionStamp
+import com.wildlife.feasibility.ui.components.SectionRule
 import com.wildlife.feasibility.ui.components.SpeciesCardRarity
 import com.wildlife.feasibility.ui.components.WildlifeLoadingState
 import com.wildlife.feasibility.ui.components.ObservationDensityMap
 import com.wildlife.feasibility.ui.art.TaxonSilhouette
 import com.wildlife.feasibility.ui.theme.WildlifeSpacing
 import com.wildlife.feasibility.ui.theme.WildlifeTheme
+import com.wildlife.feasibility.ui.theme.FieldLabelStyle
+import com.wildlife.feasibility.ui.theme.FieldStampStyle
+import com.wildlife.feasibility.ui.theme.FieldTallyStyle
+import com.wildlife.feasibility.ui.theme.WildlifeBackground
 import java.text.DateFormat
 import java.util.Date
 
@@ -105,12 +113,14 @@ fun SpeciesDetailScreen(
                 modifier = Modifier.padding(innerPadding),
             )
         } else {
-            LazyColumn(
-                modifier = Modifier
-                    .fillMaxSize()
-                    .padding(innerPadding),
-                contentPadding = PaddingValues(bottom = WildlifeSpacing.Large),
-            ) {
+            FieldGuidePage(modifier = Modifier.padding(innerPadding)) {
+                LazyColumn(
+                    modifier = Modifier.fillMaxSize(),
+                    contentPadding = PaddingValues(bottom = WildlifeSpacing.Large),
+                    // Status rows are field annotations, not sections of their own. Keep the
+                    // page compact and let the components that need a larger break provide it.
+                    verticalArrangement = Arrangement.spacedBy(WildlifeSpacing.Small),
+                ) {
                 if (state.enriching) {
                     item { LinearProgressIndicator(Modifier.fillMaxWidth()) }
                 }
@@ -125,49 +135,26 @@ fun SpeciesDetailScreen(
                         onRetryMedia = onRetryMedia,
                     )
                 }
-                item {
-                    SpeciesIdentity(
-                        state = state,
-                        modifier = Modifier.padding(
-                            horizontal = WildlifeSpacing.Screen,
-                            vertical = WildlifeSpacing.Screen,
-                        ),
-                    )
-                }
-                item {
-                    DiscoveryPanel(
-                        state = state,
-                        modifier = Modifier.padding(horizontal = WildlifeSpacing.Screen),
-                    )
-                }
-                state.regionalContext?.let { context ->
                     item {
-                        RegionalContextPanel(
-                            context = context,
-                            modifier = Modifier.padding(
-                                horizontal = WildlifeSpacing.Screen,
-                                vertical = WildlifeSpacing.Small,
-                            ),
+                        SpeciesIdentity(
+                            state = state,
+                            modifier = Modifier.padding(horizontal = WildlifeSpacing.Screen),
                         )
                     }
-                }
-                item {
-                    FactPanel(
-                        state = state,
-                        modifier = Modifier.padding(
-                            horizontal = WildlifeSpacing.Screen,
-                            vertical = WildlifeSpacing.Screen,
-                        ),
-                    )
-                }
-                item {
-                    AboutSection(
-                        summary = state.aboutSummary,
-                        wikipediaUrl = state.wikipediaUrl,
-                        onOpenUrl = onOpenUrl,
-                        modifier = Modifier.padding(horizontal = WildlifeSpacing.Screen),
-                    )
-                }
+                    item {
+                        FactPanel(
+                            state = state,
+                            modifier = Modifier.padding(horizontal = WildlifeSpacing.Screen),
+                        )
+                    }
+                    item {
+                        AboutSection(
+                            summary = state.aboutSummary,
+                            wikipediaUrl = state.wikipediaUrl,
+                            onOpenUrl = onOpenUrl,
+                            modifier = Modifier.padding(horizontal = WildlifeSpacing.Screen),
+                        )
+                    }
                 if (state.observationDensityLoading || state.observationDensity != null || state.observationDensityMessage != null) {
                     item {
                         ObservationDensitySection(
@@ -269,6 +256,7 @@ fun SpeciesDetailScreen(
                         )
                     }
                 }
+                }
             }
         }
     }
@@ -279,41 +267,53 @@ private fun RegionalContextPanel(
     context: SpeciesRegionalContext,
     modifier: Modifier = Modifier,
 ) {
-    Card(
-        modifier = modifier.fillMaxWidth(),
-        colors = CardDefaults.cardColors(containerColor = MaterialTheme.colorScheme.surface),
-        border = BorderStroke(1.dp, MaterialTheme.colorScheme.outlineVariant),
-        elevation = CardDefaults.cardElevation(0.dp),
-    ) {
-        Column(modifier = Modifier.padding(WildlifeSpacing.Card)) {
-            Text(context.regionName, style = MaterialTheme.typography.labelMedium, color = WildlifeTheme.colors.parchment)
-            val rarity = when (context.rarity) {
-                com.wildlife.feasibility.EncounterRarity.UNKNOWN -> "Rarity under editorial review"
-                com.wildlife.feasibility.EncounterRarity.COMMON -> "Common"
-                com.wildlife.feasibility.EncounterRarity.UNCOMMON -> "Uncommon"
-                com.wildlife.feasibility.EncounterRarity.RARE -> "Rare"
-                com.wildlife.feasibility.EncounterRarity.VERY_RARE -> "Very rare"
-            }
-            Row(
-                modifier = Modifier.padding(top = WildlifeSpacing.Small),
-                horizontalArrangement = Arrangement.spacedBy(WildlifeSpacing.Small),
-                verticalAlignment = Alignment.CenterVertically,
-            ) {
-                context.rarity.toCardRarity()?.let { EncounterTrace(it) }
-                Text(rarity, style = MaterialTheme.typography.bodyMedium, color = WildlifeTheme.colors.oliveStrong)
-            }
-            val achievementLabels = context.achievementLabels
-            if (achievementLabels.isNotEmpty()) {
-                Row(
-                    modifier = Modifier.padding(top = WildlifeSpacing.Small),
-                    horizontalArrangement = Arrangement.spacedBy(WildlifeSpacing.Small),
-                ) {
-                    if ("essentials" in achievementLabels) RegionalCollectionStamp(RegionalCollectionMark.ESSENTIAL)
-                    if ("icons" in achievementLabels) RegionalCollectionStamp(RegionalCollectionMark.ICON)
-                }
-            }
-        }
+    val rarity = when (context.rarity) {
+        com.wildlife.feasibility.EncounterRarity.UNKNOWN -> "Under review"
+        com.wildlife.feasibility.EncounterRarity.COMMON -> "Common"
+        com.wildlife.feasibility.EncounterRarity.UNCOMMON -> "Uncommon"
+        com.wildlife.feasibility.EncounterRarity.RARE -> "Rare"
+        com.wildlife.feasibility.EncounterRarity.VERY_RARE -> "Very rare"
     }
+    val standing = when {
+        "icons" in context.achievementLabels -> RegionalCollectionMark.ICON
+        "essentials" in context.achievementLabels -> RegionalCollectionMark.ESSENTIAL
+        else -> null
+    }
+    Row(
+        modifier = modifier
+            .fillMaxWidth()
+            .defaultMinSize(minHeight = 48.dp),
+        horizontalArrangement = Arrangement.spacedBy(WildlifeSpacing.Small),
+        verticalAlignment = Alignment.CenterVertically,
+    ) {
+        standing?.let { RegionalCollectionStamp(it, Modifier.size(30.dp)) }
+        Column(modifier = Modifier.weight(1f)) {
+            Text("REGIONAL GUIDE", style = FieldLabelStyle, color = WildlifeTheme.colors.parchmentFaint)
+            Text(
+                context.regionName,
+                style = MaterialTheme.typography.titleMedium,
+                color = WildlifeTheme.colors.parchment,
+                maxLines = 1,
+                overflow = TextOverflow.Ellipsis,
+            )
+        }
+        context.rarity.toCardRarity()?.let { EncounterTrace(it, Modifier.size(24.dp)) }
+        FieldMarkPill(
+            markName = null,
+            label = rarity,
+            tint = WildlifeTheme.colors.rarityFor(context.rarity),
+        )
+    }
+}
+
+private fun com.wildlife.feasibility.ui.theme.WildlifeColors.rarityFor(
+    rarity: com.wildlife.feasibility.EncounterRarity,
+): Color = when (rarity) {
+    com.wildlife.feasibility.EncounterRarity.COMMON -> rarityCommon
+    com.wildlife.feasibility.EncounterRarity.UNCOMMON -> rarityUncommon
+    com.wildlife.feasibility.EncounterRarity.RARE -> rarityRare
+    com.wildlife.feasibility.EncounterRarity.VERY_RARE -> rarityVeryRare
+    com.wildlife.feasibility.EncounterRarity.UNKNOWN -> parchmentFaint
 }
 
 private fun com.wildlife.feasibility.EncounterRarity.toCardRarity(): SpeciesCardRarity? = when (this) {
@@ -474,9 +474,9 @@ private fun SpeciesHero(
                 .fillMaxSize()
                 .background(
                     Brush.verticalGradient(
-                        0f to Color(0x6B080B09),
+                        0f to WildlifeBackground.copy(alpha = 0.42f),
                         0.42f to Color.Transparent,
-                        1f to Color(0xE6080B09),
+                        1f to WildlifeBackground.copy(alpha = 0.90f),
                     ),
                 ),
         )
@@ -554,6 +554,11 @@ private fun SpeciesHero(
 private fun SpeciesIdentity(state: SpeciesDetailUiState, modifier: Modifier = Modifier) {
     Column(modifier, verticalArrangement = Arrangement.spacedBy(WildlifeSpacing.Micro)) {
         Text(
+            text = listOfNotNull("SPECIES RECORD", state.taxonGroup?.uppercase()).joinToString(" · "),
+            style = FieldStampStyle,
+            color = WildlifeTheme.colors.oliveStrong,
+        )
+        Text(
             text = state.commonName,
             style = MaterialTheme.typography.headlineLarge,
             color = MaterialTheme.colorScheme.onBackground,
@@ -569,78 +574,63 @@ private fun SpeciesIdentity(state: SpeciesDetailUiState, modifier: Modifier = Mo
 
 @Composable
 private fun DiscoveryPanel(state: SpeciesDetailUiState, modifier: Modifier = Modifier) {
-    val regionSuffix = state.regionalContext?.let { " in ${it.regionName}" }.orEmpty()
     val title = when {
-        state.researchGrade -> "Research-grade discovery$regionSuffix"
-        state.observed -> "Species discovered$regionSuffix"
-        else -> "Not observed yet$regionSuffix"
+        state.researchGrade -> "Research grade"
+        state.observed -> "Recorded"
+        else -> "Not recorded"
     }
-    val explanation = when {
-        state.researchGrade -> "The iNaturalist community has confirmed at least one of your observations for this region."
-        state.observed -> "This species is in this regional collection and is still awaiting research grade."
-        else -> "Record this species in this region through Wildlife and iNaturalist to add it to the collection."
-    }
-    Card(
-        modifier = modifier.fillMaxWidth(),
-        colors = CardDefaults.cardColors(containerColor = MaterialTheme.colorScheme.surfaceVariant),
-        border = BorderStroke(1.dp, MaterialTheme.colorScheme.outlineVariant),
-        elevation = CardDefaults.cardElevation(0.dp),
+    Row(
+        modifier = modifier
+            .fillMaxWidth()
+            .defaultMinSize(minHeight = 48.dp),
+        verticalAlignment = Alignment.CenterVertically,
+        horizontalArrangement = Arrangement.spacedBy(WildlifeSpacing.Small),
     ) {
-        Row(
-            modifier = Modifier.padding(WildlifeSpacing.Card),
-            verticalAlignment = Alignment.CenterVertically,
-            horizontalArrangement = Arrangement.spacedBy(WildlifeSpacing.Card),
+        Surface(
+            shape = CircleShape,
+            color = if (state.observed) WildlifeTheme.colors.confirmed else MaterialTheme.colorScheme.surface,
+            modifier = Modifier.size(30.dp),
         ) {
-            Surface(
-                shape = CircleShape,
-                color = if (state.observed) {
-                    WildlifeTheme.colors.confirmed
-                } else {
-                    MaterialTheme.colorScheme.surface
+            Icon(
+                imageVector = when {
+                    state.researchGrade -> Icons.Outlined.Biotech
+                    state.observed -> Icons.Outlined.Check
+                    else -> Icons.Outlined.Visibility
                 },
-                modifier = Modifier.size(44.dp),
-            ) {
-                Box(contentAlignment = Alignment.Center) {
-                    Icon(
-                        imageVector = when {
-                            state.researchGrade -> Icons.Outlined.Biotech
-                            state.observed -> Icons.Outlined.Check
-                            else -> Icons.Outlined.Visibility
-                        },
-                        contentDescription = null,
-                        tint = if (state.observed) {
-                            MaterialTheme.colorScheme.onPrimaryContainer
-                        } else {
-                            MaterialTheme.colorScheme.onSurfaceVariant
-                        },
-                    )
-                }
-            }
-            Column(verticalArrangement = Arrangement.spacedBy(2.dp)) {
-                Text(
-                    text = title,
-                    style = MaterialTheme.typography.titleMedium,
-                    fontWeight = FontWeight.SemiBold,
-                    color = MaterialTheme.colorScheme.onBackground,
-                )
-                Text(
-                    text = explanation,
-                    style = MaterialTheme.typography.bodySmall,
-                    color = MaterialTheme.colorScheme.onSurfaceVariant,
-                )
-            }
+                contentDescription = title,
+                tint = if (state.observed) MaterialTheme.colorScheme.onPrimaryContainer else WildlifeTheme.colors.parchmentFaint,
+                modifier = Modifier.padding(6.dp),
+            )
+        }
+        Text("COLLECTION", style = FieldLabelStyle, color = WildlifeTheme.colors.parchmentFaint)
+        Text(
+            title,
+            style = MaterialTheme.typography.titleMedium,
+            fontWeight = FontWeight.SemiBold,
+            color = WildlifeTheme.colors.parchment,
+            modifier = Modifier.weight(1f),
+        )
+        if (state.observed) {
+            Text(
+                text = state.observations.size.toString(),
+                style = FieldTallyStyle,
+                color = WildlifeTheme.colors.oliveStrong,
+            )
+            Text("RECORDS", style = FieldLabelStyle, color = WildlifeTheme.colors.parchmentFaint)
         }
     }
 }
 
 @Composable
 private fun FactPanel(state: SpeciesDetailUiState, modifier: Modifier = Modifier) {
-    Card(
-        modifier = modifier.fillMaxWidth(),
-        colors = CardDefaults.cardColors(containerColor = MaterialTheme.colorScheme.surface),
-        border = BorderStroke(1.dp, MaterialTheme.colorScheme.outlineVariant),
-        elevation = CardDefaults.cardElevation(0.dp),
-    ) {
+    Column(modifier = modifier.fillMaxWidth()) {
+        SectionRule("Field notes", accent = WildlifeTheme.colors.oliveStrong)
+        PlateSurface(
+            standingBorder = null,
+            modifier = Modifier
+                .fillMaxWidth()
+                .padding(top = WildlifeSpacing.Card),
+        ) {
         Column(
             modifier = Modifier
                 .fillMaxWidth()
@@ -651,6 +641,7 @@ private fun FactPanel(state: SpeciesDetailUiState, modifier: Modifier = Modifier
                 Fact("Group", state.taxonGroup ?: "Unavailable", Modifier.weight(1f))
                 Fact("Family", state.familyName ?: "Unavailable", Modifier.weight(1f))
             }
+            HorizontalDivider(color = MaterialTheme.colorScheme.outlineVariant)
             Row(horizontalArrangement = Arrangement.spacedBy(WildlifeSpacing.Small)) {
                 Fact("Seen by you", state.observations.size.toString(), Modifier.weight(1f))
                 Fact(
@@ -659,6 +650,13 @@ private fun FactPanel(state: SpeciesDetailUiState, modifier: Modifier = Modifier
                     Modifier.weight(1f),
                 )
             }
+            HorizontalDivider(color = MaterialTheme.colorScheme.outlineVariant)
+            DiscoveryPanel(state)
+            state.regionalContext?.let { context ->
+                HorizontalDivider(color = MaterialTheme.colorScheme.outlineVariant)
+                RegionalContextPanel(context)
+            }
+        }
         }
     }
 }
@@ -686,7 +684,7 @@ private fun AboutSection(
         modifier = modifier.fillMaxWidth(),
         verticalArrangement = Arrangement.spacedBy(WildlifeSpacing.Small),
     ) {
-        Text("About", style = MaterialTheme.typography.titleLarge)
+        SectionRule("About")
         Text(
             text = summary ?: "No sourced description is available yet.",
             style = MaterialTheme.typography.bodyMedium,
@@ -810,15 +808,14 @@ private data class SilhouetteCredit(
 private fun Fact(label: String, value: String, modifier: Modifier = Modifier) {
     Column(modifier, verticalArrangement = Arrangement.spacedBy(2.dp)) {
         Text(
-            text = label,
-            style = MaterialTheme.typography.labelSmall,
-            color = WildlifeTheme.colors.mutedText,
+            text = label.uppercase(),
+            style = FieldLabelStyle,
+            color = WildlifeTheme.colors.parchmentFaint,
         )
         Text(
             text = value,
-            style = MaterialTheme.typography.labelMedium,
-            fontWeight = FontWeight.Medium,
-            color = MaterialTheme.colorScheme.onBackground,
+            style = FieldTallyStyle,
+            color = WildlifeTheme.colors.parchment,
             maxLines = 2,
             overflow = TextOverflow.Ellipsis,
         )
@@ -836,14 +833,9 @@ private fun ObservationSection(
             modifier = Modifier
                 .fillMaxWidth()
                 .padding(horizontal = WildlifeSpacing.Screen),
-            horizontalArrangement = Arrangement.SpaceBetween,
             verticalAlignment = Alignment.CenterVertically,
         ) {
-            Text(
-                text = "Your observations",
-                style = MaterialTheme.typography.titleLarge,
-                color = MaterialTheme.colorScheme.onBackground,
-            )
+            SectionRule("Your observations", modifier = Modifier.weight(1f))
             TextButton(onClick = onSeeAllObservations) {
                 Text("See all (${observations.size})")
             }
@@ -867,8 +859,8 @@ private fun ObservationTile(observation: SpeciesDetailObservation, onClick: () -
     Card(
         onClick = onClick,
         modifier = Modifier.width(116.dp),
-        colors = CardDefaults.cardColors(containerColor = MaterialTheme.colorScheme.surface),
-        border = BorderStroke(1.dp, MaterialTheme.colorScheme.outlineVariant),
+        colors = CardDefaults.cardColors(containerColor = WildlifeTheme.colors.plate),
+        border = BorderStroke(1.dp, WildlifeTheme.colors.parchmentFaint.copy(alpha = 0.35f)),
         elevation = CardDefaults.cardElevation(0.dp),
     ) {
         Column {
