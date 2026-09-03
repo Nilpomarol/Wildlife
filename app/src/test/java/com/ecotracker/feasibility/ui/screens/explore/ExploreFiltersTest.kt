@@ -4,6 +4,7 @@ import com.wildlife.feasibility.EncounterRarity
 import com.wildlife.feasibility.ui.components.SpeciesCardModel
 import com.wildlife.feasibility.ui.components.SpeciesCardStatus
 import com.wildlife.feasibility.ui.screens.collection.CollectionFilters
+import com.wildlife.feasibility.ui.screens.collection.DiscoverySourceFilter
 import com.wildlife.feasibility.ui.screens.collection.RarityFilter
 import com.wildlife.feasibility.ui.screens.collection.SpeciesGroup
 import com.wildlife.feasibility.ui.screens.collection.StandingFilter
@@ -38,12 +39,34 @@ class ExploreFiltersTest {
         assertFalse(filters.matches(species(observed = false, status = SpeciesCardStatus.RESEARCH_GRADE)))
     }
 
+    @Test
+    fun `guide source filter isolates extras without removing them from the default guide`() {
+        val catalogue = species(observed = false)
+        val extra = species(observed = true, extra = true)
+
+        assertTrue(CollectionFilters.None.matches(catalogue))
+        assertTrue(CollectionFilters.None.matches(extra))
+        assertTrue(
+            CollectionFilters(discoverySource = DiscoverySourceFilter.EXTRAS).matches(extra),
+        )
+        assertFalse(
+            CollectionFilters(discoverySource = DiscoverySourceFilter.EXTRAS).matches(catalogue),
+        )
+        assertTrue(
+            CollectionFilters(discoverySource = DiscoverySourceFilter.CATALOGUE).matches(catalogue),
+        )
+        assertFalse(
+            CollectionFilters(discoverySource = DiscoverySourceFilter.CATALOGUE).matches(extra),
+        )
+    }
+
     private fun species(
         observed: Boolean,
         icon: Boolean = true,
         rarity: EncounterRarity = EncounterRarity.VERY_RARE,
         group: String = "mammals",
         status: SpeciesCardStatus = SpeciesCardStatus.NONE,
+        extra: Boolean = false,
     ) = ExploreSpecies(
         taxonId = 1,
         taxonGroup = group,
@@ -58,6 +81,7 @@ class ExploreFiltersTest {
             photoUrl = null,
             regionalIcon = icon,
             status = status,
+            extraDiscoveryLabel = "Extra".takeIf { extra },
         ),
     )
 }

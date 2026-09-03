@@ -121,9 +121,9 @@ Build only components that recur or carry core identity:
 | `CollectionProgress` | Regional-guide observed/total value and thin olive progress; only after a curated denominator exists |
 | `RegionSelector` | Browsed-guide selection in Explore only. Collection may later filter personal history by region, but never uses this control. It never changes the location-derived current region, regional progress or full-region prefetch. `RegionPill` is the read-only current-region counterpart |
 | `SpeciesGrid` | Shared responsive grid used by Collection, Explore/Near Me and achievement checklists; its optional viewport callback reports only visible entries and owns no repository or scheduling policy |
-| `CollectionSearchBar` | Primary collection discovery control with compact inline collection/XP stats below it |
+| `CollectionSearchBar` | Primary collection discovery control, sitting under the Species chapter's `RecordHead` |
 | `TaxonFilterRow` | Horizontally scrolling index-tab filter chips |
-| `SpeciesCard` | One stable layout for observed, confirmed, pending and silhouette states |
+| `SpeciesCard` | One stable layout for observed, confirmed, pending and silhouette states. Its optional Extra discovery context is a separate labelled axis and must never reuse rarity, standing or verification presentation |
 | `SpeciesGrid` | Three columns normally; two on compact/large-text layouts; one at very large text or very narrow widths |
 | `ObservationStateBadge` | Verification state only; never rarity |
 | `EncounterRarityIndicator` | Common/Uncommon/Rare/Very Rare only; independent from regional standing and verification |
@@ -135,7 +135,9 @@ Build only components that recur or carry core identity:
 | `ObservationRecordLine` | Shared ledger line for one sighting: photograph, identity, stamped metadata, an optional record-state pill and regional context, with slots for trailing utility actions and an in-card footer. Used for managed records and public history alike; a record-state pill, never a rubber stamp, because the stamp's ring cannot hold a word at row size |
 | `MatchComparisonPlate` | The capture and the candidate public photograph side by side, with the species, a confidence meter and the evidence line beneath. Shared because Capture presents the same proposals immediately after a handoff. The meter is omitted once a match is filed: there is no live score left to report |
 | `ConfidenceMeter` | Graded match confidence as a filled measure plus its band word. Shows no percentage — the score orders explanations, it is not a probability |
-| `LedgerHeader` | Outstanding / awaiting / filed tallies over the read-only iNaturalist note. Hidden entirely when the ledger is empty rather than printing three zeroes |
+| `RecordHead` | The head of a personal record, shared by Collection's Species and Observations chapters and by Profile: an optional eyebrow and display headline measure, a row of `RecordTally` readouts and a stamped note, boxed in hairlines. Tallies wrap rather than scroll or clip at large type, and a tally of zero drops to faint ink instead of colouring the zero. It carries no completion bar or percentage — Collection is an all-regions record with no denominator. Collection's readouts carry no XP or rank ladder, which are the ranger's; Profile's headline *is* lifetime XP. Observations hides it entirely when the ledger is empty rather than printing three zeroes |
+| `JournalButton` | The journal's action: a stamped word in a pill, outlined or filled for the one primary action on a page. Its optional `accent` exists for a destructive action only — the one control that leaves the olive family — and never as decoration |
+| `FieldStamp` | A struck rubber stamp, for a state the *record* has reached (Research Grade, a linked identity), never for rarity or standing. The ring is sized to clear its word and therefore grows with the type scale, clamped at 1.5× |
 | `SectionHeader` | Consistent title and optional trailing action |
 | `WildlifeLoadingState` | Shared accessible initial-loading treatment; later refreshes retain existing screen content where available |
 | `CaptureButton` | Olive circular primary capture action with parchment icon |
@@ -150,6 +152,7 @@ Collection owns the user's personal wildlife history through three explicit sect
 
 - **Species** projects unique recorded collection taxa across every stored region. It never pads the personal collection with missing regional-guide entries. Region-specific rarity and standing do not decorate this all-regions projection.
 - Confirmed species-level taxa absent from their assigned region's frozen catalogue remain first-class Collection entries. Their projection carries a typed **Extra discovery** state derived from observation region plus catalogue version; this is not rarity, standing or verification. Genus-or-higher records remain awaiting identification until a species-level collection taxon exists.
+- The Species chapter opens on a `RecordHead`: recorded species as the headline measure, then observations, taxonomic-group breadth, Research Grade confirmations and species awaiting an identification as readouts, glossed by what "confirmed" means. It states what the record holds, never how complete it is — no completion percentage exists for an all-regions projection.
 - **Observations** owns the individual handoff/public-observation ledger, sync retry, candidate confirmation, public-record links and local-only deletion.
 - **Map** owns the privacy-safe personal observation cells and the independently toggleable regional-progress layer.
 - The screen uses one shared section selector and keeps Collection selected in the bottom index strip across all three sections.
@@ -168,7 +171,7 @@ A future region control in Collection is a personal-history scope filter (defaul
 - Works unlinked and offline after the first snapshot is stored.
 - Provides two explicit sections: the stored Species guide first and one-shot Near me discovery second. The guide opens by default because it works offline and without a permission prompt.
 - The Species guide owns the regional identity/completion header, observed and missing plates, encounter rarity, Essentials and Icons. Its region selector changes only the guide being browsed.
-- The guide also exposes the selected region's **Extra discoveries** as a separate count and browsable group. These are confirmed personal discoveries absent from that frozen catalogue version. They never enter the guide denominator or inherit catalogue rarity/standing; the UI must state this separation without presenting them as lower-value sightings.
+- The guide includes the selected region's **Extra discoveries** in the same species grid as frozen catalogue entries. These are confirmed personal discoveries absent from that frozen catalogue version. The header presents the guide size additively (for example, `800 + 3 extra`) while completion percentage and the catalogue denominator remain catalogue-only. Extras never inherit catalogue rarity or standing, and a Guide entries axis in the shared filter sheet can show all species, catalogue entries, or Extras.
 - Home carries a preview of Near me: the same one-shot request and a short ranked extract, with a
   "See all" entry that opens Explore's Near me section. Near me is always scoped and decorated from
   the location-derived current catalogue, even while Explore is browsing another guide. The preview
@@ -250,6 +253,7 @@ A future region control in Collection is a personal-history scope filter (defaul
 - Common name is the primary serif identity; scientific name is italic and secondary.
 - Only sourced facts appear. Missing facts are omitted or explicitly unavailable.
 - Personal observations and verification status are derived from the linked account cache.
+- Species Detail is addressable by every species-level taxon in the observation cache, regardless of catalogue membership. An off-catalogue record opens immediately from its stored observation identity and personal media, then builds and persists its richer read-only taxon record from iNaturalist on first open when no remote cache exists. Catalogue and regional context are optional decoration, never a routing or rendering prerequisite.
 - Image attribution remains reachable from the detail screen.
 - Adds regional encounter rarity, catalogue/achievement membership, seasonality when sourced and the observation's valid regional unlock state.
 - May show a cached public iNaturalist distribution/observation panel as an online enhancement; the local identity, collection state and personal observation strip remain available offline.
@@ -266,7 +270,15 @@ A future region control in Collection is a personal-history scope filter (defaul
 - Deletion removes only Wildlife's local record and private camera copy; it never deletes an imported original or an iNaturalist observation.
 - Reward animation occurs only after a confirmed public match.
 
-### Account, settings and diagnostics
+### Profile
+
+- The ranger's credential page, and the only screen that prints the **whole rank ladder**: every rank in the scheme, which are earned, which title is worn, and the recent XP rewards behind them. Home's masthead keeps the *next rung*; neither Collection nor Explore carries either measure.
+- Choosing an earned title happens on the ladder rung itself, as a `Role.RadioButton` selectable in a `selectableGroup` with the chapter rail's non-colour active marker. There is no title dialog.
+- The header carries the worn title, the handle, the immutable public user number and a struck `LINKED` stamp; it carries no progress bar, which would duplicate the ladder's measure.
+- The ladder is state, not a rule the composable derives: `ShellUiState.rankLadder` supplies it.
+- Local data and diagnostics are ruled `RecordLine` form lines in a `JournalSurface`, one measurement per line, over the privacy-safe copy action and the single destructive control. Deletion still confirms in a themed Material dialog and still removes only Wildlife's local data.
+
+### Account linking, settings and other utility screens
 
 Use standard Material 3 forms, dialogs and lists within the theme. These screens do not need custom field-guide compositions.
 

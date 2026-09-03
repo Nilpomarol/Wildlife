@@ -1034,8 +1034,7 @@ What to take, in rough order of how much it matters:
 5. **The type and palette** — Eczar, Barlow and IBM Plex Mono, and the tokens in
    `ui/theme/Color.kt`. Never a raw colour or `FontFamily` at a call site.
 
-Screens still to bring across fully: **Collection's Observations/Map sections, Profile,
-SpeciesDetail**. They
+Screens still to bring across fully: **Collection's Map section, SpeciesDetail**. They
 inherit the tokens, the card and the type already, but keep bespoke headers and furniture.
 
 Two things on this screen are deliberately not general rules:
@@ -1070,8 +1069,8 @@ view use one shared **numbered chapter rail**. It is page furniture, not a segme
 The rail stays fixed in the same position when its destination changes section. The bottom
 index strip continues to show the owning destination—Collection or Explore—throughout.
 
-The reference voice is in `ui/components/FieldGuide.kt`: the ranger header, section rules,
-plate surfaces, field-mark pills. The dated-entry voice is in `ui/components/JournalEntry.kt`:
+The reference voice is in `ui/components/FieldGuide.kt`: the ranger header, the record
+head, section rules, plate surfaces, field-mark pills. The dated-entry voice is in `ui/components/JournalEntry.kt`:
 
 - **`Masthead`** — Home's header. A compact identity line places the dateline on the left
   and `WILDLIFE` followed by the installed app icon, cropped as a round journal seal, on
@@ -1132,6 +1131,59 @@ progression rank patch and progress measure.
 This costs roughly a third of a phone viewport, which is correct for Collection and wrong
 for busier screens — `RangerHeader` therefore has a **compact variant**. Use it anywhere
 identity is not the point of the screen.
+
+### The record head
+
+Collection does not use that header. It is the personal ledger, and a ledger has no
+denominator: it spans every region the user has ever recorded in, so there is nothing for a
+completion bar to complete. Its chapters open instead on a **record head** (`RecordHead`) —
+a form's summary box rather than a painted ground: an eyebrow, one display headline measure,
+a row of readouts and a stamped note, boxed in hairlines.
+
+- **The headline is the achievement**, so it takes the display serif: recorded species on
+  the Species chapter. The readouts under it annotate the same record.
+- **Readouts measure, they do not rank.** Observations, taxonomic-group breadth, Research
+  Grade confirmations and species awaiting an identification. Regional standing and encounter
+  rarity are absent because they need a selected region and belong to Explore; lifetime XP
+  and the rank ladder are absent because they belong to Home.
+- **A tally of nothing is stated, not announced** — a zero drops to the faint ink rather
+  than colouring the number.
+- **Warm accents are kept apart.** Brass and copper side by side in a row of readouts read
+  as one colour; separate them with a neutral or a green.
+- **Readouts wrap, never scroll or clip.** Four of them cannot share a phone line at large
+  type, and a count pushed off the edge is a count nobody reads.
+- **No percentage, ever**, until a curated denominator exists — and for the all-regions
+  personal projection, none can.
+
+### The credential page
+
+Profile is the fourth thing a field pamphlet carries: the **credential page** at the back,
+where the ranger's own standing is recorded rather than the wildlife's. It shares the
+record head and the section rules with Collection, and the stamps, buttons and form lines
+with Home; what it owns is the ladder.
+
+- **Home prints the next rung; Profile prints the whole ladder.** The masthead is a status
+  line — today's rank and the bar to the one after it. Profile prints every rank in the
+  scheme, which have been earned, which title is worn, and the rewards that paid for them.
+  This is the one place the §"The header" rule about lifetime XP is *extended* rather than
+  contradicted: the measure still belongs to the ranger, and Collection and Explore still
+  refuse it.
+- **Its header carries no progress bar.** A bar there would answer the ladder's question a
+  second time and leave two screens' headers reading as one duplicated component. It
+  carries the worn title, the handle, the immutable public user number and — as the only
+  state on it the ranger did not choose — a struck `LINKED` stamp.
+- **The ladder is the control.** An earned rung is where its title is chosen, marked with
+  the chapter rail's physical marker as well as brighter ink. A dialog was tried here and
+  rejected: it covered the very thing being chosen between. Locked rungs keep a silhouette
+  badge, the plates' "not yet found" language.
+- **A worn title is only stated where another could have been worn.** With one rank earned
+  the rung says `CURRENT RANK`, because calling it a title implies a choice not on offer.
+- **Diagnostics are paperwork, not settings.** They are ruled `RecordLine` form lines in a
+  `JournalSurface`, one measurement per line — three counts on one line wrap mid-value at
+  large type, and a leader pointing at a paragraph is no longer a form line.
+- **The destructive control is the one thing that leaves the olive family**, through
+  `JournalButton`'s `accent`, and it stays outlined: the page offers it, it does not
+  recommend it.
 
 ### Drawn marks, not icon fonts
 

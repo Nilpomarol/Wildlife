@@ -1,13 +1,10 @@
 package com.wildlife.feasibility.ui.screenshot
 
 import androidx.compose.runtime.Composable
-import androidx.compose.runtime.CompositionLocalProvider
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.setValue
-import androidx.compose.ui.platform.LocalDensity
 import androidx.compose.ui.test.junit4.createComposeRule
-import androidx.compose.ui.unit.Density
 import androidx.compose.ui.test.onRoot
 import com.github.takahirom.roborazzi.captureRoboImage
 import com.wildlife.feasibility.MarkerState
@@ -102,22 +99,6 @@ private fun Ledger(state: ObservationsUiState) {
         onOpenObservation = {},
         onOpenINaturalist = {},
         onDeleteLocal = {},
-    )
-}
-
-/**
- * Renders at a larger type scale without changing the layout density.
- *
- * Robolectric's qualifiers cannot express a font scale, so it is provided directly. The
- * device density is left where the qualifier put it: scaling both would shrink the whole
- * page rather than testing what large type does to it.
- */
-@Composable
-private fun ScaledFont(scale: Float, content: @Composable () -> Unit) {
-    val density = LocalDensity.current
-    CompositionLocalProvider(
-        LocalDensity provides Density(density.density, scale),
-        content = content,
     )
 }
 

@@ -86,8 +86,8 @@ import com.wildlife.feasibility.ui.components.MediaPrefetchStatus
 import com.wildlife.feasibility.ui.components.WildlifeDropdown
 import com.wildlife.feasibility.ui.components.WildlifeScaffold
 import com.wildlife.feasibility.ui.components.WildlifeLoadingState
-import com.wildlife.feasibility.ui.components.RangerHeader
-import com.wildlife.feasibility.ui.components.RangerStat
+import com.wildlife.feasibility.ui.components.RecordHead
+import com.wildlife.feasibility.ui.components.RecordTally
 import com.wildlife.feasibility.ui.components.SectionRule
 import com.wildlife.feasibility.ui.components.FieldGuidePage
 import com.wildlife.feasibility.ui.components.bleedHorizontally
@@ -219,6 +219,11 @@ fun CollectionScreen(
                                 researchGradeCount = personalEntries.count {
                                     it.bestQualityGrade == "research"
                                 },
+                                awaitingCount = personalEntries.count {
+                                    it.awaitingSpeciesIdentification
+                                },
+                                groupsRecorded = presentGroups.size,
+                                groupsTotal = SpeciesGroup.entries.size,
                             )
                             if (!state.linked) {
                                 UnlinkedCollectionBanner(onLinkAccount = onLinkAccount)
@@ -267,28 +272,70 @@ fun CollectionScreen(
 
 // region — Header
 
+/**
+ * The Species chapter's record head.
+ *
+ * Collection has no denominator — it is every region the user has ever recorded in, not a
+ * checklist — so the head states what the record *holds* rather than how complete it is,
+ * and carries no completion bar or percentage. The species count leads because that is the
+ * collection; the readouts under it annotate the same record.
+ *
+ * Three things are deliberately absent. Regional standing and encounter rarity need a
+ * selected region and stay on Explore's guide. Lifetime XP and the rank ladder are Home's,
+ * where a rank counting a lifetime cannot be mistaken for a measure of this screen.
+ *
+ * No "My collection" heading either: the destination's own title says it once already, and
+ * the chapter rail directly above says which of its views this is.
+ */
 @Composable
 private fun PersonalCollectionHeader(
     speciesCount: Int,
     observationCount: Int,
     researchGradeCount: Int,
+    awaitingCount: Int,
+    groupsRecorded: Int,
+    groupsTotal: Int,
 ) {
-    Column(
-        verticalArrangement = Arrangement.spacedBy(WildlifeSpacing.Micro),
-    ) {
-        // No "My collection" heading: the destination's own title says it once already,
-        // and the strip directly above says which of its views this is.
-        Text(
-            text = "$speciesCount species · $observationCount observations",
-            style = MaterialTheme.typography.bodyLarge,
-            color = WildlifeTheme.colors.parchment,
-        )
-        Text(
-            text = "$researchGradeCount species with a Research Grade observation",
-            style = MaterialTheme.typography.labelMedium,
-            color = WildlifeTheme.colors.mutedText,
-        )
-    }
+    val colors = WildlifeTheme.colors
+    RecordHead(
+        eyebrow = "Your record",
+        headlineValue = speciesCount.toString(),
+        // "Species" is its own plural, so the line reads correctly at one as well as none.
+        headlineLabel = "species recorded",
+        // Ordered as size, then breadth, then how settled the record is. Copper and brass
+        // are kept apart in the row: side by side the two warm accents read as one.
+        tallies = listOf(
+            RecordTally.of(observationCount, "Observations", colors.parchment),
+            // Breadth rather than completeness. The denominator is the taxonomic filter
+            // axis, which is the one axis this all-regions projection legitimately owns —
+            // not a count of what lives in any region.
+            RecordTally(
+                value = "$groupsRecorded/$groupsTotal",
+                label = "Groups",
+                tint = colors.axisGroup,
+                emphasised = groupsRecorded > 0,
+                description = "$groupsRecorded of $groupsTotal taxonomic groups recorded",
+            ),
+            RecordTally.of(
+                researchGradeCount,
+                "Confirmed",
+                colors.confirmed,
+                description = "$researchGradeCount species with a Research Grade observation",
+            ),
+            // Brass, as on the Observations chapter: the only readout here that means
+            // something is still unsettled.
+            RecordTally.of(
+                awaitingCount,
+                "Awaiting ID",
+                colors.gold,
+                description = "$awaitingCount species awaiting a species identification",
+            ),
+        ),
+        // A legend entry, not a sentence: "confirmed" is the one word on the head that
+        // means something specific, and it fits one stamped line when glossed rather than
+        // explained.
+        note = "Confirmed: a Research Grade observation",
+    )
 }
 
 @Composable
@@ -454,6 +501,15 @@ private fun CollectionSpecies.toCardModel() = SpeciesCardModel(
         SpeciesCardStatus.NONE
     },
     rarity = encounterRarity?.toCardRarity(),
+    extraDiscoveryLabel = when (extraDiscoveryContexts.size) {
+        0 -> null
+        1 -> "Extra · ${extraDiscoveryContexts.single().regionName}"
+        else -> "Extra · ${extraDiscoveryContexts.size} regions"
+    },
+    extraDiscoveryDescription = extraDiscoveryContexts.takeIf { it.isNotEmpty() }
+        ?.joinToString(prefix = "Extra discovery in ", separator = "; ") {
+            "${it.regionName}, catalogue ${it.catalogueVersion}"
+        },
 )
 
 private fun EncounterRarity.toCardRarity() = when (this) {

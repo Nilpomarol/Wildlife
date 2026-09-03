@@ -19,7 +19,9 @@ import com.wildlife.feasibility.ObservationStore
 import com.wildlife.feasibility.ObservationLifecyclePolicy
 import com.wildlife.feasibility.ObservationQualityTransition
 import com.wildlife.feasibility.ObservationRegionAssignment
+import com.wildlife.feasibility.ProgressionLevel
 import com.wildlife.feasibility.ProgressionProjection
+import com.wildlife.feasibility.ProgressionRules
 import com.wildlife.feasibility.ProgressionState
 import com.wildlife.feasibility.ProgressionStore
 import com.wildlife.feasibility.PublishedContentRepositories
@@ -74,6 +76,13 @@ data class ShellUiState(
     val draftObservations: Int = 0,
     val localData: LocalDataInventory = LocalDataInventory(),
     val regionalProgress: RegionalHomeProgress? = null,
+    /**
+     * Every rank in the scheme, earned or not, so Profile can print the whole ladder.
+     *
+     * It is state rather than something the composable reads off the rules: the screen
+     * shows the ladder, it does not decide what is on it.
+     */
+    val rankLadder: List<ProgressionLevel> = ProgressionRules.levels,
     val errorMessage: String? = null,
 )
 

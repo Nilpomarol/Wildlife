@@ -6,10 +6,16 @@
 # catalogue and blocks every build. Pinning the checkout to LF keeps the file byte-identical
 # to what the builder wrote and hashed.
 #
-# Deliberately scoped to this one file. The other hashed inputs are hand-edited sources
-# whose recorded hashes are their CRLF working-tree form; pinning those to LF would break
-# the same gate in the opposite direction.
+# The same applies to `catalogues/achievements.yaml`, which stopped being a hand-edited
+# source when the curation moved into the importer: `import_broad_catalogues.py` writes it
+# as JSON, and the hash recorded for it in `catalogue-inputs.json` is that LF form. Without
+# this pin it checks out as CRLF and fails the gate on Windows while passing on Linux.
+catalogues/achievements.yaml text eol=lf
 catalogues/content_manifest.yaml text eol=lf
+
+# Every other hashed input is a hand-edited source whose recorded hash is its CRLF
+# working-tree form; pinning those to LF would break the same gate in the opposite
+# direction. Add a file here only when the builder, not a person, writes it.
 
 # The generated catalogue is binary and must never be line-ending converted.
 *.sqlite binary

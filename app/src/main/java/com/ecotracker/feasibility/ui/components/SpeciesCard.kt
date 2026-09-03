@@ -93,6 +93,10 @@ data class SpeciesCardModel(
     val collected: Boolean = false,
     val status: SpeciesCardStatus = SpeciesCardStatus.NONE,
     val rarity: SpeciesCardRarity? = null,
+    /** Regional context only; never a synonym for rarity, standing or verification. */
+    val extraDiscoveryLabel: String? = null,
+    /** Full non-visual wording, including region/version where the surface has that context. */
+    val extraDiscoveryDescription: String? = null,
 )
 
 enum class SpeciesCardPhotoKind {
@@ -209,6 +213,7 @@ fun SpeciesCard(
         append(", ")
         append(species.supportingText)
         rarity?.let { append(", ${it.label} tier") }
+        (species.extraDiscoveryDescription ?: species.extraDiscoveryLabel)?.let { append(", $it") }
         if (species.regionalIcon) append(", Regional Icon")
         else if (species.regionalEssential) append(", Regional Essential")
         when (species.status) {
@@ -367,13 +372,21 @@ fun SpeciesCard(
                         maxLines = 2,
                         overflow = TextOverflow.Ellipsis,
                     )
-                    if (rarity != null) {
+                    if (rarity != null || species.extraDiscoveryLabel != null) {
                         Spacer(Modifier.height(5.dp))
-                        FieldMarkPill(
-                            markName = rarity.fieldMarkName(),
-                            label = rarity.label,
-                            tint = rarityColor(rarity),
-                        )
+                        if (rarity != null) {
+                            FieldMarkPill(
+                                markName = rarity.fieldMarkName(),
+                                label = rarity.label,
+                                tint = rarityColor(rarity),
+                            )
+                        } else {
+                            FieldMarkPill(
+                                markName = null,
+                                label = species.extraDiscoveryLabel.orEmpty(),
+                                tint = colors.gold,
+                            )
+                        }
                     }
                 }
             }

@@ -314,7 +314,10 @@ class MainActivity : ComponentActivity() {
                     onBack = null,
                     onRefresh = exploreViewModel::refreshLocal,
                     onOpenTaxon = { taxonId ->
-                        val species = exploreViewModel.uiState.entries.firstOrNull {
+                        val species = (
+                            exploreViewModel.uiState.entries +
+                                exploreViewModel.uiState.extraDiscoveries
+                            ).firstOrNull {
                             it.taxonId == taxonId
                         }
                         openSpeciesDetail(

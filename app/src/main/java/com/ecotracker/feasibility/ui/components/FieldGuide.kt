@@ -7,6 +7,8 @@ import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.BoxScope
 import androidx.compose.foundation.layout.Column
+import androidx.compose.foundation.layout.ExperimentalLayoutApi
+import androidx.compose.foundation.layout.FlowRow
 import androidx.compose.foundation.layout.defaultMinSize
 import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.Spacer
@@ -31,6 +33,8 @@ import com.wildlife.feasibility.R
 import androidx.compose.ui.graphics.Brush
 import androidx.compose.ui.semantics.Role
 import androidx.compose.ui.graphics.Color
+import androidx.compose.ui.semantics.contentDescription
+import androidx.compose.ui.semantics.semantics
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.style.TextOverflow
 import androidx.compose.ui.tooling.preview.Preview
@@ -163,6 +167,159 @@ fun headerScrim(bottomAlpha: Float = 0.94f): Brush = Brush.verticalGradient(
 @Composable
 fun HeaderHairline(modifier: Modifier = Modifier) {
     Box(modifier.fillMaxWidth().height(1.dp).background(WildlifeOutlineSubtle))
+}
+
+// ---------------------------------------------------------------- the record head
+
+/**
+ * One tally in a [RecordHead]: a value over the noun it counts.
+ *
+ * The value is a string rather than a count because not every measure is a plain number —
+ * a breadth measure reads as "3/5" — and a readout that had to be reassembled from parts
+ * at each call site would drift between them.
+ */
+data class RecordTally(
+    val value: String,
+    val label: String,
+    val tint: Color,
+    /**
+     * Whether the value earns its accent. A tally of nothing is stated, not announced, so
+     * it falls back to the faint ink rather than colouring a zero.
+     */
+    val emphasised: Boolean = true,
+    /** Spoken instead of "value label" where the short label under-describes the measure. */
+    val description: String? = null,
+) {
+    companion object {
+        /** A counted tally, which loses its accent at zero. */
+        fun of(count: Int, label: String, tint: Color, description: String? = null) =
+            RecordTally(count.toString(), label, tint, emphasised = count > 0, description = description)
+    }
+}
+
+/**
+ * The head of a personal record: an optional headline measure, a row of tallies and a
+ * stamped note, boxed in hairlines.
+ *
+ * This is the *ledger* voice, not the header voice — Collection measures a personal
+ * record with no denominator, so it gets a form's summary box rather than the full-bleed
+ * regional ground and completion bar that [RangerHeader] carries. Lifetime XP and the rank
+ * ladder are Home's and appear nowhere here.
+ *
+ * The tallies wrap rather than scroll or clip: at large font scales a row of four readouts
+ * cannot fit a phone, and a count pushed off the edge is a count the user never reads.
+ */
+@OptIn(ExperimentalLayoutApi::class)
+@Composable
+fun RecordHead(
+    tallies: List<RecordTally>,
+    modifier: Modifier = Modifier,
+    eyebrow: String? = null,
+    /** The one measure that leads, set in the display face because it is the achievement. */
+    headlineValue: String? = null,
+    headlineLabel: String? = null,
+    note: String? = null,
+) {
+    val colors = WildlifeTheme.colors
+    Column(
+        modifier
+            .fillMaxWidth()
+            .clip(RoundedCornerShape(10.dp))
+            .background(WildlifeSurface.copy(alpha = 0.80f))
+            .border(1.dp, WildlifeOutlineSubtle, RoundedCornerShape(10.dp))
+            .padding(vertical = WildlifeSpacing.Card, horizontal = WildlifeSpacing.Card),
+        verticalArrangement = Arrangement.spacedBy(WildlifeSpacing.Small),
+    ) {
+        if (eyebrow != null || headlineValue != null) {
+            // The eyebrow and the measure it names are one block, set tight against each
+            // other: separated by the outer spacing they read as two unrelated lines.
+            Column(verticalArrangement = Arrangement.spacedBy(3.dp)) {
+                if (eyebrow != null) {
+                    Text(eyebrow.uppercase(), style = FieldLabelStyle, color = colors.oliveStrong)
+                }
+                if (headlineValue != null) {
+                    Row(
+                        modifier = Modifier.semantics(mergeDescendants = true) {
+                            contentDescription =
+                                listOfNotNull(headlineValue, headlineLabel).joinToString(" ")
+                        },
+                        horizontalArrangement = Arrangement.spacedBy(8.dp),
+                    ) {
+                        // Aligned on the baseline rather than the box: a display numeral
+                        // and a sans label have very different line boxes, and bottom
+                        // alignment drops the label a third of its height below the number.
+                        Text(
+                            headlineValue,
+                            fontFamily = DisplayFontFamily,
+                            fontWeight = FontWeight.SemiBold,
+                            fontSize = 32.sp,
+                            lineHeight = 34.sp,
+                            color = colors.parchment,
+                            modifier = Modifier.alignByBaseline(),
+                        )
+                        if (headlineLabel != null) {
+                            Text(
+                                headlineLabel,
+                                fontWeight = FontWeight.Medium,
+                                fontSize = 16.sp,
+                                lineHeight = 20.sp,
+                                color = colors.parchmentDim,
+                                maxLines = 2,
+                                overflow = TextOverflow.Ellipsis,
+                                modifier = Modifier.alignByBaseline(),
+                            )
+                        }
+                    }
+                }
+            }
+        }
+        if (tallies.isNotEmpty()) {
+            if (eyebrow != null || headlineValue != null) HeaderHairline()
+            FlowRow(
+                modifier = Modifier.fillMaxWidth(),
+                horizontalArrangement = Arrangement.SpaceEvenly,
+                verticalArrangement = Arrangement.spacedBy(WildlifeSpacing.Card),
+            ) {
+                tallies.forEach { tally -> RecordTallyReadout(tally) }
+            }
+        }
+        if (note != null) {
+            HeaderHairline()
+            Text(note.uppercase(), style = FieldStampStyle, color = colors.parchmentFaint)
+        }
+    }
+}
+
+/**
+ * A single tally: the numeral over its stamped noun.
+ *
+ * Reads as a form's summary box rather than a dashboard tile — no disc, no icon, just the
+ * value and what it counts.
+ */
+@Composable
+fun RecordTallyReadout(tally: RecordTally, modifier: Modifier = Modifier) {
+    val colors = WildlifeTheme.colors
+    Column(
+        modifier.semantics(mergeDescendants = true) {
+            contentDescription = tally.description ?: "${tally.value} ${tally.label}"
+        },
+        horizontalAlignment = Alignment.CenterHorizontally,
+        verticalArrangement = Arrangement.spacedBy(1.dp),
+    ) {
+        Text(
+            tally.value,
+            fontFamily = DisplayFontFamily,
+            fontWeight = FontWeight.SemiBold,
+            fontSize = 22.sp,
+            color = if (tally.emphasised) tally.tint else colors.parchmentFaint,
+        )
+        Text(
+            tally.label.uppercase(),
+            style = FieldLabelStyle,
+            color = colors.parchmentFaint,
+            maxLines = 1,
+        )
+    }
 }
 
 /**
@@ -613,7 +770,13 @@ fun FieldMarkPill(
                 FieldMark(markName, tint, Modifier.size(15.dp))
                 Spacer(Modifier.size(5.dp))
             }
-            Text(label.uppercase(), style = FieldLabelStyle, color = tint)
+            Text(
+                text = label.uppercase(),
+                style = FieldLabelStyle,
+                color = tint,
+                maxLines = 1,
+                overflow = TextOverflow.Ellipsis,
+            )
         }
     }
 }

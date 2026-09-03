@@ -1,6 +1,8 @@
 package com.wildlife.feasibility.ui.screens.explore
 
 import com.wildlife.feasibility.EncounterRarity
+import com.wildlife.feasibility.CollectionSpecies
+import com.wildlife.feasibility.ExtraDiscoveryContext
 import com.wildlife.feasibility.InstalledRegionalTaxon
 import com.wildlife.feasibility.InstalledRegionalAchievement
 import com.wildlife.feasibility.NearbySpecies
@@ -9,6 +11,7 @@ import com.wildlife.feasibility.TaxonDetails
 import com.wildlife.feasibility.ui.components.SpeciesCardPhotoKind
 import com.wildlife.feasibility.ui.components.SpeciesCardStatus
 import org.junit.Assert.assertEquals
+import org.junit.Assert.assertFalse
 import org.junit.Assert.assertNull
 import org.junit.Assert.assertTrue
 import org.junit.Test
@@ -129,6 +132,42 @@ class ExploreProjectionTest {
         assertTrue(entry.observed)
         assertNull(entry.card.photoUrl)
         assertEquals("file:///stored/robin.png", entry.card.silhouetteUrl)
+    }
+
+    @Test
+    fun `extra entry keeps personal media and has no regional rarity or standing`() {
+        val context = ExtraDiscoveryContext("mediterranean", "Mediterranean Europe", "2026.1")
+        val entry = ExploreProjection.extraEntries(
+            entries = listOf(
+                CollectionSpecies(
+                    key = "taxon:42",
+                    taxonId = 42,
+                    label = "European robin",
+                    observationCount = 1,
+                    rewardedObservationCount = 1,
+                    latestObservationUuid = "uuid",
+                    latestObservedAtMs = 1,
+                    bestQualityGrade = "needs_id",
+                    awaitingSpeciesIdentification = false,
+                    photoUrl = "https://example.test/personal.jpg",
+                    extraDiscoveryContexts = listOf(context),
+                ),
+            ),
+            detailsByTaxon = mapOf(42L to details()),
+            context = context,
+        ).single()
+
+        assertTrue(entry.observed)
+        assertNull(entry.encounterRarity)
+        assertFalse(entry.card.regionalEssential)
+        assertFalse(entry.card.regionalIcon)
+        assertEquals("Extra", entry.card.extraDiscoveryLabel)
+        assertEquals(
+            "Extra discovery in Mediterranean Europe, catalogue 2026.1",
+            entry.card.extraDiscoveryDescription,
+        )
+        assertEquals(SpeciesCardStatus.OBSERVED, entry.card.status)
+        assertEquals(SpeciesCardPhotoKind.PERSONAL, entry.card.photoKind)
     }
 
     private fun taxon() = InstalledRegionalTaxon(

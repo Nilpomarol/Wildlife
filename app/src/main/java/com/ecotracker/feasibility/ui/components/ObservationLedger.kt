@@ -363,71 +363,6 @@ private fun RecordPhoto(
     )
 }
 
-/**
- * A tally line for the ledger's head: a count over its stamped noun.
- *
- * Reads as a form's summary box rather than a dashboard tile — no disc, no icon, just the
- * numeral and what it counts.
- */
-@Composable
-fun LedgerTally(
-    value: Int,
-    label: String,
-    tint: Color,
-    modifier: Modifier = Modifier,
-) {
-    Column(
-        modifier.semantics { contentDescription = "$value $label" },
-        horizontalAlignment = Alignment.CenterHorizontally,
-        verticalArrangement = Arrangement.spacedBy(1.dp),
-    ) {
-        Text(
-            value.toString(),
-            fontFamily = DisplayFontFamily,
-            fontWeight = FontWeight.SemiBold,
-            fontSize = 22.sp,
-            color = if (value == 0) WildlifeTheme.colors.parchmentFaint else tint,
-        )
-        Text(
-            label.uppercase(),
-            style = FieldLabelStyle,
-            color = WildlifeTheme.colors.parchmentFaint,
-            maxLines = 1,
-        )
-    }
-}
-
-/** A hairline-boxed row of [LedgerTally]s, spanning the page under the chapter rail. */
-@Composable
-fun LedgerHeader(
-    tallies: List<Triple<Int, String, Color>>,
-    note: String,
-    modifier: Modifier = Modifier,
-) {
-    Column(
-        modifier
-            .fillMaxWidth()
-            .clip(RoundedCornerShape(10.dp))
-            .background(WildlifeSurface.copy(alpha = 0.80f))
-            .border(1.dp, WildlifeOutlineSubtle, RoundedCornerShape(10.dp))
-            .padding(vertical = WildlifeSpacing.Card, horizontal = WildlifeSpacing.Small),
-        verticalArrangement = Arrangement.spacedBy(WildlifeSpacing.Small),
-    ) {
-        Row(
-            Modifier.fillMaxWidth(),
-            horizontalArrangement = Arrangement.SpaceEvenly,
-        ) {
-            tallies.forEach { (value, label, tint) -> LedgerTally(value, label, tint) }
-        }
-        Box(Modifier.fillMaxWidth().height(1.dp).background(WildlifeOutlineSubtle))
-        Text(
-            note.uppercase(),
-            style = FieldStampStyle,
-            color = WildlifeTheme.colors.parchmentFaint,
-        )
-    }
-}
-
 @Preview(showBackground = true, backgroundColor = 0xFF0E1209, widthDp = 390)
 @Composable
 private fun ObservationLedgerPreview() = WildlifeTheme {
@@ -436,11 +371,11 @@ private fun ObservationLedgerPreview() = WildlifeTheme {
         Modifier.padding(WildlifeSpacing.Screen),
         verticalArrangement = Arrangement.spacedBy(WildlifeSpacing.Card),
     ) {
-        LedgerHeader(
+        RecordHead(
             tallies = listOf(
-                Triple(2, "To answer", colors.gold),
-                Triple(1, "Awaiting", colors.parchmentDim),
-                Triple(14, "Filed", colors.confirmed),
+                RecordTally.of(2, "To answer", colors.gold),
+                RecordTally.of(1, "Awaiting", colors.parchmentDim),
+                RecordTally.of(14, "Filed", colors.confirmed),
             ),
             note = "Wildlife never edits or deletes an iNaturalist record",
         )

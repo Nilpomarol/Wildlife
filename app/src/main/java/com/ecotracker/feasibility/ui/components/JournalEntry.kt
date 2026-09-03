@@ -4,6 +4,7 @@ import androidx.compose.foundation.Canvas
 import androidx.compose.foundation.background
 import androidx.compose.foundation.border
 import androidx.compose.foundation.clickable
+import androidx.compose.foundation.selection.selectable
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
@@ -26,7 +27,9 @@ import androidx.compose.ui.draw.clip
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.layout.ContentScale
 import androidx.compose.ui.platform.LocalContext
+import androidx.compose.ui.platform.LocalDensity
 import androidx.compose.ui.semantics.contentDescription
+import androidx.compose.ui.semantics.Role
 import androidx.compose.ui.semantics.semantics
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.style.TextOverflow
@@ -381,11 +384,15 @@ fun FieldStamp(
     /** Spoken instead of [label] where the stamped word is an abbreviation. */
     description: String = label,
 ) {
+    // The ring grows with the type scale, because the word inside it does. Left fixed, a
+    // scaled label spills past the stamp and out of whatever laid it out — the ring is
+    // sized to clear the word, so it has to be measured in the same units.
+    val ring = size * LocalDensity.current.fontScale.coerceIn(1f, 1.5f)
     Box(
         modifier.semantics { contentDescription = description },
         contentAlignment = Alignment.Center,
     ) {
-        StampRing(tint.copy(alpha = 0.85f), Modifier.size(size))
+        StampRing(tint.copy(alpha = 0.85f), Modifier.size(ring))
         Text(
             label.uppercase(),
             style = FieldStampStyle.copy(fontSize = 9.sp, letterSpacing = 0.5.sp),
@@ -409,26 +416,39 @@ fun JournalButton(
     modifier: Modifier = Modifier,
     /** Draws the pill filled rather than outlined, for the one primary action on a page. */
     primary: Boolean = false,
+    /**
+     * Overrides the olive ink, for an action that is not part of the journal's ordinary
+     * business — a destructive one. Not a decoration: an olive delete control reads as one
+     * more thing to do, which is the wrong thing for the page to say about it.
+     */
+    accent: Color? = null,
+    /** Optional selection semantics when the stamped action chooses one of a small set. */
+    selected: Boolean? = null,
 ) {
     val colors = WildlifeTheme.colors
-    val accent = colors.oliveStrong
+    val ink = accent ?: colors.oliveStrong
+    val interaction = if (selected == null) {
+        Modifier.clickable(onClick = onClick)
+    } else {
+        Modifier.selectable(selected = selected, role = Role.RadioButton, onClick = onClick)
+    }
     Box(
         modifier
             .clip(RoundedCornerShape(8.dp))
             .background(if (primary) colors.oliveDark else Color.Transparent)
             .border(
                 width = if (primary) 1.5.dp else 1.dp,
-                color = accent.copy(alpha = if (primary) 0.85f else 0.45f),
+                color = ink.copy(alpha = if (primary) 0.85f else 0.45f),
                 shape = RoundedCornerShape(8.dp),
             )
-            .clickable(onClick = onClick)
+            .then(interaction)
             .padding(horizontal = 14.dp, vertical = 9.dp),
         contentAlignment = Alignment.Center,
     ) {
         Text(
             label.uppercase(),
             style = FieldStampStyle,
-            color = if (primary) colors.parchment else accent,
+            color = if (primary) colors.parchment else ink,
             maxLines = 1,
         )
     }

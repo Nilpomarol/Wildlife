@@ -48,6 +48,7 @@ fun RegionalGuideHeader(
     currentRegionSource: CurrentRegionSource,
     achievements: List<InstalledRegionalAchievement>,
     observedTaxa: Set<Long>,
+    extraDiscoveryCount: Int = 0,
     modifier: Modifier = Modifier,
 ) {
     val levels = progression ?: ProgressionProjection.project(xp)
@@ -64,7 +65,11 @@ fun RegionalGuideHeader(
             regionKey = selectedCatalogue?.regionKey,
             levelKey = title.key,
             levelName = title.displayName,
-            progressLabel = "$collected OF $total IN THIS REGION",
+            progressLabel = buildString {
+                append("$collected OF $total")
+                if (extraDiscoveryCount > 0) append(" + $extraDiscoveryCount EXTRA")
+                append(" IN THIS REGION")
+            },
             progressTrailing = "${(completion * 100).toInt()}%",
             progressFraction = completion,
             stats = listOf(
@@ -76,8 +81,9 @@ fun RegionalGuideHeader(
             showBackgroundScrim = true,
             showBottomEdge = true,
             modifier = Modifier.bleedHorizontally(WildlifeSpacing.Screen),
-            belowStats = achievements.takeIf { it.isNotEmpty() }?.let {
-                {
+            belowStats = {
+                Column(verticalArrangement = Arrangement.spacedBy(WildlifeSpacing.Small)) {
+                    if (achievements.isNotEmpty()) {
                     Row(
                         modifier = Modifier.fillMaxWidth(),
                         horizontalArrangement = Arrangement.spacedBy(WildlifeSpacing.Small),
@@ -89,6 +95,7 @@ fun RegionalGuideHeader(
                                 modifier = Modifier.weight(1f),
                             )
                         }
+                    }
                     }
                 }
             },

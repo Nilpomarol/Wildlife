@@ -60,6 +60,9 @@ fun CollectionFilterSheet(
     matchCount: Int,
     personalOnly: Boolean = false,
     statusOptions: List<StatusFilter> = StatusFilter.entries,
+    showStatus: Boolean = true,
+    showRegionalAxes: Boolean = !personalOnly,
+    showDiscoverySource: Boolean = false,
     onDismiss: () -> Unit,
 ) {
     val colors = WildlifeTheme.colors
@@ -95,27 +98,47 @@ fun CollectionFilterSheet(
                 onReset = { onFilters(CollectionFilters.None) },
             )
 
-            // Each axis keeps the accent it carries in the row above, so a chip and the
-            // selector it belongs to are recognisably the same control.
-            FilterSection("Status", colors.axisStatus) {
-                statusOptions.filter { option ->
-                    !personalOnly || option in listOf(
-                        StatusFilter.ANY,
-                        StatusFilter.CONFIRMED,
-                        StatusFilter.AWAITING,
-                    )
-                }.forEach { option ->
-                    FilterChip(
-                        label = option.label,
-                        selected = filters.status == option,
-                        accent = colors.axisStatus,
-                        onClick = { onFilters(filters.copy(status = option)) },
-                        mark = { tint -> StatusMark(option, tint) },
-                    )
+            if (showDiscoverySource) {
+                FilterSection("Guide entries", colors.gold) {
+                    DiscoverySourceFilter.entries.forEach { option ->
+                        FilterChip(
+                            label = option.label,
+                            selected = filters.discoverySource == option,
+                            accent = colors.gold,
+                            onClick = { onFilters(filters.copy(discoverySource = option)) },
+                            mark = if (option == DiscoverySourceFilter.EXTRAS) {
+                                { tint -> StatGlyph(StatMark.SPARKLE, tint, Modifier.size(15.dp)) }
+                            } else {
+                                null
+                            },
+                        )
+                    }
                 }
             }
 
-            if (!personalOnly) {
+            // Each axis keeps the accent it carries in the row above, so a chip and the
+            // selector it belongs to are recognisably the same control.
+            if (showStatus) {
+                FilterSection("Status", colors.axisStatus) {
+                    statusOptions.filter { option ->
+                        !personalOnly || option in listOf(
+                            StatusFilter.ANY,
+                            StatusFilter.CONFIRMED,
+                            StatusFilter.AWAITING,
+                        )
+                    }.forEach { option ->
+                        FilterChip(
+                            label = option.label,
+                            selected = filters.status == option,
+                            accent = colors.axisStatus,
+                            onClick = { onFilters(filters.copy(status = option)) },
+                            mark = { tint -> StatusMark(option, tint) },
+                        )
+                    }
+                }
+            }
+
+            if (showRegionalAxes) {
                 FilterSection("Standing", colors.axisStanding) {
                     StandingFilter.entries.forEach { option ->
                         FilterChip(

@@ -271,6 +271,8 @@ data class CollectionSpecies(
     val encounterRarity: EncounterRarity? = null,
     /** Normalized taxonomic group key: mammals, birds, reptiles, amphibians, fish; null if unknown. */
     val taxonGroup: String? = null,
+    /** Regional/versioned contexts where this confirmed species is outside the frozen guide. */
+    val extraDiscoveryContexts: List<ExtraDiscoveryContext> = emptyList(),
 )
 
 object CollectionProjection {

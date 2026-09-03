@@ -38,6 +38,63 @@ class SpeciesDetailProjectionTest {
     }
 
     @Test
+    fun `observation alone produces an off catalogue detail page before enrichment`() {
+        val state = SpeciesDetailProjection.build(
+            taxonId = 42,
+            fallbackLabel = null,
+            observations = listOf(observation()),
+            details = null,
+        )
+
+        assertEquals("European robin", state.commonName)
+        assertEquals("https://example.test/personal.jpg", state.heroPhotoUrl)
+        assertTrue(state.observed)
+        assertTrue(state.researchGrade)
+        assertNull(state.regionalContext)
+    }
+
+    @Test
+    fun `off catalogue observation region is valid optional detail context`() {
+        assertEquals(
+            "mediterranean_europe",
+            SpeciesDetailRegionSelection.select(
+                installedRegionKeys = setOf("mediterranean_europe", "britain_ireland"),
+                containingRegionKeys = emptyList(),
+                observedRegionKeys = listOf("mediterranean_europe"),
+                requestedRegionKey = "mediterranean_europe",
+                currentRegionKey = "britain_ireland",
+            ),
+        )
+    }
+
+    @Test
+    fun `detail remains available when observation has no installed region`() {
+        assertNull(
+            SpeciesDetailRegionSelection.select(
+                installedRegionKeys = setOf("mediterranean_europe"),
+                containingRegionKeys = emptyList(),
+                observedRegionKeys = listOf("uninstalled_region"),
+                requestedRegionKey = null,
+                currentRegionKey = "mediterranean_europe",
+            ),
+        )
+    }
+
+    @Test
+    fun `observed region wins over unrelated current catalogue context`() {
+        assertEquals(
+            "mediterranean_europe",
+            SpeciesDetailRegionSelection.select(
+                installedRegionKeys = setOf("mediterranean_europe", "britain_ireland"),
+                containingRegionKeys = listOf("britain_ireland"),
+                observedRegionKeys = listOf("mediterranean_europe"),
+                requestedRegionKey = null,
+                currentRegionKey = "britain_ireland",
+            ),
+        )
+    }
+
+    @Test
     fun `wikimedia source and missing-photo state stay explicit`() {
         val wikimedia = build(
             details(

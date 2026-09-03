@@ -221,6 +221,30 @@ internal object SpeciesDetailProjection {
     }
 }
 
+/** Chooses optional regional context without making catalogue membership a detail-page gate. */
+internal object SpeciesDetailRegionSelection {
+    fun select(
+        installedRegionKeys: Set<String>,
+        containingRegionKeys: List<String>,
+        observedRegionKeys: List<String>,
+        requestedRegionKey: String?,
+        currentRegionKey: String?,
+    ): String? {
+        val relevant = (containingRegionKeys + observedRegionKeys).toSet()
+        requestedRegionKey
+            ?.takeIf { it in installedRegionKeys && it in relevant }
+            ?.let { return it }
+        currentRegionKey
+            ?.takeIf { it in installedRegionKeys && it in observedRegionKeys }
+            ?.let { return it }
+        return observedRegionKeys.firstOrNull { it in installedRegionKeys }
+            ?: currentRegionKey?.takeIf {
+                it in installedRegionKeys && it in containingRegionKeys
+            }
+            ?: containingRegionKeys.firstOrNull { it in installedRegionKeys }
+    }
+}
+
 class SpeciesDetailViewModel(
     application: Application,
     savedStateHandle: SavedStateHandle,
@@ -407,6 +431,7 @@ class SpeciesDetailViewModel(
                     "Reference information could not be refreshed. Stored details remain available."
                 },
             )
+            loadObservationDensity()
         }
     }
 
@@ -419,34 +444,61 @@ class SpeciesDetailViewModel(
         val recovered = RemoteTaxonStore(context).use { it.cached(taxonId) }
         val details = published?.toLocalTaxonDetails(mediaStore, recovered) ?: recovered
         val catalogues = content.catalogues()
-        val selectedKey = regionKeyForTaxon(content)
-            ?: error("This species is not in an installed regional catalogue.")
-        val selected = catalogues.first { it.regionKey == selectedKey }
-        val regionalTaxon = content.taxa(selected.regionKey).firstOrNull { it.taxonId == taxonId }
-        val achievementLabels = content.achievements(selected.regionKey)
-            .filter { taxonId in it.taxonIds }
-            .mapTo(linkedSetOf()) { it.label }
-        val observations = AccountStore(context).verified()?.let { account ->
+        val personal = AccountStore(context).verified()?.let { account ->
             ObservationStore(context).use { store ->
-                store.observations(account.userId).filter { observation ->
-                    store.observationRegion(account.userId, observation.uuid)?.let { assignment ->
-                        assignment.earnsRegionalProgress && assignment.regionKey == selected.regionKey
-                    } == true
+                val observations = store.observations(account.userId).filter { observation ->
+                    (observation.collectionTaxonId ?: observation.taxonId) == taxonId
                 }
+                PersonalTaxonData(
+                    observations = observations,
+                    regionsByObservationUuid = observations.associate { observation ->
+                        observation.uuid to store.observationRegion(account.userId, observation.uuid)
+                    },
+                )
             }
+        } ?: PersonalTaxonData(emptyList(), emptyMap())
+        val observedRegionKeys = personal.observations
+            .sortedByDescending(SyncedObservation::observedAtMs)
+            .mapNotNull { observation ->
+                personal.regionsByObservationUuid[observation.uuid]
+                    ?.takeIf { it.earnsRegionalProgress }
+                    ?.regionKey
+            }
+            .distinct()
+        val selectedKey = regionKeyForTaxon(content, observedRegionKeys)
+        val selected = catalogues.firstOrNull { it.regionKey == selectedKey }
+        val regionalTaxon = selected?.let { catalogue ->
+            content.taxa(catalogue.regionKey).firstOrNull { it.taxonId == taxonId }
+        }
+        val achievementLabels = selected?.let { catalogue ->
+            content.achievements(catalogue.regionKey)
+                .filter { taxonId in it.taxonIds }
+                .mapTo(linkedSetOf()) { it.label }
         }.orEmpty()
+        val shouldScopeObservations = selected != null && (
+            requestedRegionKey == selected.regionKey || selected.regionKey in observedRegionKeys
+        )
+        val observations = selected?.takeIf { shouldScopeObservations }?.let { catalogue ->
+            personal.observations.filter { observation ->
+                personal.regionsByObservationUuid[observation.uuid]?.let { assignment ->
+                    assignment.earnsRegionalProgress && assignment.regionKey == catalogue.regionKey
+                } == true
+            }
+        } ?: personal.observations
         val projected = SpeciesDetailProjection.build(
             taxonId, fallbackLabel, observations, details,
             regionalTaxon = regionalTaxon,
-            regionalCatalogueVersion = selected.version,
+            regionalCatalogueVersion = selected?.version,
         )
         val state = projected.copy(
-                regionalContext = regionalTaxon?.let {
-                    SpeciesRegionalContext(
-                        regionName = selected.displayName,
-                        rarity = it.rarity,
-                        achievementLabels = achievementLabels,
-                    )
+                regionalContext = regionalTaxon?.let { taxon ->
+                    selected?.let { catalogue ->
+                        SpeciesRegionalContext(
+                            regionName = catalogue.displayName,
+                            rarity = taxon.rarity,
+                            achievementLabels = achievementLabels,
+                        )
+                    }
                 },
                 mediaRetryAvailable = if (published != null) {
                     val repairNeeds = published.mediaRepairNeeds()
@@ -516,16 +568,28 @@ class SpeciesDetailViewModel(
         val published: Boolean,
     )
 
-    private fun regionKeyForTaxon(content: RegionalCatalogueAssetStore): String? {
+    private data class PersonalTaxonData(
+        val observations: List<SyncedObservation>,
+        val regionsByObservationUuid: Map<String, com.wildlife.feasibility.ObservationRegion?>,
+    )
+
+    private fun regionKeyForTaxon(
+        content: RegionalCatalogueAssetStore,
+        observedRegionKeys: List<String> = emptyList(),
+    ): String? {
         val catalogues = content.catalogues()
         val containing = catalogues.filter { catalogue ->
             content.taxa(catalogue.regionKey).any { it.taxonId == taxonId }
         }
-        requestedRegionKey?.takeIf { key -> containing.any { it.regionKey == key } }?.let { return it }
         val current = RegionContextStore(getApplication()).currentRegionKey(
             catalogues.mapTo(mutableSetOf()) { it.regionKey },
         )
-        return current?.takeIf { key -> containing.any { it.regionKey == key } }
-            ?: containing.firstOrNull()?.regionKey
+        return SpeciesDetailRegionSelection.select(
+            installedRegionKeys = catalogues.mapTo(linkedSetOf()) { it.regionKey },
+            containingRegionKeys = containing.map { it.regionKey },
+            observedRegionKeys = observedRegionKeys,
+            requestedRegionKey = requestedRegionKey,
+            currentRegionKey = current,
+        )
     }
 }

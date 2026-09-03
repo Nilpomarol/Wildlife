@@ -11,7 +11,10 @@ import androidx.work.WorkInfo
 import com.wildlife.feasibility.AccountStore
 import com.wildlife.feasibility.CollectionProjection
 import com.wildlife.feasibility.CollectionSpecies
+import com.wildlife.feasibility.ExtraDiscoveryProjection
 import com.wildlife.feasibility.ObservationStore
+import com.wildlife.feasibility.OffCatalogueTaxonEnricher
+import com.wildlife.feasibility.RemoteTaxonStore
 import com.wildlife.feasibility.SyncedObservation
 import com.wildlife.feasibility.RegionContextStore
 import com.wildlife.feasibility.CurrentRegionSource
@@ -95,7 +98,19 @@ class CollectionViewModel(application: Application) : AndroidViewModel(applicati
         uiState = uiState.copy(isLoading = true, errorMessage = null)
         loadJob = viewModelScope.launch {
             val loaded = withContext(Dispatchers.IO) { load() }
-            if (loadGate.isLatest(revision)) uiState = loaded.copy(isLoading = false)
+            if (!loadGate.isLatest(revision)) return@launch
+            uiState = loaded.copy(isLoading = false)
+            val missingExtraTaxa = loaded.entries.mapNotNull { entry ->
+                entry.taxonId?.takeIf {
+                    entry.extraDiscoveryContexts.isNotEmpty() && entry.scientificName == null
+                }
+            }
+            val improved = withContext(Dispatchers.IO) {
+                OffCatalogueTaxonEnricher.enrich(getApplication(), missingExtraTaxa)
+            }
+            if (improved && loadGate.isLatest(revision)) {
+                uiState = withContext(Dispatchers.IO) { load() }.copy(isLoading = false)
+            }
         }
     }
 
@@ -133,37 +148,66 @@ class CollectionViewModel(application: Application) : AndroidViewModel(applicati
                 catalogues.mapTo(mutableSetOf()) { it.regionKey },
             )
             val selected = catalogues.firstOrNull { it.regionKey == selectedKey }
-            val (observations, summary) = if (account == null) {
-                emptyList<SyncedObservation>() to null
+            val (observations, summary, observationRegionsByUuid) = if (account == null) {
+                Triple(emptyList<SyncedObservation>(), null, emptyMap())
             } else {
                 ObservationStore(context).use { store ->
                     val all = store.observations(account.userId)
-                    all to store.summary(account.userId)
+                    Triple(
+                        all,
+                        store.summary(account.userId),
+                        all.mapNotNull { observation ->
+                            store.observationRegion(account.userId, observation.uuid)
+                                ?.let { observation.uuid to it }
+                        }.toMap(),
+                    )
                 }
             }
+            val catalogueTaxaByRegion = catalogues.associate { catalogue ->
+                catalogue.regionKey to content.taxa(catalogue.regionKey)
+            }
+            val catalogueTaxonIdsByRegion = catalogueTaxaByRegion.mapValues { (_, taxa) ->
+                taxa.mapTo(mutableSetOf()) { it.taxonId }
+            }
+            val extraContextsByTaxon = ExtraDiscoveryProjection.contextsByTaxon(
+                observations = observations,
+                regionsByObservationUuid = observationRegionsByUuid,
+                catalogues = catalogues,
+                catalogueTaxaByRegion = catalogueTaxonIdsByRegion,
+            )
             val catalogueTaxaById = catalogues
-                .flatMap { catalogue -> content.taxa(catalogue.regionKey) }
+                .flatMap { catalogue -> catalogueTaxaByRegion[catalogue.regionKey].orEmpty() }
                 .associateBy { it.taxonId }
             val publishedByTaxon = catalogues
                 .flatMap { catalogue -> content.taxaContent(catalogue.regionKey).values }
                 .associateBy { it.taxonId }
+            val remoteByTaxon = RemoteTaxonStore(context).use { remote ->
+                extraContextsByTaxon.keys.mapNotNull { taxonId ->
+                    remote.cached(taxonId)?.let { taxonId to it }
+                }.toMap()
+            }
             val mediaStore = LocalMediaStore(context)
             val entries = CollectionProjection.species(observations).map { collected ->
                 val taxon = collected.taxonId?.let(catalogueTaxaById::get)
                 val published = collected.taxonId?.let(publishedByTaxon::get)
                 val details = published?.toLocalTaxonDetails(mediaStore)
+                    ?: collected.taxonId?.let(remoteByTaxon::get)
                 collected.copy(
-                    label = taxon?.commonName ?: collected.label,
+                    label = taxon?.commonName ?: details?.commonName ?: collected.label,
                     silhouetteUrl = details?.silhouetteLocalUri,
-                    silhouetteFallbackUrl = details?.silhouetteFallbackUrl,
+                    silhouetteFallbackUrl = details?.silhouetteFallbackUrl ?: details?.silhouetteUrl,
                     silhouetteMatchRank = details?.silhouetteMatchRank,
                     // Rarity and standing are regional properties and therefore stay on
                     // Explore's selected guide rather than this all-regions projection.
                     regionalEssential = false,
                     regionalIcon = false,
-                    scientificName = taxon?.scientificName,
+                    scientificName = taxon?.scientificName ?: details?.scientificName,
                     encounterRarity = null,
-                    taxonGroup = taxon?.let { taxonGroupFor(it.taxonClass) },
+                    taxonGroup = taxon?.let { taxonGroupFor(it.taxonClass) }
+                        ?: taxonGroupForClass(details?.taxonGroup),
+                    extraDiscoveryContexts = collected.taxonId
+                        ?.let(extraContextsByTaxon::get)
+                        .orEmpty(),
                 )
             }
             CollectionUiState(

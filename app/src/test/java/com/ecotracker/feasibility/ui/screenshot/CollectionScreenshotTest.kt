@@ -34,4 +34,29 @@ class CollectionScreenshotTest {
         }
         composeRule.onRoot().captureRoboImage("build/screenshots/collection-before.png")
     }
+
+    /**
+     * The largest supported type, where the record head is under most pressure: four
+     * readouts cannot share one line at this scale, so this is the capture that proves
+     * they wrap rather than clip.
+     */
+    @Test
+    @Config(sdk = [34], qualifiers = "w411dp-h1500dp-xhdpi")
+    fun largeFont() {
+        composeRule.setContent {
+            StillTheme {
+                ScaledFont(1.5f) {
+                    CollectionScreen(
+                        state = SampleCollection.state,
+                        onBack = null,
+                        onOpenSpecies = {},
+                        onLinkAccount = {},
+                        onRetry = {},
+                    )
+                }
+            }
+        }
+        composeRule.waitForIdle()
+        composeRule.onRoot().captureRoboImage("build/screenshots/collection-large-font.png")
+    }
 }

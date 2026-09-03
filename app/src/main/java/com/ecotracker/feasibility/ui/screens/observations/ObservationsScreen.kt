@@ -37,7 +37,8 @@ import com.wildlife.feasibility.MatchReason
 import com.wildlife.feasibility.ObservationCandidate
 import com.wildlife.feasibility.ui.components.FieldGuidePage
 import com.wildlife.feasibility.ui.components.JournalButton
-import com.wildlife.feasibility.ui.components.LedgerHeader
+import com.wildlife.feasibility.ui.components.RecordHead
+import com.wildlife.feasibility.ui.components.RecordTally
 import com.wildlife.feasibility.ui.components.MatchComparisonPlate
 import com.wildlife.feasibility.ui.components.ObservationRecordLine
 import com.wildlife.feasibility.ui.components.SectionRule
@@ -121,11 +122,11 @@ fun ObservationsScreen(
                     verticalArrangement = Arrangement.spacedBy(WildlifeSpacing.Small),
                 ) {
                     if (state.hasLedger) item("ledger-head") {
-                        LedgerHeader(
+                        RecordHead(
                             tallies = listOf(
-                                Triple(state.outstandingCount, "To answer", colors.gold),
-                                Triple(state.awaiting.size, "Awaiting", colors.parchmentDim),
-                                Triple(
+                                RecordTally.of(state.outstandingCount, "To answer", colors.gold),
+                                RecordTally.of(state.awaiting.size, "Awaiting", colors.parchmentDim),
+                                RecordTally.of(
                                     state.filed.size + state.autoFiled.size,
                                     "Filed",
                                     colors.confirmed,

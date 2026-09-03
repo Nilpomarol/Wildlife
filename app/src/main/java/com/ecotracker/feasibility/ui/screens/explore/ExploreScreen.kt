@@ -50,6 +50,7 @@ import com.wildlife.feasibility.ui.theme.WildlifeSpacing
 import com.wildlife.feasibility.ui.theme.WildlifeTheme
 import com.wildlife.feasibility.ui.screens.collection.CollectionFilterSheet
 import com.wildlife.feasibility.ui.screens.collection.CollectionFilters
+import com.wildlife.feasibility.ui.screens.collection.DiscoverySourceFilter
 import com.wildlife.feasibility.ui.screens.collection.RarityFilter
 import com.wildlife.feasibility.ui.screens.collection.SpeciesGroup
 import com.wildlife.feasibility.ui.screens.collection.StandingFilter
@@ -79,18 +80,21 @@ fun ExploreScreen(
     var group by rememberSaveable { mutableStateOf<SpeciesGroup?>(null) }
     var query by rememberSaveable { mutableStateOf("") }
     var filtersOpen by rememberSaveable { mutableStateOf(false) }
-    val presentGroups = remember(state.entries) {
-        SpeciesGroup.entries.filter { group -> state.entries.any { it.taxonGroup == group.key } }
+    var discoverySource by rememberSaveable { mutableStateOf(DiscoverySourceFilter.ANY) }
+    val guideEntries = state.entries + state.extraDiscoveries
+    val presentGroups = remember(guideEntries) {
+        SpeciesGroup.entries.filter { group -> guideEntries.any { it.taxonGroup == group.key } }
     }
     if (group != null && group !in presentGroups) group = null
-    val filters = CollectionFilters(status, standing, rarity, group)
+    val filters = CollectionFilters(status, standing, rarity, group, discoverySource)
     val onFilters: (CollectionFilters) -> Unit = {
         status = it.status
         standing = it.standing
         rarity = it.rarity
         group = it.group
+        discoverySource = it.discoverySource
     }
-    val filtered = state.entries.filter { entry ->
+    val filtered = guideEntries.filter { entry ->
         filters.matches(entry)
     }.filter { entry ->
         query.isBlank() || entry.commonName?.contains(query, ignoreCase = true) == true ||
@@ -166,6 +170,7 @@ fun ExploreScreen(
                             currentRegionSource = CurrentRegionSource.CURRENT_FIX,
                             achievements = state.achievements,
                             observedTaxa = state.observedRegionalTaxa,
+                            extraDiscoveryCount = state.extraDiscoveries.size,
                         )
                         MediaPrefetchStatus(state.mediaPrefetch)
                         SpeciesSearchFilterRow(
@@ -223,6 +228,7 @@ fun ExploreScreen(
                     StatusFilter.RECORDED,
                     StatusFilter.CONFIRMED,
                 ),
+                showDiscoverySource = true,
                 onDismiss = { filtersOpen = false },
             )
         }
@@ -474,6 +480,11 @@ private fun ExplorePreview() {
                     previewEntry(1, "European robin", "Erithacus rubecula", "Aves", true),
                     previewEntry(2, "Iberian lynx", "Lynx pardinus", "Mammalia", false),
                 ),
+                extraDiscoveries = listOf(
+                    previewEntry(3, "Little owl", "Athene noctua", "Aves", true).let { entry ->
+                        entry.copy(card = entry.card.copy(extraDiscoveryLabel = "Extra discovery"))
+                    },
+                ),
             ),
             onBack = {},
             onRefresh = {},
@@ -538,4 +549,5 @@ internal fun CollectionFilters.matches(entry: ExploreSpecies): Boolean =
         StandingFilter.ESSENTIALS -> entry.card.regionalEssential
         StandingFilter.ICONS -> entry.card.regionalIcon
     } && (rarity.rarity == null || entry.encounterRarity == rarity.rarity) &&
-        (group == null || entry.taxonGroup == group.key)
+        (group == null || entry.taxonGroup == group.key) &&
+        discoverySource.matches(entry.card.extraDiscoveryLabel != null)

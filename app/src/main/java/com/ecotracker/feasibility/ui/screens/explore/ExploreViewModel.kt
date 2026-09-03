@@ -10,6 +10,9 @@ import androidx.lifecycle.Observer
 import androidx.work.WorkInfo
 import com.wildlife.feasibility.AccountStore
 import com.wildlife.feasibility.CollectionProjection
+import com.wildlife.feasibility.CollectionSpecies
+import com.wildlife.feasibility.ExtraDiscoveryContext
+import com.wildlife.feasibility.ExtraDiscoveryProjection
 import com.wildlife.feasibility.RegionContextStore
 import com.wildlife.feasibility.InstalledRegionalCatalogue
 import com.wildlife.feasibility.InstalledRegionalTaxon
@@ -19,6 +22,8 @@ import com.wildlife.feasibility.NearbyDiscoveryStore
 import com.wildlife.feasibility.NearbyCachePolicy
 import com.wildlife.feasibility.ObservationStore
 import com.wildlife.feasibility.OnDeviceWildlifeRepository
+import com.wildlife.feasibility.OffCatalogueTaxonEnricher
+import com.wildlife.feasibility.RemoteTaxonStore
 import com.wildlife.feasibility.PublishedContentRepositories
 import com.wildlife.feasibility.SyncedObservation
 import com.wildlife.feasibility.TaxonDetails
@@ -75,6 +80,8 @@ data class ExploreUiState(
     val browsedCatalogue: RegionalExploreCatalogue? = null,
     val installedCatalogues: List<InstalledRegionalCatalogue> = emptyList(),
     val entries: List<ExploreSpecies> = emptyList(),
+    /** Confirmed species outside the browsed frozen catalogue; excluded from all guide totals. */
+    val extraDiscoveries: List<ExploreSpecies> = emptyList(),
     val achievements: List<InstalledRegionalAchievement> = emptyList(),
     val observedRegionalTaxa: Set<Long> = emptySet(),
     val totalXp: Int = 0,
@@ -166,6 +173,49 @@ internal object ExploreProjection {
             )
         }
     }
+
+    fun extraEntries(
+        entries: List<CollectionSpecies>,
+        detailsByTaxon: Map<Long, TaxonDetails> = emptyMap(),
+        context: ExtraDiscoveryContext,
+    ): List<ExploreSpecies> = entries.mapNotNull { collected ->
+        val taxonId = collected.taxonId ?: return@mapNotNull null
+        val details = detailsByTaxon[taxonId]
+        val commonName = details?.commonName ?: collected.label
+        val scientificName = details?.scientificName ?: collected.scientificName
+            ?: "Scientific name unavailable"
+        val group = taxonGroupFor(details?.taxonGroup.orEmpty()) ?: collected.taxonGroup
+        val photo = collected.photoUrl
+        ExploreSpecies(
+            taxonId = taxonId,
+            taxonGroup = group,
+            commonName = commonName,
+            scientificName = scientificName,
+            observed = true,
+            encounterRarity = null,
+            card = SpeciesCardModel(
+                key = "extra:${context.regionKey}:${context.catalogueVersion}:$taxonId",
+                label = commonName,
+                supportingText = scientificName,
+                photoUrl = photo,
+                photoKind = photo?.let { SpeciesCardPhotoKind.PERSONAL },
+                silhouetteUrl = details?.silhouetteLocalUri,
+                silhouetteFallbackUrl = details?.silhouetteFallbackUrl ?: details?.silhouetteUrl,
+                silhouetteMatchRank = details?.silhouetteMatchRank,
+                fallbackSilhouetteGroup = group,
+                supportingTextItalic = scientificName != "Scientific name unavailable",
+                collected = true,
+                status = if (collected.bestQualityGrade == "research") {
+                    SpeciesCardStatus.RESEARCH_GRADE
+                } else {
+                    SpeciesCardStatus.OBSERVED
+                },
+                extraDiscoveryLabel = "Extra",
+                extraDiscoveryDescription =
+                    "Extra discovery in ${context.regionName}, catalogue ${context.catalogueVersion}",
+            ),
+        )
+    }.sortedBy { (it.commonName ?: it.scientificName).lowercase() }
 }
 
 internal object NearbyDiscoveryProjection {
@@ -306,6 +356,16 @@ class ExploreViewModel(application: Application) : AndroidViewModel(application)
                     nearbyInitialized = true
                 }
                 uiState = loaded.copy(isLoading = false, nearby = nearbyState)
+                val missingExtraTaxa = loaded.extraDiscoveries.mapNotNull { entry ->
+                    entry.taxonId.takeIf { entry.scientificName == "Scientific name unavailable" }
+                }
+                val improved = withContext(Dispatchers.IO) {
+                    OffCatalogueTaxonEnricher.enrich(getApplication(), missingExtraTaxa)
+                }
+                if (improved && loadGate.isLatest(revision)) {
+                    uiState = withContext(Dispatchers.IO) { loadLocal(nearbyState) }
+                        .copy(isLoading = false, nearby = nearbyState)
+                }
                 if (pendingNearbyStaleCheck) {
                     pendingNearbyStaleCheck = false
                     val latitude = pendingNearbyLatitude
@@ -484,11 +544,12 @@ class ExploreViewModel(application: Application) : AndroidViewModel(application)
             observationStore?.mapHiddenObservationUuids(it.userId)
         }.orEmpty()
         val summary = account?.let { observationStore?.summary(it.userId) }
+        val taxaByRegion = catalogues.associate { catalogue ->
+            catalogue.regionKey to content.taxa(catalogue.regionKey)
+        }
         val regionalMapProgress = RegionalMapProgressProjection.build(
             catalogues = catalogues,
-            taxaByRegion = catalogues.associate { catalogue ->
-                catalogue.regionKey to content.taxa(catalogue.regionKey)
-            },
+            taxaByRegion = taxaByRegion,
             achievementsByRegion = catalogues.associate { catalogue ->
                 catalogue.regionKey to content.achievements(catalogue.regionKey)
             },
@@ -500,6 +561,44 @@ class ExploreViewModel(application: Application) : AndroidViewModel(application)
             taxa = content.taxa(selectedKey), observations = regionalObservations(selectedKey),
             detailsByTaxon = detailsByTaxon,
             achievements = content.achievements(selectedKey),
+        )
+        val extraContextsByTaxon = ExtraDiscoveryProjection.contextsByTaxon(
+            observations = observations,
+            regionsByObservationUuid = observationRegionsByUuid,
+            catalogues = catalogues,
+            catalogueTaxaByRegion = taxaByRegion.mapValues { (_, taxa) ->
+                taxa.mapTo(mutableSetOf()) { it.taxonId }
+            },
+        )
+        val selectedExtraContexts = extraContextsByTaxon.mapNotNull { (taxonId, contexts) ->
+            contexts.firstOrNull {
+                it.regionKey == selected.regionKey && it.catalogueVersion == selected.version
+            }?.let { taxonId to it }
+        }.toMap()
+        val selectedExtraDetails = RemoteTaxonStore(context).use { remote ->
+            selectedExtraContexts.keys.mapNotNull { taxonId ->
+                val detail = content.taxon(taxonId)?.toLocalTaxonDetails(mediaStore)
+                    ?: remote.cached(taxonId)
+                detail?.let { taxonId to it }
+            }.toMap()
+        }
+        val extraEntries = ExploreProjection.extraEntries(
+            entries = CollectionProjection.species(regionalObservations(selectedKey))
+                .filter { it.taxonId in selectedExtraContexts }
+                .map { entry ->
+                    entry.copy(
+                        extraDiscoveryContexts = entry.taxonId
+                            ?.let(selectedExtraContexts::get)
+                            ?.let(::listOf)
+                            .orEmpty(),
+                    )
+                },
+            detailsByTaxon = selectedExtraDetails,
+            context = ExtraDiscoveryContext(
+                selected.regionKey,
+                selected.displayName,
+                selected.version,
+            ),
         )
         val nearbyEntries = if (currentKey == selectedKey) {
             entries
@@ -520,6 +619,7 @@ class ExploreViewModel(application: Application) : AndroidViewModel(application)
             ),
             installedCatalogues = catalogues,
             entries = entries,
+            extraDiscoveries = extraEntries,
             achievements = content.achievements(selectedKey),
             observedRegionalTaxa = regionalObservations(selectedKey)
                 .mapNotNull { it.collectionTaxonId ?: it.taxonId }

@@ -19,6 +19,7 @@ data class CollectionFilters(
     val standing: StandingFilter = StandingFilter.ANY,
     val rarity: RarityFilter = RarityFilter.ANY,
     val group: SpeciesGroup? = null,
+    val discoverySource: DiscoverySourceFilter = DiscoverySourceFilter.ANY,
 ) {
     /** How many axes are off their default, for the badge on the Filters pill. */
     val activeCount: Int
@@ -27,6 +28,7 @@ data class CollectionFilters(
             standing != StandingFilter.ANY,
             rarity != RarityFilter.ANY,
             group != null,
+            discoverySource != DiscoverySourceFilter.ANY,
         ).count { it }
 
     val isActive: Boolean get() = activeCount > 0
@@ -35,7 +37,8 @@ data class CollectionFilters(
         status.matches(entry) &&
             standing.matches(entry) &&
             rarity.matches(entry) &&
-            (group == null || entry.taxonGroup == group.key)
+            (group == null || entry.taxonGroup == group.key) &&
+            discoverySource.matches(entry.extraDiscoveryContexts.isNotEmpty())
 
     /** Human-readable names of the active axes, for the empty-result note. */
     fun activeLabels(): List<String> = buildList {
@@ -43,10 +46,25 @@ data class CollectionFilters(
         if (standing != StandingFilter.ANY) add(standing.label)
         if (rarity != RarityFilter.ANY) add(rarity.label)
         group?.let { add(it.label) }
+        if (discoverySource != DiscoverySourceFilter.ANY) add(discoverySource.label)
     }
 
     companion object {
         val None = CollectionFilters()
+    }
+}
+
+/** Whether an entry belongs to the frozen guide or was discovered outside it. */
+enum class DiscoverySourceFilter(val label: String) {
+    ANY("All species"),
+    CATALOGUE("Catalogue"),
+    EXTRAS("Extras"),
+    ;
+
+    fun matches(isExtraDiscovery: Boolean): Boolean = when (this) {
+        ANY -> true
+        CATALOGUE -> !isExtraDiscovery
+        EXTRAS -> isExtraDiscovery
     }
 }
 
