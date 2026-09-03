@@ -66,6 +66,7 @@ pilot curation and representative-device release checks continue independently.
 
 ### Open product/engineering work
 
+- **Next task:** implement the Extra discovery vertical slice so confirmed off-catalogue species enter Collection, earn normal global first-species XP, retain observation-region/catalogue-version context and appear as a separate regional count/list without changing catalogue completion.
 - The remaining 21 regional catalogues, their reviewed evidence snapshots and final media curation are not yet available.
 - The supplied region groupings do not yet assign every country/territory or marine area unambiguously.
 - Rarity and Essentials/Icons are draft pilot curation; their values need continuing editorial review before release.
@@ -342,9 +343,10 @@ Catalogue, achievement, localisation and media curation add approximately **15â€
 
 ## 16. Immediate next actions
 
-1. Resume beta integrity work and shared UI redesign; the audited engineering remediation gate is closed.
-2. Revise the editable 10 Essentials/5 Icons and pilot membership region by region; promote each approved revision as a new frozen version.
-3. Run the remaining low/mid-range device, offline/network interruption, storage/decode and accessibility checks across all three pilots.
-4. Expand licensed reference-photo and specific-silhouette coverage where available; keep missing description/conservation as explicit non-blocking unavailable states.
+1. Implement and test the **Extra discovery** vertical slice: off-catalogue collection projection, idempotent global first-species reward, regional attribution, separate guide count/list and unchanged frozen completion denominator.
+2. Resume beta integrity work and shared UI redesign; the audited engineering remediation gate is closed.
+3. Revise the editable 10 Essentials/5 Icons and pilot membership region by region; promote each approved revision as a new frozen version.
+4. Run the remaining low/mid-range device, offline/network interruption, storage/decode and accessibility checks across all three pilots.
+5. Expand licensed reference-photo and specific-silhouette coverage where available; keep missing description/conservation as explicit non-blocking unavailable states.
 
 Add regions incrementally; do not require all 24 catalogues to be curated before a reviewed region can progress through its own release checks.

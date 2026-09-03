@@ -149,6 +149,7 @@ Prefer parameters and slots over visually similar duplicate components.
 Collection owns the user's personal wildlife history through three explicit sections:
 
 - **Species** projects unique recorded collection taxa across every stored region. It never pads the personal collection with missing regional-guide entries. Region-specific rarity and standing do not decorate this all-regions projection.
+- Confirmed species-level taxa absent from their assigned region's frozen catalogue remain first-class Collection entries. Their projection carries a typed **Extra discovery** state derived from observation region plus catalogue version; this is not rarity, standing or verification. Genus-or-higher records remain awaiting identification until a species-level collection taxon exists.
 - **Observations** owns the individual handoff/public-observation ledger, sync retry, candidate confirmation, public-record links and local-only deletion.
 - **Map** owns the privacy-safe personal observation cells and the independently toggleable regional-progress layer.
 - The screen uses one shared section selector and keeps Collection selected in the bottom index strip across all three sections.
@@ -167,6 +168,7 @@ A future region control in Collection is a personal-history scope filter (defaul
 - Works unlinked and offline after the first snapshot is stored.
 - Provides two explicit sections: the stored Species guide first and one-shot Near me discovery second. The guide opens by default because it works offline and without a permission prompt.
 - The Species guide owns the regional identity/completion header, observed and missing plates, encounter rarity, Essentials and Icons. Its region selector changes only the guide being browsed.
+- The guide also exposes the selected region's **Extra discoveries** as a separate count and browsable group. These are confirmed personal discoveries absent from that frozen catalogue version. They never enter the guide denominator or inherit catalogue rarity/standing; the UI must state this separation without presenting them as lower-value sightings.
 - Home carries a preview of Near me: the same one-shot request and a short ranked extract, with a
   "See all" entry that opens Explore's Near me section. Near me is always scoped and decorated from
   the location-derived current catalogue, even while Explore is browsing another guide. The preview
